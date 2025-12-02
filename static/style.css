@@ -1,0 +1,282 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 28px;
+    color: #667eea;
+    font-weight: 700;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #e0e7ff;
+    color: #667eea;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    color: #667eea;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-danger {
+    background: #fee;
+    color: #dc2626;
+}
+
+.viajes-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.viajes-section h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.viajes-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.viaje-card {
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.viaje-card:hover {
+    border-color: #667eea;
+    transform: translateY(-3px);
+}
+
+.viaje-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.viaje-tipo {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.tipo-vuelo {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.tipo-hotel {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.tipo-auto, .tipo-tren, .tipo-actividad, .tipo-otro {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+
+.viaje-fecha {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.viaje-card h3 {
+    font-size: 18px;
+    color: #1f2937;
+    margin-bottom: 15px;
+}
+
+.viaje-ruta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+}
+
+.viaje-ruta .lugar {
+    flex: 1;
+}
+
+.viaje-ruta .lugar strong {
+    font-size: 16px;
+}
+
+.viaje-ruta .hora {
+    font-size: 13px;
+    color: #667eea;
+    font-weight: 600;
+    display: block;
+    margin-top: 4px;
+}
+
+.viaje-ruta .flecha {
+    font-size: 20px;
+    color: #9ca3af;
+}
+
+.viaje-info {
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.viaje-info span {
+    display: block;
+    margin-bottom: 5px;
+    color: #4b5563;
+}
+
+.viaje-notas {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 15px;
+    border-left: 3px solid #667eea;
+}
+
+.viaje-acciones {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.form-container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #e5e7eb;
+}
+
+@media (max-width: 768px) {
+    .viajes-list {
+        grid-template-columns: 1fr;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}

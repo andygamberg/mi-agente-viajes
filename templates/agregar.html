@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Viaje</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 19px;
+            color: #6e6e73;
+        }
+        .subtitle a {
+            color: #0071e3;
+            text-decoration: none;
+        }
+        .form-card {
+            background: white;
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1d1d1f;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 17px;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            background: white;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #f5f5f7;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px 28px;
+            border-radius: 980px;
+            font-size: 17px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: #0071e3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0077ed;
+            transform: scale(1.01);
+        }
+        .btn-secondary {
+            background: #e8e8ed;
+            color: #1d1d1f;
+        }
+        .btn-secondary:hover {
+            background: #d2d2d7;
+        }
+        .helper-text {
+            font-size: 13px;
+            color: #86868b;
+            margin-top: 6px;
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236e6e73' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Nuevo Viaje</h1>
+            <p class="subtitle"><a href="{{ url_for('index') }}">← Volver</a></p>
+        </div>
+        
+        <div class="form-card">
+            <form method="POST">
+                <div class="form-section">
+                    <div class="section-title">Información Básica</div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de Viaje</label>
+                        <select name="tipo" required>
+                            <option value="vuelo">Vuelo</option>
+                            <option value="hotel">Hotel</option>
+                            <option value="auto">Auto</option>
+                            <option value="tren">Tren</option>
+                            <option value="bus">Bus</option>
+                            <option value="ferry">Ferry</option>
+                            <option value="actividad">Actividad</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" name="descripcion" placeholder="Ej: Viaje a París" required>
+                        <div class="helper-text">Un nombre que te ayude a identificar este viaje</div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">Origen y Destino</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Origen</label>
+                            <input type="text" name="origen" placeholder="EZE">
+                        </div>
+                        <div class="form-group">
+                            <label>Destino</label>
+                            <input type="text" name="destino" placeholder="CDG">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">Fechas y Horarios</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fecha Salida</label>
+                            <input type="date" name="fecha_salida" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Hora Salida</label>
+                            <input type="time" name="hora_salida">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fecha Llegada</label>
+                            <input type="date" name="fecha_llegada">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora Llegada</label>
+                            <input type="time" name="hora_llegada">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">Detalles del Vuelo</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Aerolínea</label>
+                            <input type="text" name="aerolinea" placeholder="LATAM">
+                        </div>
+                        <div class="form-group">
+                            <label>Número de Vuelo</label>
+                            <input type="text" name="numero_vuelo" placeholder="LA1234">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Código de Reserva</label>
+                        <input type="text" name="codigo_reserva" placeholder="ABC123">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Terminal</label>
+                            <input type="text" name="terminal" placeholder="A">
+                        </div>
+                        <div class="form-group">
+                            <label>Puerta</label>
+                            <input type="text" name="puerta" placeholder="12">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Asiento</label>
+                        <input type="text" name="asiento" placeholder="12A">
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">Notas Adicionales</div>
+                    
+                    <div class="form-group">
+                        <textarea name="notas" placeholder="Información adicional..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Guardar Viaje</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

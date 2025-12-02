@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Viajes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #d2d2d7;
+        }
+        h1 {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 11px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .btn-primary {
+            background: #0071e3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0077ed;
+        }
+        .btn-secondary {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .btn-secondary:hover {
+            background: #e8e8ed;
+        }
+        .btn-editar-nombre {
+            background: transparent;
+            border: none;
+            color: #0071e3;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-editar-nombre:hover {
+            background: rgba(0,113,227,0.1);
+        }
+
+        .btn-danger {
+            background: #f5f5f7;
+            color: #ff3b30;
+        }
+        .btn-danger:hover {
+            background: #ffe5e3;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        .viajes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+        .viaje-card {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .viaje-card.selected {
+            border: 2px solid #1d1d1f !important;
+            background: #fafafa !important;
+        }
+        .viaje-card.selected-eliminar {
+            border: 2px solid #ff3b30 !important;
+            background: #fff5f5 !important;
+        }
+
+
+        .viaje-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .viaje-card.collapsed .card-body-colapsable {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .viaje-card:not(.collapsed) .card-body-colapsable {
+            max-height: 5000px;
+            opacity: 1;
+            padding: 0 24px 16px 24px;
+        }
+        .card-header-fixed {
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .card-header-fixed:hover {
+            background: #f9f9f9;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .viaje-titulo-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .expand-icon {
+            font-size: 14px;
+            transition: transform 0.3s;
+            color: #0071e3;
+        }
+        .viaje-card:not(.collapsed) .expand-icon {
+            transform: rotate(90deg);
+        }
+        .nombre-viaje {
+            flex: 1;
+        }
+        .card-body-colapsable {
+            transition: all 0.3s ease;
+        }
+        .viaje-card.seleccionable {
+            cursor: pointer;
+        }
+        .viaje-card.seleccionado {
+            border: 3px solid #0071e3;
+            background: #f0f9ff;
+        }
+        .checkbox-select {
+            display: none !important;  /* Siempre ocultos */
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            accent-color: #0071e3;
+            z-index: 10;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #000;
+            color: white;
+        }
+        .multi-segmento {
+            background: #0071e3;
+        }
+        .fecha-badge {
+            font-size: 13px;
+            color: #6e6e73;
+            font-weight: 500;
+        }
+        .viaje-titulo {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+        .btn-editar-nombre:hover {
+            opacity: 1;
+        }
+        .segmento {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        .segmento:last-of-type {
+            margin-bottom: 0;
+        }
+        .segmento-numero {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6e6e73;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .ruta-simple {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .ciudad-code {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .hora-small {
+            font-size: 12px;
+            color: #6e6e73;
+            margin-top: 4px;
+        }
+        .flecha-small {
+            font-size: 18px;
+            color: #86868b;
+        }
+        .info-simple {
+            font-size: 13px;
+            color: #1d1d1f;
+            margin: 6px 0;
+        }
+        .info-simple strong {
+            color: #6e6e73;
+            font-weight: 500;
+        }
+        .pasajeros-colapsable {
+            background: #fff;
+            border-radius: 8px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .pasajeros-toggle {
+            width: 100%;
+            padding: 12px;
+            background: #f5f5f7;
+            border: none;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1d1d1f;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .pasajeros-toggle:hover {
+            background: #ebebed;
+        }
+        .toggle-icon {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        .toggle-icon.expanded {
+            transform: rotate(90deg);
+        }
+        .pasajeros-content {
+            padding: 12px;
+        }
+        .pasajero-mini {
+            font-size: 12px;
+            padding: 4px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .asiento-mini {
+            color: #0071e3;
+            font-weight: 600;
+        }
+        .pasajero-row {
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #f5f5f7;
+        }
+        .pasajero-row:last-child {
+            margin-bottom: 0;
+        }
+        .pasajero-main {
+            margin-bottom: 8px;
+        }
+        .pasajero-nombre {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+        }
+        .pasajero-meta {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .asiento-badge, .cabina-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .asiento-badge {
+            background: #e8f4ff;
+            color: #0071e3;
+        }
+        .cabina-badge {
+            background: #f5f5f7;
+            color: #6e6e73;
+        }
+        .ff-badge {
+            font-size: 12px;
+            color: #86868b;
+            padding: 6px 10px;
+            background: #fafafa;
+            border-radius: 6px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .equipaje-info {
+            background: #fffbf0;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 12px;
+            border-top: 1px solid #f0e8d0;
+            padding-top: 12px;
+        }
+        .equipaje-titulo {
+            font-size: 11px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 6px;
+        }
+        .equipaje-item {
+            font-size: 12px;
+            color: #333;
+            margin: 4px 0;
+        }
+        .card-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #f5f5f7;
+        }
+        .btn-eliminar-grupo, .btn-desagrupar {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #d2d2d7;
+        }
+        .btn-eliminar-grupo {
+            background: white;
+            color: #ff3b30;
+        }
+        .btn-eliminar-grupo:hover {
+            background: #fff5f5;
+            border-color: #ff3b30;
+        }
+        .btn-desagrupar {
+            background: white;
+            color: #0071e3;
+        }
+        .btn-desagrupar:hover {
+            background: #f0f9ff;
+            border-color: #0071e3;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6e6e73;
+            font-size: 17px;
+        }
+        .toolbar-agrupar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            padding: 16px 32px;
+            border-radius: 980px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 16px;
+            z-index: 100;
+        }
+        .toolbar-agrupar.visible {
+            display: flex;
+        }
+        .toolbar-text {
+            color: white;
+            font-weight: 500;
+        }
+        .agregar-opciones {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .opcion-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: #f5f5f7;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1d1d1f;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .opcion-card:hover:not(.disabled) {
+            background: #e8e8ed;
+            transform: translateY(-2px);
+        }
+        .opcion-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .opcion-icon {
+            font-size: 32px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 12px;
+        }
+        .opcion-content {
+            flex: 1;
+        }
+        .opcion-titulo {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .opcion-desc {
+            font-size: 13px;
+            color: #6e6e73;
+        }
+                .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.visible {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 18px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .agregar-opciones {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .opcion-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: #f5f5f7;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1d1d1f;
+            transition: all 0.2s;
+        }
+        .opcion-card:hover:not(.disabled) {
+            background: #e8e8ed;
+            transform: translateY(-2px);
+        }
+        .opcion-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .opcion-icon {
+            font-size: 32px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 12px;
+        }
+        .opcion-content {
+            flex: 1;
+        }
+        .opcion-titulo {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .opcion-desc {
+            font-size: 13px;
+            color: #6e6e73;
+        }
+                .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 17px;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mis Viajes</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="abrirModalAgregar()">Agregar Viaje</button>
+                <button class="btn btn-secondary" onclick="toggleModoAgrupar()">Agrupar Viajes</button>
+                <button class="btn btn-danger" onclick="toggleModoEliminar()" id="btnModoEliminar">Eliminar Viajes</button>
+            </div>
+        </header>
+        
+        <div id="formAgrupar">
+            <section>
+                <div class="section-header">
+                    <h2 class="section-title">Próximos Viajes ({{ proximos|length }})</h2>
+                </div>
+                
+                {% if proximos %}
+                    <div class="viajes-grid">
+                        {% for grupo in proximos %}
+                        {% set primer_vuelo = grupo[0] %}
+                        {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
+                        {% set es_multi = grupo|length > 1 %}
+                        
+                        <div class="viaje-card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
+                            <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select" style="display:none;" onclick="event.stopPropagation();">
+                            
+                            <div class="card-header-fixed" onclick="handleHeaderClick(event, this.parentElement)">
+                                <div class="header-top">
+                                    <span class="badge {% if es_multi %}multi-segmento{% endif %}">
+                                        {% if es_multi %}{{ grupo|length }} VUELOS{% else %}VUELO{% endif %}
+                                    </span>
+                                    <span class="fecha-badge">{{ primer_vuelo.fecha_salida.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                
+                                <div class="viaje-titulo-header">
+                                    <span class="expand-icon">▶</span>
+                                    <span class="nombre-viaje">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
+                                    <button type="button" class="btn-editar-nombre" onclick="event.stopPropagation(); editarNombre('{{ grupo_id }}', '{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}')">Editar nombre</button>
+                                </div>
+                            </div>
+                            
+                            <div class="card-body-colapsable">
+                            
+                            {% for vuelo in grupo %}
+                            <div class="segmento">
+                                {% if es_multi %}
+                                <div class="segmento-numero">Segmento {{ loop.index }} - {{ vuelo.fecha_salida.strftime("%d/%m/%Y") }}</div>
+                                {% endif %}
+                                
+                                <div class="ruta-simple">
+                                    <div style="flex: 1;">
+                                        <div class="ciudad-code">{{ vuelo.origen }}</div>
+                                        {% if vuelo.hora_salida %}
+                                        <div class="hora-small">{{ vuelo.hora_salida }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flecha-small">→</div>
+                                    <div style="flex: 1; text-align: right;">
+                                        <div class="ciudad-code">{{ vuelo.destino }}</div>
+                                        {% if vuelo.hora_llegada %}
+                                        <div class="hora-small">{{ vuelo.hora_llegada }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if vuelo.aerolinea %}
+                                <div class="info-simple"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
+                                {% endif %}
+                                {% if vuelo.numero_vuelo %}
+                                <div class="info-simple"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                                {% endif %}
+                                
+                                {% if vuelo.pasajeros %}
+                                {% set pasajeros_list = vuelo.pasajeros|fromjson %}
+                                {% if pasajeros_list %}
+                                <div class="pasajeros-colapsable">
+                                    <button type="button" class="pasajeros-toggle" onclick="event.stopPropagation(); togglePasajeros(this)">
+                                        <span class="toggle-icon">▶</span>
+                                        Pasajeros ({{ pasajeros_list|length }})
+                                    </button>
+                                    <div class="pasajeros-content" style="display: none;">
+                                        {% for p in pasajeros_list %}
+                                        <div class="pasajero-row">
+                                            <div class="pasajero-main">
+                                                <div class="pasajero-nombre">{{ p.nombre }}</div>
+                                                <div class="pasajero-meta">
+                                                    <span class="asiento-badge">{{ p.asiento }}</span>
+                                                    {% if p.cabina %}
+                                                    <span class="cabina-badge">{{ p.cabina }}</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% if p.viajero_frecuente %}
+                                            <div class="ff-badge">{{ p.viajero_frecuente }}</div>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                        
+                                        {% if vuelo.equipaje_facturado or vuelo.equipaje_mano %}
+                                        <div class="equipaje-info">
+                                            <div class="equipaje-titulo">Equipaje</div>
+                                            {% if vuelo.equipaje_facturado %}
+                                            <div class="equipaje-item">Facturado: {{ vuelo.equipaje_facturado }}</div>
+                                            {% endif %}
+                                            {% if vuelo.equipaje_mano %}
+                                            <div class="equipaje-item">De mano: {{ vuelo.equipaje_mano }}</div>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                                
+
+                            </div>
+                            {% endfor %}
+                            
+                            {% if primer_vuelo.codigo_reserva %}
+                            <div class="info-simple" style="margin-top: 12px;"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
+                            {% endif %}
+                            </div>
+                            
+                            {% set codigos_unicos = grupo|map(attribute='codigo_reserva')|unique|list %}
+                            {% if es_multi and codigos_unicos|length > 1 %}
+                            <div class="card-actions" id="actions-{{ grupo_id }}">
+                                <form method="POST" action="{{ url_for('desagrupar_grupo') }}" onclick="event.stopPropagation();" onsubmit="event.stopPropagation();" style="flex: 1;">
+                                    <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
+                                    <button type="submit" class="btn-desagrupar" onclick="event.stopPropagation(); return confirm('¿Separar estos vuelos?')">Desagrupar</button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-state">No tenés viajes próximos</p>
+                {% endif %}
+            </section>
+        </div>
+        
+        {% if pasados %}
+        <section>
+            <h2 class="section-title">Pasados ({{ pasados|length }})</h2>
+            <div class="viajes-grid">
+                {% for grupo in pasados %}
+                {% set primer_vuelo = grupo[0] %}
+                {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
+                <div class="viaje-card" style="opacity: 0.6;">
+                    <div class="card-header">
+                        <span class="badge">{{ grupo|length }} {% if grupo|length > 1 %}VUELOS{% else %}VUELO{% endif %}</span>
+                        <span class="fecha-badge">{{ primer_vuelo.fecha_salida.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <h3 class="viaje-titulo">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</h3>
+                    
+                    <form method="POST" action="{{ url_for('eliminar_grupo') }}" onsubmit="event.stopPropagation();">
+                        <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
+                        <button type="submit" class="btn-eliminar-grupo" onclick="event.stopPropagation(); return confirm('¿Eliminar?')"></button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+    
+    <!-- Toolbar para agrupar -->
+    <!-- Modal Agregar Viaje -->
+    <div class="modal" id="modalAgregarViaje">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 class="modal-title">Agregar Viaje</h2>
+            <p style="color: #6e6e73; margin-bottom: 24px; font-size: 15px;">Elegí cómo querés cargar tu viaje</p>
+            
+            <div class="agregar-opciones">
+                <a href="{{ url_for('carga_rapida') }}" class="opcion-card">
+                    <div class="opcion-icon">→</div>
+                    <div class="opcion-content">
+                        <div class="opcion-titulo">Carga Rápida</div>
+                        <div class="opcion-desc">Arrastrá un PDF o pegá el email</div>
+                    </div>
+                </a>
+                
+                <a href="{{ url_for('agregar') }}" class="opcion-card">
+                    <div class="opcion-icon">+</div>
+                    <div class="opcion-content">
+                        <div class="opcion-titulo">Carga Manual</div>
+                        <div class="opcion-desc">Completá el formulario manualmente</div>
+                    </div>
+                </a>
+                
+                <div class="opcion-card disabled">
+                    <div class="opcion-icon">◆</div>
+                    <div class="opcion-content">
+                        <div class="opcion-titulo">Por Código de Reserva</div>
+                        <div class="opcion-desc">Próximamente</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-secondary" onclick="cerrarModalAgregar()" style="width: 100%; margin-top: 20px;">Cancelar</button>
+        </div>
+    </div>
+    
+        <div class="toolbar-agrupar" id="toolbarAgrupar">
+        <span class="toolbar-text"><span id="countSeleccionados">0</span> viajes seleccionados</span>
+        <button type="button" class="btn btn-primary" onclick="agruparSeleccionados()">Agrupar</button>
+        <button type="button" class="btn btn-secondary" onclick="cancelarAgrupar()">Cancelar</button>
+    </div>
+    
+    <div class="toolbar-agrupar" id="toolbarEliminar">
+        <span class="toolbar-text"><span id="countEliminar">0</span> viajes seleccionados</span>
+        <button type="button" class="btn btn-primary" onclick="eliminarSeleccionados()" style="background: white; color: #ff3b30;">Eliminar</button>
+        <button type="button" class="btn btn-secondary" onclick="cancelarEliminar()">Cancelar</button>
+    </div>
+    
+    <!-- Modal editar nombre -->
+    <div class="modal" id="modalEditarNombre">
+        <div class="modal-content">
+            <h2 class="modal-title">Editar Nombre del Viaje</h2>
+            <form method="POST" action="{{ url_for('editar_nombre_viaje') }}" id="formEditarNombre">
+                <input type="hidden" name="grupo_id" id="editGrupoId">
+                <input type="text" name="nombre" id="editNombreInput" class="modal-input" required>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    
+    
+    <!-- Modal Agregar Viaje -->
+    <div class="modal" id="modalAgregarViaje">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 class="modal-title">Agregar Viaje</h2>
+            <p style="color: #6e6e73; margin-bottom: 24px;">Elegí cómo querés cargar tu viaje</p>
+            
+            <div class="agregar-opciones">
+                <a href="{{ url_for('carga_rapida') }}" class="opcion-card">
+                    <div class="opcion-icon">→</div>
+                    <div class="opcion-content">
+                        <div class="opcion-titulo">Carga Rápida</div>
+                        <div class="opcion-desc">Arrastrá un PDF o pegá el email de confirmación</div>
+                    </div>
+                </a>
+                
+                <a href="{{ url_for('agregar') }}" class="opcion-card">
+                    <div class="opcion-icon">+</div>
+                    <div class="opcion-content">
+                        <div class="opcion-titulo">Carga Manual</div>
+                        <div class="opcion-desc">Completá el formulario con los datos del viaje</div>
+                    </div>
+                </a>
+                
+                <div class="opcion-card disabled">
+                    <div class="opcion-icon">◆</div>
+                    <div class="opcion-content">
+                        <div class="opcion-titulo">Por Código de Reserva</div>
+                        <div class="opcion-desc">Próximamente</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-secondary" onclick="cerrarModalAgregar()" style="width: 100%; margin-top: 16px;">Cancelar</button>
+        </div>
+    </div>
+</div>
+    
+    <script>
+        let modoAgrupar = false;
+        let seleccionados = new Set();
+        
+        function toggleModoAgrupar() {
+            if (modoAgrupar) {
+                cancelarAgrupar();
+            } else {
+                modoAgrupar = true;
+                seleccionados.clear();
+                
+                // Mostrar toolbar inmediatamente con 0
+                document.getElementById('countSeleccionados').textContent = '0';
+                const toolbar = document.getElementById('toolbarAgrupar');
+                toolbar.classList.add('visible');
+                toolbar.style.display = 'flex';
+                
+                // Ocultar botones individuales
+                document.querySelectorAll('.card-actions').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
+        }
+        
+        function toggleSelect(grupoId) {
+            console.log('toggleSelect called:', grupoId, 'modoEliminar:', modoEliminar, 'modoAgrupar:', modoAgrupar);
+            const card = document.getElementById('card-' + grupoId);
+            if (!card) {
+                console.log('Card not found!');
+                return;
+            }
+            
+            // Modo Eliminar
+            if (modoEliminar) {
+                console.log('Processing in eliminar mode');
+                if (seleccionadosEliminar.has(grupoId)) {
+                    seleccionadosEliminar.delete(grupoId);
+                    card.classList.remove('selected-eliminar');
+                } else {
+                    seleccionadosEliminar.add(grupoId);
+                    card.classList.add('selected-eliminar');
+                }
+                
+                document.getElementById('countEliminar').textContent = seleccionadosEliminar.size;
+                const toolbar = document.getElementById('toolbarEliminar');
+                if (seleccionadosEliminar.size > 0) {
+                    toolbar.classList.add('visible');
+                    toolbar.style.display = 'flex';
+                } else {
+                    toolbar.classList.remove('visible');
+                    toolbar.style.display = 'none';
+                }
+                return;
+            }
+            
+            // Modo Agrupar
+            if (modoAgrupar) {
+                console.log('Processing in agrupar mode');
+                if (seleccionados.has(grupoId)) {
+                    seleccionados.delete(grupoId);
+                    card.classList.remove('selected');
+                } else {
+                    seleccionados.add(grupoId);
+                    card.classList.add('selected');
+                }
+                
+                document.getElementById('countSeleccionados').textContent = seleccionados.size;
+                const toolbar = document.getElementById('toolbarAgrupar');
+                if (seleccionados.size > 0) {
+                    toolbar.classList.add('visible');
+                    toolbar.style.display = 'flex';
+                } else {
+                    toolbar.classList.remove('visible');
+                    toolbar.style.display = 'none';
+                }
+            }
+        }
+
+        
+
+        
+        function cancelarAgrupar() {
+            modoAgrupar = false;
+            seleccionados.clear();
+            
+            document.querySelectorAll('.checkbox-select').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.viaje-card').forEach(card => {
+                card.classList.remove('selected', 'seleccionable', 'seleccionado');
+            });
+            
+            const toolbar = document.getElementById('toolbarAgrupar');
+            if (toolbar) {
+                toolbar.classList.remove('visible');
+                toolbar.style.display = 'none';
+            }
+            
+            // Mostrar botones individuales de nuevo
+            document.querySelectorAll('.card-actions').forEach(el => {
+                el.style.display = 'flex';
+            });
+        }
+        
+        function editarNombre(grupoId, nombreActual) {
+            document.getElementById('editGrupoId').value = grupoId;
+            document.getElementById('editNombreInput').value = nombreActual;
+            document.getElementById('modalEditarNombre').classList.add('visible');
+        }
+        
+        let modoEliminar = false;
+        let seleccionadosEliminar = new Set();
+        
+        function toggleModoEliminar() {
+            if (modoEliminar) {
+                cancelarEliminar();
+            } else {
+                modoEliminar = true;
+                seleccionadosEliminar.clear();
+                
+                // Mostrar toolbar inmediatamente con 0
+                document.getElementById('countEliminar').textContent = '0';
+                const toolbar = document.getElementById('toolbarEliminar');
+                toolbar.classList.add('visible');
+                toolbar.style.display = 'flex';
+                
+                // Ocultar botones individuales
+                document.querySelectorAll('.card-actions').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
+        }
+        
+        function eliminarSeleccionados() {
+            if (seleccionadosEliminar.size === 0) return;
+            
+            if (confirm(`¿Eliminar ${seleccionadosEliminar.size} viaje(s)?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/eliminar-multiples';
+                
+                seleccionadosEliminar.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'grupos_ids';
+                    input.value = id;
+                    form.appendChild(input);
+                });
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function cancelarEliminar() {
+            modoEliminar = false;
+            seleccionadosEliminar.clear();
+            
+            document.querySelectorAll('.checkbox-select').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.viaje-card').forEach(card => {
+                card.classList.remove('selected', 'selected-eliminar');
+            });
+            
+            const toolbar = document.getElementById('toolbarEliminar');
+            if (toolbar) {
+                toolbar.classList.remove('visible');
+                toolbar.style.display = 'none';
+            }
+            
+            // Mostrar botones individuales de nuevo
+            document.querySelectorAll('.card-actions').forEach(el => {
+                el.style.display = 'flex';
+            });
+        }
+
+        
+        function cerrarModal() {
+            document.getElementById('modalEditarNombre').classList.remove('visible');
+        }
+        
+        function togglePasajeros(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('.toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.classList.add('expanded');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('expanded');
+            }
+        }
+        
+        function toggleCard(card) {
+            card.classList.toggle('collapsed');
+        }
+        
+        function abrirModalAgregar() {
+            document.getElementById('modalAgregarViaje').style.display = 'flex';
+        }
+        
+        function cerrarModalAgregar() {
+            document.getElementById('modalAgregarViaje').style.display = 'none';
+        }
+        
+                function abrirModalAgregar() {
+            document.getElementById('modalAgregarViaje').style.display = 'flex';
+        }
+        
+        function cerrarModalAgregar() {
+            document.getElementById('modalAgregarViaje').style.display = 'none';
+        }
+        
+        function handleHeaderClick(event, card) {
+            // Si estamos en modo eliminar o agrupar, NO bloquear - dejar que llegue al card
+            if (modoEliminar || modoAgrupar) {
+                // NO hacer stopPropagation - dejar que handleCardClick lo maneje
+                return;
+            }
+            
+            // Solo en modo normal: bloquear y colapsar
+            event.stopPropagation();
+            toggleCard(card);
+        }
+        
+        function handleCardClick(event, grupoId) {
+            console.log('handleCardClick:', grupoId, 'modoEliminar:', modoEliminar, 'modoAgrupar:', modoAgrupar);
+            console.log('Condition:', (modoEliminar || modoAgrupar));
+            // Si hay modo activo, seleccionar
+            if (modoEliminar || modoAgrupar) {
+                console.log('Calling toggleSelect');
+                toggleSelect(grupoId);
+            } else {
+                console.log('NO calling toggleSelect - no mode active');
+            }
+        }
+    </script>
+
+    <script>
+    // Auto-download calendario si hay flag
+    
+    {% if session.get('auto_update_calendar') %}
+        window.addEventListener('load', function() {
+            const grupoId = '{{ session.pop("auto_update_calendar") }}';
+            if (grupoId) {
+                window.location.href = '/update-calendar/' + grupoId;
+            }
+        });
+    {% endif %}
+    
+    </script>
+    </body>
+</html>
+    <script>
+        // Actualizar función agruparSeleccionados para usar fetch
+        function agruparSeleccionados() {
+            if(seleccionados.size < 2) {
+                alert('Seleccioná al menos 2 viajes para agrupar');
+                return;
+            }
+            
+            const formData = new FormData();
+            seleccionados.forEach(id => {
+                formData.append('grupos_ids', id);
+            });
+            
+            fetch('/agrupar-manual', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if(response.ok) {
+                    window.location.href = '/';
+                }
+            });
+        }
+    </script>

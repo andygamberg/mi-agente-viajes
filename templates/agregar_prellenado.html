@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Revisar y Guardar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✅ Datos Extraídos</h1>
+            <a href="{{ url_for('carga_rapida') }}" class="btn btn-secondary">← Volver</a>
+        </header>
+        <div class="form-container">
+            <div style="background: #d1fae5; border: 2px solid #059669; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <strong>✨ Información extraída!</strong> Revisá y guardá.
+            </div>
+            <form method="POST" action="{{ url_for('agregar') }}">
+                <div class="form-group">
+                    <label>Tipo *</label>
+                    <select name="tipo" required>
+                        <option value="vuelo" {% if datos.tipo == 'vuelo' %}selected{% endif %}>✈️ Vuelo</option>
+                        <option value="hotel" {% if datos.tipo == 'hotel' %}selected{% endif %}>🏨 Hotel</option>
+                        <option value="otro" {% if datos.tipo == 'otro' %}selected{% endif %}>📋 Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descripción *</label>
+                    <input type="text" name="descripcion" required value="{{ datos.descripcion or '' }}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha Salida *</label>
+                        <input type="date" name="fecha_salida" required value="{{ datos.fecha_salida or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora Salida</label>
+                        <input type="time" name="hora_salida" value="{{ datos.hora_salida or '' }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Origen</label>
+                        <input type="text" name="origen" value="{{ datos.origen or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Destino</label>
+                        <input type="text" name="destino" value="{{ datos.destino or '' }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Aerolínea</label>
+                        <input type="text" name="aerolinea" value="{{ datos.aerolinea or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Vuelo</label>
+                        <input type="text" name="numero_vuelo" value="{{ datos.numero_vuelo or '' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Código Reserva</label>
+                    <input type="text" name="codigo_reserva" value="{{ datos.codigo_reserva or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Hotel/Barco</label>
+                    <input type="text" name="nombre_hotel" value="{{ datos.nombre_hotel or '' }}">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                    <a href="{{ url_for('carga_rapida') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

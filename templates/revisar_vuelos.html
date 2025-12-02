@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Revisar Vuelos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
+        .subtitle {
+            font-size: 21px;
+            color: #6e6e73;
+            font-weight: 400;
+            margin-bottom: 40px;
+        }
+        .vuelo-card {
+            background: white;
+            border-radius: 18px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .vuelo-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .vuelo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #d2d2d7;
+        }
+        .vuelo-number {
+            display: inline-block;
+            background: #000;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .vuelo-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 8px;
+            letter-spacing: -0.3px;
+        }
+        .ruta-display {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: 24px;
+            align-items: center;
+            margin: 32px 0;
+            padding: 28px;
+            background: #f5f5f7;
+            border-radius: 12px;
+        }
+        .ciudad-info {
+            text-align: center;
+        }
+        .codigo-iata {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        .fecha-hora {
+            font-size: 17px;
+            color: #6e6e73;
+            margin-top: 12px;
+        }
+        .hora-grande {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-top: 4px;
+        }
+        .flecha-icono {
+            font-size: 32px;
+            color: #86868b;
+        }
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .info-box {
+            padding: 16px;
+            background: #f5f5f7;
+            border-radius: 10px;
+        }
+        .info-label {
+            font-size: 13px;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+        }
+        .info-value {
+            font-size: 17px;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+        .pasajeros-section {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .pasajero-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e5e7;
+        }
+        .pasajero-row:last-child {
+            border-bottom: none;
+        }
+        .pasajero-asiento {
+            font-size: 17px;
+            font-weight: 600;
+            color: #0071e3;
+        }
+        .equipaje-section {
+            background: #fffbf0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .checkbox-custom {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            accent-color: #0071e3;
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 980px;
+            font-size: 17px;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #0071e3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0077ed;
+        }
+        .btn-secondary {
+            background: #e8e8ed;
+            color: #1d1d1f;
+        }
+        .actions-bar {
+            position: sticky;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vuelos extraídos</h1>
+            <p class="subtitle">Revisá y seleccioná qué guardar</p>
+        </header>
+
+        <form method="POST" action="{{ url_for('guardar_vuelos') }}">
+            {% for vuelo in vuelos %}
+            <div class="vuelo-card">
+                <div class="vuelo-header">
+                    <div>
+                        <span class="vuelo-number">VUELO {{ loop.index }}</span>
+                        <h2 class="vuelo-title">{{ vuelo.descripcion }}</h2>
+                    </div>
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="vuelo_{{ loop.index0 }}" checked class="checkbox-custom">
+                        <span>Guardar</span>
+                    </label>
+                </div>
+
+                <input type="hidden" name="vuelo_json_{{ loop.index0 }}" value="" id="vuelo_json_{{ loop.index0 }}">
+                <script>
+                    document.getElementById('vuelo_json_{{ loop.index0 }}').value = JSON.stringify({{ vuelo|tojson|safe }});
+                </script>
+
+                <div class="ruta-display">
+                    <div class="ciudad-info">
+                        <div class="codigo-iata">{{ vuelo.origen }}</div>
+                        <div class="fecha-hora">{{ vuelo.fecha_salida }}</div>
+                        <div class="hora-grande">{{ vuelo.hora_salida }}</div>
+                    </div>
+                    <div class="flecha-icono">→</div>
+                    <div class="ciudad-info">
+                        <div class="codigo-iata">{{ vuelo.destino }}</div>
+                        <div class="fecha-hora">{{ vuelo.fecha_llegada or vuelo.fecha_salida }}</div>
+                        <div class="hora-grande">{{ vuelo.hora_llegada or '—' }}</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-box">
+                        <div class="info-label">Aerolínea</div>
+                        <div class="info-value">{{ vuelo.aerolinea }}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Vuelo</div>
+                        <div class="info-value">{{ vuelo.numero_vuelo }}</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">Código</div>
+                        <div class="info-value">{{ vuelo.codigo_reserva }}</div>
+                    </div>
+                </div>
+
+                {% if vuelo.pasajeros and vuelo.pasajeros|length > 0 %}
+                <div class="pasajeros-section">
+                    <div class="section-title">Pasajeros ({{ vuelo.pasajeros|length }})</div>
+                    {% for p in vuelo.pasajeros %}
+                    <div class="pasajero-row">
+                        <span>{{ p.nombre }}</span>
+                        <span class="pasajero-asiento">{{ p.asiento }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if vuelo.equipaje_facturado or vuelo.equipaje_mano %}
+                <div class="equipaje-section">
+                    <div class="section-title">Equipaje</div>
+                    {% if vuelo.equipaje_facturado %}
+                    <div style="margin-bottom: 8px;"><strong>Facturado:</strong> {{ vuelo.equipaje_facturado }}</div>
+                    {% endif %}
+                    {% if vuelo.equipaje_mano %}
+                    <div><strong>De mano:</strong> {{ vuelo.equipaje_mano }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="actions-bar">
+                <button type="submit" class="btn btn-primary">Guardar seleccionados</button>
+                <a href="{{ url_for('carga_rapida') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
