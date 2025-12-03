@@ -100,3 +100,45 @@ def check_flight_status(flight_number, date):
 
 **Última actualización:** 2025-12-02 20:45 ART
 **Estado:** Investigación completa, pendiente resolver autenticación API
+
+---
+
+## ✅ PROBLEMA RESUELTO (2025-12-02 21:15 ART)
+
+### Causa del error 403:
+- Cloudflare protection bloqueaba requests con `requests` library
+- Python 3.14 demasiado nuevo para pydantic-core
+
+### Solución implementada:
+1. Downgrade a Python 3.13 (`python3.13 -m venv venv313`)
+2. Instalación exitosa del SDK oficial: `pip install fr24sdk`
+3. Autenticación via environment variable: `FR24_API_TOKEN`
+
+### Método correcto:
+```python
+from fr24sdk.client import Client
+from datetime import datetime
+
+with Client() as client:
+    result = client.flight_summary.get_light(
+        flights=["AR1303"],
+        flight_datetime_from=datetime(2025, 12, 2, 0, 0, 0),
+        flight_datetime_to=datetime(2025, 12, 2, 23, 59, 59)
+    )
+    
+    for flight in result.data:
+        print(f"{flight.flight}: {flight.datetime_takeoff} -> {flight.datetime_landed}")
+```
+
+### Datos disponibles en FlightSummaryLight:
+- fr24_id, flight, callsign
+- orig_icao, dest_icao, dest_icao_actual
+- datetime_takeoff, datetime_landed
+- type (aircraft), reg (registration)
+- operating_as, painted_as
+- first_seen, last_seen, flight_ended
+
+---
+
+**Estado:** ✅ RESUELTO - Listo para implementar MVP4
+**Próximo paso:** Implementar `check_flight_status()` en app.py
