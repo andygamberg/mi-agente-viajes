@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chequeo de Vuelos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Chequeo de Vuelos</h1>
+        
+        <p>Última actualización: {{ timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        
+        {% if cambios %}
+            <h2>⚠️ {{ cambios|length }} cambio(s) detectado(s)</h2>
+            
+            {% for item in cambios %}
+            <div class="vuelo-card">
+                <h3>{{ item.numero_vuelo }}: {{ item.ruta }}</h3>
+                <p>Fecha: {{ item.fecha_salida.strftime('%Y-%m-%d %H:%M') }}</p>
+                
+                <h4>Estado FR24:</h4>
+                <p>Estado: <strong>{{ item.status_fr24.estado }}</strong></p>
+                
+                <h4>Cambios:</h4>
+                <ul>
+                {% for cambio in item.cambios %}
+                    <li>{{ cambio.tipo }} - {{ cambio.severidad }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+            
+        {% else %}
+            <h2>✅ Todos los vuelos on time</h2>
+        {% endif %}
+        
+        <br>
+        <a href="{{ url_for('index') }}">← Volver</a>
+    </div>
+</body>
+</html>

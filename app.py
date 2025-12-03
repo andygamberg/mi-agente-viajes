@@ -1101,6 +1101,48 @@ def calendar_feed():
     
     return response
 
+
+# MVP 4: FLIGHT MONITORING
+# ============================================
+
+from flight_monitor import check_flight_status, check_all_upcoming_flights
+
+@app.route('/api/check-flights', methods=['GET'])
+def api_check_flights():
+    """
+    Endpoint para chequear estado de vuelos próximos
+    Returns JSON con cambios detectados
+    """
+    try:
+        cambios = check_all_upcoming_flights(db.session)
+        
+        return {
+            'success': True,
+            'timestamp': datetime.now().isoformat(),
+            'vuelos_chequeados': len(cambios),
+            'cambios': cambios
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }, 500
+
+
+@app.route('/check-flights-manual')
+def check_flights_manual():
+    """
+    Página para chequear vuelos manualmente (para testing)
+    """
+    try:
+        cambios = check_all_upcoming_flights(db.session)
+        
+        return render_template('check_flights.html', 
+                             cambios=cambios,
+                             timestamp=datetime.now())
+    except Exception as e:
+        flash(f'Error chequeando vuelos: {str(e)}', 'error')
+        return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
