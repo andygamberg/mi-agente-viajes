@@ -173,6 +173,18 @@ def check_all_upcoming_flights(db_session):
                 'cambios': cambios
             })
             print(f"   ⚠️  {len(cambios)} cambio(s) detectado(s)")
+            
+            # ACTUALIZAR BD con nuevos horarios
+            if status.get('datetime_takeoff_actual'):
+                vuelo.fecha_salida = status['datetime_takeoff_actual']
+                vuelo.hora_salida = status['datetime_takeoff_actual'].strftime('%H:%M')
+            
+            if status.get('datetime_landed_actual'):
+                vuelo.fecha_llegada = status['datetime_landed_actual']
+                vuelo.hora_llegada = status['datetime_landed_actual'].strftime('%H:%M')
+            
+            db_session.commit()
+            print(f"   💾 BD actualizada con nuevos horarios")
         else:
             print(f"   ✅ On time")
     
