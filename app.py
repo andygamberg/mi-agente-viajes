@@ -189,6 +189,13 @@ class Viaje(db.Model):
     actualizado = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+    
+    # Campos para monitoreo FR24
+    ultima_actualizacion_fr24 = db.Column(db.DateTime)
+    status_fr24 = db.Column(db.String(50))  # 'on_time', 'delayed', 'cancelled', 'landed', etc
+    delay_minutos = db.Column(db.Integer)
+    datetime_takeoff_actual = db.Column(db.DateTime)
+    datetime_landed_actual = db.Column(db.DateTime)
 def calcular_ciudad_principal(vuelos):
     """Calcula la ciudad donde se pasa más tiempo"""
     from datetime import datetime, timedelta
