@@ -1153,3 +1153,61 @@ def check_flights_manual():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
+
+# ============================================
+# SCHEDULER ENDPOINT (para Cloud Scheduler)
+# ============================================
+
+@app.route('/cron/check-flights', methods=['GET', 'POST'])
+def cron_check_flights():
+    """
+    Endpoint para Cloud Scheduler - chequea vuelos según frecuencia dinámica
+    Solo procesa vuelos que necesitan ser chequeados según su proximidad
+    """
+    # Validar que viene de Cloud Scheduler (header específico de GCP)
+    # if request.headers.get('X-Appengine-Cron') != 'true':
+    #     return {'error': 'Unauthorized'}, 403
+    
+    from scheduler import get_vuelos_to_check
+    from flight_monitor import check_flight_status
+    
+    try:
+        vuelos_to_check = get_vuelos_to_check(db.session)
+        
+        resultados = []
+        for viaje in vuelos_to_check:
+            if viaje.numero_vuelo and viaje.tipo == 'vuelo':
+                resultado = check_flight_status(
+                    viaje.numero_vuelo,
+                    viaje.fecha_salida
+                )
+                
+                # Actualizar BD
+                viaje.ultima_actualizacion_fr24 = datetime.now()
+                viaje.status_fr24 = resultado['estado']
+                viaje.delay_minutos = resultado.get('delay_minutos')
+                viaje.datetime_takeoff_actual = resultado.get('datetime_takeoff_actual')
+                viaje.datetime_landed_actual = resultado.get('datetime_landed_actual')
+                
+                db.session.commit()
+                
+                resultados.append({
+                    'vuelo_id': viaje.id,
+                    'numero_vuelo': viaje.numero_vuelo,
+                    'estado': resultado['estado'],
+                    'delay_minutos': resultado.get('delay_minutos')
+                })
+        
+        return {
+            'success': True,
+            'timestamp': datetime.now().isoformat(),
+            'vuelos_procesados': len(resultados),
+            'resultados': resultados
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }, 500
