@@ -20,3 +20,4 @@ EXPOSE 8080
 
 # Comando para correr la app (formato JSON)
 CMD ["sh", "-c", "exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app"]
+# Updated jueves,  4 de diciembre de 2025, 12:26:56 -03
