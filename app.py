@@ -349,14 +349,14 @@ def carga_rapida():
                     print(f"PDF leído, {len(email_text)} caracteres")
                 except Exception as e:
                     print(f"Error leyendo PDF: {e}")
-                    return render_template('carga_rapida.html', error=f"Error leyendo PDF: {str(e)}")
+                    flash(f"Error leyendo PDF: {str(e)}", "error"); return render_template('carga_rapida.html')
         
         # Si no hay PDF, usar el texto pegado
         if not email_text.strip():
             email_text = request.form.get('email_text', '')
         
         if not email_text.strip():
-            return render_template('carga_rapida.html', error="Subi un PDF o pega el email")
+            flash("Subi un PDF o pega el email", "error"); return render_template('carga_rapida.html')
         
         try:
             vuelos = extraer_info_con_claude(email_text)
@@ -364,12 +364,12 @@ def carga_rapida():
                 # Mostrar lista de vuelos extraídos para que el usuario seleccione cuáles guardar
                 return render_template('revisar_vuelos.html', vuelos=vuelos)
             else:
-                return render_template('carga_rapida.html', error="No pude extraer vuelos")
+                flash("No pude extraer vuelos del documento", "error"); return render_template('carga_rapida.html')
         except Exception as e:
             print(f"Error: {e}")
             import traceback
             traceback.print_exc()
-            return render_template('carga_rapida.html', error=f"Error: {str(e)}")
+            flash(f"Error procesando: {str(e)}", "error"); return render_template('carga_rapida.html')
     
     return render_template('carga_rapida.html', anthropic_ok=True)
 
