@@ -360,7 +360,9 @@ def carga_rapida():
             flash("Subi un PDF o pega el email", "error"); return render_template('carga_rapida.html')
         
         try:
+            flash("🔍 Intentando procesar con Claude API...", "info")
             vuelos = extraer_info_con_claude(email_text)
+            flash(f"📊 Resultado: {type(vuelos)} - {len(vuelos) if vuelos else 0} vuelos", "info")
             if vuelos and len(vuelos) > 0:
                 # Mostrar lista de vuelos extraídos para que el usuario seleccione cuáles guardar
                 return render_template('revisar_vuelos.html', vuelos=vuelos)
