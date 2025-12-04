@@ -1,6 +1,19 @@
-venv/
-*.db
-.env
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+venv/
+venv313/
+.env
+.env.save
+
+# Flask
 instance/
+
+# Testing
+test_*.py
+test_*.txt
+*.log
+
+# IDEs
+.vscode/
+.DS_Store
