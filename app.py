@@ -1222,3 +1222,34 @@ def cron_check_flights():
             'success': False,
             'error': str(e)
         }, 500
+
+@app.route('/test-anthropic', methods=['GET'])
+def test_anthropic():
+    """Endpoint de prueba para verificar Anthropic API"""
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    
+    results = []
+    
+    # Test 1: Variable de entorno
+    api_key = os.getenv('ANTHROPIC_API_KEY')
+    results.append(f"API Key presente: {bool(api_key)}")
+    if api_key:
+        results.append(f"API Key empieza con: {api_key[:15]}...")
+    
+    # Test 2: Inicializar cliente
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        results.append("✅ Cliente inicializado correctamente")
+        
+        # Test 3: Llamada real
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=100,
+            messages=[{"role": "user", "content": "Di hola"}]
+        )
+        results.append(f"✅ API funcionando: {message.content[0].text}")
+    except Exception as e:
+        results.append(f"❌ Error: {str(e)}")
+    
+    return "<br>".join(results)
