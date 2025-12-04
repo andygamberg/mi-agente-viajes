@@ -9,6 +9,7 @@ from icalendar import Calendar, Event, Alarm
 import pytz
 from PyPDF2 import PdfReader
 from werkzeug.utils import secure_filename
+import logging
 
 load_dotenv()
 
@@ -379,13 +380,13 @@ def extraer_info_con_claude(email_text):
     # Inicializar cliente Anthropic
     api_key = os.getenv('ANTHROPIC_API_KEY')
     if not api_key:
-        print("❌ ANTHROPIC_API_KEY no configurada")
+        logging.error("❌ ANTHROPIC_API_KEY no configurada")
         return None
     
     try:
         client = anthropic.Anthropic(api_key=api_key)
     except Exception as e:
-        print(f"❌ Error inicializando Anthropic: {e}")
+        logging.error(f"❌ Error inicializando Anthropic: {e}")
         return None
     
     import re
@@ -457,10 +458,10 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
         if '```' in texto:
             texto = texto.split('```')[1].replace('json','').strip()
         
-        print("=" * 80)
-        print("📝 JSON RECIBIDO DE CLAUDE:")
-        print(texto)
-        print("=" * 80)
+        logging.error("=" * 80)
+        logging.error("📝 JSON RECIBIDO DE CLAUDE:")
+        logging.error(texto)
+        logging.error("=" * 80)
         vuelos = json.loads(texto)
         
         # Corregir años si es necesario
@@ -468,11 +469,11 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
             if vuelo.get('fecha_salida', '').startswith(('2020','2021','2022','2023','2024')):
                 vuelo['fecha_salida'] = vuelo['fecha_salida'].replace(vuelo['fecha_salida'][:4], str(target_year))
         
-        print(f"✓ Extraidos {len(vuelos)} vuelos")
+        logging.error(f"✓ Extraidos {len(vuelos)} vuelos")
         return vuelos
         
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
         return None
 
 
