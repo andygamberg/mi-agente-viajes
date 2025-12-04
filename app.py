@@ -155,11 +155,11 @@ def fromjson_filter(value):
         return []
 
 
-try:
-    client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
-    ANTHROPIC_AVAILABLE = True
-except:
-    ANTHROPIC_AVAILABLE = False
+# # try:
+# #     client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+# #     ANTHROPIC_AVAILABLE = True
+# # except:
+# #     ANTHROPIC_AVAILABLE = False
 
 class Viaje(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -371,11 +371,21 @@ def carga_rapida():
             traceback.print_exc()
             return render_template('carga_rapida.html', error=f"Error: {str(e)}")
     
-    return render_template('carga_rapida.html', anthropic_ok=ANTHROPIC_AVAILABLE)
+    return render_template('carga_rapida.html', anthropic_ok=True)
 
 def extraer_info_con_claude(email_text):
     """Extrae información de TODOS los vuelos del email/PDF"""
-    if not ANTHROPIC_AVAILABLE:
+    
+    # Inicializar cliente Anthropic
+    api_key = os.getenv('ANTHROPIC_API_KEY')
+    if not api_key:
+        print("❌ ANTHROPIC_API_KEY no configurada")
+        return None
+    
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+    except Exception as e:
+        print(f"❌ Error inicializando Anthropic: {e}")
         return None
     
     import re
