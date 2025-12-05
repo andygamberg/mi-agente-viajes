@@ -6,7 +6,7 @@ from datetime import datetime
 import re
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-SERVICE_ACCOUNT_FILE = 'gmail-credentials.json'
+SERVICE_ACCOUNT_FILE = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'gmail-credentials.json')
 DELEGATED_EMAIL = 'misviajes@gamberg.com.ar'
 
 def get_gmail_service():
