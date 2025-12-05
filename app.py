@@ -1255,3 +1255,69 @@ def test_anthropic():
         results.append(f"❌ Error: {str(e)}")
     
     return "<br>".join(results)
+# MVP5: Email Automation
+@app.route('/cron/process-emails', methods=['GET', 'POST'])
+def process_emails_cron():
+    """Endpoint para Cloud Scheduler - procesa emails de misviajes@gamberg.com.ar"""
+    from email_processor import fetch_unread_emails
+    from datetime import datetime
+    
+    try:
+        emails = fetch_unread_emails()
+        if not emails:
+            return {'success': True, 'message': 'No hay emails nuevos'}, 200
+        
+        vuelos_creados = 0
+        for email in emails:
+            vuelos = extraer_info_con_claude(email['body'])
+            if not vuelos:
+                continue
+            
+            for vuelo_data in vuelos:
+                existe = Viaje.query.filter_by(
+                    numero_vuelo=vuelo_data.get('numero_vuelo'),
+                    fecha_salida=vuelo_data.get('fecha_salida')
+                ).first()
+                
+                if not existe:
+                    viaje = Viaje(
+                        tipo='vuelo',
+                        descripcion=f"{vuelo_data.get('origen')} → {vuelo_data.get('destino')}",
+                        origen=vuelo_data.get('origen'),
+                        destino=vuelo_data.get('destino'),
+                        fecha_salida=vuelo_data.get('fecha_salida'),
+                        hora_salida=vuelo_data.get('hora_salida'),
+                        aerolinea=vuelo_data.get('aerolinea'),
+                        numero_vuelo=vuelo_data.get('numero_vuelo')
+                    )
+                    db.session.add(viaje)
+                    vuelos_creados += 1
+            
+            db.session.commit()
+        
+        return {'success': True, 'vuelos_creados': vuelos_creados}, 200
+    except Exception as e:
+        return {'success': False, 'error': str(e)}, 500
+# MVP5: Email Automation
+@app.route('/cron/process-emails', methods=['GET', 'POST'])
+def process_emails_cron():
+    from email_processor import fetch_unread_emails
+    try:
+        emails = fetch_unread_emails()
+        if not emails:
+            return {'success': True, 'message': 'No hay emails nuevos'}, 200
+        vuelos_creados = 0
+        for email in emails:
+            vuelos = extraer_info_con_claude(email['body'])
+            if not vuelos:
+                continue
+            for vuelo_data in vuelos:
+                existe = Viaje.query.filter_by(numero_vuelo=vuelo_data.get('numero_vuelo'), fecha_salida=vuelo_data.get('fecha_salida')).first()
+                if not existe:
+                    viaje = Viaje(tipo='vuelo', descripcion=f"{vuelo_data.get('origen')} → {vuelo_data.get('destino')}", origen=vuelo_data.get('origen'), destino=vuelo_data.get('destino'), fecha_salida=vuelo_data.get('fecha_salida'), hora_salida=vuelo_data.get('hora_salida'), aerolinea=vuelo_data.get('aerolinea'), numero_vuelo=vuelo_data.get('numero_vuelo'))
+                    db.session.add(viaje)
+                    vuelos_creados += 1
+            db.session.commit()
+        return {'success': True, 'vuelos_creados': vuelos_creados}, 200
+    except Exception as e:
+        return {'success': False, 'error': str(e)}, 500

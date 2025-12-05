@@ -17,3 +17,4 @@ test_*.txt
 # IDEs
 .vscode/
 .DS_Store
+gmail-credentials.json
