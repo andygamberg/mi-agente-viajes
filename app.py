@@ -1164,126 +1164,12 @@ def check_flights_manual():
         flash(f'Error chequeando vuelos: {str(e)}', 'error')
         return redirect(url_for('index'))
 
-if __name__ == '__main__':
+
 # MVP5: Email Automation
 @app.route('/cron/process-emails', methods=['GET', 'POST'])
 def process_emails_cron():
+    """Procesa emails de misviajes@gamberg.com.ar"""
     from email_processor import fetch_unread_emails
-    try:
-        emails = fetch_unread_emails()
-        if not emails:
-            return {'success': True, 'message': 'No hay emails nuevos'}, 200
-        vuelos_creados = 0
-        for email in emails:
-            vuelos = extraer_info_con_claude(email['body'])
-            if not vuelos:
-                continue
-            for vuelo_data in vuelos:
-                existe = Viaje.query.filter_by(numero_vuelo=vuelo_data.get('numero_vuelo'), fecha_salida=vuelo_data.get('fecha_salida')).first()
-                if not existe:
-                    viaje = Viaje(tipo='vuelo', descripcion=f"{vuelo_data.get('origen')} → {vuelo_data.get('destino')}", origen=vuelo_data.get('origen'), destino=vuelo_data.get('destino'), fecha_salida=vuelo_data.get('fecha_salida'), hora_salida=vuelo_data.get('hora_salida'), aerolinea=vuelo_data.get('aerolinea'), numero_vuelo=vuelo_data.get('numero_vuelo'))
-                    db.session.add(viaje)
-                    vuelos_creados += 1
-            db.session.commit()
-        return {'success': True, 'vuelos_creados': vuelos_creados}, 200
-    except Exception as e:
-        return {'success': False, 'error': str(e)}, 500
-    app.run(debug=True, port=5000)
-
-
-# ============================================
-# SCHEDULER ENDPOINT (para Cloud Scheduler)
-# ============================================
-
-@app.route('/cron/check-flights', methods=['GET', 'POST'])
-def cron_check_flights():
-    """
-    Endpoint para Cloud Scheduler - chequea vuelos según frecuencia dinámica
-    Solo procesa vuelos que necesitan ser chequeados según su proximidad
-    """
-    # Validar que viene de Cloud Scheduler (header específico de GCP)
-    # if request.headers.get('X-Appengine-Cron') != 'true':
-    #     return {'error': 'Unauthorized'}, 403
-    
-    from scheduler import get_vuelos_to_check
-    from flight_monitor import check_flight_status
-    
-    try:
-        vuelos_to_check = get_vuelos_to_check(db.session)
-        
-        resultados = []
-        for viaje in vuelos_to_check:
-            if viaje.numero_vuelo and viaje.tipo == 'vuelo':
-                resultado = check_flight_status(
-                    viaje.numero_vuelo,
-                    viaje.fecha_salida
-                )
-                
-                # Actualizar BD
-                viaje.ultima_actualizacion_fr24 = datetime.now()
-                viaje.status_fr24 = resultado['estado']
-                viaje.delay_minutos = resultado.get('delay_minutos')
-                viaje.datetime_takeoff_actual = resultado.get('datetime_takeoff_actual')
-                viaje.datetime_landed_actual = resultado.get('datetime_landed_actual')
-                
-                db.session.commit()
-                
-                resultados.append({
-                    'vuelo_id': viaje.id,
-                    'numero_vuelo': viaje.numero_vuelo,
-                    'estado': resultado['estado'],
-                    'delay_minutos': resultado.get('delay_minutos')
-                })
-        
-        return {
-            'success': True,
-            'timestamp': datetime.now().isoformat(),
-            'vuelos_procesados': len(resultados),
-            'resultados': resultados
-        }
-        
-    except Exception as e:
-        return {
-            'success': False,
-            'error': str(e)
-        }, 500
-
-@app.route('/test-anthropic', methods=['GET'])
-def test_anthropic():
-    """Endpoint de prueba para verificar Anthropic API"""
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    
-    results = []
-    
-    # Test 1: Variable de entorno
-    api_key = os.getenv('ANTHROPIC_API_KEY')
-    results.append(f"API Key presente: {bool(api_key)}")
-    if api_key:
-        results.append(f"API Key empieza con: {api_key[:15]}...")
-    
-    # Test 2: Inicializar cliente
-    try:
-        client = anthropic.Anthropic(api_key=api_key)
-        results.append("✅ Cliente inicializado correctamente")
-        
-        # Test 3: Llamada real
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=100,
-            messages=[{"role": "user", "content": "Di hola"}]
-        )
-        results.append(f"✅ API funcionando: {message.content[0].text}")
-    except Exception as e:
-        results.append(f"❌ Error: {str(e)}")
-    
-    return "<br>".join(results)
-# MVP5: Email Automation
-@app.route('/cron/process-emails', methods=['GET', 'POST'])
-def process_emails_cron():
-    """Endpoint para Cloud Scheduler - procesa emails de misviajes@gamberg.com.ar"""
-    from email_processor import fetch_unread_emails
-    from datetime import datetime
     
     try:
         emails = fetch_unread_emails()
@@ -1296,22 +1182,22 @@ def process_emails_cron():
             if not vuelos:
                 continue
             
-            for vuelo_data in vuelos:
+            for v in vuelos:
                 existe = Viaje.query.filter_by(
-                    numero_vuelo=vuelo_data.get('numero_vuelo'),
-                    fecha_salida=vuelo_data.get('fecha_salida')
+                    numero_vuelo=v.get('numero_vuelo'),
+                    fecha_salida=v.get('fecha_salida')
                 ).first()
                 
                 if not existe:
                     viaje = Viaje(
                         tipo='vuelo',
-                        descripcion=f"{vuelo_data.get('origen')} → {vuelo_data.get('destino')}",
-                        origen=vuelo_data.get('origen'),
-                        destino=vuelo_data.get('destino'),
-                        fecha_salida=vuelo_data.get('fecha_salida'),
-                        hora_salida=vuelo_data.get('hora_salida'),
-                        aerolinea=vuelo_data.get('aerolinea'),
-                        numero_vuelo=vuelo_data.get('numero_vuelo')
+                        descripcion=f"{v.get('origen')} → {v.get('destino')}",
+                        origen=v.get('origen'),
+                        destino=v.get('destino'),
+                        fecha_salida=v.get('fecha_salida'),
+                        hora_salida=v.get('hora_salida'),
+                        aerolinea=v.get('aerolinea'),
+                        numero_vuelo=v.get('numero_vuelo')
                     )
                     db.session.add(viaje)
                     vuelos_creados += 1
@@ -1321,6 +1207,8 @@ def process_emails_cron():
         return {'success': True, 'vuelos_creados': vuelos_creados}, 200
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
+
+if __name__ == '__main__':
 # MVP5: Email Automation
 @app.route('/cron/process-emails', methods=['GET', 'POST'])
 def process_emails_cron():
