@@ -1210,3 +1210,4 @@ def process_emails_cron():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+# Force rebuild Fri Dec  5 14:24:00 UTC 2025
