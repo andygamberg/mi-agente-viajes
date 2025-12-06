@@ -352,31 +352,118 @@ def carga_rapida():
                     print(f"PDF leído, {len(email_text)} caracteres")
                 except Exception as e:
                     print(f"Error leyendo PDF: {e}")
-                    flash(f"Error leyendo PDF: {str(e)}", "error"); return render_template('carga_rapida.html')
+                    flash(f"Error leyendo PDF: {str(e)}", "error")
+                    return render_template('carga_rapida.html')
         
         # Si no hay PDF, usar el texto pegado
         if not email_text.strip():
             email_text = request.form.get('email_text', '')
         
         if not email_text.strip():
-            flash("Subi un PDF o pega el email", "error"); return render_template('carga_rapida.html')
+            flash("Subí un PDF o pegá el email", "error")
+            return render_template('carga_rapida.html')
         
         try:
-            flash("🔍 Intentando procesar con Claude API...", "info")
             vuelos = extraer_info_con_claude(email_text)
-            flash(f"📊 Resultado: {type(vuelos)} - {len(vuelos) if vuelos else 0} vuelos", "info")
-            if vuelos and len(vuelos) > 0:
-                # Mostrar lista de vuelos extraídos para que el usuario seleccione cuáles guardar
-                return render_template('revisar_vuelos.html', vuelos=vuelos)
-            else:
-                flash("No pude extraer vuelos del documento", "error"); return render_template('carga_rapida.html')
+            
+            if not vuelos or len(vuelos) == 0:
+                flash("No pude extraer vuelos del documento", "error")
+                return render_template('carga_rapida.html')
+            
+            # GUARDAR DIRECTAMENTE (sin paso de revisión)
+            import uuid
+            
+            # Verificar duplicados por código de reserva
+            primer_vuelo = vuelos[0]
+            codigo = primer_vuelo.get('codigo_reserva')
+            if codigo:
+                duplicado = Viaje.query.filter_by(codigo_reserva=codigo).first()
+                if duplicado:
+                    flash(f'Este viaje ya existe (código {codigo})', 'error')
+                    return redirect(url_for('index'))
+            
+            # Generar ID de grupo
+            grupo_id = str(uuid.uuid4())[:8]
+            vuelos_guardados = 0
+            
+            for vuelo_data in vuelos:
+                # Parsear fechas
+                fecha_salida_str = vuelo_data.get('fecha_salida')
+                hora_salida = vuelo_data.get('hora_salida', '')
+                
+                if not fecha_salida_str:
+                    continue
+                
+                if hora_salida:
+                    fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_salida}", '%Y-%m-%d %H:%M')
+                else:
+                    fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
+                
+                fecha_llegada = None
+                fecha_llegada_str = vuelo_data.get('fecha_llegada')
+                hora_llegada = vuelo_data.get('hora_llegada', '')
+                if fecha_llegada_str:
+                    try:
+                        if hora_llegada:
+                            fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_llegada}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
+                    except:
+                        pass
+                
+                # Convertir pasajeros a JSON
+                pasajeros_json = json.dumps(vuelo_data.get('pasajeros', []))
+                
+                # Crear viaje
+                nuevo_viaje = Viaje(
+                    tipo='vuelo',
+                    descripcion=vuelo_data.get('descripcion', ''),
+                    origen=vuelo_data.get('origen', ''),
+                    destino=vuelo_data.get('destino', ''),
+                    grupo_viaje=grupo_id,
+                    fecha_salida=fecha_salida,
+                    fecha_llegada=fecha_llegada,
+                    hora_salida=hora_salida,
+                    hora_llegada=hora_llegada,
+                    aerolinea=vuelo_data.get('aerolinea', ''),
+                    numero_vuelo=vuelo_data.get('numero_vuelo', ''),
+                    codigo_reserva=vuelo_data.get('codigo_reserva', ''),
+                    terminal=vuelo_data.get('terminal', ''),
+                    puerta=vuelo_data.get('puerta', ''),
+                    asiento=vuelo_data.get('pasajeros', [{}])[0].get('asiento', '') if vuelo_data.get('pasajeros') else '',
+                    pasajeros=pasajeros_json,
+                    equipaje_facturado=vuelo_data.get('equipaje_facturado', ''),
+                    equipaje_mano=vuelo_data.get('equipaje_mano', ''),
+                    notas=vuelo_data.get('notas', '')
+                )
+                
+                db.session.add(nuevo_viaje)
+                vuelos_guardados += 1
+            
+            # Asignar nombre automático
+            vuelos_del_grupo = Viaje.query.filter_by(grupo_viaje=grupo_id).all()
+            if vuelos_del_grupo:
+                vuelos_ordenados = sorted(vuelos_del_grupo, key=lambda x: x.fecha_salida)
+                ciudad_principal = calcular_ciudad_principal(vuelos_ordenados)
+                ciudad_nombre = get_ciudad_nombre(ciudad_principal)
+                nombre_auto = f"Viaje a {ciudad_nombre}"
+                for v in vuelos_del_grupo:
+                    v.nombre_viaje = nombre_auto
+            
+            db.session.commit()
+            flash(f"✓ {vuelos_guardados} vuelo(s) guardado(s)", "success")
+            return redirect(url_for('index'))
+            
         except Exception as e:
             print(f"Error: {e}")
             import traceback
             traceback.print_exc()
-            flash(f"Error procesando: {str(e)}", "error"); return render_template('carga_rapida.html')
+            db.session.rollback()
+            flash(f"Error procesando: {str(e)}", "error")
+            return render_template('carga_rapida.html')
     
-    return render_template('carga_rapida.html', anthropic_ok=True)
+    return render_template('carga_rapida.html')
+
 
 def extraer_info_con_claude(email_text):
     """Extrae información de TODOS los vuelos del email/PDF"""
@@ -1170,46 +1257,15 @@ def check_flights_manual():
 # MVP5: Email Automation
 @app.route('/cron/process-emails', methods=['GET', 'POST'])
 def process_emails_cron():
-    """Procesa emails de misviajes@gamberg.com.ar"""
-    from email_processor import fetch_unread_emails
-    
+    """Procesa emails de misviajes@gamberg.com.ar - llamado por Cloud Scheduler"""
     try:
-        emails = fetch_unread_emails()
-        if not emails:
-            return {'success': True, 'message': 'No hay emails nuevos'}, 200
-        
-        vuelos_creados = 0
-        for email in emails:
-            vuelos = extraer_info_con_claude(email['body'])
-            if not vuelos:
-                continue
-            
-            for v in vuelos:
-                existe = Viaje.query.filter_by(
-                    numero_vuelo=v.get('numero_vuelo'),
-                    fecha_salida=v.get('fecha_salida')
-                ).first()
-                
-                if not existe:
-                    viaje = Viaje(
-                        tipo='vuelo',
-                        descripcion=f"{v.get('origen')} → {v.get('destino')}",
-                        origen=v.get('origen'),
-                        destino=v.get('destino'),
-                        fecha_salida=v.get('fecha_salida'),
-                        hora_salida=v.get('hora_salida'),
-                        aerolinea=v.get('aerolinea'),
-                        numero_vuelo=v.get('numero_vuelo')
-                    )
-                    db.session.add(viaje)
-                    vuelos_creados += 1
-            
-            db.session.commit()
-        
-        return {'success': True, 'vuelos_creados': vuelos_creados}, 200
+        from gmail_to_db import process_emails
+        result = process_emails()
+        return {'success': True, 'result': result}, 200
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return {'success': False, 'error': str(e)}, 500
-
 
 
 @app.route("/api/process-email-text", methods=["POST"])

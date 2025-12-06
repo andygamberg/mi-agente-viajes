@@ -18,3 +18,4 @@ test_*.txt
 .vscode/
 .DS_Store
 gmail-credentials.json
+deploy.sh

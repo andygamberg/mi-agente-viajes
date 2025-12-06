@@ -735,17 +735,15 @@
                 {% for grupo in pasados %}
                 {% set primer_vuelo = grupo[0] %}
                 {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
-                <div class="viaje-card" style="opacity: 0.6;">
-                    <div class="card-header">
+                
+                <div class="viaje-card" id="card-{{ grupo_id }}" style="opacity: 0.6;" onclick="handleCardClick(event, '{{ grupo_id }}')">
+                    <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select" style="display:none;">
+                    
+                    <div class="card-header" style="padding: 20px 24px;">
                         <span class="badge">{{ grupo|length }} {% if grupo|length > 1 %}VUELOS{% else %}VUELO{% endif %}</span>
                         <span class="fecha-badge">{{ primer_vuelo.fecha_salida.strftime('%d/%m/%Y') }}</span>
                     </div>
-                    <h3 class="viaje-titulo">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</h3>
-                    
-                    <form method="POST" action="{{ url_for('eliminar_grupo') }}" onsubmit="event.stopPropagation();">
-                        <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
-                        <button type="submit" class="btn-eliminar-grupo" onclick="event.stopPropagation(); return confirm('¿Eliminar?')"></button>
-                    </form>
+                    <h3 class="viaje-titulo" style="padding: 0 24px 20px 24px;">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</h3>
                 </div>
                 {% endfor %}
             </div>
