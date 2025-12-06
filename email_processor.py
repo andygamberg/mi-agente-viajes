@@ -1,22 +1,24 @@
 import os
+import json
 import base64
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from datetime import datetime
 import re
-
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 SERVICE_ACCOUNT_FILE = 'gmail-credentials.json'
 DELEGATED_EMAIL = 'misviajes@gamberg.com.ar'
 
 def get_gmail_service():
     """Crea servicio Gmail con service account"""
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE, 
-        scopes=SCOPES
-    )
+    creds_json = os.getenv("GMAIL_CREDENTIALS")
+    if creds_json:
+        creds_dict = json.loads(creds_json)
+        credentials = service_account.Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+    else:
+        credentials = service_account.Credentials.from_service_account_file("gmail-credentials.json", scopes=SCOPES)
     delegated_credentials = credentials.with_subject(DELEGATED_EMAIL)
-    service = build('gmail', 'v1', credentials=delegated_credentials)
+    service = build("gmail", "v1", credentials=delegated_credentials)
     return service
 
 def fetch_unread_emails():
