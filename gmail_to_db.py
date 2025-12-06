@@ -89,10 +89,7 @@ def process_emails():
                 if not vuelos or len(vuelos) == 0:
                     print('⚠️  No se detectaron vuelos en este email')
                     try:
-                        try:
-                    mark_as_read(email['id'])
-                except Exception as e:
-                    print(f'⚠️  No se pudo marcar como leído: {e}')
+                        mark_as_read(email['id'])
                     except Exception as e:
                         print(f'⚠️  No se pudo marcar como leído: {e}')
                     continue
