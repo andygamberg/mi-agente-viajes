@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+ flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import anthropic
@@ -1238,7 +1238,55 @@ def api_process_email_text():
         return {"success": True, "vuelos_creados": vuelos_creados}, 200
     except Exception as e:
         return {"success": False, "error": str(e)}, 500
-
+# API endpoint para procesamiento automático de emails (sin confirmación)
+@app.route('/api/auto-process', methods=['POST'])
+def api_auto_process():
+    try:
+        data = request.get_json()
+        email_text = data.get('email_text', '')
+        pdf_base64 = data.get('pdf_base64', '')
+        
+        texto_a_procesar = email_text
+        
+        if pdf_base64:
+            import fitz
+            pdf_bytes = base64.b64decode(pdf_base64)
+            doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+            texto_pdf = ""
+            for page in doc:
+                texto_pdf += page.get_text()
+            doc.close()
+            texto_a_procesar = texto_pdf if texto_pdf.strip() else email_text
+        
+        if not texto_a_procesar:
+            return jsonify({'success': False, 'error': 'No hay texto'}), 400
+        
+        vuelos = extraer_info_con_claude(texto_a_procesar)
+        
+        if not vuelos:
+            return jsonify({'success': True, 'vuelos_creados': 0}), 200
+        
+        vuelos_creados = 0
+        for v in vuelos:
+            viaje = Viaje(
+                tipo='vuelo',
+                descripcion=v.get('descripcion', f"{v.get('origen','')} → {v.get('destino','')}"),
+                origen=v.get('origen'),
+                destino=v.get('destino'),
+                fecha_salida=v.get('fecha_salida'),
+                hora_salida=v.get('hora_salida'),
+                aerolinea=v.get('aerolinea'),
+                numero_vuelo=v.get('numero_vuelo'),
+                codigo_reserva=v.get('codigo_reserva')
+            )
+            db.session.add(viaje)
+            vuelos_creados += 1
+        
+        db.session.commit()
+        return jsonify({'success': True, 'vuelos_creados': vuelos_creados}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
