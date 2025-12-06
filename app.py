@@ -1208,6 +1208,40 @@ def process_emails_cron():
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
 
+# API endpoint para Cloud Function
+@app.route("/api/process-email-text", methods=["POST"])
+def api_process_email_text():
+    try:
+        data = request.get_json()
+        email_text = data.get("email_text", "")
+        if not email_text:
+            return {"success": False, "error": "No email text provided"}, 400
+        
+        vuelos = extraer_info_con_claude(email_text)
+        if not vuelos:
+            return {"success": True, "vuelos_creados": 0}, 200
+        
+        vuelos_creados = 0
+        for vuelo_data in vuelos:
+            viaje = Viaje(
+                tipo="vuelo",
+                descripcion=f"{vuelo_data.get("origen")} → {vuelo_data.get("destino")}",
+                origen=vuelo_data.get("origen"),
+                destino=vuelo_data.get("destino"),
+                fecha_salida=vuelo_data.get("fecha_salida"),
+                hora_salida=vuelo_data.get("hora_salida"),
+                aerolinea=vuelo_data.get("aerolinea"),
+                numero_vuelo=vuelo_data.get("numero_vuelo")
+            )
+            db.session.add(viaje)
+            vuelos_creados += 1
+        
+        db.session.commit()
+        return {"success": True, "vuelos_creados": vuelos_creados}, 200
+    except Exception as e:
+        return {"success": False, "error": str(e)}, 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 # Force rebuild Fri Dec  5 14:24:00 UTC 2025
