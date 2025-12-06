@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+import base64
+from flask import jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import anthropic
@@ -1224,7 +1226,7 @@ def api_process_email_text():
         for vuelo_data in vuelos:
             viaje = Viaje(
                 tipo="vuelo",
-                descripcion=f"{vuelo_data.get("origen")} -> {vuelo_data.get("destino")}",
+                descripcion=f"{vuelo_data.get('origen')} -> {vuelo_data.get('destino')}",
                 origen=vuelo_data.get("origen"),
                 destino=vuelo_data.get("destino"),
                 fecha_salida=vuelo_data.get("fecha_salida"),
