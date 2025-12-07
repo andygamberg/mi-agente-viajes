@@ -278,6 +278,7 @@ def agregar():
                     fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
             
             nuevo_viaje = Viaje(
+                user_id=current_user.id,
                 tipo=request.form.get('tipo'),
                 descripcion=request.form.get('descripcion'),
                 origen=request.form.get('origen', ''),
@@ -394,6 +395,7 @@ def carga_rapida():
                 
                 # Crear viaje
                 nuevo_viaje = Viaje(
+                    user_id=current_user.id,
                     tipo='vuelo',
                     descripcion=vuelo_data.get('descripcion', ''),
                     origen=vuelo_data.get('origen', ''),
@@ -656,6 +658,7 @@ def guardar_vuelos():
                 
                 # Crear nuevo viaje
                 nuevo_viaje = Viaje(
+                    user_id=current_user.id,
                     tipo='vuelo',
                     descripcion=vuelo_data.get('descripcion', ''),
                     origen=vuelo_data.get('origen', ''),
