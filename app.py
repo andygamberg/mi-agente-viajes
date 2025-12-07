@@ -218,6 +218,7 @@ def viajes_count():
     return {"count": count}
 
 @app.route('/')
+@login_required
 def index():
     viajes = Viaje.query.order_by(Viaje.fecha_salida).all()
     ahora = datetime.now()
@@ -244,6 +245,7 @@ def index():
     return render_template('index.html', proximos=proximos, pasados=pasados)
 
 @app.route('/agregar', methods=['GET', 'POST'])
+@login_required
 def agregar():
     if request.method == 'POST':
         try:
@@ -312,6 +314,7 @@ def agregar():
     return render_template('agregar.html')
 
 @app.route('/carga-rapida', methods=['GET', 'POST'])
+@login_required
 def carga_rapida():
     if request.method == 'POST':
         email_text = ''
@@ -544,6 +547,7 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
 
 
 @app.route('/eliminar/<int:id>', methods=['POST'])
+@login_required
 def eliminar(id):
     viaje = Viaje.query.get_or_404(id)
     db.session.delete(viaje)
@@ -552,6 +556,7 @@ def eliminar(id):
 
 
 @app.route('/guardar-vuelos', methods=['POST'])
+@login_required
 def guardar_vuelos():
     """Guarda los vuelos seleccionados en la base de datos"""
     try:
@@ -707,6 +712,7 @@ def guardar_vuelos():
 
 
 @app.route('/agrupar-manual', methods=['POST'])
+@login_required
 def agrupar_manual():
     import uuid
     grupos_ids = request.form.getlist('grupos_ids')
@@ -739,6 +745,7 @@ def agrupar_manual():
     return redirect(url_for('index'))
 
 @app.route('/editar-nombre-viaje', methods=['POST'])
+@login_required
 def editar_nombre_viaje():
     grupo_id = request.form.get('grupo_id')
     nuevo_nombre = request.form.get('nombre')
@@ -757,6 +764,7 @@ def editar_nombre_viaje():
     return redirect(url_for('index'))
 
 @app.route('/desagrupar', methods=['POST'])
+@login_required
 def desagrupar():
     viaje_id = request.form.get('viaje_id')
     viaje = Viaje.query.get_or_404(int(viaje_id))
@@ -765,6 +773,7 @@ def desagrupar():
     return redirect(url_for('index'))
 
 @app.route('/eliminar-grupo', methods=['POST'])
+@login_required
 def eliminar_grupo():
     """Elimina todos los vuelos de un grupo"""
     grupo_id = request.form.get('grupo_id')
@@ -783,6 +792,7 @@ def eliminar_grupo():
 
 
 @app.route('/desagrupar-grupo', methods=['POST'])
+@login_required
 def desagrupar_grupo():
     """Separa vuelos por código de reserva (los de misma reserva quedan juntos)"""
     import uuid
@@ -822,6 +832,7 @@ def desagrupar_grupo():
 
 
 @app.route('/eliminar-multiples', methods=['POST'])
+@login_required
 def eliminar_multiples():
     """Elimina múltiples grupos/viajes de una vez"""
     grupos_ids = request.form.getlist('grupos_ids')
@@ -844,6 +855,7 @@ def eliminar_multiples():
 
 
 @app.route('/update-calendar/<grupo_id>')
+@login_required
 def update_calendar(grupo_id):
     """Genera .ics UPDATE para sincronizar cambios"""
     if grupo_id.startswith('solo_'):
@@ -917,6 +929,7 @@ def update_calendar(grupo_id):
     return response
 
 @app.route('/cancel-calendar/<grupo_id>')
+@login_required
 def cancel_calendar(grupo_id):
     """Genera .ics CANCEL para eliminar de calendario"""
     if grupo_id.startswith('solo_'):
@@ -969,6 +982,7 @@ def cancel_calendar(grupo_id):
     return response
 
 @app.route('/export-calendar/<grupo_id>')
+@login_required
 def export_calendar(grupo_id):
     """Exporta viaje a .ics con iTIP"""
     if grupo_id.startswith('solo_'):
@@ -1217,6 +1231,7 @@ def api_check_flights():
 
 
 @app.route('/check-flights-manual')
+@login_required
 def check_flights_manual():
     """
     Página para chequear vuelos manualmente (para testing)
