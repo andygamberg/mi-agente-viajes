@@ -6,7 +6,8 @@ import uuid
 import os
 import sys
 from email_processor import fetch_emails_with_attachments, mark_as_read
-from app import app, db, Viaje, extraer_info_con_claude, get_ciudad_nombre
+from app import app, extraer_info_con_claude, get_ciudad_nombre
+from models import db, Viaje
 from datetime import datetime
 
 

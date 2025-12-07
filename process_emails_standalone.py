@@ -3,7 +3,8 @@ Script standalone para procesar emails
 Se ejecuta desde Cloud Scheduler
 """
 from email_processor import fetch_unread_emails
-from app import app, db, Viaje, extraer_info_con_claude
+from app import app, extraer_info_con_claude
+from models import db, Viaje
 from datetime import datetime
 
 def main():

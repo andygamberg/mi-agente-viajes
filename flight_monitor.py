@@ -108,7 +108,7 @@ def check_all_upcoming_flights(db_session):
     Returns:
         list de dicts con cambios detectados
     """
-    from app import Viaje
+    from models import Viaje
     
     now = datetime.now()
     limite = now + timedelta(hours=48)

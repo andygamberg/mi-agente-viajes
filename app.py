@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import base64
 from flask import jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import login_required, current_user
+from models import db, User, Viaje
+from auth import auth, login_manager
 from datetime import datetime, timedelta
 import anthropic
 import os
@@ -146,7 +148,13 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///viajes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'tu-clave-secreta-aqui'
-db = SQLAlchemy(app)
+db.init_app(app)
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+login_manager.login_message = 'Por favor iniciá sesión para acceder'
+
+# Registrar blueprint de auth
+app.register_blueprint(auth)
 
 # Agregar filtro fromjson para Jinja2
 @app.template_filter('fromjson')
@@ -157,47 +165,6 @@ def fromjson_filter(value):
         return json.loads(value)
     except:
         return []
-
-
-# # try:
-# #     client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
-# #     ANTHROPIC_AVAILABLE = True
-# # except:
-# #     ANTHROPIC_AVAILABLE = False
-
-class Viaje(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    tipo = db.Column(db.String(50), nullable=False)
-    descripcion = db.Column(db.String(200), nullable=False)
-    origen = db.Column(db.String(100))
-    destino = db.Column(db.String(100))
-    fecha_salida = db.Column(db.DateTime, nullable=False)
-    fecha_llegada = db.Column(db.DateTime)
-    hora_salida = db.Column(db.String(10))
-    hora_llegada = db.Column(db.String(10))
-    aerolinea = db.Column(db.String(100))
-    numero_vuelo = db.Column(db.String(50))
-    codigo_reserva = db.Column(db.String(50))
-    terminal = db.Column(db.String(50))
-    puerta = db.Column(db.String(20))
-    asiento = db.Column(db.String(20))
-    nombre_hotel = db.Column(db.String(200))
-    direccion_hotel = db.Column(db.String(300))
-    notas = db.Column(db.Text)
-    pasajeros = db.Column(db.Text)  # JSON con lista de pasajeros [{nombre, asiento}]
-    equipaje_facturado = db.Column(db.String(200))  # ej: "2x32kg (70lbs)"
-    equipaje_mano = db.Column(db.String(200))  # ej: "1x10kg (22lbs)"
-    grupo_viaje = db.Column(db.String(50))  # ID para agrupar vuelos del mismo viaje
-    nombre_viaje = db.Column(db.String(200))  # Nombre personalizado del viaje (editable)
-    creado = db.Column(db.DateTime, default=datetime.utcnow)
-    actualizado = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
-    
-    # Campos para monitoreo FR24
-    ultima_actualizacion_fr24 = db.Column(db.DateTime)
-    status_fr24 = db.Column(db.String(50))  # 'on_time', 'delayed', 'cancelled', 'landed', etc
-    delay_minutos = db.Column(db.Integer)
     datetime_takeoff_actual = db.Column(db.DateTime)
     datetime_landed_actual = db.Column(db.DateTime)
 def calcular_ciudad_principal(vuelos):

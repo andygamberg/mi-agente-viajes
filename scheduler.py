@@ -52,7 +52,7 @@ def get_vuelos_to_check(db_session):
     Retorna lista de vuelos que deben chequearse ahora
     según estrategia de frecuencia dinámica
     """
-    from app import Viaje
+    from models import Viaje
     
     # Vuelos próximos (dentro de 30 días hacia adelante)
     ahora = datetime.now()
@@ -72,7 +72,7 @@ def calcular_estadisticas_creditos(db_session):
     """
     Calcula estimación de créditos que se usarán este mes
     """
-    from app import Viaje
+    from models import Viaje
     
     ahora = datetime.now()
     fin_mes = ahora + timedelta(days=30)
@@ -127,7 +127,8 @@ def calcular_estadisticas_creditos(db_session):
     }
 
 if __name__ == '__main__':
-    from app import app, db, db
+    from app import app
+    from models import db
     
     with app.app_context():
         stats = calcular_estadisticas_creditos(db.session)
