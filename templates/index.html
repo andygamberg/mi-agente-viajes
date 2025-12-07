@@ -756,32 +756,29 @@
     <div class="modal" id="modalAgregarViaje">
         <div class="modal-content" style="max-width: 500px;">
             <h2 class="modal-title">Agregar Viaje</h2>
-            <p style="color: #6e6e73; margin-bottom: 24px; font-size: 15px;">Elegí cómo querés cargar tu viaje</p>
+            
+            <div style="background: #f0f9ff; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                <p style="color: #0071e3; font-size: 14px; margin: 0;">
+                    💡 <strong>Tip:</strong> Reenviá tu confirmación a <strong>misviajes@gamberg.com.ar</strong> y aparecerá automáticamente.
+                </p>
+            </div>
             
             <div class="agregar-opciones">
                 <a href="{{ url_for('carga_rapida') }}" class="opcion-card">
-                    <div class="opcion-icon">→</div>
+                    <div class="opcion-icon">📄</div>
                     <div class="opcion-content">
-                        <div class="opcion-titulo">Carga Rápida</div>
-                        <div class="opcion-desc">Arrastrá un PDF o pegá el email</div>
+                        <div class="opcion-titulo">Subir PDF</div>
+                        <div class="opcion-desc">Arrastrá o seleccioná el PDF de confirmación</div>
                     </div>
                 </a>
                 
                 <a href="{{ url_for('agregar') }}" class="opcion-card">
-                    <div class="opcion-icon">+</div>
+                    <div class="opcion-icon">✏️</div>
                     <div class="opcion-content">
-                        <div class="opcion-titulo">Carga Manual</div>
-                        <div class="opcion-desc">Completá el formulario manualmente</div>
+                        <div class="opcion-titulo">Agregar Manualmente</div>
+                        <div class="opcion-desc">Para vuelos sin confirmación digital</div>
                     </div>
                 </a>
-                
-                <div class="opcion-card disabled">
-                    <div class="opcion-icon">◆</div>
-                    <div class="opcion-content">
-                        <div class="opcion-titulo">Por Código de Reserva</div>
-                        <div class="opcion-desc">Próximamente</div>
-                    </div>
-                </div>
             </div>
             
             <button type="button" class="btn btn-secondary" onclick="cerrarModalAgregar()" style="width: 100%; margin-top: 20px;">Cancelar</button>
