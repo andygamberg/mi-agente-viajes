@@ -242,6 +242,13 @@ def calcular_ciudad_principal(vuelos):
     # Retornar ciudad con más horas
     return max(tiempo_por_ciudad, key=tiempo_por_ciudad.get)
 
+@app.route("/api/viajes/count")
+def viajes_count():
+    from datetime import date
+    hoy = date.today()
+    count = Viaje.query.filter(Viaje.fecha_salida >= hoy).count()
+    return {"count": count}
+
 @app.route('/')
 def index():
     viajes = Viaje.query.order_by(Viaje.fecha_salida).all()

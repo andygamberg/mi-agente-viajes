@@ -1130,3 +1130,17 @@
             });
         }
     </script>
+<script>
+    // Auto-refresh polling cada 30s
+    let lastCount = {{ viajes_futuros|length }};
+    setInterval(() => {
+        fetch('/api/viajes/count')
+            .then(r => r.json())
+            .then(data => {
+                if (data.count !== lastCount) {
+                    location.reload();
+                }
+            })
+            .catch(() => {});
+    }, 30000);
+</script>
