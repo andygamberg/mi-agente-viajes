@@ -1224,6 +1224,9 @@ def calendar_feed():
 
 from flight_monitor import check_flight_status, check_all_upcoming_flights
 
+@app.route('/cron/check-flights', methods=['GET', 'POST'])
+def cron_check_flights():
+    return api_check_flights()
 @app.route('/api/check-flights', methods=['GET'])
 def api_check_flights():
     """
