@@ -56,6 +56,7 @@ IATA_TO_CITY = {
     'CDG': 'Paris',
     'LHR': 'London',
     'FCO': 'Roma',
+    'OLB': 'Olbia',
     'AMS': 'Amsterdam',
     'FRA': 'Frankfurt',
     'MUC': 'Munich',
