@@ -220,7 +220,7 @@ def viajes_count():
 @app.route('/')
 @login_required
 def index():
-    viajes = Viaje.query.order_by(Viaje.fecha_salida).all()
+    viajes = Viaje.query.filter_by(user_id=current_user.id).order_by(Viaje.fecha_salida).all()
     ahora = datetime.now()
     
     # Separar por futuro/pasado
@@ -1357,5 +1357,19 @@ def migrate_db():
             db.create_all()
         
         return {'success': True, 'message': 'Migración completada'}, 200
+    except Exception as e:
+        return {'success': False, 'error': str(e)}, 500
+
+# Endpoint temporal para asignar viajes a usuario
+@app.route('/assign-viajes-to-user/<int:user_id>')
+def assign_viajes(user_id):
+    try:
+        viajes_sin_user = Viaje.query.filter(Viaje.user_id.is_(None)).all()
+        count = 0
+        for v in viajes_sin_user:
+            v.user_id = user_id
+            count += 1
+        db.session.commit()
+        return {'success': True, 'viajes_asignados': count}, 200
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
