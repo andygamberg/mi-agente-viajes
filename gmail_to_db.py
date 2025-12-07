@@ -139,14 +139,15 @@ def process_emails():
         return {'emails': emails_procesados, 'creados': vuelos_creados, 'actualizados': vuelos_actualizados}
 
 def check_duplicate(vuelo_data):
-    """Chequea si el vuelo ya existe en BD"""
-    if not vuelo_data.get('numero_vuelo') or not vuelo_data.get('fecha_salida'):
+    """Chequea si el vuelo ya existe en BD (por PNR + vuelo + ruta)"""
+    if not vuelo_data.get('numero_vuelo'):
         return None
     
-    # Buscar por número de vuelo + fecha + origen + destino
+    # Buscar por código reserva + número vuelo + origen + destino
+    # (sin fecha, para detectar cambios de horario)
     existe = Viaje.query.filter_by(
+        codigo_reserva=vuelo_data.get('codigo_reserva'),
         numero_vuelo=vuelo_data.get('numero_vuelo'),
-        fecha_salida=vuelo_data.get('fecha_salida'),
         origen=vuelo_data.get('origen'),
         destino=vuelo_data.get('destino')
     ).first()
@@ -207,8 +208,36 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None):
     print(f'  ✅ Vuelo guardado (ID: {viaje.id})')
 
 def update_flight(viaje, vuelo_data):
-    """Actualiza vuelo existente"""
-    # Actualizar solo campos que vienen en el nuevo email
+    """Actualiza vuelo existente (incluyendo cambios de fecha/hora)"""
+    from datetime import datetime as dt
+    
+    # Actualizar fecha_salida si cambió
+    fecha_salida_str = vuelo_data.get('fecha_salida')
+    hora_salida = vuelo_data.get('hora_salida', '')
+    if fecha_salida_str:
+        try:
+            if hora_salida:
+                nueva_fecha = dt.strptime(f"{fecha_salida_str} {hora_salida}", '%Y-%m-%d %H:%M')
+            else:
+                nueva_fecha = dt.strptime(fecha_salida_str, '%Y-%m-%d')
+            viaje.fecha_salida = nueva_fecha
+        except:
+            pass
+    
+    # Actualizar fecha_llegada si cambió
+    fecha_llegada_str = vuelo_data.get('fecha_llegada')
+    hora_llegada = vuelo_data.get('hora_llegada', '')
+    if fecha_llegada_str:
+        try:
+            if hora_llegada:
+                nueva_fecha = dt.strptime(f"{fecha_llegada_str} {hora_llegada}", '%Y-%m-%d %H:%M')
+            else:
+                nueva_fecha = dt.strptime(fecha_llegada_str, '%Y-%m-%d')
+            viaje.fecha_llegada = nueva_fecha
+        except:
+            pass
+    
+    # Actualizar otros campos
     if vuelo_data.get('hora_salida'):
         viaje.hora_salida = vuelo_data.get('hora_salida')
     if vuelo_data.get('hora_llegada'):
