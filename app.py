@@ -1327,3 +1327,20 @@ def api_auto_process():
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
 # Deploy Sat Dec  6 17:35:17 UTC 2025
+
+# Endpoint temporal para migración
+@app.route('/migrate-db')
+def migrate_db():
+    try:
+        with db.engine.connect() as conn:
+            # Agregar columna user_id si no existe
+            conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS user_id INTEGER"))
+            conn.commit()
+        
+        # Crear tabla user si no existe
+        with app.app_context():
+            db.create_all()
+        
+        return {'success': True, 'message': 'Migración completada'}, 200
+    except Exception as e:
+        return {'success': False, 'error': str(e)}, 500
