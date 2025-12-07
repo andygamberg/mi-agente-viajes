@@ -163,3 +163,105 @@
 - Auditoría UX original: 4 Diciembre 2025
 - Spec Multi-usuario: 7 Diciembre 2025
 - TripCase como inspiración para UX
+
+---
+
+## 🔧 DEUDA TÉCNICA
+
+### Nomenclatura confusa (CRÍTICO)
+**Problema:** El modelo `Viaje` en BD es en realidad un VUELO/SEGMENTO
+- Lo que el usuario ve como "Viaje" = `grupo_viaje` 
+- Lo que el usuario ve como "Vuelo" = registro `Viaje`
+
+**Solución propuesta:**
+```
+Trip (Viaje)
+├── id, nombre, user_id, shared_with
+└── tiene muchos → Segments
+
+Segment (Segmento/Vuelo)
+├── id, trip_id
+├── tipo (vuelo, hotel, auto, actividad)
+├── origen, destino, fechas...
+```
+
+**Cuándo:** Sprint de UX/UI completo
+
+---
+
+## 👤 HEADER USUARIO
+
+### Actual
+- Muestra: "👤 Nombre | Salir"
+- Posición: arriba derecha
+
+### Propuesto (dropdown)
+```
+👤 Andy Gamberg ▼
+├── Mi cuenta
+├── Mis emails (agregar/verificar)
+├── Compartir con... (gestionar usuarios)
+├── ─────────────
+└── Cerrar sesión
+```
+
+---
+
+## 📧 MÚLTIPLES EMAILS POR USUARIO
+
+### Modelo
+```python
+class UserEmail(db.Model):
+    user_id = ForeignKey(User)
+    email = unique, verificado, es_principal
+```
+
+### Flujo
+1. Usuario registra con email principal
+2. En "Mis emails" puede agregar más
+3. Sistema envía código verificación
+4. Email processor busca remitente en UserEmail → user_id
+
+### Casos de uso
+- Email trabajo + personal
+- Reenviar desde distintas cuentas
+- Familia con emails compartidos
+
+---
+
+## 📲 COMPARTIR POR WHATSAPP
+
+### Info básica (SÍ compartir)
+- Vuelo: LH511
+- Fecha: 08/06/2026
+- Ruta: EZE → FRA
+- Sale: 16:40
+- Llega: 11:00 (+1)
+- Terminal: 1
+
+### Info sensible (NO compartir)
+- Asiento
+- Clase/cabina
+- Viajero frecuente
+- Código reserva
+- Equipaje
+
+### Implementación
+- Botón 📤 en cada card de vuelo
+- Genera texto formateado
+- Abre `whatsapp://send?text=...`
+
+---
+
+## 🔄 ORDEN DE IMPLEMENTACIÓN ACTUALIZADO
+
+1. ~~MVP6.1: Modelo User~~ ✅
+2. ~~MVP6.2: Auth + proteger rutas~~ ✅
+3. **MVP6.3: Asignar user_id al crear viajes**
+4. **MVP6.4: UserEmail model**
+5. **MVP6.5: Email processor multi-usuario**
+6. **MVP7: Compartir viajes entre usuarios**
+7. **UX Sprint: Refactor nomenclatura + diseño completo**
+8. **MVP8: PWA/móvil**
+9. **Nice to have: WhatsApp sharing**
+
