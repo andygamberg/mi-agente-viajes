@@ -348,3 +348,16 @@ class UserEmail(db.Model):
 - Sin hover states críticos
 - Texto legible sin zoom (16px mínimo)
 
+
+---
+
+## 🧪 TEST E2E MVP6 (antes de MVP7)
+
+1. [ ] Registrar usuario Vero
+2. [ ] Verificar que Vero ve 0 viajes
+3. [ ] Vero configura nombre_pax/apellido_pax
+4. [ ] Andy envía reserva con Vero como pasajera
+5. [ ] Verificar que Vero ve el viaje (match por pasajero)
+6. [ ] Probar email desde email adicional de Andy
+7. [ ] Probar logout/login de ambos usuarios
+
