@@ -316,7 +316,17 @@ def index():
     pasados = agrupar_viajes(viajes_pasados)
     pasados.reverse()
     
-    return render_template('index.html', proximos=proximos, pasados=pasados)
+    # ONBOARDING: Mostrar si nombre_pax vacío Y tiene 0 viajes
+    show_onboarding = (not current_user.nombre_pax) and (len(viajes) == 0)
+    
+    # Badge de perfil incompleto (mostrar si nombre_pax vacío)
+    profile_incomplete = not current_user.nombre_pax
+    
+    return render_template('index.html', 
+                           proximos=proximos, 
+                           pasados=pasados,
+                           show_onboarding=show_onboarding,
+                           profile_incomplete=profile_incomplete)
 
 @app.route('/agregar', methods=['GET', 'POST'])
 @login_required
@@ -727,8 +737,6 @@ def guardar_vuelos():
                 codigo = vuelo_data.get('codigo_reserva')
                 fecha_str = vuelo_data.get('fecha_salida')
                 print(f"🔍 Validación 2 - Index: {index}, Código: {codigo}, Fecha: {fecha_str}")
-                
-
                 
                 # Crear nuevo viaje
                 nuevo_viaje = Viaje(
@@ -1285,6 +1293,7 @@ from flight_monitor import check_flight_status, check_all_upcoming_flights
 @app.route('/cron/check-flights', methods=['GET', 'POST'])
 def cron_check_flights():
     return api_check_flights()
+
 @app.route('/api/check-flights', methods=['GET'])
 def api_check_flights():
     """
@@ -1366,6 +1375,7 @@ def api_process_email_text():
         return {"success": True, "vuelos_creados": vuelos_creados}, 200
     except Exception as e:
         return {"success": False, "error": str(e)}, 500
+
 # API endpoint para procesamiento automático de emails (sin confirmación)
 @app.route('/api/auto-process', methods=['POST'])
 def api_auto_process():
@@ -1418,7 +1428,6 @@ def api_auto_process():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-# Deploy MVP7 - Mon Dec  8 2025
 
 # Endpoint temporal para migración
 @app.route('/migrate-db')
@@ -1469,7 +1478,7 @@ def update_profile():
     current_user.apellido_pax = request.form.get('apellido_pax', '').strip() or None
     db.session.commit()
     flash('Perfil actualizado', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('perfil'))
 
 @app.route('/add-email', methods=['POST'])
 @login_required

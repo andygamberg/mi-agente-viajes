@@ -111,6 +111,9 @@
             overflow: hidden;
             border: 1px solid rgba(0,0,0,0.04);
         }
+        .viaje-card.pasado {
+            opacity: 0.7;
+        }
         .viaje-card.selected {
             border: 2px solid #1d1d1f !important;
             background: #fafafa !important;
@@ -131,12 +134,6 @@
             max-height: 5000px;
             opacity: 1;
             padding: 0 24px 16px 24px;
-        }
-        .viaje-card.pasado {
-            opacity: 0.7;
-        }
-        .viaje-card.pasado:hover {
-            opacity: 0.9;
         }
         .card-header-fixed {
             padding: 20px 24px;
@@ -443,29 +440,6 @@
             color: white;
             font-weight: 500;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal.visible {
-            display: flex;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 18px;
-            padding: 32px;
-            max-width: 500px;
-            width: 90%;
-        }
         .agregar-opciones {
             display: flex;
             flex-direction: column;
@@ -481,6 +455,7 @@
             text-decoration: none;
             color: #1d1d1f;
             transition: all 0.2s;
+            cursor: pointer;
         }
         .opcion-card:hover:not(.disabled) {
             background: #e8e8ed;
@@ -512,6 +487,29 @@
             font-size: 13px;
             color: #6e6e73;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.visible {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 18px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+        }
         .modal-title {
             font-size: 24px;
             font-weight: 600;
@@ -529,17 +527,174 @@
             display: flex;
             gap: 12px;
         }
+        /* User info header */
+        .user-info {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .user-info a {
+            color: #1d1d1f;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .user-info a:last-child {
+            color: #6e6e73;
+            gap: 4px;
+        }
+        /* Profile incomplete badge */
+        .profile-incomplete-badge {
+            background: #fff3cd;
+            color: #856404;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .profile-incomplete-badge:hover {
+            background: #ffe69c;
+        }
+        /* Onboarding Modal */
+        .onboarding-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .onboarding-modal.visible {
+            display: flex;
+        }
+        .onboarding-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 520px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .onboarding-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .onboarding-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .onboarding-header p {
+            color: #6e6e73;
+            font-size: 16px;
+        }
+        .onboarding-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .onboarding-step {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            background: #f5f5f7;
+            border-radius: 14px;
+        }
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #0071e3;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .step-content {
+            flex: 1;
+        }
+        .step-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .step-content p {
+            font-size: 14px;
+            color: #6e6e73;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .step-content .btn {
+            font-size: 13px;
+            padding: 8px 16px;
+        }
+        .email-highlight {
+            background: #e8f4ff;
+            color: #0071e3;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            display: inline-block;
+            margin: 8px 0;
+        }
+        .webcal-link {
+            color: #0071e3;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .webcal-link:hover {
+            text-decoration: underline;
+        }
+        .onboarding-footer {
+            margin-top: 24px;
+            text-align: center;
+        }
+        .btn-skip {
+            background: none;
+            border: none;
+            color: #6e6e73;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 16px;
+        }
+        .btn-skip:hover {
+            color: #1d1d1f;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="user-info" style="position: absolute; top: 24px; right: 24px; font-size: 14px; display: flex; align-items: center; gap: 16px;">
-                <a href="{{ url_for('perfil') }}" style="color: #1d1d1f; text-decoration: none; display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 16px;">⚙️</span> {{ current_user.nombre }}
+            <div class="user-info">
+                {% if profile_incomplete %}
+                <a href="{{ url_for('perfil') }}" class="profile-incomplete-badge">
+                    ⚠️ Completar perfil
                 </a>
-                <a href="{{ url_for('auth.logout') }}" style="color: #6e6e73; text-decoration: none; display: flex; align-items: center; gap: 4px;">
-                    <span style="font-size: 14px;">🚪</span> Salir
+                {% endif %}
+                <a href="{{ url_for('perfil') }}">
+                    <span>⚙️</span> {{ current_user.nombre }}
+                </a>
+                <a href="{{ url_for('auth.logout') }}">
+                    <span>🚪</span> Salir
                 </a>
             </div>
             <h1>Mis Viajes</h1>
@@ -564,7 +719,7 @@
                         {% set es_multi = grupo|length > 1 %}
                         
                         <div class="viaje-card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
-                            <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select" style="display:none;" onclick="event.stopPropagation();">
+                            <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select" onclick="event.stopPropagation();">
                             
                             <div class="card-header-fixed" onclick="handleHeaderClick(event, this.parentElement)">
                                 <div class="header-top">
@@ -582,6 +737,7 @@
                             </div>
                             
                             <div class="card-body-colapsable">
+                            
                             {% for vuelo in grupo %}
                             <div class="segmento">
                                 {% if es_multi %}
@@ -688,7 +844,7 @@
                 {% set es_multi = grupo|length > 1 %}
                 
                 <div class="viaje-card pasado collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
-                    <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select" style="display:none;">
+                    <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select">
                     
                     <div class="card-header-fixed" onclick="handleHeaderClick(event, this.parentElement)">
                         <div class="header-top">
@@ -705,82 +861,40 @@
                     </div>
                     
                     <div class="card-body-colapsable">
-                    {% for vuelo in grupo %}
-                    <div class="segmento">
-                        {% if es_multi %}
-                        <div class="segmento-numero">Segmento {{ loop.index }} - {{ vuelo.fecha_salida.strftime("%d/%m/%Y") }}</div>
-                        {% endif %}
-                        
-                        <div class="ruta-simple">
-                            <div style="flex: 1;">
-                                <div class="ciudad-code">{{ vuelo.origen }}</div>
-                                {% if vuelo.hora_salida %}
-                                <div class="hora-small">{{ vuelo.hora_salida }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="flecha-small">→</div>
-                            <div style="flex: 1; text-align: right;">
-                                <div class="ciudad-code">{{ vuelo.destino }}</div>
-                                {% if vuelo.hora_llegada %}
-                                <div class="hora-small">{{ vuelo.hora_llegada }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        {% if vuelo.aerolinea %}
-                        <div class="info-simple"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
-                        {% endif %}
-                        {% if vuelo.numero_vuelo %}
-                        <div class="info-simple"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
-                        {% endif %}
-                        
-                        {% if vuelo.pasajeros %}
-                        {% set pasajeros_list = vuelo.pasajeros|fromjson %}
-                        {% if pasajeros_list %}
-                        <div class="pasajeros-colapsable">
-                            <button type="button" class="pasajeros-toggle" onclick="event.stopPropagation(); togglePasajeros(this)">
-                                <span class="toggle-icon">▶</span>
-                                Pasajeros ({{ pasajeros_list|length }})
-                            </button>
-                            <div class="pasajeros-content" style="display: none;">
-                                {% for p in pasajeros_list %}
-                                <div class="pasajero-row">
-                                    <div class="pasajero-main">
-                                        <div class="pasajero-nombre">{{ p.nombre }}</div>
-                                        <div class="pasajero-meta">
-                                            <span class="asiento-badge">{{ p.asiento }}</span>
-                                            {% if p.cabina %}
-                                            <span class="cabina-badge">{{ p.cabina }}</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    {% if p.viajero_frecuente %}
-                                    <div class="ff-badge">{{ p.viajero_frecuente }}</div>
+                        {% for vuelo in grupo %}
+                        <div class="segmento">
+                            {% if es_multi %}
+                            <div class="segmento-numero">Segmento {{ loop.index }} - {{ vuelo.fecha_salida.strftime("%d/%m/%Y") }}</div>
+                            {% endif %}
+                            
+                            <div class="ruta-simple">
+                                <div style="flex: 1;">
+                                    <div class="ciudad-code">{{ vuelo.origen }}</div>
+                                    {% if vuelo.hora_salida %}
+                                    <div class="hora-small">{{ vuelo.hora_salida }}</div>
                                     {% endif %}
                                 </div>
-                                {% endfor %}
-                                
-                                {% if vuelo.equipaje_facturado or vuelo.equipaje_mano %}
-                                <div class="equipaje-info">
-                                    <div class="equipaje-titulo">Equipaje</div>
-                                    {% if vuelo.equipaje_facturado %}
-                                    <div class="equipaje-item">Facturado: {{ vuelo.equipaje_facturado }}</div>
-                                    {% endif %}
-                                    {% if vuelo.equipaje_mano %}
-                                    <div class="equipaje-item">De mano: {{ vuelo.equipaje_mano }}</div>
+                                <div class="flecha-small">→</div>
+                                <div style="flex: 1; text-align: right;">
+                                    <div class="ciudad-code">{{ vuelo.destino }}</div>
+                                    {% if vuelo.hora_llegada %}
+                                    <div class="hora-small">{{ vuelo.hora_llegada }}</div>
                                     {% endif %}
                                 </div>
-                                {% endif %}
                             </div>
+                            
+                            {% if vuelo.aerolinea %}
+                            <div class="info-simple"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
+                            {% endif %}
+                            {% if vuelo.numero_vuelo %}
+                            <div class="info-simple"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                            {% endif %}
                         </div>
+                        {% endfor %}
+                        
+                        {% if primer_vuelo.codigo_reserva %}
+                        <div class="info-simple" style="margin-top: 12px;"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
                         {% endif %}
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    
-                    {% if primer_vuelo.codigo_reserva %}
-                    <div class="info-simple" style="margin-top: 12px;"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
-                    {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -822,14 +936,13 @@
         </div>
     </div>
     
-    <!-- Toolbar Agrupar -->
+    <!-- Toolbar para agrupar -->
     <div class="toolbar-agrupar" id="toolbarAgrupar">
         <span class="toolbar-text"><span id="countSeleccionados">0</span> viajes seleccionados</span>
         <button type="button" class="btn btn-primary" onclick="agruparSeleccionados()">Agrupar</button>
         <button type="button" class="btn btn-secondary" onclick="cancelarAgrupar()">Cancelar</button>
     </div>
     
-    <!-- Toolbar Eliminar -->
     <div class="toolbar-agrupar" id="toolbarEliminar">
         <span class="toolbar-text"><span id="countEliminar">0</span> viajes seleccionados</span>
         <button type="button" class="btn btn-primary" onclick="eliminarSeleccionados()" style="background: white; color: #ff3b30;">Eliminar</button>
@@ -851,11 +964,56 @@
         </div>
     </div>
     
+    <!-- Onboarding Modal -->
+    <div class="onboarding-modal" id="onboardingModal">
+        <div class="onboarding-content">
+            <div class="onboarding-header">
+                <h2>🌍 ¡Bienvenido a Mis Viajes!</h2>
+                <p>Configurá tu cuenta en 3 pasos</p>
+            </div>
+            
+            <div class="onboarding-steps">
+                <div class="onboarding-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>¿Cómo aparece tu nombre en los pasajes?</h3>
+                        <p>Para que te reconozcamos automáticamente cuando alguien te incluye en una reserva.</p>
+                        <a href="{{ url_for('perfil') }}" class="btn btn-primary">Completar perfil</a>
+                    </div>
+                </div>
+                
+                <div class="onboarding-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Agregá tu primer viaje</h3>
+                        <p>Reenviá tus confirmaciones de vuelo a:</p>
+                        <div class="email-highlight">misviajes@gamberg.com.ar</div>
+                        <p style="margin-top: 8px;">Aparecerán automáticamente en tu cuenta.</p>
+                        <button type="button" class="btn btn-secondary" onclick="cerrarOnboarding(); abrirModalAgregar();">Ver otras opciones</button>
+                    </div>
+                </div>
+                
+                <div class="onboarding-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Sincronizá con tu calendario</h3>
+                        <p>Tus vuelos aparecerán automáticamente en Apple Calendar, Google Calendar, etc.</p>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed" class="webcal-link">📅 Suscribirse al calendario</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="onboarding-footer">
+                <button type="button" class="btn-skip" onclick="skipOnboarding()">Omitir por ahora</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        let modoAgrupar = false;
-        let modoEliminar = false;
-        let seleccionados = new Set();
-        let seleccionadosEliminar = new Set();
+        var modoAgrupar = false;
+        var seleccionados = new Set();
+        var modoEliminar = false;
+        var seleccionadosEliminar = new Set();
         
         function toggleModoAgrupar() {
             if (modoAgrupar) {
@@ -863,22 +1021,12 @@
             } else {
                 modoAgrupar = true;
                 seleccionados.clear();
+                
                 document.getElementById('countSeleccionados').textContent = '0';
-                document.getElementById('toolbarAgrupar').style.display = 'flex';
-                document.querySelectorAll('.card-actions').forEach(function(el) {
-                    el.style.display = 'none';
-                });
-            }
-        }
-        
-        function toggleModoEliminar() {
-            if (modoEliminar) {
-                cancelarEliminar();
-            } else {
-                modoEliminar = true;
-                seleccionadosEliminar.clear();
-                document.getElementById('countEliminar').textContent = '0';
-                document.getElementById('toolbarEliminar').style.display = 'flex';
+                var toolbar = document.getElementById('toolbarAgrupar');
+                toolbar.classList.add('visible');
+                toolbar.style.display = 'flex';
+                
                 document.querySelectorAll('.card-actions').forEach(function(el) {
                     el.style.display = 'none';
                 });
@@ -887,7 +1035,9 @@
         
         function toggleSelect(grupoId) {
             var card = document.getElementById('card-' + grupoId);
-            if (!card) return;
+            if (!card) {
+                return;
+            }
             
             if (modoEliminar) {
                 if (seleccionadosEliminar.has(grupoId)) {
@@ -897,7 +1047,17 @@
                     seleccionadosEliminar.add(grupoId);
                     card.classList.add('selected-eliminar');
                 }
+                
                 document.getElementById('countEliminar').textContent = seleccionadosEliminar.size;
+                var toolbar = document.getElementById('toolbarEliminar');
+                if (seleccionadosEliminar.size > 0) {
+                    toolbar.classList.add('visible');
+                    toolbar.style.display = 'flex';
+                } else {
+                    toolbar.classList.remove('visible');
+                    toolbar.style.display = 'none';
+                }
+                return;
             }
             
             if (modoAgrupar) {
@@ -908,59 +1068,73 @@
                     seleccionados.add(grupoId);
                     card.classList.add('selected');
                 }
+                
                 document.getElementById('countSeleccionados').textContent = seleccionados.size;
+                var toolbar = document.getElementById('toolbarAgrupar');
+                if (seleccionados.size > 0) {
+                    toolbar.classList.add('visible');
+                    toolbar.style.display = 'flex';
+                } else {
+                    toolbar.classList.remove('visible');
+                    toolbar.style.display = 'none';
+                }
             }
         }
         
         function cancelarAgrupar() {
             modoAgrupar = false;
             seleccionados.clear();
+            
+            document.querySelectorAll('.checkbox-select').forEach(function(cb) {
+                cb.checked = false;
+            });
             document.querySelectorAll('.viaje-card').forEach(function(card) {
-                card.classList.remove('selected');
+                card.classList.remove('selected', 'seleccionable', 'seleccionado');
             });
-            document.getElementById('toolbarAgrupar').style.display = 'none';
-            document.querySelectorAll('.card-actions').forEach(function(el) {
-                el.style.display = 'flex';
-            });
-        }
-        
-        function cancelarEliminar() {
-            modoEliminar = false;
-            seleccionadosEliminar.clear();
-            document.querySelectorAll('.viaje-card').forEach(function(card) {
-                card.classList.remove('selected-eliminar');
-            });
-            document.getElementById('toolbarEliminar').style.display = 'none';
-            document.querySelectorAll('.card-actions').forEach(function(el) {
-                el.style.display = 'flex';
-            });
-        }
-        
-        function agruparSeleccionados() {
-            if (seleccionados.size < 2) {
-                alert('Seleccioná al menos 2 viajes para agrupar');
-                return;
+            
+            var toolbar = document.getElementById('toolbarAgrupar');
+            if (toolbar) {
+                toolbar.classList.remove('visible');
+                toolbar.style.display = 'none';
             }
-            var formData = new FormData();
-            seleccionados.forEach(function(id) {
-                formData.append('grupos_ids', id);
+            
+            document.querySelectorAll('.card-actions').forEach(function(el) {
+                el.style.display = 'flex';
             });
-            fetch('/agrupar-manual', {
-                method: 'POST',
-                body: formData
-            }).then(function(response) {
-                if (response.ok) {
-                    window.location.href = '/';
-                }
-            });
+        }
+        
+        function editarNombre(grupoId, nombreActual) {
+            document.getElementById('editGrupoId').value = grupoId;
+            document.getElementById('editNombreInput').value = nombreActual;
+            document.getElementById('modalEditarNombre').classList.add('visible');
+        }
+        
+        function toggleModoEliminar() {
+            if (modoEliminar) {
+                cancelarEliminar();
+            } else {
+                modoEliminar = true;
+                seleccionadosEliminar.clear();
+                
+                document.getElementById('countEliminar').textContent = '0';
+                var toolbar = document.getElementById('toolbarEliminar');
+                toolbar.classList.add('visible');
+                toolbar.style.display = 'flex';
+                
+                document.querySelectorAll('.card-actions').forEach(function(el) {
+                    el.style.display = 'none';
+                });
+            }
         }
         
         function eliminarSeleccionados() {
             if (seleccionadosEliminar.size === 0) return;
+            
             if (confirm('¿Eliminar ' + seleccionadosEliminar.size + ' viaje(s)?')) {
                 var form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '/eliminar-multiples';
+                
                 seleccionadosEliminar.forEach(function(id) {
                     var input = document.createElement('input');
                     input.type = 'hidden';
@@ -968,15 +1142,32 @@
                     input.value = id;
                     form.appendChild(input);
                 });
+                
                 document.body.appendChild(form);
                 form.submit();
             }
         }
         
-        function editarNombre(grupoId, nombreActual) {
-            document.getElementById('editGrupoId').value = grupoId;
-            document.getElementById('editNombreInput').value = nombreActual;
-            document.getElementById('modalEditarNombre').classList.add('visible');
+        function cancelarEliminar() {
+            modoEliminar = false;
+            seleccionadosEliminar.clear();
+            
+            document.querySelectorAll('.checkbox-select').forEach(function(cb) {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.viaje-card').forEach(function(card) {
+                card.classList.remove('selected', 'selected-eliminar');
+            });
+            
+            var toolbar = document.getElementById('toolbarEliminar');
+            if (toolbar) {
+                toolbar.classList.remove('visible');
+                toolbar.style.display = 'none';
+            }
+            
+            document.querySelectorAll('.card-actions').forEach(function(el) {
+                el.style.display = 'flex';
+            });
         }
         
         function cerrarModal() {
@@ -986,6 +1177,7 @@
         function togglePasajeros(btn) {
             var content = btn.nextElementSibling;
             var icon = btn.querySelector('.toggle-icon');
+            
             if (content.style.display === 'none') {
                 content.style.display = 'block';
                 icon.classList.add('expanded');
@@ -1021,7 +1213,49 @@
             }
         }
         
-        // Auto-refresh polling cada 2 minutos
+        function agruparSeleccionados() {
+            if (seleccionados.size < 2) {
+                alert('Seleccioná al menos 2 viajes para agrupar');
+                return;
+            }
+            
+            var formData = new FormData();
+            seleccionados.forEach(function(id) {
+                formData.append('grupos_ids', id);
+            });
+            
+            fetch('/agrupar-manual', {
+                method: 'POST',
+                body: formData
+            }).then(function(response) {
+                if (response.ok) {
+                    window.location.href = '/';
+                }
+            });
+        }
+        
+        // Onboarding functions
+        function showOnboarding() {
+            document.getElementById('onboardingModal').classList.add('visible');
+        }
+        
+        function cerrarOnboarding() {
+            document.getElementById('onboardingModal').classList.remove('visible');
+        }
+        
+        function skipOnboarding() {
+            localStorage.setItem('onboarding_seen', 'true');
+            cerrarOnboarding();
+        }
+        
+        // Check if should show onboarding
+        {% if show_onboarding %}
+        if (!localStorage.getItem('onboarding_seen')) {
+            showOnboarding();
+        }
+        {% endif %}
+        
+        // Auto-refresh polling
         var lastCount = {{ proximos|length }};
         setInterval(function() {
             fetch('/api/viajes/count')
