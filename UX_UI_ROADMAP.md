@@ -339,3 +339,12 @@ class UserEmail(db.Model):
 - SF Pro Display / Inter / -apple-system
 - Pesos: 400 (body), 500 (labels), 600 (headings)
 
+
+**Mobile First:**
+- Diseño responsive desde el inicio
+- Touch targets mínimo 44px
+- Navegación thumb-friendly
+- Formularios optimizados para teclado móvil
+- Sin hover states críticos
+- Texto legible sin zoom (16px mínimo)
+
