@@ -1353,6 +1353,7 @@ def migrate_db():
         with db.engine.connect() as conn:
             # Agregar columna user_id si no existe
             conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS user_id INTEGER"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS nombre_pasaporte VARCHAR(100)"))
             conn.commit()
         
         # Crear tabla user si no existe
@@ -1376,3 +1377,52 @@ def assign_viajes(user_id):
         return {'success': True, 'viajes_asignados': count}, 200
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
+
+# Perfil de usuario
+@app.route('/perfil')
+@login_required
+def perfil():
+    from models import UserEmail
+    emails_adicionales = UserEmail.query.filter_by(user_id=current_user.id).all()
+    return render_template('perfil.html', emails_adicionales=emails_adicionales)
+
+@app.route('/update-profile', methods=['POST'])
+@login_required
+def update_profile():
+    current_user.nombre = request.form.get('nombre', '').strip()
+    current_user.nombre_pasaporte = request.form.get('nombre_pasaporte', '').strip().upper() or None
+    db.session.commit()
+    flash('Perfil actualizado', 'success')
+    return redirect(url_for('perfil'))
+
+@app.route('/add-email', methods=['POST'])
+@login_required
+def add_email():
+    from models import UserEmail
+    email = request.form.get('email', '').strip().lower()
+    if not email:
+        flash('Email inválido', 'error')
+        return redirect(url_for('perfil'))
+    
+    # Verificar que no exista
+    existe = UserEmail.query.filter_by(email=email).first()
+    if existe:
+        flash('Ese email ya está registrado', 'error')
+        return redirect(url_for('perfil'))
+    
+    nuevo = UserEmail(user_id=current_user.id, email=email)
+    db.session.add(nuevo)
+    db.session.commit()
+    flash(f'Email {email} agregado', 'success')
+    return redirect(url_for('perfil'))
+
+@app.route('/remove-email/<int:email_id>', methods=['POST'])
+@login_required
+def remove_email(email_id):
+    from models import UserEmail
+    email = UserEmail.query.get(email_id)
+    if email and email.user_id == current_user.id:
+        db.session.delete(email)
+        db.session.commit()
+        flash('Email eliminado', 'success')
+    return redirect(url_for('perfil'))

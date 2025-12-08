@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     nombre = db.Column(db.String(100), nullable=False)
+    nombre_pasaporte = db.Column(db.String(100))  # Como aparece en reservas: APELLIDO/NOMBRE
     creado = db.Column(db.DateTime, default=datetime.utcnow)
     activo = db.Column(db.Boolean, default=True)
     

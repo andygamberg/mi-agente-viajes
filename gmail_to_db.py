@@ -11,6 +11,41 @@ from models import db, Viaje, User, UserEmail
 from datetime import datetime
 
 
+def find_user_by_passenger(pasajeros):
+    """Busca usuario por nombre en lista de pasajeros"""
+    if not pasajeros:
+        return None
+    
+    for pax in pasajeros:
+        nombre_pax = pax.get('nombre', '').upper()
+        if not nombre_pax:
+            continue
+        
+        # Formato: APELLIDO/NOMBRE SEGUNDO_NOMBRE
+        if '/' in nombre_pax:
+            parts = nombre_pax.split('/')
+            apellido = parts[0].strip()
+            nombres = parts[1].strip().split()[0] if len(parts) > 1 else ''  # Solo primer nombre
+        else:
+            # Sin formato estándar, intentar dividir
+            words = nombre_pax.split()
+            apellido = words[0] if words else ''
+            nombres = words[1] if len(words) > 1 else ''
+        
+        if not apellido:
+            continue
+        
+        # Buscar usuarios con nombre_pasaporte que contenga apellido y nombre
+        users = User.query.filter(User.nombre_pasaporte.isnot(None)).all()
+        for user in users:
+            user_passport = user.nombre_pasaporte.upper()
+            if apellido in user_passport and nombres in user_passport:
+                print(f'  👤 Usuario encontrado por pasajero: {user.nombre} (match: {nombre_pax})')
+                return user.id
+    
+    return None
+
+
 def calcular_ciudad_principal_dict(vuelos):
     """Calcula la ciudad donde se pasa más tiempo (para diccionarios)"""
     from datetime import datetime
@@ -207,7 +242,12 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
                 user = User.query.get(user_id)
                 print(f'  👤 Usuario identificado por email adicional: {user.nombre} ({clean_email})')
             else:
-                print(f'  ⚠️ Usuario no encontrado para: {clean_email}')
+                print(f'  ⚠️ Usuario no encontrado por email: {clean_email}')
+                # Intentar buscar por nombre de pasajero
+                pasajeros = vuelo_data.get('pasajeros', [])
+                user_id = find_user_by_passenger(pasajeros)
+                if user_id:
+                    print(f'  ✅ Usuario asignado por nombre de pasajero')
     
     viaje = Viaje(
         user_id=user_id,

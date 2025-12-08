@@ -590,7 +590,7 @@
     <div class="container">
         <header>
             <div class="user-info" style="position: absolute; top: 20px; right: 20px; font-size: 14px; color: #6e6e73;">
-                👤 {{ current_user.nombre }} | <a href="{{ url_for('auth.logout') }}" style="color: #0071e3;">Salir</a>
+                👤 <a href="{{ url_for('perfil') }}" style="color: #1d1d1f; text-decoration: none;">{{ current_user.nombre }}</a> | <a href="{{ url_for('auth.logout') }}" style="color: #0071e3;">Salir</a>
             </div>
             <h1>Mis Viajes</h1>
             <div class="header-actions">

@@ -282,3 +282,31 @@ class UserEmail(db.Model):
 - Límite de viajes pasados visibles (paginación)
 - Cold storage para históricos
 
+
+---
+
+## 📷 ESCANEAR PASAPORTE (NICE TO HAVE)
+
+### Flujo propuesto
+1. Usuario hace click en "📷 Escanear pasaporte"
+2. Sube foto del pasaporte
+3. Claude Vision extrae: nombre completo
+4. Auto-completa campo nombre_pasaporte
+
+---
+
+## ✅ MVP6 COMPLETADO (7 Dic 2025)
+
+| Task | Estado |
+|------|--------|
+| Modelo User | ✅ |
+| Auth (login/register/logout) | ✅ |
+| Proteger rutas | ✅ |
+| Filtrar viajes por user | ✅ |
+| Asignar user_id (UI) | ✅ |
+| Email processor → user_id | ✅ |
+| UserEmail model | ✅ |
+| Match por pasajeros | ✅ |
+| Campo nombre_pasaporte | ✅ |
+| UI página perfil | ✅ |
+
