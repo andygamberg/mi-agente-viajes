@@ -40,14 +40,12 @@
             padding: 24px;
         }
         
-        /* Header */
-        .header {
+        /* ===== HEADER DESKTOP ===== */
+        .header-desktop {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
         }
         
         .header-left {
@@ -66,6 +64,216 @@
             font-size: 28px;
             font-weight: 600;
             letter-spacing: -0.5px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* ===== HEADER MOBILE ===== */
+        .header-mobile {
+            display: none;
+        }
+        
+        .mobile-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .mobile-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        
+        .mobile-title-row .logo {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        /* User Menu */
+        .user-menu {
+            position: relative;
+        }
+        
+        .user-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            transition: var(--transition);
+        }
+        
+        .user-toggle:hover {
+            border-color: var(--text-secondary);
+        }
+        
+        .user-toggle svg {
+            width: 12px;
+            height: 12px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        
+        .user-menu.open .user-toggle svg {
+            transform: rotate(180deg);
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            min-width: 220px;
+            padding: 8px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .user-menu.open .user-dropdown {
+            display: block;
+        }
+        
+        .user-dropdown a,
+        .user-dropdown button {
+            display: block;
+            width: 100%;
+            padding: 10px 14px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .user-dropdown a:hover,
+        .user-dropdown button:hover {
+            background: var(--bg);
+        }
+        
+        .user-dropdown .divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: 8px 0;
+        }
+        
+        .user-dropdown a.muted,
+        .user-dropdown button.muted {
+            color: var(--text-secondary);
+        }
+        
+        .user-dropdown button.danger {
+            color: var(--danger);
+        }
+        
+        /* More Menu (mobile) */
+        .more-menu {
+            position: relative;
+        }
+        
+        .more-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .more-toggle:hover {
+            border-color: var(--text-secondary);
+        }
+        
+        .more-toggle svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .more-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            min-width: 200px;
+            padding: 8px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .more-menu.open .more-dropdown {
+            display: block;
+        }
+        
+        .more-dropdown button {
+            display: block;
+            width: 100%;
+            padding: 12px 14px;
+            color: var(--text);
+            font-size: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .more-dropdown button:hover {
+            background: var(--bg);
+        }
+        
+        .more-dropdown button.danger {
+            color: var(--danger);
+        }
+        
+        .more-dropdown .divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: 8px 0;
+        }
+        
+        .profile-alert {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #FEF3C7;
+            color: #92400E;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .profile-alert:hover {
+            background: #FDE68A;
         }
         
         /* Buttons */
@@ -123,100 +331,6 @@
         
         .btn-danger:hover {
             color: var(--danger);
-        }
-        
-        /* User Menu */
-        .user-menu {
-            position: relative;
-        }
-        
-        .user-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
-            transition: var(--transition);
-        }
-        
-        .user-toggle:hover {
-            border-color: var(--text-secondary);
-        }
-        
-        .user-toggle svg {
-            width: 12px;
-            height: 12px;
-            color: var(--text-muted);
-            transition: transform 0.2s;
-        }
-        
-        .user-menu.open .user-toggle svg {
-            transform: rotate(180deg);
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-            min-width: 220px;
-            padding: 8px;
-            display: none;
-            z-index: 1000;
-        }
-        
-        .user-menu.open .user-dropdown {
-            display: block;
-        }
-        
-        .user-dropdown a {
-            display: block;
-            padding: 10px 14px;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 14px;
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-        
-        .user-dropdown a:hover {
-            background: var(--bg);
-        }
-        
-        .user-dropdown .divider {
-            height: 1px;
-            background: var(--border-light);
-            margin: 8px 0;
-        }
-        
-        .user-dropdown a.muted {
-            color: var(--text-secondary);
-        }
-        
-        .profile-alert {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: #FEF3C7;
-            color: #92400E;
-            border-radius: var(--radius);
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .profile-alert:hover {
-            background: #FDE68A;
         }
         
         /* Email Banner */
@@ -300,22 +414,29 @@
             margin-bottom: 40px;
         }
         
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text);
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
             margin-bottom: 16px;
         }
         
-        .section-title span {
-            color: var(--text-muted);
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        
+        .section-count {
+            font-size: 20px;
             font-weight: 400;
+            color: var(--text-muted);
         }
         
         /* Grid */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
             gap: 16px;
         }
         
@@ -325,7 +446,7 @@
             border-radius: var(--radius-lg);
             overflow: hidden;
             transition: var(--transition);
-            box-shadow: var(--shadow);
+            border: 1px solid transparent;
         }
         
         .card:hover {
@@ -333,19 +454,21 @@
         }
         
         .card.past {
-            opacity: 0.65;
+            opacity: 0.6;
         }
         
         .card.past:hover {
-            opacity: 0.85;
+            opacity: 0.8;
         }
         
         .card.selected {
-            box-shadow: 0 0 0 2px var(--accent);
+            border-color: var(--accent);
+            background: #F0F7FF;
         }
         
         .card.selected-delete {
-            box-shadow: 0 0 0 2px var(--danger);
+            border-color: var(--danger);
+            background: #FFF5F5;
         }
         
         .card-header {
@@ -355,13 +478,13 @@
         
         .card-top {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 12px;
         }
         
         .badge {
-            display: inline-block;
+            display: inline-flex;
             padding: 4px 10px;
             border-radius: 6px;
             font-size: 11px;
@@ -374,7 +497,7 @@
         
         .badge.multi {
             background: #EEF2FF;
-            color: #4F46E5;
+            color: #5B5FC7;
         }
         
         .card-date {
@@ -389,9 +512,11 @@
         }
         
         .expand-icon {
+            width: 16px;
+            height: 16px;
             color: var(--text-muted);
             transition: transform 0.2s;
-            font-size: 10px;
+            flex-shrink: 0;
         }
         
         .card:not(.collapsed) .expand-icon {
@@ -401,7 +526,7 @@
         .card-title {
             font-size: 18px;
             font-weight: 600;
-            color: var(--text);
+            letter-spacing: -0.3px;
             flex: 1;
         }
         
@@ -412,17 +537,18 @@
             border: none;
             cursor: pointer;
             padding: 4px 8px;
+            border-radius: 6px;
             transition: var(--transition);
         }
         
         .btn-edit:hover {
-            text-decoration: underline;
+            background: #F0F7FF;
         }
         
         /* Card Body */
         .card-body {
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: max-height 0.3s ease, opacity 0.2s ease;
         }
         
         .card.collapsed .card-body {
@@ -433,6 +559,9 @@
         .card:not(.collapsed) .card-body {
             max-height: 2000px;
             opacity: 1;
+        }
+        
+        .card-content {
             padding: 0 20px 20px;
         }
         
@@ -444,7 +573,7 @@
             margin-bottom: 12px;
         }
         
-        .segment:last-of-type {
+        .segment:last-child {
             margin-bottom: 0;
         }
         
@@ -468,10 +597,13 @@
             flex: 1;
         }
         
+        .city.end {
+            text-align: right;
+        }
+        
         .city-code {
             font-size: 26px;
             font-weight: 700;
-            color: var(--text);
             letter-spacing: -1px;
         }
         
@@ -481,19 +613,19 @@
             margin-top: 2px;
         }
         
-        .city.dest {
-            text-align: right;
-        }
-        
         .route-arrow {
             color: var(--text-muted);
-            font-size: 14px;
         }
         
         .info-row {
             font-size: 13px;
             color: var(--text-secondary);
             margin: 4px 0;
+        }
+        
+        .info-row strong {
+            color: var(--text-muted);
+            font-weight: 500;
         }
         
         /* Passengers */
@@ -522,37 +654,40 @@
             background: var(--bg);
         }
         
-        .passengers-toggle .toggle-icon {
-            font-size: 10px;
+        .passengers-toggle svg {
+            width: 12px;
+            height: 12px;
             color: var(--text-muted);
             transition: transform 0.2s;
         }
         
-        .passengers-toggle .toggle-icon.expanded {
+        .passengers-toggle.expanded svg {
             transform: rotate(90deg);
         }
         
         .passengers-list {
-            padding: 12px 0 0;
             display: none;
+            padding-top: 12px;
         }
         
-        .passenger-item {
+        .passengers-list.visible {
+            display: block;
+        }
+        
+        .passenger {
             padding: 10px 12px;
             background: var(--bg-card);
-            border: 1px solid var(--border-light);
             border-radius: 8px;
             margin-bottom: 8px;
         }
         
-        .passenger-item:last-child {
+        .passenger:last-child {
             margin-bottom: 0;
         }
         
         .passenger-name {
             font-size: 14px;
             font-weight: 500;
-            color: var(--text);
             margin-bottom: 4px;
         }
         
@@ -571,12 +706,12 @@
         }
         
         .meta-tag.seat {
-            background: #EEF2FF;
-            color: #4F46E5;
+            background: #E8F4FF;
+            color: var(--accent);
         }
         
-        /* Card Actions */
-        .card-actions {
+        /* Card Footer */
+        .card-footer {
             padding: 12px 20px;
             border-top: 1px solid var(--border-light);
         }
@@ -599,11 +734,25 @@
             border-color: var(--accent);
         }
         
+        .reservation-code {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .reservation-code strong {
+            color: var(--text-muted);
+        }
+        
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 48px 20px;
+            padding: 60px 20px;
             color: var(--text-muted);
+            font-size: 16px;
         }
         
         /* Toolbar */
@@ -613,7 +762,7 @@
             left: 50%;
             transform: translateX(-50%);
             background: var(--text);
-            padding: 12px 20px;
+            padding: 14px 24px;
             border-radius: 100px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             display: none;
@@ -634,7 +783,22 @@
         
         .toolbar .btn {
             padding: 8px 16px;
-            font-size: 13px;
+        }
+        
+        .toolbar .btn-primary {
+            background: white;
+            color: var(--text);
+        }
+        
+        .toolbar .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .toolbar .btn-cancel {
+            background: transparent;
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.3);
         }
         
         /* Modal */
@@ -650,6 +814,7 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
         
         .modal.visible {
@@ -659,9 +824,9 @@
         .modal-content {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
-            padding: 32px;
-            max-width: 400px;
-            width: 90%;
+            padding: 28px;
+            max-width: 420px;
+            width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
         
@@ -669,11 +834,12 @@
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 20px;
+            letter-spacing: -0.3px;
         }
         
         .modal-input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             font-size: 16px;
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -707,7 +873,7 @@
         .add-option {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             padding: 16px;
             background: var(--bg);
             border-radius: var(--radius);
@@ -721,14 +887,18 @@
         }
         
         .add-option-icon {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             background: var(--bg-card);
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+        }
+        
+        .add-option-icon svg {
+            width: 20px;
+            height: 20px;
             color: var(--text-secondary);
         }
         
@@ -744,16 +914,16 @@
         }
         
         .tip-box {
-            background: #EEF2FF;
+            background: #F0F7FF;
             border-radius: var(--radius);
-            padding: 14px 16px;
-            margin-bottom: 20px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #1a5490;
         }
         
-        .tip-box p {
-            font-size: 13px;
-            color: #4F46E5;
-            margin: 0;
+        .tip-box code {
+            font-weight: 600;
         }
         
         /* Onboarding */
@@ -769,6 +939,7 @@
             z-index: 2000;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
         
         .onboarding.visible {
@@ -779,37 +950,38 @@
             background: var(--bg-card);
             border-radius: var(--radius-lg);
             padding: 32px;
-            max-width: 440px;
-            width: 90%;
+            max-width: 480px;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
         }
         
         .onboarding-header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
         
         .onboarding-header h2 {
             font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 4px;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
         
         .onboarding-header p {
             color: var(--text-secondary);
+            font-size: 15px;
         }
         
         .onboarding-steps {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
         
         .onboarding-step {
             display: flex;
             gap: 14px;
-            padding: 16px;
+            padding: 18px;
             background: var(--bg);
             border-radius: var(--radius);
         }
@@ -845,14 +1017,13 @@
             padding: 8px 14px;
         }
         
-        .email-code {
-            background: #EEF2FF;
-            color: #4F46E5;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 13px;
+        .step-content code {
             display: inline-block;
+            background: #E8F4FF;
+            color: var(--accent);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
             margin: 6px 0;
         }
         
@@ -874,27 +1045,18 @@
             color: var(--text-secondary);
         }
         
-        /* Responsive */
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .container {
                 padding: 16px;
             }
             
-            .header {
-                flex-direction: column;
-                align-items: stretch;
+            .header-desktop {
+                display: none;
             }
             
-            .header-left {
-                justify-content: space-between;
-            }
-            
-            .header-right {
-                justify-content: flex-end;
-            }
-            
-            .logo {
-                font-size: 24px;
+            .header-mobile {
+                display: block;
             }
             
             .grid {
@@ -905,6 +1067,7 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 12px;
+                padding: 16px;
             }
             
             .banner-close {
@@ -917,21 +1080,21 @@
                 width: calc(100% - 32px);
                 justify-content: center;
                 flex-wrap: wrap;
+                padding: 12px 16px;
             }
         }
         
         @media (max-width: 480px) {
-            .btn {
-                padding: 8px 14px;
-                font-size: 13px;
-            }
-            
             .card-title {
                 font-size: 16px;
             }
             
             .city-code {
                 font-size: 22px;
+            }
+            
+            .modal-content {
+                padding: 24px 20px;
             }
         }
         
@@ -940,7 +1103,8 @@
 </head>
 <body>
     <div class="container">
-        <header class="header">
+        <!-- ===== HEADER DESKTOP ===== -->
+        <header class="header-desktop">
             <div class="header-left">
                 <h1 class="logo">Mis Viajes</h1>
                 <div class="header-actions">
@@ -955,8 +1119,8 @@
                 <a href="{{ url_for('perfil') }}" class="profile-alert">Completar perfil</a>
                 {% endif %}
                 
-                <div class="user-menu" id="userMenu">
-                    <button class="user-toggle" onclick="toggleUserMenu()">
+                <div class="user-menu" id="userMenuDesktop">
+                    <button class="user-toggle" onclick="toggleUserMenu('userMenuDesktop')">
                         <span>{{ current_user.nombre }}</span>
                         <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M3 4.5L6 7.5L9 4.5"/>
@@ -973,8 +1137,53 @@
             </div>
         </header>
         
+        <!-- ===== HEADER MOBILE ===== -->
+        <header class="header-mobile">
+            <div class="mobile-top-bar">
+                <div class="user-menu" id="userMenuMobile">
+                    <button class="user-toggle" onclick="toggleUserMenu('userMenuMobile')">
+                        <span>{{ current_user.nombre.split()[0] }}</span>
+                        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 4.5L6 7.5L9 4.5"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown">
+                        <a href="{{ url_for('perfil') }}">Mi perfil</a>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">Suscribir calendario</a>
+                        <div class="divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="muted">Cerrar sesión</a>
+                    </div>
+                </div>
+                
+                {% if profile_incomplete %}
+                <a href="{{ url_for('perfil') }}" class="profile-alert">Completar perfil</a>
+                {% endif %}
+                
+                <div class="more-menu" id="moreMenu">
+                    <button class="more-toggle" onclick="toggleMoreMenu()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="5" r="2"/>
+                            <circle cx="12" cy="12" r="2"/>
+                            <circle cx="12" cy="19" r="2"/>
+                        </svg>
+                    </button>
+                    <div class="more-dropdown">
+                        <button onclick="toggleGroupMode(); closeMoreMenu();">Agrupar viajes</button>
+                        <button class="danger" onclick="toggleDeleteMode(); closeMoreMenu();">Eliminar viajes</button>
+                        <div class="divider"></div>
+                        <button onclick="showBanner(); closeMoreMenu();">Ver email para reenvíos</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mobile-title-row">
+                <h1 class="logo">Mis Viajes</h1>
+                <button class="btn btn-primary" onclick="openAddModal()">+ Agregar</button>
+            </div>
+        </header>
+        
         <!-- Email Banner -->
-        <div class="email-banner" id="emailBanner">
+        <div class="email-banner hidden" id="emailBanner">
             <div class="banner-content">
                 <div class="banner-label">Reenviá tus confirmaciones de vuelo a:</div>
                 <div class="banner-email">
@@ -987,7 +1196,10 @@
         
         <!-- Próximos Viajes -->
         <section class="section">
-            <h2 class="section-title">Próximos Viajes <span>({{ proximos|length }})</span></h2>
+            <div class="section-header">
+                <h2 class="section-title">Próximos Viajes</h2>
+                <span class="section-count">({{ proximos|length }})</span>
+            </div>
             
             {% if proximos %}
             <div class="grid">
@@ -997,7 +1209,7 @@
                 {% set es_multi = grupo|length > 1 %}
                 
                 <div class="card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
-                    <div class="card-header" onclick="handleHeaderClick(event, this.parentElement)">
+                    <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
                             <span class="badge {% if es_multi %}multi{% endif %}">
                                 {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
@@ -1006,82 +1218,93 @@
                         </div>
                         
                         <div class="card-title-row">
-                            <span class="expand-icon">▸</span>
+                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
                             <span class="card-title">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
                             <button type="button" class="btn-edit" onclick="event.stopPropagation(); editName('{{ grupo_id }}', '{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}')">Editar</button>
                         </div>
                     </div>
                     
                     <div class="card-body">
-                        {% for vuelo in grupo %}
-                        <div class="segment">
-                            {% if es_multi %}
-                            <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
-                            {% endif %}
-                            
-                            <div class="route">
-                                <div class="city">
-                                    <div class="city-code">{{ vuelo.origen }}</div>
-                                    {% if vuelo.hora_salida %}
-                                    <div class="city-time">{{ vuelo.hora_salida }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="route-arrow">→</div>
-                                <div class="city dest">
-                                    <div class="city-code">{{ vuelo.destino }}</div>
-                                    {% if vuelo.hora_llegada %}
-                                    <div class="city-time">{{ vuelo.hora_llegada }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            {% if vuelo.aerolinea %}
-                            <div class="info-row">{{ vuelo.aerolinea }}{% if vuelo.numero_vuelo %} · {{ vuelo.numero_vuelo }}{% endif %}</div>
-                            {% endif %}
-                            
-                            {% if vuelo.pasajeros %}
-                            {% set pasajeros_list = vuelo.pasajeros|fromjson %}
-                            {% if pasajeros_list %}
-                            <div class="passengers-section">
-                                <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
-                                    <span class="toggle-icon">▸</span>
-                                    {{ pasajeros_list|length }} pasajero{% if pasajeros_list|length > 1 %}s{% endif %}
-                                </button>
-                                <div class="passengers-list">
-                                    {% for p in pasajeros_list %}
-                                    <div class="passenger-item">
-                                        <div class="passenger-name">{{ p.nombre }}</div>
-                                        <div class="passenger-meta">
-                                            {% if p.asiento %}
-                                            <span class="meta-tag seat">{{ p.asiento }}</span>
-                                            {% endif %}
-                                            {% if p.cabina %}
-                                            <span class="meta-tag">{{ p.cabina }}</span>
-                                            {% endif %}
-                                        </div>
+                        <div class="card-content">
+                            {% for vuelo in grupo %}
+                            <div class="segment">
+                                {% if es_multi %}
+                                <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
+                                {% endif %}
+                                
+                                <div class="route">
+                                    <div class="city">
+                                        <div class="city-code">{{ vuelo.origen }}</div>
+                                        {% if vuelo.hora_salida %}
+                                        <div class="city-time">{{ vuelo.hora_salida }}</div>
+                                        {% endif %}
                                     </div>
-                                    {% endfor %}
+                                    <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    </svg>
+                                    <div class="city end">
+                                        <div class="city-code">{{ vuelo.destino }}</div>
+                                        {% if vuelo.hora_llegada %}
+                                        <div class="city-time">{{ vuelo.hora_llegada }}</div>
+                                        {% endif %}
+                                    </div>
                                 </div>
+                                
+                                {% if vuelo.aerolinea %}
+                                <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
+                                {% endif %}
+                                {% if vuelo.numero_vuelo %}
+                                <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                                {% endif %}
+                                
+                                {% if vuelo.pasajeros %}
+                                {% set pasajeros_list = vuelo.pasajeros|fromjson %}
+                                {% if pasajeros_list %}
+                                <div class="passengers-section">
+                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 18l6-6-6-6"/>
+                                        </svg>
+                                        Pasajeros ({{ pasajeros_list|length }})
+                                    </button>
+                                    <div class="passengers-list">
+                                        {% for p in pasajeros_list %}
+                                        <div class="passenger">
+                                            <div class="passenger-name">{{ p.nombre }}</div>
+                                            <div class="passenger-meta">
+                                                {% if p.asiento %}
+                                                <span class="meta-tag seat">{{ p.asiento }}</span>
+                                                {% endif %}
+                                                {% if p.cabina %}
+                                                <span class="meta-tag">{{ p.cabina }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endif %}
                             </div>
-                            {% endif %}
+                            {% endfor %}
+                            
+                            {% if primer_vuelo.codigo_reserva %}
+                            <div class="reservation-code"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
                             {% endif %}
                         </div>
-                        {% endfor %}
                         
-                        {% if primer_vuelo.codigo_reserva %}
-                        <div class="info-row" style="margin-top: 12px;">Código: {{ primer_vuelo.codigo_reserva }}</div>
+                        {% set codigos_unicos = grupo|map(attribute='codigo_reserva')|unique|list %}
+                        {% if es_multi and codigos_unicos|length > 1 %}
+                        <div class="card-footer">
+                            <form method="POST" action="{{ url_for('desagrupar_grupo') }}" onclick="event.stopPropagation();">
+                                <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
+                                <button type="submit" class="btn-ungroup" onclick="event.stopPropagation(); return confirm('¿Separar estos vuelos?')">Desagrupar</button>
+                            </form>
+                        </div>
                         {% endif %}
                     </div>
-                    
-                    {% set codigos_unicos = grupo|map(attribute='codigo_reserva')|unique|list %}
-                    {% if es_multi and codigos_unicos|length > 1 %}
-                    <div class="card-actions">
-                        <form method="POST" action="{{ url_for('desagrupar_grupo') }}" onclick="event.stopPropagation();">
-                            <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
-                            <button type="submit" class="btn-ungroup" onclick="event.stopPropagation(); return confirm('¿Separar estos vuelos?')">Desagrupar</button>
-                        </form>
-                    </div>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -1093,7 +1316,11 @@
         <!-- Pasados -->
         {% if pasados %}
         <section class="section">
-            <h2 class="section-title">Pasados <span>({{ pasados|length }})</span></h2>
+            <div class="section-header">
+                <h2 class="section-title">Pasados</h2>
+                <span class="section-count">({{ pasados|length }})</span>
+            </div>
+            
             <div class="grid">
                 {% for grupo in pasados %}
                 {% set primer_vuelo = grupo[0] %}
@@ -1101,7 +1328,7 @@
                 {% set es_multi = grupo|length > 1 %}
                 
                 <div class="card past collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
-                    <div class="card-header" onclick="handleHeaderClick(event, this.parentElement)">
+                    <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
                             <span class="badge {% if es_multi %}multi{% endif %}">
                                 {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
@@ -1110,39 +1337,52 @@
                         </div>
                         
                         <div class="card-title-row">
-                            <span class="expand-icon">▸</span>
+                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
                             <span class="card-title">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
                         </div>
                     </div>
                     
                     <div class="card-body">
-                        {% for vuelo in grupo %}
-                        <div class="segment">
-                            {% if es_multi %}
-                            <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
-                            {% endif %}
-                            
-                            <div class="route">
-                                <div class="city">
-                                    <div class="city-code">{{ vuelo.origen }}</div>
-                                    {% if vuelo.hora_salida %}
-                                    <div class="city-time">{{ vuelo.hora_salida }}</div>
-                                    {% endif %}
+                        <div class="card-content">
+                            {% for vuelo in grupo %}
+                            <div class="segment">
+                                {% if es_multi %}
+                                <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
+                                {% endif %}
+                                
+                                <div class="route">
+                                    <div class="city">
+                                        <div class="city-code">{{ vuelo.origen }}</div>
+                                        {% if vuelo.hora_salida %}
+                                        <div class="city-time">{{ vuelo.hora_salida }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    </svg>
+                                    <div class="city end">
+                                        <div class="city-code">{{ vuelo.destino }}</div>
+                                        {% if vuelo.hora_llegada %}
+                                        <div class="city-time">{{ vuelo.hora_llegada }}</div>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                <div class="route-arrow">→</div>
-                                <div class="city dest">
-                                    <div class="city-code">{{ vuelo.destino }}</div>
-                                    {% if vuelo.hora_llegada %}
-                                    <div class="city-time">{{ vuelo.hora_llegada }}</div>
-                                    {% endif %}
-                                </div>
+                                
+                                {% if vuelo.aerolinea %}
+                                <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
+                                {% endif %}
+                                {% if vuelo.numero_vuelo %}
+                                <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                                {% endif %}
                             </div>
+                            {% endfor %}
                             
-                            {% if vuelo.aerolinea %}
-                            <div class="info-row">{{ vuelo.aerolinea }}{% if vuelo.numero_vuelo %} · {{ vuelo.numero_vuelo }}{% endif %}</div>
+                            {% if primer_vuelo.codigo_reserva %}
+                            <div class="reservation-code"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
                             {% endif %}
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
                 {% endfor %}
@@ -1157,14 +1397,14 @@
             <h2 class="modal-title">Agregar Viaje</h2>
             
             <div class="tip-box">
-                <p><strong>Tip:</strong> Reenviá tu confirmación a misviajes@gamberg.com.ar</p>
+                Tip: Reenviá tu confirmación a <code>misviajes@gamberg.com.ar</code>
             </div>
             
             <div class="add-options">
                 <a href="{{ url_for('carga_rapida') }}" class="add-option">
                     <div class="add-option-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
                     </div>
                     <div class="add-option-text">
@@ -1175,8 +1415,9 @@
                 
                 <a href="{{ url_for('agregar') }}" class="add-option">
                     <div class="add-option-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
                     </div>
                     <div class="add-option-text">
@@ -1186,7 +1427,7 @@
                 </a>
             </div>
             
-            <button class="btn btn-secondary" onclick="closeAddModal()" style="width: 100%;">Cancelar</button>
+            <button type="button" class="btn btn-secondary" onclick="closeAddModal()" style="width: 100%;">Cancelar</button>
         </div>
     </div>
     
@@ -1195,8 +1436,8 @@
         <div class="modal-content">
             <h2 class="modal-title">Editar nombre</h2>
             <form method="POST" action="{{ url_for('editar_nombre_viaje') }}">
-                <input type="hidden" name="grupo_id" id="editGroupId">
-                <input type="text" name="nombre" id="editNameInput" class="modal-input" required>
+                <input type="hidden" name="grupo_id" id="editGrupoId">
+                <input type="text" name="nombre" id="editNombreInput" class="modal-input" required>
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">Guardar</button>
                     <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
@@ -1205,17 +1446,18 @@
         </div>
     </div>
     
-    <!-- Toolbars -->
-    <div class="toolbar" id="groupToolbar">
-        <span class="toolbar-text"><span id="groupCount">0</span> seleccionados</span>
+    <!-- Toolbar Agrupar -->
+    <div class="toolbar" id="toolbarGroup">
+        <span class="toolbar-text"><span id="countGroup">0</span> seleccionados</span>
         <button class="btn btn-primary" onclick="groupSelected()">Agrupar</button>
-        <button class="btn btn-secondary" onclick="cancelGroup()">Cancelar</button>
+        <button class="btn btn-cancel" onclick="cancelGroupMode()">Cancelar</button>
     </div>
     
-    <div class="toolbar" id="deleteToolbar">
-        <span class="toolbar-text"><span id="deleteCount">0</span> seleccionados</span>
-        <button class="btn btn-primary" style="background: var(--danger);" onclick="deleteSelected()">Eliminar</button>
-        <button class="btn btn-secondary" onclick="cancelDelete()">Cancelar</button>
+    <!-- Toolbar Eliminar -->
+    <div class="toolbar" id="toolbarDelete">
+        <span class="toolbar-text"><span id="countDelete">0</span> seleccionados</span>
+        <button class="btn btn-delete" onclick="deleteSelected()">Eliminar</button>
+        <button class="btn btn-cancel" onclick="cancelDeleteMode()">Cancelar</button>
     </div>
     
     <!-- Onboarding -->
@@ -1241,7 +1483,8 @@
                     <div class="step-content">
                         <h3>Agregá tu primer viaje</h3>
                         <p>Reenviá tus confirmaciones a:</p>
-                        <div class="email-code">misviajes@gamberg.com.ar</div>
+                        <code>misviajes@gamberg.com.ar</code>
+                        <p style="margin-top: 8px;">Aparecerán automáticamente.</p>
                     </div>
                 </div>
                 
@@ -1249,46 +1492,70 @@
                     <div class="step-number">3</div>
                     <div class="step-content">
                         <h3>Sincronizá con tu calendario</h3>
-                        <p>Tus vuelos aparecerán automáticamente.</p>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed" class="btn btn-secondary">Suscribir calendario</a>
+                        <p>Tus vuelos aparecerán en Apple Calendar, Google Calendar, etc.</p>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed" class="btn btn-secondary">Suscribirse</a>
                     </div>
                 </div>
             </div>
             
             <div class="onboarding-footer">
-                <button class="btn-skip" onclick="skipOnboarding()">Omitir</button>
+                <button type="button" class="btn-skip" onclick="skipOnboarding()">Omitir por ahora</button>
             </div>
         </div>
     </div>
     
     <script>
-        let groupMode = false;
-        let deleteMode = false;
-        let selectedGroups = new Set();
-        let selectedDelete = new Set();
+        // Variables
+        var groupMode = false;
+        var deleteMode = false;
+        var selectedGroup = new Set();
+        var selectedDelete = new Set();
         
         // User Menu
-        function toggleUserMenu() {
-            document.getElementById('userMenu').classList.toggle('open');
+        function toggleUserMenu(menuId) {
+            var menu = document.getElementById(menuId);
+            var wasOpen = menu.classList.contains('open');
+            
+            // Close all menus first
+            document.querySelectorAll('.user-menu').forEach(function(m) {
+                m.classList.remove('open');
+            });
+            
+            if (!wasOpen) {
+                menu.classList.add('open');
+            }
         }
         
+        // More Menu (mobile)
+        function toggleMoreMenu() {
+            document.getElementById('moreMenu').classList.toggle('open');
+        }
+        
+        function closeMoreMenu() {
+            document.getElementById('moreMenu').classList.remove('open');
+        }
+        
+        // Close menus on outside click
         document.addEventListener('click', function(e) {
-            const menu = document.getElementById('userMenu');
-            if (menu && !menu.contains(e.target)) {
-                menu.classList.remove('open');
+            if (!e.target.closest('.user-menu')) {
+                document.querySelectorAll('.user-menu').forEach(function(m) {
+                    m.classList.remove('open');
+                });
+            }
+            if (!e.target.closest('.more-menu')) {
+                document.getElementById('moreMenu').classList.remove('open');
             }
         });
         
         // Banner
-        function hideBanner() {
-            document.getElementById('emailBanner').classList.add('hidden');
-            localStorage.setItem('banner_hidden', 'true');
-        }
-        
         function showBanner() {
             document.getElementById('emailBanner').classList.remove('hidden');
             localStorage.removeItem('banner_hidden');
-            document.getElementById('userMenu').classList.remove('open');
+        }
+        
+        function hideBanner() {
+            document.getElementById('emailBanner').classList.add('hidden');
+            localStorage.setItem('banner_hidden', 'true');
         }
         
         function copyEmail(btn) {
@@ -1302,127 +1569,138 @@
             });
         }
         
-        if (localStorage.getItem('banner_hidden') === 'true') {
-            document.getElementById('emailBanner').classList.add('hidden');
+        // Check banner state
+        if (localStorage.getItem('banner_hidden') !== 'true') {
+            document.getElementById('emailBanner').classList.remove('hidden');
         }
         
         // Cards
-        function toggleCard(card) {
+        function toggleCard(event, card) {
+            if (groupMode || deleteMode) return;
+            event.stopPropagation();
             card.classList.toggle('collapsed');
         }
         
-        function handleHeaderClick(e, card) {
-            if (groupMode || deleteMode) return;
-            e.stopPropagation();
-            toggleCard(card);
+        function handleCardClick(event, grupoId) {
+            if (groupMode) {
+                toggleSelection(grupoId, 'group');
+            } else if (deleteMode) {
+                toggleSelection(grupoId, 'delete');
+            }
         }
         
-        function handleCardClick(e, groupId) {
-            if (groupMode || deleteMode) {
-                toggleSelect(groupId);
+        function toggleSelection(grupoId, mode) {
+            var card = document.getElementById('card-' + grupoId);
+            var set = mode === 'group' ? selectedGroup : selectedDelete;
+            var className = mode === 'group' ? 'selected' : 'selected-delete';
+            
+            if (set.has(grupoId)) {
+                set.delete(grupoId);
+                card.classList.remove(className);
+            } else {
+                set.add(grupoId);
+                card.classList.add(className);
             }
+            
+            updateToolbar(mode);
+        }
+        
+        function updateToolbar(mode) {
+            var set = mode === 'group' ? selectedGroup : selectedDelete;
+            var toolbar = document.getElementById(mode === 'group' ? 'toolbarGroup' : 'toolbarDelete');
+            var count = document.getElementById(mode === 'group' ? 'countGroup' : 'countDelete');
+            
+            count.textContent = set.size;
+            toolbar.classList.toggle('visible', set.size > 0);
         }
         
         // Passengers
         function togglePassengers(btn) {
-            const list = btn.nextElementSibling;
-            const icon = btn.querySelector('.toggle-icon');
-            if (list.style.display === 'none' || !list.style.display) {
-                list.style.display = 'block';
-                icon.classList.add('expanded');
-            } else {
-                list.style.display = 'none';
-                icon.classList.remove('expanded');
-            }
-        }
-        
-        // Selection
-        function toggleSelect(groupId) {
-            const card = document.getElementById('card-' + groupId);
-            if (!card) return;
-            
-            if (deleteMode) {
-                if (selectedDelete.has(groupId)) {
-                    selectedDelete.delete(groupId);
-                    card.classList.remove('selected-delete');
-                } else {
-                    selectedDelete.add(groupId);
-                    card.classList.add('selected-delete');
-                }
-                document.getElementById('deleteCount').textContent = selectedDelete.size;
-                document.getElementById('deleteToolbar').classList.toggle('visible', selectedDelete.size > 0);
-            } else if (groupMode) {
-                if (selectedGroups.has(groupId)) {
-                    selectedGroups.delete(groupId);
-                    card.classList.remove('selected');
-                } else {
-                    selectedGroups.add(groupId);
-                    card.classList.add('selected');
-                }
-                document.getElementById('groupCount').textContent = selectedGroups.size;
-                document.getElementById('groupToolbar').classList.toggle('visible', selectedGroups.size > 0);
-            }
+            btn.classList.toggle('expanded');
+            btn.nextElementSibling.classList.toggle('visible');
         }
         
         // Group Mode
         function toggleGroupMode() {
             if (groupMode) {
-                cancelGroup();
+                cancelGroupMode();
             } else {
                 groupMode = true;
-                selectedGroups.clear();
-                document.getElementById('groupToolbar').classList.add('visible');
+                deleteMode = false;
+                selectedGroup.clear();
+                selectedDelete.clear();
+                document.querySelectorAll('.card').forEach(function(c) {
+                    c.classList.remove('selected', 'selected-delete');
+                });
+                document.getElementById('toolbarDelete').classList.remove('visible');
             }
         }
         
-        function cancelGroup() {
+        function cancelGroupMode() {
             groupMode = false;
-            selectedGroups.clear();
-            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            document.getElementById('groupToolbar').classList.remove('visible');
+            selectedGroup.clear();
+            document.querySelectorAll('.card').forEach(function(c) {
+                c.classList.remove('selected');
+            });
+            document.getElementById('toolbarGroup').classList.remove('visible');
         }
         
         function groupSelected() {
-            if (selectedGroups.size < 2) {
+            if (selectedGroup.size < 2) {
                 alert('Seleccioná al menos 2 viajes');
                 return;
             }
-            const form = new FormData();
-            selectedGroups.forEach(id => form.append('grupos_ids', id));
-            fetch('/agrupar-manual', { method: 'POST', body: form }).then(() => location.reload());
+            
+            var form = new FormData();
+            selectedGroup.forEach(function(id) {
+                form.append('grupos_ids', id);
+            });
+            
+            fetch('/agrupar-manual', { method: 'POST', body: form })
+                .then(function() { location.reload(); });
         }
         
         // Delete Mode
         function toggleDeleteMode() {
             if (deleteMode) {
-                cancelDelete();
+                cancelDeleteMode();
             } else {
                 deleteMode = true;
+                groupMode = false;
                 selectedDelete.clear();
-                document.getElementById('deleteToolbar').classList.add('visible');
+                selectedGroup.clear();
+                document.querySelectorAll('.card').forEach(function(c) {
+                    c.classList.remove('selected', 'selected-delete');
+                });
+                document.getElementById('toolbarGroup').classList.remove('visible');
             }
         }
         
-        function cancelDelete() {
+        function cancelDeleteMode() {
             deleteMode = false;
             selectedDelete.clear();
-            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected-delete'));
-            document.getElementById('deleteToolbar').classList.remove('visible');
+            document.querySelectorAll('.card').forEach(function(c) {
+                c.classList.remove('selected-delete');
+            });
+            document.getElementById('toolbarDelete').classList.remove('visible');
         }
         
         function deleteSelected() {
             if (selectedDelete.size === 0) return;
+            
             if (confirm('¿Eliminar ' + selectedDelete.size + ' viaje(s)?')) {
-                const form = document.createElement('form');
+                var form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '/eliminar-multiples';
-                selectedDelete.forEach(id => {
-                    const input = document.createElement('input');
+                
+                selectedDelete.forEach(function(id) {
+                    var input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'grupos_ids';
                     input.value = id;
                     form.appendChild(input);
                 });
+                
                 document.body.appendChild(form);
                 form.submit();
             }
@@ -1437,9 +1715,9 @@
             document.getElementById('addModal').classList.remove('visible');
         }
         
-        function editName(groupId, name) {
-            document.getElementById('editGroupId').value = groupId;
-            document.getElementById('editNameInput').value = name;
+        function editName(grupoId, nombre) {
+            document.getElementById('editGrupoId').value = grupoId;
+            document.getElementById('editNombreInput').value = nombre;
             document.getElementById('editModal').classList.add('visible');
         }
         
@@ -1447,25 +1725,38 @@
             document.getElementById('editModal').classList.remove('visible');
         }
         
+        // Close modals on backdrop click
+        document.querySelectorAll('.modal').forEach(function(modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('visible');
+                }
+            });
+        });
+        
         // Onboarding
+        function showOnboarding() {
+            document.getElementById('onboarding').classList.add('visible');
+        }
+        
         function skipOnboarding() {
-            localStorage.setItem('onboarding_seen', 'true');
             document.getElementById('onboarding').classList.remove('visible');
+            localStorage.setItem('onboarding_seen', 'true');
         }
         
         {% if show_onboarding %}
         if (!localStorage.getItem('onboarding_seen')) {
-            document.getElementById('onboarding').classList.add('visible');
+            showOnboarding();
         }
         {% endif %}
         
-        // Auto-refresh
-        let lastCount = {{ proximos|length }};
+        // Auto refresh
+        var lastCount = {{ proximos|length }};
         setInterval(function() {
             fetch('/api/viajes/count')
-                .then(r => r.json())
-                .then(d => { if (d.count !== lastCount) location.reload(); })
-                .catch(() => {});
+                .then(function(r) { return r.json(); })
+                .then(function(d) { if (d.count !== lastCount) location.reload(); })
+                .catch(function() {});
         }, 120000);
     </script>
 </body>

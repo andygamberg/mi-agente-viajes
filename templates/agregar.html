@@ -6,37 +6,36 @@
     <title>Agregar Viaje - Mis Viajes</title>
     <style>
         :root {
-            --bg: #F5F5F7;
-            --bg-card: #FFFFFF;
+            --bg: #FAFAFA;
+            --card: #FFFFFF;
             --text: #1D1D1F;
             --text-secondary: #86868B;
-            --text-muted: #AEAEB2;
+            --text-tertiary: #AEAEB2;
             --accent: #0071E3;
-            --accent-hover: #0077ED;
-            --border: #D2D2D7;
-            --border-light: #E8E8ED;
+            --border: #E5E5E5;
+            --border-light: #F0F0F0;
             --radius: 12px;
             --radius-lg: 16px;
         }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding: 24px;
             -webkit-font-smoothing: antialiased;
         }
         
         .container {
             max-width: 600px;
             margin: 0 auto;
-        }
-        
-        .header {
-            margin-bottom: 32px;
+            padding: 32px 20px;
         }
         
         .back-link {
@@ -47,91 +46,113 @@
             text-decoration: none;
             font-size: 15px;
             font-weight: 500;
-            margin-bottom: 16px;
+            margin-bottom: 24px;
         }
         
         .back-link:hover {
             text-decoration: underline;
         }
         
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+        
         h1 {
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 32px;
+            font-weight: 700;
             letter-spacing: -0.5px;
+            margin-bottom: 8px;
         }
         
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+        
+        /* Tip box */
         .tip-box {
-            background: #EEF2FF;
+            background: #F0F7FF;
             border-radius: var(--radius);
-            padding: 14px 18px;
+            padding: 14px 16px;
             margin-bottom: 24px;
-            font-size: 14px;
-            color: #4F46E5;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
         }
         
-        .tip-box strong {
-            font-weight: 600;
+        .tip-box svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        
+        .tip-box p {
+            font-size: 14px;
+            color: #1a5490;
+            line-height: 1.4;
+        }
+        
+        .tip-box a {
+            color: var(--accent);
+            font-weight: 500;
         }
         
         .card {
-            background: var(--bg-card);
+            background: var(--card);
             border-radius: var(--radius-lg);
-            padding: 28px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            padding: 32px;
+            border: 1px solid var(--border-light);
         }
         
-        .section {
+        /* Form */
+        .form-section {
             margin-bottom: 28px;
-            padding-bottom: 28px;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .section:last-of-type {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
         }
         
         .section-title {
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 600;
-            color: var(--text);
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin-bottom: 16px;
         }
         
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+        .form-group:last-child {
+            margin-bottom: 0;
         }
         
         label {
             display: block;
             font-size: 14px;
             font-weight: 500;
-            margin-bottom: 8px;
             color: var(--text);
+            margin-bottom: 8px;
         }
         
-        .hint {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 4px;
+        label .optional {
+            color: var(--text-tertiary);
+            font-weight: 400;
         }
         
         input, select, textarea {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             font-size: 16px;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            background: var(--bg-card);
-            transition: all 0.2s;
+            background: var(--card);
+            color: var(--text);
             font-family: inherit;
+            transition: all 0.2s;
         }
         
         input:focus, select:focus, textarea:focus {
@@ -140,16 +161,16 @@
             box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
         }
         
-        input::placeholder, textarea::placeholder {
-            color: var(--text-muted);
+        input::placeholder {
+            color: var(--text-tertiary);
         }
         
         select {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 16px center;
-            padding-right: 40px;
+            padding-right: 44px;
         }
         
         textarea {
@@ -157,24 +178,82 @@
             min-height: 80px;
         }
         
-        /* Accordion for optional fields */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* Autocomplete */
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+        
+        .autocomplete-list.visible {
+            display: block;
+        }
+        
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        
+        .autocomplete-item:hover {
+            background: var(--bg);
+        }
+        
+        .autocomplete-item .code {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .autocomplete-item .city {
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+        
+        /* Acordeón Más detalles */
         .accordion {
-            margin-top: 20px;
+            border-top: 1px solid var(--border-light);
+            margin-top: 28px;
+            padding-top: 20px;
         }
         
         .accordion-toggle {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
             width: 100%;
-            padding: 12px 0;
-            background: none;
+            padding: 14px 16px;
+            background: var(--bg);
             border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            color: var(--accent);
-            cursor: pointer;
-            text-align: left;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        
+        .accordion-toggle:hover {
+            color: var(--text);
+            background: var(--border-light);
         }
         
         .accordion-toggle svg {
@@ -183,39 +262,39 @@
             transition: transform 0.2s;
         }
         
-        .accordion-toggle.open svg {
+        .accordion-toggle.expanded svg {
             transform: rotate(180deg);
         }
         
         .accordion-content {
             display: none;
-            padding-top: 16px;
+            padding-top: 20px;
         }
         
-        .accordion-content.open {
+        .accordion-content.visible {
             display: block;
         }
         
-        .actions {
+        /* Actions */
+        .form-actions {
             display: flex;
             gap: 12px;
-            margin-top: 28px;
-            padding-top: 28px;
+            margin-top: 32px;
+            padding-top: 24px;
             border-top: 1px solid var(--border-light);
         }
         
         .btn {
             flex: 1;
-            padding: 14px 24px;
+            padding: 16px;
             border-radius: var(--radius);
             font-size: 16px;
-            font-weight: 500;
-            border: none;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            text-decoration: none;
             text-align: center;
-            font-family: inherit;
+            text-decoration: none;
+            border: none;
         }
         
         .btn-primary {
@@ -224,7 +303,7 @@
         }
         
         .btn-primary:hover {
-            background: var(--accent-hover);
+            background: #0077ED;
         }
         
         .btn-secondary {
@@ -237,24 +316,24 @@
             background: var(--border-light);
         }
         
-        @media (max-width: 480px) {
-            body {
-                padding: 16px;
-            }
-            
-            .card {
-                padding: 20px;
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 16px;
             }
             
             h1 {
-                font-size: 24px;
+                font-size: 28px;
+            }
+            
+            .card {
+                padding: 24px 20px;
             }
             
             .form-row {
                 grid-template-columns: 1fr;
             }
             
-            .actions {
+            .form-actions {
                 flex-direction: column;
             }
         }
@@ -262,62 +341,73 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <a href="{{ url_for('index') }}" class="back-link">← Volver</a>
-            <h1>Agregar Viaje</h1>
-        </div>
+        <a href="{{ url_for('index') }}" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver
+        </a>
+        
+        <h1>Agregar Viaje</h1>
+        <p class="subtitle">Completá los datos de tu vuelo manualmente</p>
         
         <div class="tip-box">
-            <strong>Tip:</strong> Es más fácil reenviar tu confirmación a <strong>misviajes@gamberg.com.ar</strong> o usar la <a href="{{ url_for('carga_rapida') }}" style="color: inherit;">carga rápida con PDF</a>.
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <p>¿Tenés el PDF o email de confirmación? Es más fácil con <a href="{{ url_for('carga_rapida') }}">Carga Rápida</a></p>
         </div>
         
         <div class="card">
             <form method="POST">
-                <div class="section">
-                    <h2 class="section-title">Información básica</h2>
+                <!-- Información básica -->
+                <div class="form-section">
+                    <div class="section-title">Información básica</div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Tipo</label>
-                            <select name="tipo" required>
-                                <option value="vuelo">Vuelo</option>
-                                <option value="hotel">Hotel</option>
-                                <option value="auto">Auto</option>
-                                <option value="tren">Tren</option>
-                                <option value="actividad">Actividad</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Código de reserva</label>
-                            <input type="text" name="codigo_reserva" placeholder="ABC123">
-                        </div>
+                    <div class="form-group">
+                        <label>Tipo de viaje</label>
+                        <select name="tipo" required>
+                            <option value="vuelo">Vuelo</option>
+                            <option value="hotel">Hotel</option>
+                            <option value="auto">Auto</option>
+                            <option value="tren">Tren</option>
+                            <option value="actividad">Actividad</option>
+                            <option value="otro">Otro</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
-                        <label>Descripción</label>
-                        <input type="text" name="descripcion" placeholder="Ej: Viaje a París" required>
-                        <p class="hint">Un nombre para identificar este viaje</p>
+                        <label>Descripción <span class="optional">(opcional)</span></label>
+                        <input type="text" name="descripcion" placeholder="Ej: Vuelo a Madrid">
                     </div>
                 </div>
                 
-                <div class="section">
-                    <h2 class="section-title">Ruta</h2>
+                <!-- Ruta -->
+                <div class="form-section">
+                    <div class="section-title">Ruta</div>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label>Origen</label>
-                            <input type="text" name="origen" placeholder="EZE">
+                            <div class="input-wrapper">
+                                <input type="text" name="origen" id="inputOrigen" placeholder="EZE" autocomplete="off" required>
+                                <div class="autocomplete-list" id="listOrigen"></div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Destino</label>
-                            <input type="text" name="destino" placeholder="CDG">
+                            <div class="input-wrapper">
+                                <input type="text" name="destino" id="inputDestino" placeholder="MAD" autocomplete="off" required>
+                                <div class="autocomplete-list" id="listDestino"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="section">
-                    <h2 class="section-title">Fecha y hora</h2>
+                <!-- Fecha y hora -->
+                <div class="form-section">
+                    <div class="section-title">Fecha y hora</div>
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -325,31 +415,27 @@
                             <input type="date" name="fecha_salida" required>
                         </div>
                         <div class="form-group">
-                            <label>Hora salida</label>
+                            <label>Hora salida <span class="optional">(opcional)</span></label>
                             <input type="time" name="hora_salida">
                         </div>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Fecha llegada</label>
-                            <input type="date" name="fecha_llegada">
-                        </div>
-                        <div class="form-group">
-                            <label>Hora llegada</label>
-                            <input type="time" name="hora_llegada">
-                        </div>
+                    <div class="form-group">
+                        <label>Código de reserva <span class="optional">(opcional)</span></label>
+                        <input type="text" name="codigo_reserva" placeholder="ABC123">
                     </div>
                 </div>
                 
+                <!-- Acordeón: Más detalles -->
                 <div class="accordion">
-                    <button type="button" class="accordion-toggle" onclick="toggleAccordion(this)">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <button type="button" class="accordion-toggle" id="accordionToggle" onclick="toggleAccordion()">
+                        <span>Más detalles</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M19 9l-7 7-7-7"/>
                         </svg>
-                        Más detalles (opcional)
                     </button>
-                    <div class="accordion-content">
+                    
+                    <div class="accordion-content" id="accordionContent">
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Aerolínea</label>
@@ -358,6 +444,17 @@
                             <div class="form-group">
                                 <label>Número de vuelo</label>
                                 <input type="text" name="numero_vuelo" placeholder="LA1234">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Fecha llegada</label>
+                                <input type="date" name="fecha_llegada">
+                            </div>
+                            <div class="form-group">
+                                <label>Hora llegada</label>
+                                <input type="time" name="hora_llegada">
                             </div>
                         </div>
                         
@@ -384,7 +481,8 @@
                     </div>
                 </div>
                 
-                <div class="actions">
+                <!-- Actions -->
+                <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Guardar</button>
                     <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
                 </div>
@@ -393,9 +491,102 @@
     </div>
     
     <script>
-        function toggleAccordion(btn) {
-            btn.classList.toggle('open');
-            btn.nextElementSibling.classList.toggle('open');
+        // Diccionario IATA
+        const AIRPORTS = {
+            'EZE': 'Buenos Aires Ezeiza',
+            'AEP': 'Buenos Aires Aeroparque',
+            'COR': 'Córdoba',
+            'MDZ': 'Mendoza',
+            'FTE': 'El Calafate',
+            'USH': 'Ushuaia',
+            'IGR': 'Iguazú',
+            'SCL': 'Santiago de Chile',
+            'GRU': 'São Paulo',
+            'GIG': 'Rio de Janeiro',
+            'MAD': 'Madrid',
+            'BCN': 'Barcelona',
+            'CDG': 'París',
+            'LHR': 'Londres',
+            'FCO': 'Roma',
+            'AMS': 'Amsterdam',
+            'FRA': 'Frankfurt',
+            'MUC': 'Munich',
+            'ZRH': 'Zurich',
+            'VIE': 'Viena',
+            'JFK': 'New York JFK',
+            'LAX': 'Los Angeles',
+            'MIA': 'Miami',
+            'ORD': 'Chicago',
+            'SFO': 'San Francisco',
+            'ATL': 'Atlanta',
+            'LAS': 'Las Vegas',
+            'MEX': 'Ciudad de México',
+            'CUN': 'Cancún',
+            'PTY': 'Panamá',
+            'BOG': 'Bogotá',
+            'LIM': 'Lima',
+            'MVD': 'Montevideo',
+            'DXB': 'Dubai',
+            'SIN': 'Singapur',
+            'HKG': 'Hong Kong',
+            'NRT': 'Tokyo Narita',
+            'SYD': 'Sydney'
+        };
+        
+        function setupAutocomplete(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            
+            input.addEventListener('input', function() {
+                const value = this.value.toUpperCase();
+                list.innerHTML = '';
+                
+                if (value.length < 1) {
+                    list.classList.remove('visible');
+                    return;
+                }
+                
+                const matches = Object.entries(AIRPORTS).filter(([code, city]) => 
+                    code.includes(value) || city.toUpperCase().includes(value)
+                ).slice(0, 6);
+                
+                if (matches.length > 0) {
+                    matches.forEach(([code, city]) => {
+                        const item = document.createElement('div');
+                        item.className = 'autocomplete-item';
+                        item.innerHTML = `<span class="code">${code}</span><span class="city">${city}</span>`;
+                        item.addEventListener('click', () => {
+                            input.value = code;
+                            list.classList.remove('visible');
+                        });
+                        list.appendChild(item);
+                    });
+                    list.classList.add('visible');
+                } else {
+                    list.classList.remove('visible');
+                }
+            });
+            
+            input.addEventListener('blur', () => {
+                setTimeout(() => list.classList.remove('visible'), 150);
+            });
+            
+            input.addEventListener('focus', function() {
+                if (this.value.length > 0) {
+                    this.dispatchEvent(new Event('input'));
+                }
+            });
+        }
+        
+        setupAutocomplete('inputOrigen', 'listOrigen');
+        setupAutocomplete('inputDestino', 'listDestino');
+        
+        // Acordeón
+        function toggleAccordion() {
+            const toggle = document.getElementById('accordionToggle');
+            const content = document.getElementById('accordionContent');
+            toggle.classList.toggle('expanded');
+            content.classList.toggle('visible');
         }
     </script>
 </body>
