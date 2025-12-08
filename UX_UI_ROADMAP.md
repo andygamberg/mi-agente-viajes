@@ -265,3 +265,20 @@ class UserEmail(db.Model):
 8. **MVP8: PWA/móvil**
 9. **Nice to have: WhatsApp sharing**
 
+
+---
+
+## 🐛 BUGS / MEJORAS DETECTADAS
+
+### Viajes pasados no despliegan
+- Los cards de "Pasados" no expanden para ver vuelos individuales
+- Comportamiento inconsistente con "Próximos Viajes"
+
+### Escalabilidad BD - viajes pasados
+**Problema:** BD crece indefinidamente con viajes históricos
+**Opciones:**
+- Archivar viajes >1 año a tabla separada
+- Exportar a JSON/backup y eliminar
+- Límite de viajes pasados visibles (paginación)
+- Cold storage para históricos
+
