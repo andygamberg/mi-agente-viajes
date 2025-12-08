@@ -24,6 +24,8 @@
         h2 { font-size: 18px; margin-bottom: 16px; color: #1d1d1f; }
         .subtitle { color: #6e6e73; margin-bottom: 24px; font-size: 15px; }
         .form-group { margin-bottom: 20px; }
+        .form-row { display: flex; gap: 16px; }
+        .form-row .form-group { flex: 1; }
         label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: #1d1d1f; }
         .hint { font-size: 12px; color: #6e6e73; margin-top: 6px; }
         input {
@@ -67,6 +69,7 @@
         .alert-error { background: #f8d7da; color: #721c24; }
         .add-form { display: flex; gap: 12px; }
         .add-form input { flex: 1; }
+        .section-title { font-size: 13px; color: #6e6e73; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -74,7 +77,7 @@
         <a href="{{ url_for('index') }}" class="back-link">← Volver</a>
         
         <div class="card">
-            <h1>👤 Mi Perfil</h1>
+            <h1>⚙️ Mi Perfil</h1>
             <p class="subtitle">Configurá tu cuenta</p>
             
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -96,10 +99,18 @@
                     <input type="text" name="nombre" value="{{ current_user.nombre }}" required>
                 </div>
                 
-                <div class="form-group">
-                    <label>Nombre en pasaporte</label>
-                    <input type="text" name="nombre_pasaporte" value="{{ current_user.nombre_pasaporte or '' }}" placeholder="APELLIDO/NOMBRE">
-                    <p class="hint">Como aparece en reservas (ej: GAMBERG/ANDRES). Sirve para identificar tus viajes automáticamente.</p>
+                <p class="section-title">Nombre en reservas</p>
+                <p class="hint" style="margin-bottom: 12px;">Sirve para identificar automáticamente tus viajes cuando otro envía la confirmación.</p>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="Andres">
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido</label>
+                        <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="Gamberg">
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Guardar</button>

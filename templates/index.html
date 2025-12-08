@@ -589,8 +589,13 @@
 <body>
     <div class="container">
         <header>
-            <div class="user-info" style="position: absolute; top: 20px; right: 20px; font-size: 14px; color: #6e6e73;">
-                👤 <a href="{{ url_for('perfil') }}" style="color: #1d1d1f; text-decoration: none;">{{ current_user.nombre }}</a> | <a href="{{ url_for('auth.logout') }}" style="color: #0071e3;">Salir</a>
+            <div class="user-info" style="position: absolute; top: 24px; right: 24px; font-size: 14px; display: flex; align-items: center; gap: 16px;">
+                <a href="{{ url_for('perfil') }}" style="color: #1d1d1f; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 16px;">⚙️</span> {{ current_user.nombre }}
+                </a>
+                <a href="{{ url_for('auth.logout') }}" style="color: #6e6e73; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                    <span style="font-size: 14px;">🚪</span> Salir
+                </a>
             </div>
             <h1>Mis Viajes</h1>
             <div class="header-actions">

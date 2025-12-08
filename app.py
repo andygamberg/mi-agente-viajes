@@ -1353,7 +1353,8 @@ def migrate_db():
         with db.engine.connect() as conn:
             # Agregar columna user_id si no existe
             conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS user_id INTEGER"))
-            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS nombre_pasaporte VARCHAR(100)"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS nombre_pax VARCHAR(50)"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS apellido_pax VARCHAR(50)"))
             conn.commit()
         
         # Crear tabla user si no existe
@@ -1390,10 +1391,11 @@ def perfil():
 @login_required
 def update_profile():
     current_user.nombre = request.form.get('nombre', '').strip()
-    current_user.nombre_pasaporte = request.form.get('nombre_pasaporte', '').strip().upper() or None
+    current_user.nombre_pax = request.form.get('nombre_pax', '').strip() or None
+    current_user.apellido_pax = request.form.get('apellido_pax', '').strip() or None
     db.session.commit()
     flash('Perfil actualizado', 'success')
-    return redirect(url_for('perfil'))
+    return redirect(url_for('index'))
 
 @app.route('/add-email', methods=['POST'])
 @login_required

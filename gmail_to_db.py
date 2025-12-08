@@ -35,11 +35,12 @@ def find_user_by_passenger(pasajeros):
         if not apellido:
             continue
         
-        # Buscar usuarios con nombre_pasaporte que contenga apellido y nombre
-        users = User.query.filter(User.nombre_pasaporte.isnot(None)).all()
+        # Buscar usuarios con nombre_pax y apellido_pax
+        users = User.query.filter(User.apellido_pax.isnot(None)).all()
         for user in users:
-            user_passport = user.nombre_pasaporte.upper()
-            if apellido in user_passport and nombres in user_passport:
+            user_apellido = user.apellido_pax.upper() if user.apellido_pax else ''
+            user_nombre = user.nombre_pax.upper() if user.nombre_pax else ''
+            if apellido == user_apellido and nombres.startswith(user_nombre[:3]) if user_nombre else apellido == user_apellido:
                 print(f'  👤 Usuario encontrado por pasajero: {user.nombre} (match: {nombre_pax})')
                 return user.id
     
