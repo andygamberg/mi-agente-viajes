@@ -224,16 +224,6 @@
             align-items: center;
             gap: 8px;
         }
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            opacity: 0.4;
-            transition: opacity 0.2s;
-        }
-        .btn-editar-nombre:hover {
-            opacity: 1;
-        }
         .segmento {
             margin-bottom: 16px;
             padding: 16px;
@@ -584,6 +574,13 @@
             display: flex;
             gap: 12px;
         }
+        /* Viajes pasados - estilo atenuado */
+        .viaje-card.pasado {
+            opacity: 0.7;
+        }
+        .viaje-card.pasado:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -743,15 +740,105 @@
                 {% for grupo in pasados %}
                 {% set primer_vuelo = grupo[0] %}
                 {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
+                {% set es_multi = grupo|length > 1 %}
                 
-                <div class="viaje-card" id="card-{{ grupo_id }}" style="opacity: 0.6;" onclick="handleCardClick(event, '{{ grupo_id }}')">
+                <!-- PASADOS: Misma estructura que próximos pero con clase .pasado -->
+                <div class="viaje-card pasado collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select" style="display:none;">
                     
-                    <div class="card-header" style="padding: 20px 24px;">
-                        <span class="badge">{{ grupo|length }} {% if grupo|length > 1 %}VUELOS{% else %}VUELO{% endif %}</span>
-                        <span class="fecha-badge">{{ primer_vuelo.fecha_salida.strftime('%d/%m/%Y') }}</span>
+                    <div class="card-header-fixed" onclick="handleHeaderClick(event, this.parentElement)">
+                        <div class="header-top">
+                            <span class="badge {% if es_multi %}multi-segmento{% endif %}">
+                                {% if es_multi %}{{ grupo|length }} VUELOS{% else %}VUELO{% endif %}
+                            </span>
+                            <span class="fecha-badge">{{ primer_vuelo.fecha_salida.strftime('%d/%m/%Y') }}</span>
+                        </div>
+                        
+                        <div class="viaje-titulo-header">
+                            <span class="expand-icon">▶</span>
+                            <span class="nombre-viaje">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
+                        </div>
                     </div>
-                    <h3 class="viaje-titulo" style="padding: 0 24px 20px 24px;">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</h3>
+                    
+                    <div class="card-body-colapsable">
+                    
+                    {% for vuelo in grupo %}
+                    <div class="segmento">
+                        {% if es_multi %}
+                        <div class="segmento-numero">Segmento {{ loop.index }} - {{ vuelo.fecha_salida.strftime("%d/%m/%Y") }}</div>
+                        {% endif %}
+                        
+                        <div class="ruta-simple">
+                            <div style="flex: 1;">
+                                <div class="ciudad-code">{{ vuelo.origen }}</div>
+                                {% if vuelo.hora_salida %}
+                                <div class="hora-small">{{ vuelo.hora_salida }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="flecha-small">→</div>
+                            <div style="flex: 1; text-align: right;">
+                                <div class="ciudad-code">{{ vuelo.destino }}</div>
+                                {% if vuelo.hora_llegada %}
+                                <div class="hora-small">{{ vuelo.hora_llegada }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if vuelo.aerolinea %}
+                        <div class="info-simple"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
+                        {% endif %}
+                        {% if vuelo.numero_vuelo %}
+                        <div class="info-simple"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                        {% endif %}
+                        
+                        {% if vuelo.pasajeros %}
+                        {% set pasajeros_list = vuelo.pasajeros|fromjson %}
+                        {% if pasajeros_list %}
+                        <div class="pasajeros-colapsable">
+                            <button type="button" class="pasajeros-toggle" onclick="event.stopPropagation(); togglePasajeros(this)">
+                                <span class="toggle-icon">▶</span>
+                                Pasajeros ({{ pasajeros_list|length }})
+                            </button>
+                            <div class="pasajeros-content" style="display: none;">
+                                {% for p in pasajeros_list %}
+                                <div class="pasajero-row">
+                                    <div class="pasajero-main">
+                                        <div class="pasajero-nombre">{{ p.nombre }}</div>
+                                        <div class="pasajero-meta">
+                                            <span class="asiento-badge">{{ p.asiento }}</span>
+                                            {% if p.cabina %}
+                                            <span class="cabina-badge">{{ p.cabina }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% if p.viajero_frecuente %}
+                                    <div class="ff-badge">{{ p.viajero_frecuente }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                
+                                {% if vuelo.equipaje_facturado or vuelo.equipaje_mano %}
+                                <div class="equipaje-info">
+                                    <div class="equipaje-titulo">Equipaje</div>
+                                    {% if vuelo.equipaje_facturado %}
+                                    <div class="equipaje-item">Facturado: {{ vuelo.equipaje_facturado }}</div>
+                                    {% endif %}
+                                    {% if vuelo.equipaje_mano %}
+                                    <div class="equipaje-item">De mano: {{ vuelo.equipaje_mano }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    {% if primer_vuelo.codigo_reserva %}
+                    <div class="info-simple" style="margin-top: 12px;"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
+                    {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -1093,7 +1180,7 @@
     </script>
 <script>
     // Auto-refresh polling cada 30s
-    let lastCount = {{ viajes_futuros|length }};
+    let lastCount = {{ proximos|length }};
     setInterval(() => {
         fetch('/api/viajes/count')
             .then(r => r.json())
