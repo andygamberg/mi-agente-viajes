@@ -6,73 +6,76 @@
     <title>Mis Viajes</title>
     <style>
         :root {
-            --bg-primary: #FAFAFA;
+            --bg: #F5F5F7;
             --bg-card: #FFFFFF;
-            --text-primary: #1D1D1F;
+            --text: #1D1D1F;
             --text-secondary: #86868B;
-            --text-tertiary: #AEAEB2;
+            --text-muted: #AEAEB2;
             --accent: #0071E3;
             --accent-hover: #0077ED;
-            --border: #E5E5E5;
-            --border-light: #F0F0F0;
+            --border: #D2D2D7;
+            --border-light: #E8E8ED;
             --danger: #FF3B30;
             --success: #34C759;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-            --radius-sm: 8px;
-            --radius-md: 12px;
+            --radius: 12px;
             --radius-lg: 16px;
-            --radius-xl: 20px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-hover: 0 4px 12px rgba(0,0,0,0.1);
             --transition: all 0.2s ease;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
         
         .container {
-            max-width: 1120px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 32px 24px;
+            padding: 24px;
         }
         
-        header {
+        /* Header */
+        .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
         
-        h1 {
-            font-size: 34px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            color: var(--text-primary);
-        }
-        
-        .header-actions {
+        .header-left {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 24px;
         }
         
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 10px 18px;
-            border-radius: var(--radius-md);
+            padding: 10px 20px;
+            border-radius: var(--radius);
             font-size: 14px;
             font-weight: 500;
             text-decoration: none;
@@ -80,7 +83,6 @@
             cursor: pointer;
             transition: var(--transition);
             font-family: inherit;
-            white-space: nowrap;
         }
         
         .btn-primary {
@@ -90,70 +92,41 @@
         
         .btn-primary:hover {
             background: var(--accent-hover);
-            transform: translateY(-1px);
         }
         
         .btn-secondary {
             background: var(--bg-card);
-            color: var(--text-primary);
+            color: var(--text);
             border: 1px solid var(--border);
         }
         
         .btn-secondary:hover {
-            background: var(--bg-primary);
-            border-color: var(--text-tertiary);
+            background: var(--bg);
+            border-color: var(--text-secondary);
         }
         
-        .btn-ghost {
-            background: transparent;
+        .btn-text {
+            background: none;
             color: var(--text-secondary);
-            padding: 8px 12px;
+            padding: 10px 12px;
         }
         
-        .btn-ghost:hover {
-            color: var(--text-primary);
-            background: var(--border-light);
+        .btn-text:hover {
+            color: var(--text);
         }
         
-        .btn-danger-ghost {
-            background: transparent;
+        .btn-danger {
+            background: none;
+            color: var(--text-secondary);
+            padding: 10px 12px;
+        }
+        
+        .btn-danger:hover {
             color: var(--danger);
-            padding: 8px 12px;
         }
         
-        .btn-danger-ghost:hover {
-            background: #FFF5F5;
-        }
-        
-        .user-area {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 100;
-        }
-        
-        .profile-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: #FFF9E6;
-            color: #946800;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .profile-badge:hover {
-            background: #FFF3CC;
-        }
-        
-        .user-dropdown {
+        /* User Menu */
+        .user-menu {
             position: relative;
         }
         
@@ -161,82 +134,94 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
+            padding: 8px 14px;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius);
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            color: var(--text-primary);
+            color: var(--text);
             transition: var(--transition);
         }
         
         .user-toggle:hover {
-            border-color: var(--text-tertiary);
+            border-color: var(--text-secondary);
         }
         
-        .user-toggle .arrow {
-            font-size: 10px;
-            color: var(--text-tertiary);
+        .user-toggle svg {
+            width: 12px;
+            height: 12px;
+            color: var(--text-muted);
             transition: transform 0.2s;
         }
         
-        .user-dropdown.open .arrow {
+        .user-menu.open .user-toggle svg {
             transform: rotate(180deg);
         }
         
-        .user-menu {
+        .user-dropdown {
             position: absolute;
             top: calc(100% + 8px);
             right: 0;
             background: var(--bg-card);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            min-width: 200px;
-            padding: 6px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            min-width: 220px;
+            padding: 8px;
             display: none;
             z-index: 1000;
         }
         
-        .user-dropdown.open .user-menu {
+        .user-menu.open .user-dropdown {
             display: block;
         }
         
-        .user-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            color: var(--text-primary);
+        .user-dropdown a {
+            display: block;
+            padding: 10px 14px;
+            color: var(--text);
             text-decoration: none;
             font-size: 14px;
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             transition: var(--transition);
         }
         
-        .user-menu a:hover {
-            background: var(--bg-primary);
+        .user-dropdown a:hover {
+            background: var(--bg);
         }
         
-        .user-menu a .icon {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .user-menu .divider {
+        .user-dropdown .divider {
             height: 1px;
             background: var(--border-light);
-            margin: 6px 0;
+            margin: 8px 0;
         }
         
-        .user-menu a.muted {
+        .user-dropdown a.muted {
             color: var(--text-secondary);
         }
         
+        .profile-alert {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #FEF3C7;
+            color: #92400E;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .profile-alert:hover {
+            background: #FDE68A;
+        }
+        
+        /* Email Banner */
         .email-banner {
-            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
             border-radius: var(--radius-lg);
             padding: 20px 24px;
             margin-bottom: 32px;
@@ -253,23 +238,12 @@
         
         .banner-content {
             display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .banner-icon {
-            font-size: 24px;
-        }
-        
-        .banner-text {
-            display: flex;
             flex-direction: column;
             gap: 4px;
         }
         
-        .banner-title {
+        .banner-label {
             font-size: 14px;
-            font-weight: 500;
             opacity: 0.9;
         }
         
@@ -280,9 +254,10 @@
         }
         
         .banner-email code {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
-            font-family: 'SF Mono', Monaco, monospace;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            letter-spacing: -0.3px;
         }
         
         .btn-copy {
@@ -290,7 +265,7 @@
             border: none;
             color: white;
             padding: 6px 14px;
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
@@ -309,77 +284,73 @@
             background: none;
             border: none;
             color: rgba(255,255,255,0.6);
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
-            padding: 4px;
-            border-radius: var(--radius-sm);
+            padding: 4px 8px;
             transition: var(--transition);
+            line-height: 1;
         }
         
         .banner-close:hover {
             color: white;
-            background: rgba(255,255,255,0.1);
+        }
+        
+        /* Sections */
+        .section {
+            margin-bottom: 40px;
         }
         
         .section-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-            letter-spacing: -0.3px;
+            color: var(--text);
+            margin-bottom: 16px;
         }
         
         .section-title span {
-            color: var(--text-tertiary);
-            font-weight: 500;
+            color: var(--text-muted);
+            font-weight: 400;
         }
         
-        .viajes-grid {
+        /* Grid */
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 16px;
-            margin-bottom: 48px;
         }
         
-        .viaje-card {
+        /* Cards */
+        .card {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
             overflow: hidden;
             transition: var(--transition);
-            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow);
         }
         
-        .viaje-card:hover {
-            box-shadow: var(--shadow-md);
-            border-color: var(--border);
+        .card:hover {
+            box-shadow: var(--shadow-hover);
         }
         
-        .viaje-card.pasado {
-            opacity: 0.6;
+        .card.past {
+            opacity: 0.65;
         }
         
-        .viaje-card.pasado:hover {
-            opacity: 0.8;
+        .card.past:hover {
+            opacity: 0.85;
         }
         
-        .viaje-card.selected {
-            border: 2px solid var(--accent);
-            background: #F5F9FF;
+        .card.selected {
+            box-shadow: 0 0 0 2px var(--accent);
         }
         
-        .viaje-card.selected-eliminar {
-            border: 2px solid var(--danger);
-            background: #FFF5F5;
+        .card.selected-delete {
+            box-shadow: 0 0 0 2px var(--danger);
         }
         
         .card-header {
             padding: 20px;
             cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .card-header:hover {
-            background: var(--bg-primary);
         }
         
         .card-top {
@@ -390,26 +361,25 @@
         }
         
         .badge {
-            display: inline-flex;
-            align-items: center;
+            display: inline-block;
             padding: 4px 10px;
             border-radius: 6px;
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            background: var(--text-primary);
-            color: white;
+            background: var(--bg);
+            color: var(--text-secondary);
         }
         
         .badge.multi {
-            background: var(--accent);
+            background: #EEF2FF;
+            color: #4F46E5;
         }
         
         .card-date {
             font-size: 13px;
             color: var(--text-secondary);
-            font-weight: 500;
         }
         
         .card-title-row {
@@ -419,105 +389,105 @@
         }
         
         .expand-icon {
-            font-size: 12px;
-            color: var(--accent);
-            transition: transform 0.3s;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+            font-size: 10px;
         }
         
-        .viaje-card:not(.collapsed) .expand-icon {
+        .card:not(.collapsed) .expand-icon {
             transform: rotate(90deg);
         }
         
         .card-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
-            color: var(--text-primary);
+            color: var(--text);
             flex: 1;
-            letter-spacing: -0.3px;
         }
         
-        .btn-edit-name {
+        .btn-edit {
             font-size: 13px;
             color: var(--accent);
             background: none;
             border: none;
             cursor: pointer;
             padding: 4px 8px;
-            border-radius: var(--radius-sm);
             transition: var(--transition);
         }
         
-        .btn-edit-name:hover {
-            background: #F0F7FF;
+        .btn-edit:hover {
+            text-decoration: underline;
         }
         
+        /* Card Body */
         .card-body {
-            transition: all 0.3s ease;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
         
-        .viaje-card.collapsed .card-body {
+        .card.collapsed .card-body {
             max-height: 0;
             opacity: 0;
         }
         
-        .viaje-card:not(.collapsed) .card-body {
+        .card:not(.collapsed) .card-body {
             max-height: 2000px;
             opacity: 1;
             padding: 0 20px 20px;
         }
         
-        .segmento {
-            background: var(--bg-primary);
-            border-radius: var(--radius-md);
+        /* Segment */
+        .segment {
+            background: var(--bg);
+            border-radius: var(--radius);
             padding: 16px;
             margin-bottom: 12px;
         }
         
-        .segmento:last-of-type {
+        .segment:last-of-type {
             margin-bottom: 0;
         }
         
-        .segmento-label {
+        .segment-label {
             font-size: 11px;
             font-weight: 600;
-            color: var(--text-tertiary);
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 12px;
         }
         
-        .ruta {
+        .route {
             display: flex;
             align-items: center;
             gap: 16px;
             margin-bottom: 12px;
         }
         
-        .ciudad {
+        .city {
             flex: 1;
         }
         
-        .ciudad-code {
-            font-size: 28px;
+        .city-code {
+            font-size: 26px;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--text);
             letter-spacing: -1px;
         }
         
-        .ciudad-hora {
+        .city-time {
             font-size: 13px;
             color: var(--text-secondary);
             margin-top: 2px;
         }
         
-        .ciudad.destino {
+        .city.dest {
             text-align: right;
         }
         
-        .ruta-arrow {
-            font-size: 16px;
-            color: var(--text-tertiary);
+        .route-arrow {
+            color: var(--text-muted);
+            font-size: 14px;
         }
         
         .info-row {
@@ -526,28 +496,21 @@
             margin: 4px 0;
         }
         
-        .info-row strong {
-            color: var(--text-tertiary);
-            font-weight: 500;
-        }
-        
-        .pasajeros-section {
+        /* Passengers */
+        .passengers-section {
             margin-top: 12px;
-            background: var(--bg-card);
-            border-radius: var(--radius-sm);
-            overflow: hidden;
         }
         
-        .pasajeros-toggle {
+        .passengers-toggle {
             width: 100%;
-            padding: 12px;
-            background: transparent;
+            padding: 10px 12px;
+            background: var(--bg-card);
             border: 1px solid var(--border-light);
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             text-align: left;
             font-size: 13px;
             font-weight: 500;
-            color: var(--text-primary);
+            color: var(--text);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -555,77 +518,75 @@
             transition: var(--transition);
         }
         
-        .pasajeros-toggle:hover {
-            background: var(--bg-primary);
+        .passengers-toggle:hover {
+            background: var(--bg);
         }
         
-        .toggle-icon {
+        .passengers-toggle .toggle-icon {
             font-size: 10px;
-            color: var(--text-tertiary);
+            color: var(--text-muted);
             transition: transform 0.2s;
         }
         
-        .toggle-icon.expanded {
+        .passengers-toggle .toggle-icon.expanded {
             transform: rotate(90deg);
         }
         
-        .pasajeros-list {
-            padding: 12px;
+        .passengers-list {
+            padding: 12px 0 0;
             display: none;
         }
         
-        .pasajero-item {
+        .passenger-item {
             padding: 10px 12px;
-            background: var(--bg-primary);
-            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
             margin-bottom: 8px;
         }
         
-        .pasajero-item:last-child {
+        .passenger-item:last-child {
             margin-bottom: 0;
         }
         
-        .pasajero-nombre {
+        .passenger-name {
             font-size: 14px;
             font-weight: 500;
-            color: var(--text-primary);
+            color: var(--text);
             margin-bottom: 4px;
         }
         
-        .pasajero-meta {
+        .passenger-meta {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
         }
         
-        .meta-badge {
+        .meta-tag {
             font-size: 12px;
-            padding: 3px 8px;
+            padding: 2px 8px;
             border-radius: 4px;
-            font-weight: 500;
-        }
-        
-        .meta-badge.asiento {
-            background: #E8F4FF;
-            color: var(--accent);
-        }
-        
-        .meta-badge.cabina {
-            background: var(--bg-primary);
+            background: var(--bg);
             color: var(--text-secondary);
         }
         
+        .meta-tag.seat {
+            background: #EEF2FF;
+            color: #4F46E5;
+        }
+        
+        /* Card Actions */
         .card-actions {
             padding: 12px 20px;
             border-top: 1px solid var(--border-light);
         }
         
-        .btn-desagrupar {
+        .btn-ungroup {
             width: 100%;
             padding: 10px;
             background: transparent;
             border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             color: var(--accent);
             font-size: 14px;
             font-weight: 500;
@@ -633,27 +594,28 @@
             transition: var(--transition);
         }
         
-        .btn-desagrupar:hover {
-            background: #F5F9FF;
+        .btn-ungroup:hover {
+            background: #F0F7FF;
             border-color: var(--accent);
         }
         
+        /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: var(--text-tertiary);
-            font-size: 16px;
+            padding: 48px 20px;
+            color: var(--text-muted);
         }
         
+        /* Toolbar */
         .toolbar {
             position: fixed;
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--text-primary);
-            padding: 14px 24px;
+            background: var(--text);
+            padding: 12px 20px;
             border-radius: 100px;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             display: none;
             align-items: center;
             gap: 16px;
@@ -675,6 +637,7 @@
             font-size: 13px;
         }
         
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -683,7 +646,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -695,26 +658,25 @@
         
         .modal-content {
             background: var(--bg-card);
-            border-radius: var(--radius-xl);
+            border-radius: var(--radius-lg);
             padding: 32px;
-            max-width: 440px;
+            max-width: 400px;
             width: 90%;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
         
         .modal-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
             margin-bottom: 20px;
-            letter-spacing: -0.3px;
         }
         
         .modal-input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 12px 16px;
             font-size: 16px;
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius);
             margin-bottom: 20px;
             transition: var(--transition);
         }
@@ -734,67 +696,68 @@
             flex: 1;
         }
         
-        .agregar-opciones {
+        /* Add Modal */
+        .add-options {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            margin-bottom: 20px;
         }
         
-        .opcion-card {
+        .add-option {
             display: flex;
             align-items: center;
             gap: 16px;
             padding: 16px;
-            background: var(--bg-primary);
-            border-radius: var(--radius-md);
+            background: var(--bg);
+            border-radius: var(--radius);
             text-decoration: none;
-            color: var(--text-primary);
+            color: var(--text);
             transition: var(--transition);
-            border: 1px solid transparent;
         }
         
-        .opcion-card:hover {
+        .add-option:hover {
+            background: var(--border-light);
+        }
+        
+        .add-option-icon {
+            width: 44px;
+            height: 44px;
             background: var(--bg-card);
-            border-color: var(--border);
-            transform: translateY(-2px);
-        }
-        
-        .opcion-icon {
-            font-size: 28px;
-            width: 48px;
-            height: 48px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--bg-card);
-            border-radius: var(--radius-md);
+            font-size: 20px;
+            color: var(--text-secondary);
         }
         
-        .opcion-titulo {
+        .add-option-text h3 {
             font-size: 15px;
             font-weight: 600;
             margin-bottom: 2px;
         }
         
-        .opcion-desc {
+        .add-option-text p {
             font-size: 13px;
             color: var(--text-secondary);
         }
         
         .tip-box {
-            background: #F0F7FF;
-            border-radius: var(--radius-md);
+            background: #EEF2FF;
+            border-radius: var(--radius);
             padding: 14px 16px;
             margin-bottom: 20px;
         }
         
         .tip-box p {
             font-size: 13px;
-            color: var(--accent);
+            color: #4F46E5;
             margin: 0;
         }
         
-        .onboarding-modal {
+        /* Onboarding */
+        .onboarding {
             display: none;
             position: fixed;
             top: 0;
@@ -802,21 +765,21 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
         }
         
-        .onboarding-modal.visible {
+        .onboarding.visible {
             display: flex;
         }
         
         .onboarding-content {
             background: var(--bg-card);
-            border-radius: var(--radius-xl);
-            padding: 36px;
-            max-width: 480px;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 440px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -824,33 +787,31 @@
         
         .onboarding-header {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
         
         .onboarding-header h2 {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
         
         .onboarding-header p {
             color: var(--text-secondary);
-            font-size: 15px;
         }
         
         .onboarding-steps {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
         
         .onboarding-step {
             display: flex;
             gap: 14px;
-            padding: 18px;
-            background: var(--bg-primary);
-            border-radius: var(--radius-md);
+            padding: 16px;
+            background: var(--bg);
+            border-radius: var(--radius);
         }
         
         .step-number {
@@ -877,7 +838,6 @@
             font-size: 13px;
             color: var(--text-secondary);
             margin-bottom: 10px;
-            line-height: 1.4;
         }
         
         .step-content .btn {
@@ -885,26 +845,15 @@
             padding: 8px 14px;
         }
         
-        .email-highlight {
-            background: #E8F4FF;
-            color: var(--accent);
+        .email-code {
+            background: #EEF2FF;
+            color: #4F46E5;
             padding: 8px 12px;
-            border-radius: var(--radius-sm);
+            border-radius: 6px;
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 13px;
             display: inline-block;
             margin: 6px 0;
-        }
-        
-        .webcal-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .webcal-link:hover {
-            text-decoration: underline;
         }
         
         .onboarding-footer {
@@ -915,66 +864,47 @@
         .btn-skip {
             background: none;
             border: none;
-            color: var(--text-tertiary);
+            color: var(--text-muted);
             font-size: 14px;
             cursor: pointer;
             padding: 8px 16px;
-            transition: var(--transition);
         }
         
         .btn-skip:hover {
             color: var(--text-secondary);
         }
         
-        /* Mobile Responsive */
+        /* Responsive */
         @media (max-width: 768px) {
             .container {
-                padding: 20px 16px;
+                padding: 16px;
             }
             
-            header {
+            .header {
                 flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
+                align-items: stretch;
             }
             
-            h1 {
-                font-size: 28px;
+            .header-left {
+                justify-content: space-between;
             }
             
-            .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-            
-            .header-actions .btn {
-                flex: 1;
-                min-width: 100px;
-                padding: 10px 12px;
-                font-size: 13px;
-            }
-            
-            .user-area {
-                position: relative;
-                top: auto;
-                right: auto;
-                width: 100%;
+            .header-right {
                 justify-content: flex-end;
-                margin-bottom: 8px;
             }
             
-            .viajes-grid {
+            .logo {
+                font-size: 24px;
+            }
+            
+            .grid {
                 grid-template-columns: 1fr;
             }
             
             .email-banner {
                 flex-direction: column;
-                gap: 16px;
-                padding: 16px;
-            }
-            
-            .banner-content {
-                width: 100%;
+                align-items: flex-start;
+                gap: 12px;
             }
             
             .banner-close {
@@ -983,144 +913,90 @@
                 right: 12px;
             }
             
-            .card-title {
-                font-size: 18px;
-            }
-            
-            .ciudad-code {
-                font-size: 24px;
-            }
-            
             .toolbar {
                 width: calc(100% - 32px);
-                padding: 12px 16px;
-                flex-wrap: wrap;
                 justify-content: center;
-            }
-            
-            .modal-content, .onboarding-content {
-                padding: 24px;
-                margin: 16px;
+                flex-wrap: wrap;
             }
         }
         
         @media (max-width: 480px) {
-            h1 {
-                font-size: 24px;
+            .btn {
+                padding: 8px 14px;
+                font-size: 13px;
             }
             
-            .section-title {
-                font-size: 18px;
+            .card-title {
+                font-size: 16px;
             }
             
-            .header-actions .btn {
-                padding: 8px 10px;
-                font-size: 12px;
-            }
-            
-            .badge {
-                font-size: 10px;
-                padding: 3px 8px;
-            }
-            
-            .card-header {
-                padding: 16px;
-            }
-            
-            .ruta {
-                gap: 12px;
-            }
-            
-            .ciudad-code {
+            .city-code {
                 font-size: 22px;
             }
         }
         
-        .hidden {
-            display: none !important;
-        }
-        
-        .checkbox-select {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- User Area -->
-        <div class="user-area">
-            {% if profile_incomplete %}
-            <a href="{{ url_for('perfil') }}" class="profile-badge">
-                ⚠️ Completar perfil
-            </a>
-            {% endif %}
-            
-            <div class="user-dropdown" id="userDropdown">
-                <button class="user-toggle" onclick="toggleUserDropdown()">
-                    <span>{{ current_user.nombre }}</span>
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="user-menu">
-                    <a href="{{ url_for('perfil') }}">
-                        <span class="icon">👤</span>
-                        Mi perfil
-                    </a>
-                    <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">
-                        <span class="icon">📅</span>
-                        Suscribir calendario
-                    </a>
-                    <a href="#" onclick="showEmailBanner(); return false;">
-                        <span class="icon">📮</span>
-                        Ver email para reenvíos
-                    </a>
-                    <div class="divider"></div>
-                    <a href="{{ url_for('auth.logout') }}" class="muted">
-                        <span class="icon">→</span>
-                        Cerrar sesión
-                    </a>
+        <header class="header">
+            <div class="header-left">
+                <h1 class="logo">Mis Viajes</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openAddModal()">+ Agregar</button>
+                    <button class="btn btn-secondary" onclick="toggleGroupMode()">Agrupar</button>
+                    <button class="btn btn-danger" onclick="toggleDeleteMode()">Eliminar</button>
                 </div>
             </div>
-        </div>
-        
-        <!-- Header -->
-        <header>
-            <h1>Mis Viajes</h1>
-            <div class="header-actions">
-                <button class="btn btn-primary" onclick="abrirModalAgregar()">+ Agregar</button>
-                <button class="btn btn-secondary" onclick="toggleModoAgrupar()">Agrupar</button>
-                <button class="btn btn-ghost btn-danger-ghost" onclick="toggleModoEliminar()">Eliminar</button>
+            
+            <div class="header-right">
+                {% if profile_incomplete %}
+                <a href="{{ url_for('perfil') }}" class="profile-alert">Completar perfil</a>
+                {% endif %}
+                
+                <div class="user-menu" id="userMenu">
+                    <button class="user-toggle" onclick="toggleUserMenu()">
+                        <span>{{ current_user.nombre }}</span>
+                        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 4.5L6 7.5L9 4.5"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown">
+                        <a href="{{ url_for('perfil') }}">Mi perfil</a>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">Suscribir calendario</a>
+                        <a href="#" onclick="showBanner(); return false;">Ver email para reenvíos</a>
+                        <div class="divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="muted">Cerrar sesión</a>
+                    </div>
+                </div>
             </div>
         </header>
         
         <!-- Email Banner -->
         <div class="email-banner" id="emailBanner">
             <div class="banner-content">
-                <div class="banner-icon">📮</div>
-                <div class="banner-text">
-                    <div class="banner-title">Reenviá tus confirmaciones de vuelo a:</div>
-                    <div class="banner-email">
-                        <code>misviajes@gamberg.com.ar</code>
-                        <button class="btn-copy" onclick="copyEmail(this)">Copiar</button>
-                    </div>
+                <div class="banner-label">Reenviá tus confirmaciones de vuelo a:</div>
+                <div class="banner-email">
+                    <code>misviajes@gamberg.com.ar</code>
+                    <button class="btn-copy" onclick="copyEmail(this)">Copiar</button>
                 </div>
             </div>
-            <button class="banner-close" onclick="hideEmailBanner()">✕</button>
+            <button class="banner-close" onclick="hideBanner()">×</button>
         </div>
         
         <!-- Próximos Viajes -->
-        <section>
+        <section class="section">
             <h2 class="section-title">Próximos Viajes <span>({{ proximos|length }})</span></h2>
             
             {% if proximos %}
-            <div class="viajes-grid">
+            <div class="grid">
                 {% for grupo in proximos %}
                 {% set primer_vuelo = grupo[0] %}
                 {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
                 {% set es_multi = grupo|length > 1 %}
                 
-                <div class="viaje-card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
-                    <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select">
-                    
+                <div class="card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="handleHeaderClick(event, this.parentElement)">
                         <div class="card-top">
                             <span class="badge {% if es_multi %}multi{% endif %}">
@@ -1130,60 +1006,57 @@
                         </div>
                         
                         <div class="card-title-row">
-                            <span class="expand-icon">▶</span>
+                            <span class="expand-icon">▸</span>
                             <span class="card-title">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
-                            <button type="button" class="btn-edit-name" onclick="event.stopPropagation(); editarNombre('{{ grupo_id }}', '{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}')">Editar</button>
+                            <button type="button" class="btn-edit" onclick="event.stopPropagation(); editName('{{ grupo_id }}', '{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}')">Editar</button>
                         </div>
                     </div>
                     
                     <div class="card-body">
                         {% for vuelo in grupo %}
-                        <div class="segmento">
+                        <div class="segment">
                             {% if es_multi %}
-                            <div class="segmento-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
+                            <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
                             {% endif %}
                             
-                            <div class="ruta">
-                                <div class="ciudad">
-                                    <div class="ciudad-code">{{ vuelo.origen }}</div>
+                            <div class="route">
+                                <div class="city">
+                                    <div class="city-code">{{ vuelo.origen }}</div>
                                     {% if vuelo.hora_salida %}
-                                    <div class="ciudad-hora">{{ vuelo.hora_salida }}</div>
+                                    <div class="city-time">{{ vuelo.hora_salida }}</div>
                                     {% endif %}
                                 </div>
-                                <div class="ruta-arrow">→</div>
-                                <div class="ciudad destino">
-                                    <div class="ciudad-code">{{ vuelo.destino }}</div>
+                                <div class="route-arrow">→</div>
+                                <div class="city dest">
+                                    <div class="city-code">{{ vuelo.destino }}</div>
                                     {% if vuelo.hora_llegada %}
-                                    <div class="ciudad-hora">{{ vuelo.hora_llegada }}</div>
+                                    <div class="city-time">{{ vuelo.hora_llegada }}</div>
                                     {% endif %}
                                 </div>
                             </div>
                             
                             {% if vuelo.aerolinea %}
-                            <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
-                            {% endif %}
-                            {% if vuelo.numero_vuelo %}
-                            <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                            <div class="info-row">{{ vuelo.aerolinea }}{% if vuelo.numero_vuelo %} · {{ vuelo.numero_vuelo }}{% endif %}</div>
                             {% endif %}
                             
                             {% if vuelo.pasajeros %}
                             {% set pasajeros_list = vuelo.pasajeros|fromjson %}
                             {% if pasajeros_list %}
-                            <div class="pasajeros-section">
-                                <button type="button" class="pasajeros-toggle" onclick="event.stopPropagation(); togglePasajeros(this)">
-                                    <span class="toggle-icon">▶</span>
-                                    Pasajeros ({{ pasajeros_list|length }})
+                            <div class="passengers-section">
+                                <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
+                                    <span class="toggle-icon">▸</span>
+                                    {{ pasajeros_list|length }} pasajero{% if pasajeros_list|length > 1 %}s{% endif %}
                                 </button>
-                                <div class="pasajeros-list">
+                                <div class="passengers-list">
                                     {% for p in pasajeros_list %}
-                                    <div class="pasajero-item">
-                                        <div class="pasajero-nombre">{{ p.nombre }}</div>
-                                        <div class="pasajero-meta">
+                                    <div class="passenger-item">
+                                        <div class="passenger-name">{{ p.nombre }}</div>
+                                        <div class="passenger-meta">
                                             {% if p.asiento %}
-                                            <span class="meta-badge asiento">{{ p.asiento }}</span>
+                                            <span class="meta-tag seat">{{ p.asiento }}</span>
                                             {% endif %}
                                             {% if p.cabina %}
-                                            <span class="meta-badge cabina">{{ p.cabina }}</span>
+                                            <span class="meta-tag">{{ p.cabina }}</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -1196,16 +1069,16 @@
                         {% endfor %}
                         
                         {% if primer_vuelo.codigo_reserva %}
-                        <div class="info-row" style="margin-top: 12px; padding: 0 16px;"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
+                        <div class="info-row" style="margin-top: 12px;">Código: {{ primer_vuelo.codigo_reserva }}</div>
                         {% endif %}
                     </div>
                     
                     {% set codigos_unicos = grupo|map(attribute='codigo_reserva')|unique|list %}
                     {% if es_multi and codigos_unicos|length > 1 %}
-                    <div class="card-actions" id="actions-{{ grupo_id }}">
-                        <form method="POST" action="{{ url_for('desagrupar_grupo') }}" onclick="event.stopPropagation();" style="width: 100%;">
+                    <div class="card-actions">
+                        <form method="POST" action="{{ url_for('desagrupar_grupo') }}" onclick="event.stopPropagation();">
                             <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
-                            <button type="submit" class="btn-desagrupar" onclick="event.stopPropagation(); return confirm('¿Separar estos vuelos?')">Desagrupar</button>
+                            <button type="submit" class="btn-ungroup" onclick="event.stopPropagation(); return confirm('¿Separar estos vuelos?')">Desagrupar</button>
                         </form>
                     </div>
                     {% endif %}
@@ -1219,17 +1092,15 @@
         
         <!-- Pasados -->
         {% if pasados %}
-        <section>
+        <section class="section">
             <h2 class="section-title">Pasados <span>({{ pasados|length }})</span></h2>
-            <div class="viajes-grid">
+            <div class="grid">
                 {% for grupo in pasados %}
                 {% set primer_vuelo = grupo[0] %}
                 {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
                 {% set es_multi = grupo|length > 1 %}
                 
-                <div class="viaje-card pasado collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
-                    <input type="checkbox" name="grupos_ids" value="{{ grupo_id }}" class="checkbox-select">
-                    
+                <div class="card past collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="handleHeaderClick(event, this.parentElement)">
                         <div class="card-top">
                             <span class="badge {% if es_multi %}multi{% endif %}">
@@ -1239,46 +1110,39 @@
                         </div>
                         
                         <div class="card-title-row">
-                            <span class="expand-icon">▶</span>
+                            <span class="expand-icon">▸</span>
                             <span class="card-title">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
                         </div>
                     </div>
                     
                     <div class="card-body">
                         {% for vuelo in grupo %}
-                        <div class="segmento">
+                        <div class="segment">
                             {% if es_multi %}
-                            <div class="segmento-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
+                            <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
                             {% endif %}
                             
-                            <div class="ruta">
-                                <div class="ciudad">
-                                    <div class="ciudad-code">{{ vuelo.origen }}</div>
+                            <div class="route">
+                                <div class="city">
+                                    <div class="city-code">{{ vuelo.origen }}</div>
                                     {% if vuelo.hora_salida %}
-                                    <div class="ciudad-hora">{{ vuelo.hora_salida }}</div>
+                                    <div class="city-time">{{ vuelo.hora_salida }}</div>
                                     {% endif %}
                                 </div>
-                                <div class="ruta-arrow">→</div>
-                                <div class="ciudad destino">
-                                    <div class="ciudad-code">{{ vuelo.destino }}</div>
+                                <div class="route-arrow">→</div>
+                                <div class="city dest">
+                                    <div class="city-code">{{ vuelo.destino }}</div>
                                     {% if vuelo.hora_llegada %}
-                                    <div class="ciudad-hora">{{ vuelo.hora_llegada }}</div>
+                                    <div class="city-time">{{ vuelo.hora_llegada }}</div>
                                     {% endif %}
                                 </div>
                             </div>
                             
                             {% if vuelo.aerolinea %}
-                            <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
-                            {% endif %}
-                            {% if vuelo.numero_vuelo %}
-                            <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                            <div class="info-row">{{ vuelo.aerolinea }}{% if vuelo.numero_vuelo %} · {{ vuelo.numero_vuelo }}{% endif %}</div>
                             {% endif %}
                         </div>
                         {% endfor %}
-                        
-                        {% if primer_vuelo.codigo_reserva %}
-                        <div class="info-row" style="margin-top: 12px; padding: 0 16px;"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
-                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -1288,69 +1152,77 @@
     </div>
     
     <!-- Modal Agregar -->
-    <div class="modal" id="modalAgregar">
+    <div class="modal" id="addModal">
         <div class="modal-content">
             <h2 class="modal-title">Agregar Viaje</h2>
             
             <div class="tip-box">
-                <p>💡 <strong>Tip:</strong> Reenviá tu confirmación a <strong>misviajes@gamberg.com.ar</strong></p>
+                <p><strong>Tip:</strong> Reenviá tu confirmación a misviajes@gamberg.com.ar</p>
             </div>
             
-            <div class="agregar-opciones">
-                <a href="{{ url_for('carga_rapida') }}" class="opcion-card">
-                    <div class="opcion-icon">📄</div>
-                    <div>
-                        <div class="opcion-titulo">Subir PDF</div>
-                        <div class="opcion-desc">Arrastrá el PDF de confirmación</div>
+            <div class="add-options">
+                <a href="{{ url_for('carga_rapida') }}" class="add-option">
+                    <div class="add-option-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                        </svg>
+                    </div>
+                    <div class="add-option-text">
+                        <h3>Subir PDF</h3>
+                        <p>Arrastrá el PDF de confirmación</p>
                     </div>
                 </a>
                 
-                <a href="{{ url_for('agregar') }}" class="opcion-card">
-                    <div class="opcion-icon">✏️</div>
-                    <div>
-                        <div class="opcion-titulo">Agregar manualmente</div>
-                        <div class="opcion-desc">Para vuelos sin confirmación digital</div>
+                <a href="{{ url_for('agregar') }}" class="add-option">
+                    <div class="add-option-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                        </svg>
+                    </div>
+                    <div class="add-option-text">
+                        <h3>Agregar manualmente</h3>
+                        <p>Para vuelos sin confirmación digital</p>
                     </div>
                 </a>
             </div>
             
-            <button type="button" class="btn btn-secondary" onclick="cerrarModalAgregar()" style="width: 100%; margin-top: 16px;">Cancelar</button>
+            <button class="btn btn-secondary" onclick="closeAddModal()" style="width: 100%;">Cancelar</button>
         </div>
     </div>
     
     <!-- Modal Editar Nombre -->
-    <div class="modal" id="modalEditarNombre">
+    <div class="modal" id="editModal">
         <div class="modal-content">
             <h2 class="modal-title">Editar nombre</h2>
             <form method="POST" action="{{ url_for('editar_nombre_viaje') }}">
-                <input type="hidden" name="grupo_id" id="editGrupoId">
-                <input type="text" name="nombre" id="editNombreInput" class="modal-input" required>
+                <input type="hidden" name="grupo_id" id="editGroupId">
+                <input type="text" name="nombre" id="editNameInput" class="modal-input" required>
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
     
     <!-- Toolbars -->
-    <div class="toolbar" id="toolbarAgrupar">
-        <span class="toolbar-text"><span id="countSeleccionados">0</span> seleccionados</span>
-        <button class="btn btn-primary" onclick="agruparSeleccionados()">Agrupar</button>
-        <button class="btn btn-secondary" onclick="cancelarAgrupar()">Cancelar</button>
+    <div class="toolbar" id="groupToolbar">
+        <span class="toolbar-text"><span id="groupCount">0</span> seleccionados</span>
+        <button class="btn btn-primary" onclick="groupSelected()">Agrupar</button>
+        <button class="btn btn-secondary" onclick="cancelGroup()">Cancelar</button>
     </div>
     
-    <div class="toolbar" id="toolbarEliminar">
-        <span class="toolbar-text"><span id="countEliminar">0</span> seleccionados</span>
-        <button class="btn btn-primary" style="background: var(--danger);" onclick="eliminarSeleccionados()">Eliminar</button>
-        <button class="btn btn-secondary" onclick="cancelarEliminar()">Cancelar</button>
+    <div class="toolbar" id="deleteToolbar">
+        <span class="toolbar-text"><span id="deleteCount">0</span> seleccionados</span>
+        <button class="btn btn-primary" style="background: var(--danger);" onclick="deleteSelected()">Eliminar</button>
+        <button class="btn btn-secondary" onclick="cancelDelete()">Cancelar</button>
     </div>
     
-    <!-- Onboarding Modal -->
-    <div class="onboarding-modal" id="onboardingModal">
+    <!-- Onboarding -->
+    <div class="onboarding" id="onboarding">
         <div class="onboarding-content">
             <div class="onboarding-header">
-                <h2>🌍 ¡Bienvenido!</h2>
+                <h2>Bienvenido</h2>
                 <p>Configurá tu cuenta en 3 pasos</p>
             </div>
             
@@ -1369,8 +1241,7 @@
                     <div class="step-content">
                         <h3>Agregá tu primer viaje</h3>
                         <p>Reenviá tus confirmaciones a:</p>
-                        <div class="email-highlight">misviajes@gamberg.com.ar</div>
-                        <p style="margin-top: 8px;">Aparecerán automáticamente.</p>
+                        <div class="email-code">misviajes@gamberg.com.ar</div>
                     </div>
                 </div>
                 
@@ -1378,49 +1249,51 @@
                     <div class="step-number">3</div>
                     <div class="step-content">
                         <h3>Sincronizá con tu calendario</h3>
-                        <p>Tus vuelos aparecerán en Apple Calendar, Google Calendar, etc.</p>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed" class="webcal-link">📅 Suscribirse</a>
+                        <p>Tus vuelos aparecerán automáticamente.</p>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed" class="btn btn-secondary">Suscribir calendario</a>
                     </div>
                 </div>
             </div>
             
             <div class="onboarding-footer">
-                <button type="button" class="btn-skip" onclick="skipOnboarding()">Omitir por ahora</button>
+                <button class="btn-skip" onclick="skipOnboarding()">Omitir</button>
             </div>
         </div>
     </div>
     
     <script>
-        var modoAgrupar = false;
-        var seleccionados = new Set();
-        var modoEliminar = false;
-        var seleccionadosEliminar = new Set();
+        let groupMode = false;
+        let deleteMode = false;
+        let selectedGroups = new Set();
+        let selectedDelete = new Set();
         
-        function toggleUserDropdown() {
-            document.getElementById('userDropdown').classList.toggle('open');
+        // User Menu
+        function toggleUserMenu() {
+            document.getElementById('userMenu').classList.toggle('open');
         }
         
         document.addEventListener('click', function(e) {
-            var dropdown = document.getElementById('userDropdown');
-            if (dropdown && !dropdown.contains(e.target)) {
-                dropdown.classList.remove('open');
+            const menu = document.getElementById('userMenu');
+            if (menu && !menu.contains(e.target)) {
+                menu.classList.remove('open');
             }
         });
         
-        function hideEmailBanner() {
+        // Banner
+        function hideBanner() {
             document.getElementById('emailBanner').classList.add('hidden');
-            localStorage.setItem('email_banner_hidden', 'true');
+            localStorage.setItem('banner_hidden', 'true');
         }
         
-        function showEmailBanner() {
+        function showBanner() {
             document.getElementById('emailBanner').classList.remove('hidden');
-            localStorage.removeItem('email_banner_hidden');
-            document.getElementById('userDropdown').classList.remove('open');
+            localStorage.removeItem('banner_hidden');
+            document.getElementById('userMenu').classList.remove('open');
         }
         
         function copyEmail(btn) {
             navigator.clipboard.writeText('misviajes@gamberg.com.ar').then(function() {
-                btn.textContent = '✓ Copiado';
+                btn.textContent = 'Copiado';
                 btn.classList.add('copied');
                 setTimeout(function() {
                     btn.textContent = 'Copiar';
@@ -1429,29 +1302,31 @@
             });
         }
         
-        if (localStorage.getItem('email_banner_hidden') === 'true') {
+        if (localStorage.getItem('banner_hidden') === 'true') {
             document.getElementById('emailBanner').classList.add('hidden');
         }
         
+        // Cards
         function toggleCard(card) {
             card.classList.toggle('collapsed');
         }
         
-        function handleHeaderClick(event, card) {
-            if (modoEliminar || modoAgrupar) return;
-            event.stopPropagation();
+        function handleHeaderClick(e, card) {
+            if (groupMode || deleteMode) return;
+            e.stopPropagation();
             toggleCard(card);
         }
         
-        function handleCardClick(event, grupoId) {
-            if (modoEliminar || modoAgrupar) {
-                toggleSelect(grupoId);
+        function handleCardClick(e, groupId) {
+            if (groupMode || deleteMode) {
+                toggleSelect(groupId);
             }
         }
         
-        function togglePasajeros(btn) {
-            var list = btn.nextElementSibling;
-            var icon = btn.querySelector('.toggle-icon');
+        // Passengers
+        function togglePassengers(btn) {
+            const list = btn.nextElementSibling;
+            const icon = btn.querySelector('.toggle-icon');
             if (list.style.display === 'none' || !list.style.display) {
                 list.style.display = 'block';
                 icon.classList.add('expanded');
@@ -1461,88 +1336,88 @@
             }
         }
         
-        function toggleSelect(grupoId) {
-            var card = document.getElementById('card-' + grupoId);
+        // Selection
+        function toggleSelect(groupId) {
+            const card = document.getElementById('card-' + groupId);
             if (!card) return;
             
-            if (modoEliminar) {
-                if (seleccionadosEliminar.has(grupoId)) {
-                    seleccionadosEliminar.delete(grupoId);
-                    card.classList.remove('selected-eliminar');
+            if (deleteMode) {
+                if (selectedDelete.has(groupId)) {
+                    selectedDelete.delete(groupId);
+                    card.classList.remove('selected-delete');
                 } else {
-                    seleccionadosEliminar.add(grupoId);
-                    card.classList.add('selected-eliminar');
+                    selectedDelete.add(groupId);
+                    card.classList.add('selected-delete');
                 }
-                document.getElementById('countEliminar').textContent = seleccionadosEliminar.size;
-                document.getElementById('toolbarEliminar').classList.toggle('visible', seleccionadosEliminar.size > 0);
-                return;
-            }
-            
-            if (modoAgrupar) {
-                if (seleccionados.has(grupoId)) {
-                    seleccionados.delete(grupoId);
+                document.getElementById('deleteCount').textContent = selectedDelete.size;
+                document.getElementById('deleteToolbar').classList.toggle('visible', selectedDelete.size > 0);
+            } else if (groupMode) {
+                if (selectedGroups.has(groupId)) {
+                    selectedGroups.delete(groupId);
                     card.classList.remove('selected');
                 } else {
-                    seleccionados.add(grupoId);
+                    selectedGroups.add(groupId);
                     card.classList.add('selected');
                 }
-                document.getElementById('countSeleccionados').textContent = seleccionados.size;
-                document.getElementById('toolbarAgrupar').classList.toggle('visible', seleccionados.size > 0);
+                document.getElementById('groupCount').textContent = selectedGroups.size;
+                document.getElementById('groupToolbar').classList.toggle('visible', selectedGroups.size > 0);
             }
         }
         
-        function toggleModoAgrupar() {
-            if (modoAgrupar) {
-                cancelarAgrupar();
+        // Group Mode
+        function toggleGroupMode() {
+            if (groupMode) {
+                cancelGroup();
             } else {
-                modoAgrupar = true;
-                seleccionados.clear();
-                document.getElementById('toolbarAgrupar').classList.add('visible');
+                groupMode = true;
+                selectedGroups.clear();
+                document.getElementById('groupToolbar').classList.add('visible');
             }
         }
         
-        function cancelarAgrupar() {
-            modoAgrupar = false;
-            seleccionados.clear();
-            document.querySelectorAll('.viaje-card').forEach(function(c) { c.classList.remove('selected'); });
-            document.getElementById('toolbarAgrupar').classList.remove('visible');
+        function cancelGroup() {
+            groupMode = false;
+            selectedGroups.clear();
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('groupToolbar').classList.remove('visible');
         }
         
-        function agruparSeleccionados() {
-            if (seleccionados.size < 2) {
+        function groupSelected() {
+            if (selectedGroups.size < 2) {
                 alert('Seleccioná al menos 2 viajes');
                 return;
             }
-            var form = new FormData();
-            seleccionados.forEach(function(id) { form.append('grupos_ids', id); });
-            fetch('/agrupar-manual', { method: 'POST', body: form }).then(function() { location.reload(); });
+            const form = new FormData();
+            selectedGroups.forEach(id => form.append('grupos_ids', id));
+            fetch('/agrupar-manual', { method: 'POST', body: form }).then(() => location.reload());
         }
         
-        function toggleModoEliminar() {
-            if (modoEliminar) {
-                cancelarEliminar();
+        // Delete Mode
+        function toggleDeleteMode() {
+            if (deleteMode) {
+                cancelDelete();
             } else {
-                modoEliminar = true;
-                seleccionadosEliminar.clear();
-                document.getElementById('toolbarEliminar').classList.add('visible');
+                deleteMode = true;
+                selectedDelete.clear();
+                document.getElementById('deleteToolbar').classList.add('visible');
             }
         }
         
-        function cancelarEliminar() {
-            modoEliminar = false;
-            seleccionadosEliminar.clear();
-            document.querySelectorAll('.viaje-card').forEach(function(c) { c.classList.remove('selected-eliminar'); });
-            document.getElementById('toolbarEliminar').classList.remove('visible');
+        function cancelDelete() {
+            deleteMode = false;
+            selectedDelete.clear();
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected-delete'));
+            document.getElementById('deleteToolbar').classList.remove('visible');
         }
         
-        function eliminarSeleccionados() {
-            if (seleccionadosEliminar.size === 0) return;
-            if (confirm('¿Eliminar ' + seleccionadosEliminar.size + ' viaje(s)?')) {
-                var form = document.createElement('form');
+        function deleteSelected() {
+            if (selectedDelete.size === 0) return;
+            if (confirm('¿Eliminar ' + selectedDelete.size + ' viaje(s)?')) {
+                const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '/eliminar-multiples';
-                seleccionadosEliminar.forEach(function(id) {
-                    var input = document.createElement('input');
+                selectedDelete.forEach(id => {
+                    const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'grupos_ids';
                     input.value = id;
@@ -1553,49 +1428,44 @@
             }
         }
         
-        function abrirModalAgregar() {
-            document.getElementById('modalAgregar').classList.add('visible');
+        // Modals
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('visible');
         }
         
-        function cerrarModalAgregar() {
-            document.getElementById('modalAgregar').classList.remove('visible');
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('visible');
         }
         
-        function editarNombre(grupoId, nombre) {
-            document.getElementById('editGrupoId').value = grupoId;
-            document.getElementById('editNombreInput').value = nombre;
-            document.getElementById('modalEditarNombre').classList.add('visible');
+        function editName(groupId, name) {
+            document.getElementById('editGroupId').value = groupId;
+            document.getElementById('editNameInput').value = name;
+            document.getElementById('editModal').classList.add('visible');
         }
         
-        function cerrarModal() {
-            document.getElementById('modalEditarNombre').classList.remove('visible');
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('visible');
         }
         
-        function showOnboarding() {
-            document.getElementById('onboardingModal').classList.add('visible');
-        }
-        
-        function cerrarOnboarding() {
-            document.getElementById('onboardingModal').classList.remove('visible');
-        }
-        
+        // Onboarding
         function skipOnboarding() {
             localStorage.setItem('onboarding_seen', 'true');
-            cerrarOnboarding();
+            document.getElementById('onboarding').classList.remove('visible');
         }
         
         {% if show_onboarding %}
         if (!localStorage.getItem('onboarding_seen')) {
-            showOnboarding();
+            document.getElementById('onboarding').classList.add('visible');
         }
         {% endif %}
         
-        var lastCount = {{ proximos|length }};
+        // Auto-refresh
+        let lastCount = {{ proximos|length }};
         setInterval(function() {
             fetch('/api/viajes/count')
-                .then(function(r) { return r.json(); })
-                .then(function(d) { if (d.count !== lastCount) location.reload(); })
-                .catch(function() {});
+                .then(r => r.json())
+                .then(d => { if (d.count !== lastCount) location.reload(); })
+                .catch(() => {});
         }, 120000);
     </script>
 </body>

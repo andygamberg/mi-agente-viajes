@@ -5,102 +5,176 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Cuenta - Mis Viajes</title>
     <style>
+        :root {
+            --bg: #F5F5F7;
+            --bg-card: #FFFFFF;
+            --text: #1D1D1F;
+            --text-secondary: #86868B;
+            --accent: #0071E3;
+            --accent-hover: #0077ED;
+            --border: #D2D2D7;
+            --danger: #DC2626;
+            --radius: 12px;
+        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            -webkit-font-smoothing: antialiased;
         }
+        
         .container {
-            background: white;
-            border-radius: 18px;
-            padding: 48px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 48px 40px;
             max-width: 400px;
             width: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
         }
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
+        
+        .logo {
             text-align: center;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #6e6e73;
             margin-bottom: 32px;
         }
+        
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .logo-icon svg {
+            width: 28px;
+            height: 28px;
+            color: white;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .logo p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert-error {
+            background: #FEF2F2;
+            color: var(--danger);
+            border: 1px solid #FECACA;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
+        
         label {
             display: block;
             font-size: 14px;
             font-weight: 500;
             margin-bottom: 8px;
-            color: #1d1d1f;
+            color: var(--text);
         }
+        
         input {
             width: 100%;
             padding: 14px 16px;
-            font-size: 17px;
-            border: 1px solid #d2d2d7;
-            border-radius: 10px;
+            font-size: 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             transition: all 0.2s;
+            font-family: inherit;
         }
+        
         input:focus {
             outline: none;
-            border-color: #0071e3;
-            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
         }
+        
+        input::placeholder {
+            color: #AEAEB2;
+        }
+        
         .btn {
             width: 100%;
             padding: 14px;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 500;
             border: none;
-            border-radius: 10px;
+            border-radius: var(--radius);
             cursor: pointer;
             transition: all 0.2s;
+            font-family: inherit;
         }
+        
         .btn-primary {
-            background: #0071e3;
+            background: var(--accent);
             color: white;
-            margin-top: 12px;
+            margin-top: 8px;
         }
+        
         .btn-primary:hover {
-            background: #0077ed;
+            background: var(--accent-hover);
         }
+        
         .links {
             text-align: center;
             margin-top: 24px;
             font-size: 14px;
+            color: var(--text-secondary);
         }
+        
         .links a {
-            color: #0071e3;
+            color: var(--accent);
             text-decoration: none;
+            font-weight: 500;
         }
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+        
+        .links a:hover {
+            text-decoration: underline;
         }
-        .alert-error {
-            background: #fff5f5;
-            color: #c53030;
-            border: 1px solid #feb2b2;
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 24px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌍 Mis Viajes</h1>
-        <p class="subtitle">Creá tu cuenta gratis</p>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                </svg>
+            </div>
+            <h1>Mis Viajes</h1>
+            <p>Creá tu cuenta gratis</p>
+        </div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -118,24 +192,24 @@
             
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" required placeholder="tu@email.com">
+                <input type="email" name="email" required placeholder="tu@email.com" autocomplete="email">
             </div>
             
             <div class="form-group">
                 <label>Contraseña</label>
-                <input type="password" name="password" required placeholder="Mínimo 6 caracteres">
+                <input type="password" name="password" required placeholder="Mínimo 6 caracteres" autocomplete="new-password">
             </div>
             
             <div class="form-group">
                 <label>Repetir Contraseña</label>
-                <input type="password" name="password2" required placeholder="Repetí tu contraseña">
+                <input type="password" name="password2" required placeholder="Repetí tu contraseña" autocomplete="new-password">
             </div>
             
             <button type="submit" class="btn btn-primary">Crear Cuenta</button>
         </form>
         
         <div class="links">
-            ¿Ya tenés cuenta? <a href="{{ url_for('auth.login') }}">Iniciá sesión</a>
+            ¿Ya tenés cuenta? <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
         </div>
     </div>
 </body>

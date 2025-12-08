@@ -2,176 +2,307 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agregar Viaje</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Viaje - Mis Viajes</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #F5F5F7;
+            --bg-card: #FFFFFF;
+            --text: #1D1D1F;
+            --text-secondary: #86868B;
+            --text-muted: #AEAEB2;
+            --accent: #0071E3;
+            --accent-hover: #0077ED;
+            --border: #D2D2D7;
+            --border-light: #E8E8ED;
+            --radius: 12px;
+            --radius-lg: 16px;
         }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f7;
-            color: #1d1d1f;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
         }
+        
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 40px 20px;
         }
+        
         .header {
-            margin-bottom: 40px;
-        }
-        h1 {
-            font-size: 48px;
-            font-weight: 700;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            font-size: 19px;
-            color: #6e6e73;
-        }
-        .subtitle a {
-            color: #0071e3;
-            text-decoration: none;
-        }
-        .form-card {
-            background: white;
-            border-radius: 18px;
-            padding: 32px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        .form-section {
             margin-bottom: 32px;
         }
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #1d1d1f;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f5f5f7;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            text-decoration: none;
             font-size: 15px;
             font-weight: 500;
-            color: #1d1d1f;
-            margin-bottom: 8px;
+            margin-bottom: 16px;
         }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 17px;
-            border: 1px solid #d2d2d7;
-            border-radius: 10px;
-            background: white;
-            transition: all 0.2s;
-            font-family: inherit;
+        
+        .back-link:hover {
+            text-decoration: underline;
         }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #0071e3;
-            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
+        
+        .tip-box {
+            background: #EEF2FF;
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #4F46E5;
+        }
+        
+        .tip-box strong {
+            font-weight: 600;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        .section {
+            margin-bottom: 28px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .section:last-of-type {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .hint {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-card);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+        
         textarea {
             resize: vertical;
             min-height: 80px;
         }
+        
+        /* Accordion for optional fields */
+        .accordion {
+            margin-top: 20px;
+        }
+        
+        .accordion-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 0;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent);
+            cursor: pointer;
+            text-align: left;
+        }
+        
+        .accordion-toggle svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .accordion-toggle.open svg {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-content {
+            display: none;
+            padding-top: 16px;
+        }
+        
+        .accordion-content.open {
+            display: block;
+        }
+        
         .actions {
             display: flex;
             gap: 12px;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid #f5f5f7;
+            margin-top: 28px;
+            padding-top: 28px;
+            border-top: 1px solid var(--border-light);
         }
+        
         .btn {
             flex: 1;
-            padding: 14px 28px;
-            border-radius: 980px;
-            font-size: 17px;
+            padding: 14px 24px;
+            border-radius: var(--radius);
+            font-size: 16px;
             font-weight: 500;
             border: none;
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
             text-align: center;
-            display: inline-block;
+            font-family: inherit;
         }
+        
         .btn-primary {
-            background: #0071e3;
+            background: var(--accent);
             color: white;
         }
+        
         .btn-primary:hover {
-            background: #0077ed;
-            transform: scale(1.01);
+            background: var(--accent-hover);
         }
+        
         .btn-secondary {
-            background: #e8e8ed;
-            color: #1d1d1f;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
         }
+        
         .btn-secondary:hover {
-            background: #d2d2d7;
+            background: var(--border-light);
         }
-        .helper-text {
-            font-size: 13px;
-            color: #86868b;
-            margin-top: 6px;
-        }
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236e6e73' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 40px;
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Nuevo Viaje</h1>
-            <p class="subtitle"><a href="{{ url_for('index') }}">← Volver</a></p>
+            <a href="{{ url_for('index') }}" class="back-link">← Volver</a>
+            <h1>Agregar Viaje</h1>
         </div>
         
-        <div class="form-card">
+        <div class="tip-box">
+            <strong>Tip:</strong> Es más fácil reenviar tu confirmación a <strong>misviajes@gamberg.com.ar</strong> o usar la <a href="{{ url_for('carga_rapida') }}" style="color: inherit;">carga rápida con PDF</a>.
+        </div>
+        
+        <div class="card">
             <form method="POST">
-                <div class="form-section">
-                    <div class="section-title">Información Básica</div>
+                <div class="section">
+                    <h2 class="section-title">Información básica</h2>
                     
-                    <div class="form-group">
-                        <label>Tipo de Viaje</label>
-                        <select name="tipo" required>
-                            <option value="vuelo">Vuelo</option>
-                            <option value="hotel">Hotel</option>
-                            <option value="auto">Auto</option>
-                            <option value="tren">Tren</option>
-                            <option value="bus">Bus</option>
-                            <option value="ferry">Ferry</option>
-                            <option value="actividad">Actividad</option>
-                            <option value="otro">Otro</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select name="tipo" required>
+                                <option value="vuelo">Vuelo</option>
+                                <option value="hotel">Hotel</option>
+                                <option value="auto">Auto</option>
+                                <option value="tren">Tren</option>
+                                <option value="actividad">Actividad</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Código de reserva</label>
+                            <input type="text" name="codigo_reserva" placeholder="ABC123">
+                        </div>
                     </div>
                     
                     <div class="form-group">
                         <label>Descripción</label>
                         <input type="text" name="descripcion" placeholder="Ej: Viaje a París" required>
-                        <div class="helper-text">Un nombre que te ayude a identificar este viaje</div>
+                        <p class="hint">Un nombre para identificar este viaje</p>
                     </div>
                 </div>
                 
-                <div class="form-section">
-                    <div class="section-title">Origen y Destino</div>
+                <div class="section">
+                    <h2 class="section-title">Ruta</h2>
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -185,82 +316,87 @@
                     </div>
                 </div>
                 
-                <div class="form-section">
-                    <div class="section-title">Fechas y Horarios</div>
+                <div class="section">
+                    <h2 class="section-title">Fecha y hora</h2>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Fecha Salida</label>
+                            <label>Fecha salida</label>
                             <input type="date" name="fecha_salida" required>
                         </div>
                         <div class="form-group">
-                            <label>Hora Salida</label>
+                            <label>Hora salida</label>
                             <input type="time" name="hora_salida">
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Fecha Llegada</label>
+                            <label>Fecha llegada</label>
                             <input type="date" name="fecha_llegada">
                         </div>
                         <div class="form-group">
-                            <label>Hora Llegada</label>
+                            <label>Hora llegada</label>
                             <input type="time" name="hora_llegada">
                         </div>
                     </div>
                 </div>
                 
-                <div class="form-section">
-                    <div class="section-title">Detalles del Vuelo</div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Aerolínea</label>
-                            <input type="text" name="aerolinea" placeholder="LATAM">
+                <div class="accordion">
+                    <button type="button" class="accordion-toggle" onclick="toggleAccordion(this)">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7"/>
+                        </svg>
+                        Más detalles (opcional)
+                    </button>
+                    <div class="accordion-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Aerolínea</label>
+                                <input type="text" name="aerolinea" placeholder="LATAM">
+                            </div>
+                            <div class="form-group">
+                                <label>Número de vuelo</label>
+                                <input type="text" name="numero_vuelo" placeholder="LA1234">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Número de Vuelo</label>
-                            <input type="text" name="numero_vuelo" placeholder="LA1234">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Terminal</label>
+                                <input type="text" name="terminal" placeholder="A">
+                            </div>
+                            <div class="form-group">
+                                <label>Puerta</label>
+                                <input type="text" name="puerta" placeholder="12">
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Código de Reserva</label>
-                        <input type="text" name="codigo_reserva" placeholder="ABC123">
-                    </div>
-                    
-                    <div class="form-row">
+                        
                         <div class="form-group">
-                            <label>Terminal</label>
-                            <input type="text" name="terminal" placeholder="A">
+                            <label>Asiento</label>
+                            <input type="text" name="asiento" placeholder="12A">
                         </div>
+                        
                         <div class="form-group">
-                            <label>Puerta</label>
-                            <input type="text" name="puerta" placeholder="12">
+                            <label>Notas</label>
+                            <textarea name="notas" placeholder="Información adicional..."></textarea>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Asiento</label>
-                        <input type="text" name="asiento" placeholder="12A">
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="section-title">Notas Adicionales</div>
-                    
-                    <div class="form-group">
-                        <textarea name="notas" placeholder="Información adicional..."></textarea>
                     </div>
                 </div>
                 
                 <div class="actions">
-                    <button type="submit" class="btn btn-primary">Guardar Viaje</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
                     <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>
         </div>
     </div>
+    
+    <script>
+        function toggleAccordion(btn) {
+            btn.classList.toggle('open');
+            btn.nextElementSibling.classList.toggle('open');
+        }
+    </script>
 </body>
 </html>

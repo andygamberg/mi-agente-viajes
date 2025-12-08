@@ -2,191 +2,265 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Carga Rápida</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga Rápida - Mis Viajes</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #F5F5F7;
+            --bg-card: #FFFFFF;
+            --text: #1D1D1F;
+            --text-secondary: #86868B;
+            --text-muted: #AEAEB2;
+            --accent: #0071E3;
+            --accent-hover: #0077ED;
+            --border: #D2D2D7;
+            --border-light: #E8E8ED;
+            --success: #16A34A;
+            --radius: 12px;
+            --radius-lg: 16px;
         }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f7;
-            color: #1d1d1f;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
         }
+        
         .container {
-            max-width: 900px;
+            max-width: 640px;
             margin: 0 auto;
         }
+        
         .header {
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
-        h1 {
-            font-size: 48px;
-            font-weight: 700;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            font-size: 19px;
-            color: #6e6e73;
-        }
-        .subtitle a {
-            color: #0071e3;
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
             text-decoration: none;
-        }
-        .alert {
-            background: white;
-            border-left: 4px solid #ff9500;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .alert-text {
-            color: #1d1d1f;
-            font-weight: 500;
             font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 16px;
         }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .alert {
+            background: var(--bg-card);
+            border-left: 3px solid #F59E0B;
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            font-size: 14px;
+            color: var(--text);
+        }
+        
         .card {
-            background: white;
-            border-radius: 18px;
-            padding: 40px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
+        
         .drop-zone {
-            border: 2px dashed #d2d2d7;
-            border-radius: 16px;
-            padding: 80px 20px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            padding: 48px 24px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: #fafafa;
-            margin-bottom: 32px;
+            background: var(--bg);
+            margin-bottom: 24px;
         }
+        
         .drop-zone:hover {
-            border-color: #0071e3;
-            background: #f5f9ff;
+            border-color: var(--accent);
+            background: #F0F7FF;
         }
+        
         .drop-zone.dragover {
-            border-color: #0071e3;
-            background: #e6f2ff;
+            border-color: var(--accent);
+            background: #E5F0FF;
             transform: scale(1.01);
         }
+        
         .drop-zone.has-file {
-            border-color: #34c759;
-            background: #f0fdf4;
+            border-color: var(--success);
+            background: #F0FDF4;
         }
+        
+        .drop-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            color: var(--text-secondary);
+        }
+        
+        .drop-zone.has-file .drop-icon {
+            color: var(--success);
+        }
+        
         .drop-text {
-            font-size: 19px;
+            font-size: 17px;
             font-weight: 500;
-            color: #1d1d1f;
-            margin-bottom: 12px;
+            color: var(--text);
+            margin-bottom: 8px;
         }
+        
         .drop-subtext {
-            font-size: 15px;
-            color: #86868b;
-            margin: 12px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
         }
+        
         .file-name {
-            margin-top: 16px;
-            color: #34c759;
+            margin-top: 12px;
+            color: var(--success);
             font-weight: 500;
-            font-size: 15px;
+            font-size: 14px;
         }
-        .btn-select-file {
+        
+        .btn-select {
             background: transparent;
-            border: 1px solid #d2d2d7;
-            color: #1d1d1f;
-            padding: 10px 24px;
-            border-radius: 980px;
-            font-size: 15px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 16px;
         }
-        .btn-select-file:hover {
-            background: #f5f5f7;
-            border-color: #86868b;
+        
+        .btn-select:hover {
+            background: var(--bg-card);
+            border-color: var(--text-secondary);
         }
-        .drop-zone.has-file .btn-select-file {
+        
+        .drop-zone.has-file .btn-select {
             display: none;
         }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-light);
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+        }
+        
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
         .btn-primary {
-            background: #0071e3;
+            width: 100%;
+            background: var(--accent);
             color: white;
             padding: 14px 28px;
-            border-radius: 980px;
-            font-size: 17px;
+            border-radius: var(--radius);
+            font-size: 16px;
             font-weight: 500;
             border: none;
             cursor: pointer;
             transition: all 0.2s;
-            width: 100%;
         }
+        
         .btn-primary:hover {
-            background: #0077ed;
+            background: var(--accent-hover);
         }
-        .btn-primary:disabled {
-            background: #d2d2d7;
-            cursor: not-allowed;
-        }
-        textarea {
-            width: 100%;
-            padding: 16px;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            font-size: 15px;
-            font-family: inherit;
-            resize: vertical;
-            margin-bottom: 24px;
-            transition: all 0.2s;
-        }
-        textarea:focus {
-            outline: none;
-            border-color: #0071e3;
-            box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
-        }
-        .separator {
-            text-align: center;
-            margin: 32px 0;
-            font-size: 15px;
-            color: #86868b;
-            font-weight: 500;
-        }
-        .form-label {
-            display: block;
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 12px;
-            color: #1d1d1f;
-        }
+        
         .footer-note {
             text-align: center;
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid #f5f5f7;
+            margin-top: 20px;
             font-size: 13px;
-            color: #86868b;
+            color: var(--text-muted);
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            
+            .card {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .drop-zone {
+                padding: 32px 16px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <a href="{{ url_for('index') }}" class="back-link">← Volver</a>
             <h1>Carga Rápida</h1>
-            <p class="subtitle"><a href="{{ url_for('index') }}">← Volver</a></p>
         </div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                <div class="alert">
-                    <span class="alert-text">{{ message }}</span>
-                </div>
+                <div class="alert">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
@@ -194,22 +268,25 @@
         <div class="card">
             <form method="POST" enctype="multipart/form-data">
                 <div class="drop-zone" id="dropZone">
+                    <svg class="drop-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                    </svg>
                     <div class="drop-text">Arrastrá tu PDF aquí</div>
-                    <div class="drop-subtext">o</div>
+                    <div class="drop-subtext">o hacé click para seleccionar</div>
                     <input type="file" name="pdf_file" id="pdfInput" accept=".pdf" style="display:none;">
-                    <button type="button" class="btn-select-file" onclick="document.getElementById('pdfInput').click();">Seleccionar Archivo</button>
+                    <button type="button" class="btn-select" onclick="document.getElementById('pdfInput').click();">Seleccionar archivo</button>
                     <div class="file-name" id="fileName"></div>
                 </div>
                 
-                <div class="separator">O</div>
+                <div class="divider">o pegá el email</div>
                 
-                <label class="form-label">Pegá el email de confirmación</label>
-                <textarea name="email_text" rows="8" placeholder="Pegá el contenido del email aquí..."></textarea>
+                <label class="form-label">Contenido del email de confirmación</label>
+                <textarea name="email_text" placeholder="Pegá el contenido del email aquí..."></textarea>
                 
                 <button type="submit" class="btn-primary">Procesar</button>
                 
                 <div class="footer-note">
-                    Idiomas: Español, Inglés, Português, Italiano, Français
+                    Idiomas soportados: Español, English, Português, Italiano, Français
                 </div>
             </form>
         </div>
@@ -235,7 +312,7 @@
             const files = e.dataTransfer.files;
             if (files.length > 0 && files[0].name.endsWith('.pdf')) {
                 fileInput.files = files;
-                fileName.textContent = '✓ ' + files[0].name;
+                fileName.textContent = files[0].name;
                 dropZone.classList.add('has-file');
             }
         });
@@ -248,7 +325,7 @@
         
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
-                fileName.textContent = '✓ ' + fileInput.files[0].name;
+                fileName.textContent = fileInput.files[0].name;
                 dropZone.classList.add('has-file');
             }
         });
