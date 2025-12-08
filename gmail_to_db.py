@@ -5,15 +5,50 @@ import json
 import uuid
 import os
 import sys
+import unicodedata
 from email_processor import fetch_emails_with_attachments, mark_as_read
 from app import app, extraer_info_con_claude, get_ciudad_nombre
 from models import db, Viaje, User, UserEmail
 from datetime import datetime
 
 
+def normalize_name(name):
+    """
+    Normaliza un nombre para comparación:
+    - Quita acentos (Andrés → ANDRES)
+    - Convierte a mayúsculas
+    - Quita espacios extra
+    """
+    if not name:
+        return ''
+    # Normalizar unicode (NFD separa caracteres base de acentos)
+    normalized = unicodedata.normalize('NFD', name)
+    # Filtrar solo caracteres ASCII (quita acentos)
+    ascii_only = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+    # Mayúsculas y quitar espacios extra
+    return ' '.join(ascii_only.upper().split())
+
+
 def find_user_by_passenger(pasajeros):
-    """Busca usuario por nombre en lista de pasajeros"""
+    """
+    Busca usuario por nombre en lista de pasajeros.
+    
+    Lógica de matching:
+    1. Normaliza nombres (quita acentos, mayúsculas)
+    2. Apellido debe coincidir exactamente
+    3. Cualquier nombre del usuario debe coincidir con cualquier nombre en la reserva
+    
+    Ejemplo:
+    - Usuario: nombres="María Laura", apellido="Pérez"
+    - Reserva: "PEREZ/MARIA LAURA BEATRIZ"
+    - Match: ✅ (apellido exacto + "MARIA" aparece en ambos)
+    """
     if not pasajeros:
+        return None
+    
+    # Obtener todos los usuarios con apellido configurado
+    users = User.query.filter(User.apellido_pax.isnot(None)).all()
+    if not users:
         return None
     
     for pax in pasajeros:
@@ -21,27 +56,45 @@ def find_user_by_passenger(pasajeros):
         if not nombre_pax:
             continue
         
-        # Formato: APELLIDO/NOMBRE SEGUNDO_NOMBRE
+        # Formato típico: APELLIDO/NOMBRE1 NOMBRE2 NOMBRE3
         if '/' in nombre_pax:
             parts = nombre_pax.split('/')
-            apellido = parts[0].strip()
-            nombres = parts[1].strip().split()[0] if len(parts) > 1 else ''  # Solo primer nombre
+            apellido_reserva = normalize_name(parts[0])
+            nombres_reserva = normalize_name(parts[1]).split() if len(parts) > 1 else []
         else:
-            # Sin formato estándar, intentar dividir
+            # Sin formato estándar, intentar dividir (primer palabra = apellido)
             words = nombre_pax.split()
-            apellido = words[0] if words else ''
-            nombres = words[1] if len(words) > 1 else ''
+            apellido_reserva = normalize_name(words[0]) if words else ''
+            nombres_reserva = [normalize_name(w) for w in words[1:]] if len(words) > 1 else []
         
-        if not apellido:
+        if not apellido_reserva:
             continue
         
-        # Buscar usuarios con nombre_pax y apellido_pax
-        users = User.query.filter(User.apellido_pax.isnot(None)).all()
+        # Buscar match con usuarios
         for user in users:
-            user_apellido = user.apellido_pax.upper() if user.apellido_pax else ''
-            user_nombre = user.nombre_pax.upper() if user.nombre_pax else ''
-            if apellido == user_apellido and nombres.startswith(user_nombre[:3]) if user_nombre else apellido == user_apellido:
-                print(f'  👤 Usuario encontrado por pasajero: {user.nombre} (match: {nombre_pax})')
+            user_apellido = normalize_name(user.apellido_pax)
+            user_nombres = normalize_name(user.nombre_pax).split() if user.nombre_pax else []
+            
+            # 1. Apellido debe coincidir exactamente
+            if apellido_reserva != user_apellido:
+                continue
+            
+            # 2. Al menos un nombre debe coincidir
+            if not user_nombres:
+                # Si el usuario no tiene nombres configurados, match solo por apellido
+                print(f'  👤 Usuario encontrado por apellido: {user.nombre} (match: {nombre_pax})')
+                return user.id
+            
+            # Buscar si algún nombre del usuario aparece en la reserva
+            nombres_match = any(
+                user_nombre in nombres_reserva or 
+                any(user_nombre in reserva_nombre or reserva_nombre in user_nombre 
+                    for reserva_nombre in nombres_reserva)
+                for user_nombre in user_nombres
+            )
+            
+            if nombres_match:
+                print(f'  👤 Usuario encontrado: {user.nombre} (match: {nombre_pax})')
                 return user.id
     
     return None
@@ -117,7 +170,7 @@ def process_emails():
         
         for email in emails:
             print(f'\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-            print(f'�� Procesando: {email["subject"][:60]}...')
+            print(f'📧 Procesando: {email["subject"][:60]}...')
             
             # Extraer vuelos con Claude API
             try:

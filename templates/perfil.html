@@ -102,15 +102,14 @@
                 <p class="section-title">Nombre en reservas</p>
                 <p class="hint" style="margin-bottom: 12px;">Sirve para identificar automáticamente tus viajes cuando otro envía la confirmación.</p>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Nombre</label>
-                        <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="Andres">
-                    </div>
-                    <div class="form-group">
-                        <label>Apellido</label>
-                        <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="Gamberg">
-                    </div>
+                <div class="form-group">
+                    <label>Nombres (como aparecen en tus reservas)</label>
+                    <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="María Laura">
+                    <p class="hint">Poné todos tus nombres. El sistema matchea con cualquiera de ellos.</p>
+                </div>
+                <div class="form-group">
+                    <label>Apellido</label>
+                    <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="Pérez">
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Guardar</button>

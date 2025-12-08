@@ -14,6 +14,7 @@ import pytz
 from PyPDF2 import PdfReader
 from werkzeug.utils import secure_filename
 import logging
+import unicodedata
 
 load_dotenv()
 
@@ -165,8 +166,78 @@ def fromjson_filter(value):
         return json.loads(value)
     except:
         return []
-    datetime_takeoff_actual = db.Column(db.DateTime)
-    datetime_landed_actual = db.Column(db.DateTime)
+
+
+def normalize_name(name):
+    """Normaliza nombre: quita acentos, convierte a mayúsculas"""
+    if not name:
+        return ''
+    normalized = unicodedata.normalize('NFD', name)
+    ascii_only = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+    return ascii_only.upper().strip()
+
+
+def get_viajes_for_user(user):
+    """
+    MVP7: Obtiene viajes donde el usuario:
+    1. Es owner (user_id), O
+    2. Aparece como pasajero (matching por nombre)
+    """
+    # Query base: viajes donde soy owner
+    viajes_propios = Viaje.query.filter_by(user_id=user.id).all()
+    viajes_ids = {v.id for v in viajes_propios}
+    
+    # Si el usuario tiene apellido_pax configurado, buscar también por pasajero
+    if user.apellido_pax:
+        user_apellido = normalize_name(user.apellido_pax)
+        user_nombres = normalize_name(user.nombre_pax).split() if user.nombre_pax else []
+        
+        # Buscar en todos los viajes que tengan pasajeros
+        todos_viajes = Viaje.query.filter(Viaje.pasajeros.isnot(None)).all()
+        
+        for viaje in todos_viajes:
+            if viaje.id in viajes_ids:
+                continue  # Ya lo tenemos
+            
+            try:
+                pasajeros = json.loads(viaje.pasajeros) if viaje.pasajeros else []
+                for pax in pasajeros:
+                    nombre_pax = pax.get('nombre', '').upper()
+                    
+                    # Parsear formato APELLIDO/NOMBRES
+                    if '/' in nombre_pax:
+                        parts = nombre_pax.split('/')
+                        apellido_reserva = normalize_name(parts[0])
+                        nombres_reserva = normalize_name(parts[1]).split() if len(parts) > 1 else []
+                    else:
+                        words = nombre_pax.split()
+                        apellido_reserva = normalize_name(words[0]) if words else ''
+                        nombres_reserva = [normalize_name(w) for w in words[1:]]
+                    
+                    # Match: apellido exacto + algún nombre coincide
+                    if apellido_reserva == user_apellido:
+                        if not user_nombres:
+                            # Solo apellido configurado = match
+                            viajes_propios.append(viaje)
+                            viajes_ids.add(viaje.id)
+                            break
+                        else:
+                            # Buscar match en nombres
+                            match_found = False
+                            for user_nombre in user_nombres:
+                                if any(user_nombre in nr or nr in user_nombre for nr in nombres_reserva):
+                                    viajes_propios.append(viaje)
+                                    viajes_ids.add(viaje.id)
+                                    match_found = True
+                                    break
+                            if match_found:
+                                break
+            except:
+                pass
+    
+    return viajes_propios
+
+
 def calcular_ciudad_principal(vuelos):
     """Calcula la ciudad donde se pasa más tiempo"""
     from datetime import datetime, timedelta
@@ -220,7 +291,10 @@ def viajes_count():
 @app.route('/')
 @login_required
 def index():
-    viajes = Viaje.query.filter_by(user_id=current_user.id).order_by(Viaje.fecha_salida).all()
+    # MVP7: Buscar viajes donde soy owner O pasajero
+    viajes = get_viajes_for_user(current_user)
+    viajes = sorted(viajes, key=lambda v: v.fecha_salida)
+    
     ahora = datetime.now()
     
     # Separar por futuro/pasado
@@ -1344,7 +1418,7 @@ def api_auto_process():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-# Deploy Sat Dec  6 17:35:17 UTC 2025
+# Deploy MVP7 - Mon Dec  8 2025
 
 # Endpoint temporal para migración
 @app.route('/migrate-db')
