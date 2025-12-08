@@ -310,3 +310,32 @@ class UserEmail(db.Model):
 | Campo nombre_pasaporte | ✅ |
 | UI página perfil | ✅ |
 
+
+---
+
+## 🎨 ESTÉTICA OBJETIVO
+
+**Inspiración:**
+- Apple (minimalismo, espacios blancos, tipografía precisa)
+- Bang & Olufsen (elegancia, premium, detalles sutiles)
+
+**Principios:**
+- Menos es más
+- Tipografía como protagonista
+- Colores neutros + un accent color
+- Micro-interacciones suaves
+- Espaciado generoso
+- Bordes sutiles o sin bordes
+- Sombras muy sutiles
+
+**Paleta propuesta:**
+- Background: #FAFAFA o #FFFFFF
+- Text primary: #1D1D1F
+- Text secondary: #86868B
+- Accent: #0071E3 (Apple blue)
+- Borders: #E5E5E5
+
+**Tipografía:**
+- SF Pro Display / Inter / -apple-system
+- Pesos: 400 (body), 500 (labels), 600 (headings)
+
