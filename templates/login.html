@@ -69,9 +69,16 @@
             margin-bottom: 4px;
         }
         
-        .logo p {
+        .logo .tagline {
             color: var(--text-secondary);
             font-size: 15px;
+            margin-bottom: 4px;
+        }
+        
+        .logo .action {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 8px;
         }
         
         .alert {
@@ -184,7 +191,8 @@
                 </svg>
             </div>
             <h1>Mis Viajes</h1>
-            <p>Iniciá sesión para continuar</p>
+            <p class="tagline">Tu asistente de viajes personal</p>
+            <p class="action">Iniciá sesión para continuar</p>
         </div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}

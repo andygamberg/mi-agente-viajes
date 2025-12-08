@@ -74,28 +74,23 @@
         /* ===== HEADER MOBILE ===== */
         .header-mobile {
             display: none;
-        }
-        
-        .mobile-top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        
-        .mobile-title-row {
-            display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 24px;
         }
         
-        .mobile-title-row .logo {
-            font-size: 32px;
+        .header-mobile .logo {
+            font-size: 28px;
             font-weight: 700;
         }
         
-        /* User Menu */
+        .header-mobile-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* User Menu Desktop */
         .user-menu {
             position: relative;
         }
@@ -137,7 +132,7 @@
             background: var(--bg-card);
             border-radius: var(--radius);
             box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-            min-width: 220px;
+            min-width: 240px;
             padding: 8px;
             display: none;
             z-index: 1000;
@@ -149,7 +144,9 @@
         
         .user-dropdown a,
         .user-dropdown button {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             width: 100%;
             padding: 10px 14px;
             color: var(--text);
@@ -184,12 +181,18 @@
             color: var(--danger);
         }
         
-        /* More Menu (mobile) */
-        .more-menu {
+        .user-dropdown svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+        }
+        
+        /* Hamburger Menu (mobile) */
+        .hamburger-menu {
             position: relative;
         }
         
-        .more-toggle {
+        .hamburger-toggle {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -202,38 +205,42 @@
             transition: var(--transition);
         }
         
-        .more-toggle:hover {
+        .hamburger-toggle:hover {
             border-color: var(--text-secondary);
         }
         
-        .more-toggle svg {
+        .hamburger-toggle svg {
             width: 20px;
             height: 20px;
             color: var(--text-secondary);
         }
         
-        .more-dropdown {
+        .hamburger-dropdown {
             position: absolute;
             top: calc(100% + 8px);
             right: 0;
             background: var(--bg-card);
             border-radius: var(--radius);
             box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-            min-width: 200px;
+            min-width: 260px;
             padding: 8px;
             display: none;
             z-index: 1000;
         }
         
-        .more-menu.open .more-dropdown {
+        .hamburger-menu.open .hamburger-dropdown {
             display: block;
         }
         
-        .more-dropdown button {
-            display: block;
+        .hamburger-dropdown a,
+        .hamburger-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             width: 100%;
-            padding: 12px 14px;
+            padding: 14px 16px;
             color: var(--text);
+            text-decoration: none;
             font-size: 15px;
             border-radius: 8px;
             transition: var(--transition);
@@ -244,18 +251,34 @@
             font-family: inherit;
         }
         
-        .more-dropdown button:hover {
+        .hamburger-dropdown a:hover,
+        .hamburger-dropdown button:hover {
             background: var(--bg);
         }
         
-        .more-dropdown button.danger {
-            color: var(--danger);
-        }
-        
-        .more-dropdown .divider {
+        .hamburger-dropdown .divider {
             height: 1px;
             background: var(--border-light);
             margin: 8px 0;
+        }
+        
+        .hamburger-dropdown .muted {
+            color: var(--text-secondary);
+        }
+        
+        .hamburger-dropdown .danger {
+            color: var(--danger);
+        }
+        
+        .hamburger-dropdown svg {
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        
+        .hamburger-dropdown .danger svg {
+            color: var(--danger);
         }
         
         .profile-alert {
@@ -1056,7 +1079,7 @@
             }
             
             .header-mobile {
-                display: block;
+                display: flex;
             }
             
             .grid {
@@ -1127,58 +1150,114 @@
                         </svg>
                     </button>
                     <div class="user-dropdown">
-                        <a href="{{ url_for('perfil') }}">Mi perfil</a>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">Suscribir calendario</a>
-                        <a href="#" onclick="showBanner(); return false;">Ver email para reenvíos</a>
+                        <a href="{{ url_for('perfil') }}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                            </svg>
+                            Mi perfil
+                        </a>
                         <div class="divider"></div>
-                        <a href="{{ url_for('auth.logout') }}" class="muted">Cerrar sesión</a>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                            </svg>
+                            Agregar a Apple Calendar
+                        </a>
+                        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                            </svg>
+                            Agregar a Google Calendar
+                        </a>
+                        <a href="#" onclick="showBanner(); return false;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                            </svg>
+                            Ver email para reenvíos
+                        </a>
+                        <div class="divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="muted">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+                            </svg>
+                            Cerrar sesión
+                        </a>
                     </div>
                 </div>
             </div>
         </header>
         
-        <!-- ===== HEADER MOBILE ===== -->
+        <!-- ===== HEADER MOBILE (Un solo menú hamburguesa) ===== -->
         <header class="header-mobile">
-            <div class="mobile-top-bar">
-                <div class="user-menu" id="userMenuMobile">
-                    <button class="user-toggle" onclick="toggleUserMenu('userMenuMobile')">
-                        <span>{{ current_user.nombre.split()[0] }}</span>
-                        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 4.5L6 7.5L9 4.5"/>
-                        </svg>
-                    </button>
-                    <div class="user-dropdown">
-                        <a href="{{ url_for('perfil') }}">Mi perfil</a>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">Suscribir calendario</a>
-                        <div class="divider"></div>
-                        <a href="{{ url_for('auth.logout') }}" class="muted">Cerrar sesión</a>
-                    </div>
-                </div>
-                
+            <h1 class="logo">Mis Viajes</h1>
+            
+            <div class="header-mobile-right">
                 {% if profile_incomplete %}
                 <a href="{{ url_for('perfil') }}" class="profile-alert">Completar perfil</a>
                 {% endif %}
                 
-                <div class="more-menu" id="moreMenu">
-                    <button class="more-toggle" onclick="toggleMoreMenu()">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="12" cy="5" r="2"/>
-                            <circle cx="12" cy="12" r="2"/>
-                            <circle cx="12" cy="19" r="2"/>
+                <button class="btn btn-primary" onclick="openAddModal()">+ Agregar</button>
+                
+                <div class="hamburger-menu" id="hamburgerMenu">
+                    <button class="hamburger-toggle" onclick="toggleHamburgerMenu()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
-                    <div class="more-dropdown">
-                        <button onclick="toggleGroupMode(); closeMoreMenu();">Agrupar viajes</button>
-                        <button class="danger" onclick="toggleDeleteMode(); closeMoreMenu();">Eliminar viajes</button>
+                    <div class="hamburger-dropdown">
+                        <!-- Acciones principales -->
+                        <button onclick="toggleGroupMode(); closeHamburgerMenu();">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"/>
+                            </svg>
+                            Agrupar viajes
+                        </button>
+                        <button class="danger" onclick="toggleDeleteMode(); closeHamburgerMenu();">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                            </svg>
+                            Eliminar viajes
+                        </button>
+                        
                         <div class="divider"></div>
-                        <button onclick="showBanner(); closeMoreMenu();">Ver email para reenvíos</button>
+                        
+                        <!-- Calendario -->
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                            </svg>
+                            Agregar a Apple Calendar
+                        </a>
+                        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                            </svg>
+                            Agregar a Google Calendar
+                        </a>
+                        <button onclick="showBanner(); closeHamburgerMenu();">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                            </svg>
+                            Ver email para reenvíos
+                        </button>
+                        
+                        <div class="divider"></div>
+                        
+                        <!-- Perfil y logout -->
+                        <a href="{{ url_for('perfil') }}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                            </svg>
+                            Mi perfil
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="muted">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+                            </svg>
+                            Cerrar sesión
+                        </a>
                     </div>
                 </div>
-            </div>
-            
-            <div class="mobile-title-row">
-                <h1 class="logo">Mis Viajes</h1>
-                <button class="btn btn-primary" onclick="openAddModal()">+ Agregar</button>
             </div>
         </header>
         
@@ -1511,7 +1590,7 @@
         var selectedGroup = new Set();
         var selectedDelete = new Set();
         
-        // User Menu
+        // User Menu (Desktop)
         function toggleUserMenu(menuId) {
             var menu = document.getElementById(menuId);
             var wasOpen = menu.classList.contains('open');
@@ -1520,19 +1599,23 @@
             document.querySelectorAll('.user-menu').forEach(function(m) {
                 m.classList.remove('open');
             });
+            document.querySelectorAll('.hamburger-menu').forEach(function(m) {
+                m.classList.remove('open');
+            });
             
             if (!wasOpen) {
                 menu.classList.add('open');
             }
         }
         
-        // More Menu (mobile)
-        function toggleMoreMenu() {
-            document.getElementById('moreMenu').classList.toggle('open');
+        // Hamburger Menu (Mobile)
+        function toggleHamburgerMenu() {
+            var menu = document.getElementById('hamburgerMenu');
+            menu.classList.toggle('open');
         }
         
-        function closeMoreMenu() {
-            document.getElementById('moreMenu').classList.remove('open');
+        function closeHamburgerMenu() {
+            document.getElementById('hamburgerMenu').classList.remove('open');
         }
         
         // Close menus on outside click
@@ -1542,8 +1625,10 @@
                     m.classList.remove('open');
                 });
             }
-            if (!e.target.closest('.more-menu')) {
-                document.getElementById('moreMenu').classList.remove('open');
+            if (!e.target.closest('.hamburger-menu')) {
+                document.querySelectorAll('.hamburger-menu').forEach(function(m) {
+                    m.classList.remove('open');
+                });
             }
         });
         

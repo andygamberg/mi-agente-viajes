@@ -31,7 +31,11 @@ Reemplazo moderno de TripCase: sistema inteligente de gestión de viajes con car
 
 ## 🔄 En Progreso / Próximos
 
-### UX Sprint (Prioridad Alta)
+### UX Sprint (Prioridad Alta) - En curso
+- [x] Header mobile unificado (un solo menú hamburguesa)
+- [x] Login con tagline "Tu asistente de viajes personal"
+- [x] Perfil con ejemplos claros (PÉREZ/MARÍA LAURA)
+- [x] Calendarios separados (Apple / Google)
 - [ ] **Onboarding primera vez**
   - Recordar suscribirse al calendario
   - Guiar a completar perfil (nombre_pax/apellido_pax)
@@ -60,8 +64,27 @@ Reemplazo moderno de TripCase: sistema inteligente de gestión de viajes con car
 
 ## 📋 Backlog (Prioridad Baja)
 
-### Features
-- [ ] Más tipos de viaje: hoteles, autos, trenes, actividades
+### Mejoras de Carga
+
+- [ ] **Autocomplete aerolíneas IATA**
+  - Similar a origen/destino (ej: escribir "LAN" → sugiere LATAM)
+  - Permitir "Otro" para vuelos privados/charters
+  - Fallback a input libre si no encuentra en diccionario
+
+- [ ] **Multi-tipo de viaje (no solo vuelos)**
+  - Actualmente 100% orientado a vuelos - está bien para MVP
+  - Carga manual: campos dinámicos según tipo seleccionado
+    * Vuelo: aerolínea, número vuelo, terminal, gate, asiento
+    * Hotel: nombre, dirección, check-in/out, nro reserva
+    * Tren: operador, estación origen/destino, vagón, asiento
+    * Auto rental: empresa, pickup/dropoff location, tipo vehículo
+    * Barco/crucero: naviera, puerto embarque/desembarque, cabina
+    * Actividad: nombre, ubicación, duración, tickets
+  - Carga rápida (PDF): Claude detecta tipo automáticamente
+  - Email processor: parsear confirmaciones de Booking, Airbnb, Rentalcars, etc.
+  - Cards en index: diseño adaptado por tipo (iconos, campos relevantes)
+
+### Features Generales
 - [ ] Escanear pasaporte con cámara (Claude Vision)
 - [ ] Compartir itinerario por WhatsApp (info no sensible)
 - [ ] Dark mode
@@ -153,6 +176,7 @@ Reemplazo moderno de TripCase: sistema inteligente de gestión de viajes con car
 | Dic 2025 | FR24 sobre FlightAware | Mejor precio, SDK oficial |
 | Dic 2025 | Gmail API sobre SendGrid | Ya teníamos dominio configurado |
 | 8 Dic 2025 | Gmail send para emails | MVP suficiente, migrar después |
+| 8 Dic 2025 | Header mobile unificado | Un solo menú = menos confusión |
 
 ---
 

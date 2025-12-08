@@ -142,14 +142,53 @@
             color: var(--text-muted);
         }
         
-        .section-label {
-            font-size: 12px;
+        .section-box {
+            background: #F0F7FF;
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .section-box-title {
+            font-size: 14px;
             font-weight: 600;
+            color: #1a5490;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .section-box-title svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .section-box p {
+            font-size: 13px;
+            color: #1a5490;
+            line-height: 1.5;
+        }
+        
+        .example-box {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        
+        .example-box .label {
             color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+        
+        .example-box code {
+            display: block;
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .btn {
@@ -262,7 +301,12 @@
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('index') }}" class="back-link">← Volver</a>
+        <a href="{{ url_for('index') }}" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Volver
+        </a>
         
         <div class="card">
             <div class="card-header">
@@ -286,21 +330,34 @@
                 
                 <div class="form-group">
                     <label>Nombre</label>
-                    <input type="text" name="nombre" value="{{ current_user.nombre }}" required>
+                    <input type="text" name="nombre" value="{{ current_user.nombre }}" required placeholder="Tu nombre">
                 </div>
                 
-                <div class="section-label">Nombre en reservas</div>
-                <p class="hint" style="margin-bottom: 16px;">Sirve para identificar automáticamente tus viajes cuando otro envía la confirmación.</p>
+                <div class="section-box">
+                    <div class="section-box-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        ¿Para qué sirve esto?
+                    </div>
+                    <p>Cuando alguien reenvía una reserva donde vos sos pasajero, el sistema te asigna el viaje automáticamente.</p>
+                    <div class="example-box">
+                        <div class="label">Ejemplo: si en tus pasajes aparecés como</div>
+                        <code>PÉREZ/MARÍA LAURA</code>
+                    </div>
+                </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Nombres</label>
-                        <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="María Laura">
-                        <p class="hint">Como aparecen en tus reservas</p>
+                        <label>Nombre(s) en pasajes</label>
+                        <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="MARÍA LAURA">
+                        <p class="hint">Como aparece después de la /</p>
                     </div>
                     <div class="form-group">
-                        <label>Apellido</label>
-                        <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="Pérez">
+                        <label>Apellido en pasajes</label>
+                        <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="PÉREZ">
+                        <p class="hint">Como aparece antes de la /</p>
                     </div>
                 </div>
                 
