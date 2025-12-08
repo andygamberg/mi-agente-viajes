@@ -23,7 +23,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 48px;
+            margin-bottom: 24px;
             padding-bottom: 24px;
             border-bottom: 1px solid #d2d2d7;
         }
@@ -84,6 +84,175 @@
         .btn-danger:hover {
             background: #ffe5e3;
         }
+        
+        /* User dropdown */
+        .user-area {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .profile-incomplete-badge {
+            background: #fff3cd;
+            color: #856404;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .profile-incomplete-badge:hover {
+            background: #ffe69c;
+        }
+        .user-dropdown {
+            position: relative;
+        }
+        .user-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: white;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1d1d1f;
+            transition: all 0.2s;
+        }
+        .user-dropdown-toggle:hover {
+            background: #f5f5f7;
+        }
+        .user-dropdown-toggle .arrow {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        .user-dropdown.open .arrow {
+            transform: rotate(180deg);
+        }
+        .user-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            min-width: 220px;
+            padding: 8px 0;
+            display: none;
+            z-index: 1000;
+        }
+        .user-dropdown.open .user-dropdown-menu {
+            display: block;
+        }
+        .user-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #1d1d1f;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+        .user-dropdown-menu a:hover {
+            background: #f5f5f7;
+        }
+        .user-dropdown-menu a .icon {
+            width: 20px;
+            text-align: center;
+        }
+        .user-dropdown-menu .divider {
+            height: 1px;
+            background: #e5e5e5;
+            margin: 8px 0;
+        }
+        .user-dropdown-menu a.logout {
+            color: #86868b;
+        }
+        
+        /* Email banner */
+        .email-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            position: relative;
+        }
+        .email-banner.hidden {
+            display: none;
+        }
+        .email-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .email-banner-icon {
+            font-size: 28px;
+        }
+        .email-banner-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .email-banner-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .email-banner-email {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .email-banner-email code {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 14px;
+        }
+        .btn-copy {
+            background: rgba(255,255,255,0.25);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-copy:hover {
+            background: rgba(255,255,255,0.35);
+        }
+        .btn-copy.copied {
+            background: rgba(52, 199, 89, 0.8);
+        }
+        .email-banner-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .email-banner-close:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -527,43 +696,7 @@
             display: flex;
             gap: 12px;
         }
-        /* User info header */
-        .user-info {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .user-info a {
-            color: #1d1d1f;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .user-info a:last-child {
-            color: #6e6e73;
-            gap: 4px;
-        }
-        /* Profile incomplete badge */
-        .profile-incomplete-badge {
-            background: #fff3cd;
-            color: #856404;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .profile-incomplete-badge:hover {
-            background: #ffe69c;
-        }
+        
         /* Onboarding Modal */
         .onboarding-modal {
             display: none;
@@ -683,20 +816,43 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="user-info">
-                {% if profile_incomplete %}
-                <a href="{{ url_for('perfil') }}" class="profile-incomplete-badge">
-                    ⚠️ Completar perfil
-                </a>
-                {% endif %}
-                <a href="{{ url_for('perfil') }}">
-                    <span>⚙️</span> {{ current_user.nombre }}
-                </a>
-                <a href="{{ url_for('auth.logout') }}">
-                    <span>🚪</span> Salir
-                </a>
+        <!-- User dropdown area -->
+        <div class="user-area">
+            {% if profile_incomplete %}
+            <a href="{{ url_for('perfil') }}" class="profile-incomplete-badge">
+                ⚠️ Completar perfil
+            </a>
+            {% endif %}
+            
+            <div class="user-dropdown" id="userDropdown">
+                <button class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+                    <span>⚙️</span>
+                    <span>{{ current_user.nombre }}</span>
+                    <span class="arrow">▼</span>
+                </button>
+                <div class="user-dropdown-menu">
+                    <a href="{{ url_for('perfil') }}">
+                        <span class="icon">👤</span>
+                        Mi perfil
+                    </a>
+                    <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">
+                        <span class="icon">📅</span>
+                        Suscribir calendario
+                    </a>
+                    <a href="#" onclick="showEmailBanner(); return false;">
+                        <span class="icon">📮</span>
+                        Ver email para reenvíos
+                    </a>
+                    <div class="divider"></div>
+                    <a href="{{ url_for('auth.logout') }}" class="logout">
+                        <span class="icon">🚪</span>
+                        Cerrar sesión
+                    </a>
+                </div>
             </div>
+        </div>
+        
+        <header>
             <h1>Mis Viajes</h1>
             <div class="header-actions">
                 <button class="btn btn-primary" onclick="abrirModalAgregar()">Agregar Viaje</button>
@@ -704,6 +860,21 @@
                 <button class="btn btn-danger" onclick="toggleModoEliminar()" id="btnModoEliminar">Eliminar Viajes</button>
             </div>
         </header>
+        
+        <!-- Email banner -->
+        <div class="email-banner" id="emailBanner">
+            <div class="email-banner-content">
+                <div class="email-banner-icon">📮</div>
+                <div class="email-banner-text">
+                    <div class="email-banner-title">Reenviá tus confirmaciones de vuelo a:</div>
+                    <div class="email-banner-email">
+                        <code>misviajes@gamberg.com.ar</code>
+                        <button class="btn-copy" onclick="copyEmail(this)">Copiar</button>
+                    </div>
+                </div>
+            </div>
+            <button class="email-banner-close" onclick="hideEmailBanner()">✕</button>
+        </div>
         
         <div id="formAgrupar">
             <section>
@@ -1014,6 +1185,49 @@
         var seleccionados = new Set();
         var modoEliminar = false;
         var seleccionadosEliminar = new Set();
+        
+        // User dropdown
+        function toggleUserDropdown() {
+            var dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('open');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            var dropdown = document.getElementById('userDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+        
+        // Email banner functions
+        function hideEmailBanner() {
+            document.getElementById('emailBanner').classList.add('hidden');
+            localStorage.setItem('email_banner_hidden', 'true');
+        }
+        
+        function showEmailBanner() {
+            document.getElementById('emailBanner').classList.remove('hidden');
+            localStorage.removeItem('email_banner_hidden');
+            // Close dropdown
+            document.getElementById('userDropdown').classList.remove('open');
+        }
+        
+        function copyEmail(btn) {
+            navigator.clipboard.writeText('misviajes@gamberg.com.ar').then(function() {
+                btn.textContent = '✓ Copiado';
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.textContent = 'Copiar';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+        
+        // Check if banner should be hidden on load
+        if (localStorage.getItem('email_banner_hidden') === 'true') {
+            document.getElementById('emailBanner').classList.add('hidden');
+        }
         
         function toggleModoAgrupar() {
             if (modoAgrupar) {
