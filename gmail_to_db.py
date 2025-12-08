@@ -7,7 +7,7 @@ import os
 import sys
 from email_processor import fetch_emails_with_attachments, mark_as_read
 from app import app, extraer_info_con_claude, get_ciudad_nombre
-from models import db, Viaje
+from models import db, Viaje, User
 from datetime import datetime
 
 
@@ -116,7 +116,7 @@ def process_emails():
                         vuelos_actualizados += 1
                     else:
                         print(f'✨ Creando nuevo vuelo: {vuelo_data.get("numero_vuelo")}')
-                        create_flight(vuelo_data, grupo_id, nombre_viaje)
+                        create_flight(vuelo_data, grupo_id, nombre_viaje, email.get('from'))
                         vuelos_creados += 1
                 
                 # Marcar email como leído
@@ -155,7 +155,7 @@ def check_duplicate(vuelo_data):
     
     return existe
 
-def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None):
+def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None):
     """Crea nuevo vuelo en BD"""
     from datetime import datetime
     
@@ -185,7 +185,25 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None):
         except:
             pass
     
+    # Buscar usuario por email remitente
+    user_id = None
+    if from_email:
+        # Extraer email limpio (puede venir como "Nombre <email@x.com>")
+        import re
+        email_match = re.search(r'<(.+?)>', from_email)
+        clean_email = email_match.group(1) if email_match else from_email
+        clean_email = clean_email.strip().lower()
+        
+        # Buscar por email principal
+        user = User.query.filter_by(email=clean_email).first()
+        if user:
+            user_id = user.id
+            print(f'  👤 Usuario identificado: {user.nombre} ({clean_email})')
+        else:
+            print(f'  ⚠️ Usuario no encontrado para: {clean_email}')
+    
     viaje = Viaje(
+        user_id=user_id,
         tipo='vuelo',
         descripcion=f"{vuelo_data.get('origen')} → {vuelo_data.get('destino')}",
         origen=vuelo_data.get('origen'),
