@@ -73,3 +73,18 @@ class Viaje(db.Model):
     
     def __repr__(self):
         return f'<Viaje {self.origen}->{self.destino} {self.fecha_salida}>'
+
+
+class UserEmail(db.Model):
+    """Emails adicionales asociados a un usuario"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    verificado = db.Column(db.Boolean, default=False)
+    es_principal = db.Column(db.Boolean, default=False)
+    creado = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref=db.backref('emails_adicionales', lazy='dynamic'))
+    
+    def __repr__(self):
+        return f'<UserEmail {self.email}>'

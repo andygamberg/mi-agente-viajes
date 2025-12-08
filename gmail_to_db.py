@@ -7,7 +7,7 @@ import os
 import sys
 from email_processor import fetch_emails_with_attachments, mark_as_read
 from app import app, extraer_info_con_claude, get_ciudad_nombre
-from models import db, Viaje, User
+from models import db, Viaje, User, UserEmail
 from datetime import datetime
 
 
@@ -200,7 +200,14 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
             user_id = user.id
             print(f'  👤 Usuario identificado: {user.nombre} ({clean_email})')
         else:
-            print(f'  ⚠️ Usuario no encontrado para: {clean_email}')
+            # Buscar en emails adicionales
+            user_email = UserEmail.query.filter_by(email=clean_email).first()
+            if user_email:
+                user_id = user_email.user_id
+                user = User.query.get(user_id)
+                print(f'  👤 Usuario identificado por email adicional: {user.nombre} ({clean_email})')
+            else:
+                print(f'  ⚠️ Usuario no encontrado para: {clean_email}')
     
     viaje = Viaje(
         user_id=user_id,
