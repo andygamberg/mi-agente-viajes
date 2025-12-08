@@ -1,19 +1,18 @@
 """
 Autenticación - Mi Agente Viajes
 """
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, User
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
-import os
+from itsdangerous import URLSafeTimedSerializer
 
 auth = Blueprint('auth', __name__)
 login_manager = LoginManager()
 
-# Serializer para tokens de reset
+
 def get_serializer():
-    secret_key = os.getenv('SECRET_KEY', 'mi-agente-viajes-secret-2024')
-    return URLSafeTimedSerializer(secret_key)
+    """Obtiene el serializer para tokens seguros"""
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
 
 @login_manager.user_loader
@@ -94,14 +93,15 @@ def logout():
 
 @auth.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
+    """Solicitar recuperación de contraseña"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
+        
         user = User.query.filter_by(email=email).first()
         
-        # Siempre mostrar mensaje de éxito (seguridad: no revelar si email existe)
         if user:
             # Generar token
             s = get_serializer()
@@ -109,8 +109,9 @@ def forgot_password():
             
             # Enviar email
             reset_url = url_for('auth.reset_password', token=token, _external=True)
-            send_reset_email(user.email, user.nombre, reset_url)
+            send_reset_email(email, reset_url)
         
+        # Siempre mostrar mismo mensaje (seguridad)
         flash('Si el email existe, recibirás instrucciones para recuperar tu contraseña', 'success')
         return redirect(url_for('auth.login'))
     
@@ -119,18 +120,16 @@ def forgot_password():
 
 @auth.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    """Restablecer contraseña con token"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     
-    # Verificar token
+    # Verificar token (expira en 1 hora)
     s = get_serializer()
     try:
-        email = s.loads(token, salt='password-reset', max_age=3600)  # 1 hora
-    except SignatureExpired:
-        flash('El link expiró. Solicitá uno nuevo.', 'error')
-        return redirect(url_for('auth.forgot_password'))
-    except BadSignature:
-        flash('Link inválido', 'error')
+        email = s.loads(token, salt='password-reset', max_age=3600)
+    except:
+        flash('El link es inválido o expiró', 'error')
         return redirect(url_for('auth.forgot_password'))
     
     user = User.query.filter_by(email=email).first()
@@ -142,13 +141,13 @@ def reset_password(token):
         password = request.form.get('password', '')
         password2 = request.form.get('password2', '')
         
+        if not password or len(password) < 6:
+            flash('La contraseña debe tener al menos 6 caracteres', 'error')
+            return render_template('reset_password.html', token=token)
+        
         if password != password2:
             flash('Las contraseñas no coinciden', 'error')
-            return render_template('reset_password.html')
-        
-        if len(password) < 6:
-            flash('La contraseña debe tener al menos 6 caracteres', 'error')
-            return render_template('reset_password.html')
+            return render_template('reset_password.html', token=token)
         
         # Actualizar contraseña
         user.set_password(password)
@@ -157,61 +156,37 @@ def reset_password(token):
         flash('¡Contraseña actualizada! Ya podés iniciar sesión', 'success')
         return redirect(url_for('auth.login'))
     
-    return render_template('reset_password.html')
+    return render_template('reset_password.html', token=token)
 
 
-def send_reset_email(to_email, nombre, reset_url):
-    """Envía email de recuperación de contraseña usando Gmail API"""
-    try:
-        import json
-        import base64
-        from email.mime.text import MIMEText
-        from google.oauth2 import service_account
-        from googleapiclient.discovery import build
-        
-        SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-        DELEGATED_EMAIL = 'misviajes@gamberg.com.ar'
-        
-        # Credenciales
-        creds_json = os.getenv("GMAIL_CREDENTIALS")
-        if creds_json:
-            creds_dict = json.loads(creds_json)
-            credentials = service_account.Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
-        else:
-            credentials = service_account.Credentials.from_service_account_file("gmail-credentials.json", scopes=SCOPES)
-        
-        delegated_credentials = credentials.with_subject(DELEGATED_EMAIL)
-        service = build("gmail", "v1", credentials=delegated_credentials)
-        
-        # Crear mensaje
-        message = MIMEText(f"""Hola {nombre},
-
-Recibimos una solicitud para recuperar tu contraseña de Mis Viajes.
-
-Hacé click en este link para crear una nueva contraseña:
-{reset_url}
-
-El link expira en 1 hora.
-
-Si no solicitaste este cambio, podés ignorar este email.
-
-Saludos,
-Mis Viajes
-""")
-        message['to'] = to_email
-        message['from'] = DELEGATED_EMAIL
-        message['subject'] = '🔑 Recuperar contraseña - Mis Viajes'
-        
-        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
-        
-        service.users().messages().send(
-            userId='me',
-            body={'raw': raw}
-        ).execute()
-        
-        print(f'✅ Email de reset enviado a {to_email}')
-        
-    except Exception as e:
-        print(f'❌ Error enviando email de reset: {e}')
-        import traceback
-        traceback.print_exc()
+def send_reset_email(to_email, reset_url):
+    """Envía email de recuperación de contraseña"""
+    from email_processor import send_email
+    
+    subject = 'Recuperar contraseña - Mis Viajes'
+    
+    body_html = f'''
+    <html>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px;">
+        <div style="max-width: 500px; margin: 0 auto; background: #f5f5f7; border-radius: 12px; padding: 32px;">
+            <h1 style="color: #1d1d1f; font-size: 24px; margin-bottom: 16px;">🌍 Mis Viajes</h1>
+            <p style="color: #1d1d1f; font-size: 16px; line-height: 1.5;">
+                Recibimos una solicitud para restablecer tu contraseña.
+            </p>
+            <p style="margin: 24px 0;">
+                <a href="{reset_url}" 
+                   style="background: #0071e3; color: white; padding: 12px 24px; 
+                          border-radius: 8px; text-decoration: none; font-weight: 500;">
+                    Restablecer Contraseña
+                </a>
+            </p>
+            <p style="color: #6e6e73; font-size: 14px;">
+                Este link expira en 1 hora.<br>
+                Si no solicitaste esto, ignorá este email.
+            </p>
+        </div>
+    </body>
+    </html>
+    '''
+    
+    send_email(to_email, subject, body_html)

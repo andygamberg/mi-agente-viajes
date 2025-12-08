@@ -5,7 +5,13 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from datetime import datetime
 import re
-SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
+from email.mime.text import MIMEText
+
+# ACTUALIZADO: Agregado gmail.send para enviar emails
+SCOPES = [
+    'https://www.googleapis.com/auth/gmail.modify',
+    'https://www.googleapis.com/auth/gmail.send'
+]
 SERVICE_ACCOUNT_FILE = 'gmail-credentials.json'
 DELEGATED_EMAIL = 'misviajes@gamberg.com.ar'
 
@@ -20,6 +26,47 @@ def get_gmail_service():
     delegated_credentials = credentials.with_subject(DELEGATED_EMAIL)
     service = build("gmail", "v1", credentials=delegated_credentials)
     return service
+
+
+def send_email(to_email, subject, body_html):
+    """
+    Envía un email usando Gmail API
+    
+    Args:
+        to_email: Dirección destino
+        subject: Asunto del email
+        body_html: Contenido HTML del email
+    
+    Returns:
+        dict con resultado o None si falla
+    """
+    try:
+        service = get_gmail_service()
+        
+        # Crear mensaje MIME
+        message = MIMEText(body_html, 'html')
+        message['to'] = to_email
+        message['from'] = f'Mis Viajes <{DELEGATED_EMAIL}>'
+        message['subject'] = subject
+        
+        # Encodear en base64
+        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        
+        # Enviar
+        result = service.users().messages().send(
+            userId='me',
+            body={'raw': raw}
+        ).execute()
+        
+        print(f'✅ Email enviado a {to_email}: {result.get("id")}')
+        return result
+        
+    except Exception as e:
+        print(f'❌ Error enviando email a {to_email}: {e}')
+        import traceback
+        traceback.print_exc()
+        return None
+
 
 def fetch_unread_emails():
     """Lee emails no leídos del inbox"""
@@ -136,7 +183,7 @@ def get_attachments(service, message_id, payload):
                         'filename': filename,
                         'data': data
                     })
-                    print(f'    �� PDF encontrado: {filename}')
+                    print(f'    📎 PDF encontrado: {filename}')
             
             # Recursivo para parts anidados
             if 'parts' in part:
