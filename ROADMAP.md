@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 8 Diciembre 2025
+**Última actualización:** 9 Diciembre 2025
 **Versión actual:** MVP8
 
 ---
@@ -47,12 +47,18 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 | **Mova** | Corto, moderno, movimiento | Sin significado claro |
 | **Plana** | Plan + a, funciona multi-idioma | Puede sonar a "plana/flat" |
 
-### Proceso de Decisión
-1. Validar producto actual con usuarios
-2. Definir scope final (¿solo viajes? ¿vida completa?)
-3. Research de nombres disponibles (dominio + stores)
-4. Testing con usuarios en 3 idiomas
-5. Decisión final pre-scale
+### Dominio y Email Propio
+
+**Estado actual:** misviajes@gamberg.com.ar
+**Decisión pendiente:** ¿Cuándo migrar a dominio propio?
+
+| Opción | Pros | Contras |
+|--------|------|---------|
+| **Migrar ahora** | Branding limpio desde el inicio | Costo, complejidad, aún no sabemos el nombre final |
+| **Migrar con usuarios pagos** | Justifica inversión | Más trabajo de migración después |
+| **Migrar con nombre final** | Un solo cambio | Retrasa el branding profesional |
+
+**Recomendación:** Migrar cuando tengamos nombre final definido. Mientras tanto, gamberg.com.ar funciona para beta.
 
 ---
 
@@ -71,23 +77,47 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 
 ---
 
+## 🔥 URGENTE - Bugs en Producción
+
+### 🔴 Calendar feed muestra viajes de TODOS los usuarios
+**Reportado por:** Beta user (Pancho)
+**Problema:** El feed `/calendar-feed` no filtra por usuario, todos ven todos los viajes
+**Impacto:** Privacidad - usuarios ven viajes ajenos en su calendario
+**Solución:** Feed con token único por usuario (`/calendar-feed/<token>`)
+
+---
+
 ## 🔄 En Progreso / Próximos
 
-### UX Sprint (Prioridad Alta)
-- [x] Login con tagline
-- [x] Perfil con explicación y ejemplos
-- [x] Header mobile unificado (hamburguesa)
-- [x] Botones calendario separados (Apple/Google)
-- [ ] **Header web = Header mobile** (consistencia total)
-- [ ] **Onboarding primera vez**
-  - Recordar suscribirse al calendario
-  - Guiar a completar perfil (nombre_pax/apellido_pax)
-  - Explicar cómo reenviar emails
+### MVP9: Calendar Feed Privado (URGENTE)
+**Problema:** Feed actual muestra todos los viajes de todos los usuarios
+**Solución:**
+- Generar token único por usuario (UUID en tabla User)
+- Nuevo endpoint: `/calendar-feed/<token>`
+- Solo muestra viajes del usuario dueño del token
+- Actualizar UI para mostrar URL personalizada
 
-- [ ] **Bugs conocidos**
-  - Viajes pasados no despliegan al hacer click
+**Implementación:**
+```python
+# En User model
+calendar_token = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
 
-### MVP9: Deduplicación Inteligente (Prioridad Alta)
+# Nuevo endpoint
+@app.route('/calendar-feed/<token>')
+def calendar_feed_user(token):
+    user = User.query.filter_by(calendar_token=token).first_or_404()
+    viajes = get_viajes_for_user(user)
+    # ... generar ical solo con estos viajes
+```
+
+### MVP10: Calendario All-Day
+**Evento multi-día para viajes completos:**
+- Crear evento que abarca desde primer vuelo hasta último
+- Aparece como barra en parte superior del calendario
+- Nombre: "Viaje a [Ciudad Principal]"
+- Además de los eventos individuales de cada vuelo
+
+### MVP11: Deduplicación Inteligente
 **Problema:** Mismo vuelo en distintas reservas aparece duplicado.
 **Ejemplo:** Familia viaja junta pero Vero+Sol en una reserva (Business) y Andy en otra (Economy).
 
@@ -95,27 +125,97 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 - Detectar vuelos idénticos: mismo número + fecha + ruta
 - Consolidar en UN solo card con todos los pasajeros
 - Cada pasajero muestra: nombre, código reserva, asiento, clase
-- Calendario: UN evento con descripción consolidada
 
-**Lógica de merge:**
-```
-Si vuelo.numero_vuelo == otro.numero_vuelo
-   AND vuelo.fecha_salida == otro.fecha_salida
-   AND vuelo.origen == otro.origen
-   AND vuelo.destino == otro.destino
-→ Merge pasajeros en un solo registro
-```
+### MVP12: Onboarding Primera Vez
+- Modal de bienvenida con 3 pasos
+- Recordar suscribirse al calendario (con SU link personalizado)
+- Guiar a completar perfil (nombre_pax/apellido_pax)
+- Explicar cómo reenviar emails
 
-### MVP10: Notificaciones (Prioridad Media)
-- [ ] Email cuando se detecta cambio en vuelo (delay, gate, cancelación)
-- [ ] Resumen diario/semanal de viajes próximos
-- [ ] Push notifications (requiere PWA)
+### MVP13: Notificaciones Email
+- Email cuando se detecta cambio en vuelo (delay, gate, cancelación)
+- Resumen diario/semanal de viajes próximos
+- Push notifications (requiere PWA)
 
-### MVP11: Compartir Viajes (Prioridad Media)
-- [ ] Tab "Compartidos" separado de "Mis Viajes"
-- [ ] Invitar usuarios por email
-- [ ] Rol "asistente" que puede cargar viajes para otros
-- [ ] Útil para: secretarias, agentes de viaje, familias
+### MVP14: Gmail/Outlook Integration
+**Problema:** Si aerolínea cambia número de vuelo, FR24 pierde tracking. Usuario recibe email pero tiene que reenviar manualmente.
+
+**Solución:** Conectar inbox del usuario (OAuth) para auto-detectar emails de aerolíneas.
+
+| Aspecto | Gmail API | Microsoft Graph | Apple (iCloud) |
+|---------|-----------|-----------------|----------------|
+| **Complejidad** | Media | Media | Alta |
+| **OAuth** | Bien documentado | Bien documentado | Complejo |
+| **Costo** | Gratis | Gratis | Gratis pero limitado |
+
+**Consideraciones de privacidad:**
+- Solo leer emails de remitentes conocidos (aerolíneas, booking, etc)
+- Mostrar al usuario exactamente qué procesamos
+- Siempre mantener opción manual como alternativa
+- Revocable en cualquier momento
+
+**Fases:**
+1. Solo Gmail (80% de usuarios argentinos)
+2. Agregar Outlook/Hotmail
+3. Evaluar Apple si hay demanda
+
+**Alternativa:** Seguir investigando APIs de aerolíneas por PNR (intentamos y falló, pero puede haber opciones).
+
+### MVP15: Compartir Viajes
+- Tab "Compartidos" separado de "Mis Viajes"
+- Invitar usuarios por email
+- Rol "asistente" que puede cargar viajes para otros
+- Útil para: secretarias, agentes de viaje, familias
+
+### MVP16: Backoffice / Admin
+**Necesidad:** Ver usuarios y datos sin acceder a BD directamente
+
+**Features básicos:**
+- Lista de usuarios (email, nombre, fecha registro, # viajes)
+- Ver viajes de un usuario específico
+- Estadísticas: usuarios activos, viajes cargados, emails procesados
+- Protegido con rol admin
+
+**Features avanzados (futuro):**
+- Impersonar usuario (para debugging)
+- Enviar email a usuarios
+- Desactivar/activar usuarios
+- Logs de actividad
+
+---
+
+## 🔒 Preparación para Escalar (Pre-requisitos)
+
+### Auditoría de Seguridad
+- [ ] Review de autenticación (tokens, sesiones)
+- [ ] Validación de inputs (SQL injection, XSS)
+- [ ] Rate limiting en endpoints públicos
+- [ ] Secrets management (no hardcodeados)
+- [ ] HTTPS everywhere (ya OK en Cloud Run)
+- [ ] Backup automático de BD
+
+### Review de Performance
+- [ ] Índices en BD (user_id, fecha_salida, grupo_viaje)
+- [ ] Query optimization (N+1 queries)
+- [ ] Caching donde corresponda
+- [ ] Lazy loading de datos pesados
+- [ ] Monitoreo de tiempos de respuesta
+
+### Escalabilidad de BD - Viajes Pasados
+**Problema:** BD crece indefinidamente con viajes históricos
+**Opciones:**
+- Archivar viajes >1 año a tabla `viajes_archivo`
+- Soft delete con flag `archivado`
+- Paginación obligatoria en queries
+- Cold storage para históricos (exportar a JSON/S3)
+
+### Requisitos App Store (iOS/Android)
+- [ ] PWA compliant
+- [ ] Icons en todos los tamaños
+- [ ] Splash screens
+- [ ] Offline básico
+- [ ] Privacy policy
+- [ ] Terms of service
 
 ---
 
@@ -135,21 +235,6 @@ Si vuelo.numero_vuelo == otro.numero_vuelo
 | 🏥 Cita médica | Doctor, clínica, dirección | Futuro |
 | 🎭 Evento | Nombre, venue, asientos | Futuro |
 
-**Implementación:**
-- Campo `tipo` ya existe, expandir opciones
-- Campos dinámicos según tipo seleccionado
-- Claude auto-detecta tipo en PDF/email
-- Cards con diseño adaptado por tipo
-- Calendario con iconos/colores por tipo
-
-### Métricas y Dashboard
-**Actual:** Solo cuenta vuelos
-**Futuro:** Dashboard con:
-- Total reservas por tipo
-- Próximas 7 días (todas las reservas)
-- Estadísticas: ciudades visitadas, aerolíneas usadas, etc.
-- Un viaje puede tener 0 vuelos (solo hotel + actividades)
-
 ### Mejoras de Carga
 - [ ] Autocomplete aerolíneas (como origen/destino IATA)
 - [ ] Opción "Otro/Privado" para vuelos charter
@@ -166,7 +251,6 @@ Si vuelo.numero_vuelo == otro.numero_vuelo
 - [ ] English
 - [ ] Português
 - [ ] Infraestructura i18n (flask-babel o similar)
-- [ ] Detección automática por browser
 
 ---
 
@@ -219,7 +303,6 @@ Segment (Segmento individual)
 ```
 
 ### Otros
-- [ ] Archivar viajes pasados >1 año (optimización BD)
 - [ ] Tests automatizados (pytest)
 - [ ] CI/CD con GitHub Actions
 - [ ] Migrar emails a SendGrid/Mailgun (métricas, templates)
@@ -248,15 +331,13 @@ Segment (Segmento individual)
 | White-label | Licenciar a empresas | Recurrente | Soporte complejo |
 | Comisiones | Afiliados con booking/hotels | Pasivo | Depende de terceros |
 
-**Próximo paso:** Validar con 10-20 usuarios beta antes de definir modelo.
-
 ---
 
 ## 🔗 Links Útiles
 
 - **App:** https://mi-agente-viajes-454542398872.us-east1.run.app
 - **Repo:** https://github.com/andygamberg/mi-agente-viajes
-- **Calendar Feed:** https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed
+- **Calendar Feed:** (ahora será por usuario con token)
 - **Email para reenvíos:** misviajes@gamberg.com.ar
 
 ---
@@ -271,4 +352,6 @@ Segment (Segmento individual)
 | Dic 2025 | Gmail API sobre SendGrid | Ya teníamos dominio configurado |
 | 8 Dic 2025 | Gmail send para emails | MVP suficiente, migrar después |
 | 8 Dic 2025 | Visión expandida | Más allá de vuelos: reservas + agenda |
-| 8 Dic 2025 | Naming multi-idioma | Preparar para escala global |
+| 9 Dic 2025 | Calendar feed por usuario | Bug de privacidad reportado por beta user |
+| 9 Dic 2025 | Gmail/Outlook integration | Solución a limitación de FR24 con cambios de vuelo |
+| 9 Dic 2025 | Backoffice admin | Necesario para gestionar usuarios sin BD directa |
