@@ -345,7 +345,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('index') }}" class="back-link">
+        <a href="{{ url_for('viajes.index') }}" class="back-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -366,7 +366,7 @@
                 {% endif %}
             {% endwith %}
             
-            <form method="POST" action="{{ url_for('update_profile') }}">
+            <form method="POST" action="{{ url_for('viajes.update_profile') }}">
                 <div class="form-group">
                     <label>Email</label>
                     <input type="email" value="{{ current_user.email }}" disabled>
@@ -428,7 +428,7 @@
                 {% endfor %}
             </ul>
             
-            <form method="POST" action="{{ url_for('add_email') }}" class="add-form">
+            <form method="POST" action="{{ url_for('viajes.add_email') }}" class="add-form">
                 <input type="email" name="email" placeholder="otro@email.com" required>
                 <button type="submit" class="btn btn-secondary">Agregar</button>
             </form>
@@ -469,7 +469,7 @@
             
             <div class="regenerate-section">
                 <p>¿Compartiste tu link por error? Podés regenerarlo.</p>
-                <form method="POST" action="{{ url_for('regenerate_calendar_token') }}">
+                <form method="POST" action="{{ url_for('calendario.regenerate_calendar_token') }}">
                     <button type="submit" class="btn btn-danger" 
                             onclick="return confirm('¿Regenerar token? Deberás volver a suscribirte al calendario.')">
                         Regenerar link

@@ -1149,7 +1149,7 @@
                         {% set codigos_unicos = grupo|map(attribute='codigo_reserva')|unique|list %}
                         {% if es_multi and codigos_unicos|length > 1 %}
                         <div class="card-footer">
-                            <form method="POST" action="{{ url_for('desagrupar_grupo') }}" onclick="event.stopPropagation();">
+                            <form method="POST" action="{{ url_for('viajes.desagrupar_grupo') }}" onclick="event.stopPropagation();">
                                 <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
                                 <button type="submit" class="btn-ungroup" onclick="event.stopPropagation(); return confirm('¿Separar estos vuelos?')">Desagrupar</button>
                             </form>
@@ -1250,7 +1250,7 @@
             </div>
             
             <div class="add-options">
-                <a href="{{ url_for('carga_rapida') }}" class="add-option">
+                <a href="{{ url_for('viajes.carga_rapida') }}" class="add-option">
                     <div class="add-option-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -1262,7 +1262,7 @@
                     </div>
                 </a>
                 
-                <a href="{{ url_for('agregar') }}" class="add-option">
+                <a href="{{ url_for('viajes.agregar') }}" class="add-option">
                     <div class="add-option-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
@@ -1283,7 +1283,7 @@
     <div class="modal" id="editModal">
         <div class="modal-content">
             <h2 class="modal-title">Editar nombre</h2>
-            <form method="POST" action="{{ url_for('editar_nombre_viaje') }}">
+            <form method="POST" action="{{ url_for('viajes.editar_nombre_viaje') }}">
                 <input type="hidden" name="grupo_id" id="editGrupoId">
                 <input type="text" name="nombre" id="editNombreInput" class="modal-input" required>
                 <div class="modal-actions">
