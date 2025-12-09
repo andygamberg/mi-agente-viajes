@@ -11,10 +11,11 @@
 1. [Setup del Entorno](#setup-del-entorno)
 2. [Flujo de Desarrollo](#flujo-de-desarrollo)
 3. [Estructura de Archivos para Deploy](#estructura-de-archivos-para-deploy)
-4. [Convenciones de Comunicación](#convenciones-de-comunicación)
-5. [Testing](#testing)
-6. [Gestión de Sesiones con Claude](#gestión-de-sesiones-con-claude)
-7. [Troubleshooting](#troubleshooting)
+4. [Arquitectura del Proyecto](#arquitectura-del-proyecto)
+5. [Convenciones de Comunicación](#convenciones-de-comunicación)
+6. [Testing](#testing)
+7. [Gestión de Sesiones con Claude](#gestión-de-sesiones-con-claude)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -99,6 +100,16 @@ outputs/
 │   ├── app.py
 │   ├── auth.py
 │   └── requirements.txt
+├── blueprints/            # Archivos para carpeta blueprints/
+│   ├── __init__.py
+│   ├── viajes.py
+│   ├── calendario.py
+│   └── api.py
+├── utils/                 # Archivos para carpeta utils/
+│   ├── __init__.py
+│   ├── iata.py
+│   ├── claude.py
+│   └── helpers.py
 └── templates/             # Archivos para carpeta templates/
     ├── login.html
     └── nueva_pagina.html
@@ -114,14 +125,62 @@ INSTRUCCIONES PARA DEPLOY
 2. Descomprimí la carpeta
 3. En Codespace:
    - Arrastrá contenido de "raiz/" → raíz del proyecto
+   - Arrastrá contenido de "blueprints/" → carpeta blueprints/
+   - Arrastrá contenido de "utils/" → carpeta utils/
    - Arrastrá contenido de "templates/" → carpeta templates/
    - Reemplazar cuando pregunte
 4. En terminal: git status (verificar archivos)
 5. Commit: git add . && git commit -m "mensaje" && git push
 6. Deploy: gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthenticated
-7. Smoke tests
+7. Smoke tests: ./smoke_tests.sh
 8. Sync en Claude (🔄)
 ```
+
+---
+
+## 🏗️ Arquitectura del Proyecto
+
+### Estructura actual (post-refactor 9 Dic 2025)
+
+```
+mi-agente-viajes/
+├── app.py                 # 75 líneas - Config + Factory + Blueprints
+├── auth.py                # Autenticación Flask-Login
+├── models.py              # SQLAlchemy models (User, Viaje, UserEmail)
+├── blueprints/
+│   ├── __init__.py        # Exports de blueprints
+│   ├── viajes.py          # Rutas principales: /, /agregar, /perfil, etc.
+│   ├── calendario.py      # Calendar feed, export, regenerate token
+│   └── api.py             # API endpoints, cron jobs, migrate-db
+├── utils/
+│   ├── __init__.py        # Exports de utilidades
+│   ├── iata.py            # Diccionario IATA → Ciudad
+│   ├── claude.py          # Extracción con Claude API
+│   └── helpers.py         # Funciones auxiliares
+├── templates/             # Jinja2 templates
+├── static/                # CSS, JS, imágenes
+├── email_processor.py     # Gmail API helpers
+├── gmail_to_db.py         # Orquesta email→BD
+├── flight_monitor.py      # FR24 API
+├── scheduler.py           # Lógica de frecuencia dinámica
+└── smoke_tests.sh         # Tests de producción
+```
+
+### Blueprints
+
+| Blueprint | Prefijo | Responsabilidad |
+|-----------|---------|-----------------|
+| `viajes_bp` | `/` | Homepage, CRUD viajes, perfil usuario |
+| `calendario_bp` | `/` | Calendar feeds, export iCal |
+| `api_bp` | `/api/`, `/cron/` | Endpoints JSON, cron jobs, migración |
+
+### Modelos
+
+| Modelo | Campos clave | Relaciones |
+|--------|--------------|------------|
+| `User` | email, password_hash, nombre, nombre_pax, apellido_pax, calendar_token | has_many: Viaje, UserEmail |
+| `Viaje` | user_id, tipo, origen, destino, fecha_salida, grupo_viaje, pasajeros | belongs_to: User |
+| `UserEmail` | user_id, email, verificado | belongs_to: User |
 
 ---
 
@@ -164,13 +223,9 @@ INSTRUCCIONES PARA DEPLOY
 ```bash
 # Ejecutar smoke tests completos
 ./smoke_tests.sh
-
-# O ejecutar inline (copiar bloque completo)
-echo "🧪 Running smoke tests..." && \
-# ... (ver smoke_tests.sh para versión completa)
 ```
 
-### Tests actuales (9)
+### Tests actuales (10)
 
 1. Login page carga
 2. Register page carga
@@ -179,8 +234,9 @@ echo "🧪 Running smoke tests..." && \
 5. API viajes/count responde
 6. Cron process-emails funciona
 7. Cron check-flights funciona
-8. Calendar feed genera iCal válido
-9. Migrate DB responde
+8. Calendar feed sin token → 403
+9. Calendar feed token inválido → 404
+10. Migrate DB responde
 
 ### Test E2E Manual (post-MVP)
 
@@ -234,9 +290,9 @@ Contexto: [Si hay algo específico de la sesión anterior]
 
 ```
 Proyecto: Mi Agente Viajes
-Estado: MVP8 completado, UX Sprint done
-Objetivo: Implementar MVP9 (deduplicación de vuelos)
-Contexto: En sesión anterior definimos la lógica de merge
+Estado: MVP9 completado + refactor arquitectónico
+Objetivo: Implementar MVP10 (calendario all-day)
+Contexto: App modular con blueprints/, utils/
 ```
 
 ---
@@ -276,8 +332,8 @@ gcloud run services update-traffic mi-agente-viajes --to-revisions=REVISION_NAME
 ### Base de datos
 
 ```bash
-# Conectar a Cloud SQL
-gcloud sql connect mi-agente-viajes-db --user=postgres --database=viajes
+# Conectar a Cloud SQL (NOTA: la base se llama viajes_db)
+gcloud sql connect mi-agente-viajes-db --user=postgres --database=viajes_db
 
 # Migrar esquema (desde la app)
 curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
@@ -296,12 +352,13 @@ curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 | 6 | Multi-usuario | 7 Dic 2025 |
 | 7 | Viajes por pasajero | 8 Dic 2025 |
 | 8 | Recuperar contraseña | 8 Dic 2025 |
+| 9 | Calendar feed privado + Refactor arquitectónico | 9 Dic 2025 |
 
 ### URLs Importantes
 
 - **App:** https://mi-agente-viajes-454542398872.us-east1.run.app
 - **Repo:** https://github.com/andygamberg/mi-agente-viajes
-- **Calendar Feed:** https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed
+- **Calendar Feed:** `/calendar-feed/<token>` (token personal en Perfil)
 
 ### Costos Mensuales
 
@@ -314,20 +371,20 @@ curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 
 ---
 
-## 🔮 Backlog
+## 🔮 Próximos Pasos
 
 ### Alta Prioridad
-- [ ] MVP9: Deduplicación de vuelos
+- [ ] MVP10: Calendario all-day (evento multi-día para viajes completos)
+- [ ] MVP11: Deduplicación de vuelos (mismo vuelo en distintas reservas)
 - [ ] Onboarding mejorado (recordatorio calendario + perfil)
 
 ### Media Prioridad
-- [ ] Rediseño UI moderno
-- [ ] Mobile responsive mejorado
+- [ ] MVP14: Gmail/Outlook integration (detectar cambios de vuelo)
+- [ ] Backoffice admin
 
 ### Baja Prioridad
-- [ ] Placeholders genéricos (Juan Pérez)
-- [ ] Portal para agentes de viaje
-- [ ] Tab "Compartidos" para asistentes
+- [ ] Rediseño UI moderno
+- [ ] Compartir viajes entre usuarios
 
 ---
 
@@ -339,7 +396,8 @@ Al iniciar nueva conversación con Claude, incluir:
 Proyecto: Mi Agente Viajes
 Repo: github.com/andygamberg/mi-agente-viajes (conectado a Project Knowledge)
 Stack: Flask + PostgreSQL + Google Cloud Run
-Estado: MVP8 completado, trabajando en [objetivo actual]
+URL: https://mi-agente-viajes-454542398872.us-east1.run.app
+Estado: MVP9 completado + Refactor arquitectónico (9 Dic 2025)
 Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 ```
 
@@ -353,3 +411,7 @@ Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 | 8 Dic 2025 | MVP7 completado (viajes por pasajero) |
 | 8 Dic 2025 | Recuperar contraseña implementado |
 | 9 Dic 2025 | Agregada sección Gestión de Sesiones |
+| 9 Dic 2025 | MVP9: Calendar feed privado por usuario |
+| 9 Dic 2025 | Refactor arquitectónico: blueprints/ + utils/ |
+| 9 Dic 2025 | app.py reducido de 1400 a 75 líneas |
+| 9 Dic 2025 | Agregada sección Arquitectura del Proyecto |

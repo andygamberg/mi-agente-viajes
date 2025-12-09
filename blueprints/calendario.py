@@ -33,6 +33,8 @@ def calendar_feed(token):
     """
     MVP9: Webcal feed privado - genera .ics solo con viajes del usuario
     Cada usuario tiene su propio token único
+    
+    MVP10: Agrega eventos all-day para viajes con múltiples vuelos
     """
     # Buscar usuario por token
     user = User.query.filter_by(calendar_token=token).first()
@@ -66,9 +68,19 @@ def calendar_feed(token):
     
     # Crear eventos
     for grupo_id, vuelos in grupos.items():
-        for vuelo in vuelos:
+        # Ordenar vuelos por fecha
+        vuelos_ordenados = sorted(vuelos, key=lambda v: v.fecha_salida)
+        
+        # Crear evento individual para cada vuelo
+        for vuelo in vuelos_ordenados:
             event = _crear_evento_calendario(vuelo)
             cal.add_component(event)
+        
+        # MVP10: Crear evento all-day SOLO si el grupo tiene 2+ vuelos
+        if len(vuelos_ordenados) >= 2 and not grupo_id.startswith('solo_'):
+            event_allday = _crear_evento_allday(grupo_id, vuelos_ordenados)
+            if event_allday:
+                cal.add_component(event_allday)
     
     # Response con headers correctos para webcal
     response = make_response(cal.to_ical())
@@ -197,6 +209,68 @@ def _get_vuelos_by_grupo(grupo_id):
         return [vuelo] if vuelo else []
     else:
         return Viaje.query.filter_by(grupo_viaje=grupo_id).order_by(Viaje.fecha_salida, Viaje.hora_salida).all()
+
+
+def _crear_evento_allday(grupo_id, vuelos):
+    """
+    MVP10: Crea un evento all-day que abarca todo el viaje
+    
+    Args:
+        grupo_id: ID del grupo de viaje
+        vuelos: Lista de vuelos ordenados por fecha
+    
+    Returns:
+        Event iCal o None si no se puede crear
+    """
+    if not vuelos:
+        return None
+    
+    primer_vuelo = vuelos[0]
+    ultimo_vuelo = vuelos[-1]
+    
+    # Obtener nombre del viaje
+    nombre_viaje = primer_vuelo.nombre_viaje or f"Viaje a {ultimo_vuelo.destino}"
+    
+    # Fecha inicio: día del primer vuelo
+    fecha_inicio = primer_vuelo.fecha_salida.date()
+    
+    # Fecha fin: día de llegada del último vuelo + 1 (iCal all-day es exclusivo en el fin)
+    if ultimo_vuelo.fecha_llegada:
+        fecha_fin = ultimo_vuelo.fecha_llegada.date() + timedelta(days=1)
+    else:
+        # Si no hay fecha_llegada, usar fecha_salida del último vuelo + 1
+        fecha_fin = ultimo_vuelo.fecha_salida.date() + timedelta(days=1)
+    
+    # Crear evento all-day
+    event = Event()
+    event.add('summary', f"🌍 {nombre_viaje}")
+    event.add('uid', f'viaje-allday-{grupo_id}@miagenteviajes.local')
+    event.add('dtstamp', datetime.now(pytz.UTC))
+    
+    # Para eventos all-day, usar DATE (no DATETIME)
+    event.add('dtstart', fecha_inicio)
+    event.add('dtend', fecha_fin)
+    
+    # Descripción breve
+    ruta = f"{primer_vuelo.origen} → {ultimo_vuelo.destino}"
+    desc = [
+        f"{nombre_viaje}",
+        f"Ruta: {ruta}",
+        f"Vuelos: {len(vuelos)}"
+    ]
+    
+    if primer_vuelo.codigo_reserva:
+        desc.append(f"Código: {primer_vuelo.codigo_reserva}")
+    
+    event.add('description', '\n'.join(desc))
+    
+    # Transparencia: TRANSPARENT para que no bloquee el calendario
+    event.add('transp', 'TRANSPARENT')
+    
+    # Categoría para filtrado
+    event.add('categories', ['Viaje'])
+    
+    return event
 
 
 def _crear_evento_calendario(vuelo, sequence=0, method=None):

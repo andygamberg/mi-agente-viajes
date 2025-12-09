@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
 **Última actualización:** 9 Diciembre 2025
-**Versión actual:** MVP8
+**Versión actual:** MVP9
 
 ---
 
@@ -74,41 +74,20 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 | 6 | Multi-usuario | 7 Dic 2025 | Auth, login, registro |
 | 7 | Viajes por pasajero | 8 Dic 2025 | Usuario ve viajes donde es pasajero |
 | 8 | Recuperar contraseña | 8 Dic 2025 | Email con link seguro |
+| 9 | Calendar feed privado | 9 Dic 2025 | Token único por usuario, fix privacidad |
 
----
+### ✅ Refactor Arquitectónico (9 Dic 2025)
 
-## 🔥 URGENTE - Bugs en Producción
-
-### 🔴 Calendar feed muestra viajes de TODOS los usuarios
-**Reportado por:** Beta user (Pancho)
-**Problema:** El feed `/calendar-feed` no filtra por usuario, todos ven todos los viajes
-**Impacto:** Privacidad - usuarios ven viajes ajenos en su calendario
-**Solución:** Feed con token único por usuario (`/calendar-feed/<token>`)
+| Cambio | Antes | Después |
+|--------|-------|---------|
+| app.py | 1,400 líneas (monolito) | 75 líneas (config + factory) |
+| Blueprints | No existían | viajes_bp, calendario_bp, api_bp |
+| Utils | Inline en app.py | utils/iata.py, claude.py, helpers.py |
+| Smoke tests | 9 tests | 10 tests (+ calendar auth) |
 
 ---
 
 ## 🔄 En Progreso / Próximos
-
-### MVP9: Calendar Feed Privado (URGENTE)
-**Problema:** Feed actual muestra todos los viajes de todos los usuarios
-**Solución:**
-- Generar token único por usuario (UUID en tabla User)
-- Nuevo endpoint: `/calendar-feed/<token>`
-- Solo muestra viajes del usuario dueño del token
-- Actualizar UI para mostrar URL personalizada
-
-**Implementación:**
-```python
-# En User model
-calendar_token = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
-
-# Nuevo endpoint
-@app.route('/calendar-feed/<token>')
-def calendar_feed_user(token):
-    user = User.query.filter_by(calendar_token=token).first_or_404()
-    viajes = get_viajes_for_user(user)
-    # ... generar ical solo con estos viajes
-```
 
 ### MVP10: Calendario All-Day
 **Evento multi-día para viajes completos:**
@@ -158,8 +137,6 @@ def calendar_feed_user(token):
 1. Solo Gmail (80% de usuarios argentinos)
 2. Agregar Outlook/Hotmail
 3. Evaluar Apple si hay demanda
-
-**Alternativa:** Seguir investigando APIs de aerolíneas por PNR (intentamos y falló, pero puede haber opciones).
 
 ### MVP15: Compartir Viajes
 - Tab "Compartidos" separado de "Mis Viajes"
@@ -261,11 +238,21 @@ def calendar_feed_user(token):
 │                    Google Cloud Run                      │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │                 Flask App                        │    │
-│  │  • Auth (Flask-Login)                           │    │
-│  │  • PDF extraction (Claude API)                  │    │
-│  │  • Email processing (Gmail API)                 │    │
-│  │  • Flight monitoring (FR24 API)                 │    │
-│  │  • Calendar feed (iCal)                         │    │
+│  │  ┌─────────────────────────────────────────┐    │    │
+│  │  │ app.py (75 líneas)                      │    │    │
+│  │  │ • Config + Factory                      │    │    │
+│  │  │ • Blueprint registration                │    │    │
+│  │  └─────────────────────────────────────────┘    │    │
+│  │                                                  │    │
+│  │  Blueprints:                                    │    │
+│  │  • viajes_bp (/, /agregar, /perfil)           │    │
+│  │  • calendario_bp (/calendar-feed/<token>)      │    │
+│  │  • api_bp (/api/*, /cron/*)                   │    │
+│  │                                                  │    │
+│  │  Utils:                                         │    │
+│  │  • claude.py (extracción PDF)                  │    │
+│  │  • helpers.py (viajes por usuario)             │    │
+│  │  • iata.py (códigos aeropuertos)               │    │
 │  └─────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────┘
            │                              │
@@ -273,7 +260,8 @@ def calendar_feed_user(token):
     ┌─────────────┐              ┌─────────────────┐
     │ Cloud SQL   │              │ Cloud Scheduler │
     │ PostgreSQL  │              │ (cada 15 min)   │
-    └─────────────┘              └─────────────────┘
+    │ viajes_db   │              └─────────────────┘
+    └─────────────┘
 ```
 
 **Costos actuales:** ~$19/mes
@@ -337,7 +325,7 @@ Segment (Segmento individual)
 
 - **App:** https://mi-agente-viajes-454542398872.us-east1.run.app
 - **Repo:** https://github.com/andygamberg/mi-agente-viajes
-- **Calendar Feed:** (ahora será por usuario con token)
+- **Calendar Feed:** `/calendar-feed/<token>` (token personal en Perfil → Calendario)
 - **Email para reenvíos:** misviajes@gamberg.com.ar
 
 ---
@@ -353,5 +341,5 @@ Segment (Segmento individual)
 | 8 Dic 2025 | Gmail send para emails | MVP suficiente, migrar después |
 | 8 Dic 2025 | Visión expandida | Más allá de vuelos: reservas + agenda |
 | 9 Dic 2025 | Calendar feed por usuario | Bug de privacidad reportado por beta user |
-| 9 Dic 2025 | Gmail/Outlook integration | Solución a limitación de FR24 con cambios de vuelo |
-| 9 Dic 2025 | Backoffice admin | Necesario para gestionar usuarios sin BD directa |
+| 9 Dic 2025 | Refactor a blueprints | app.py de 1400 líneas insostenible |
+| 9 Dic 2025 | utils/ separado | Mejor organización y testabilidad |
