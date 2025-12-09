@@ -117,7 +117,8 @@
             margin-top: 6px;
         }
         
-        input {
+        input[type="text"],
+        input[type="email"] {
             width: 100%;
             padding: 12px 16px;
             font-size: 16px;
@@ -320,6 +321,121 @@
             margin-bottom: 12px;
         }
         
+        /* MVP11: Toggle con info */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+        }
+        
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-label span {
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .info-icon {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: var(--border);
+            border-radius: 50%;
+            cursor: help;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .info-icon:hover .tooltip {
+            display: block;
+        }
+        
+        .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 260px;
+            padding: 12px;
+            background: var(--text);
+            color: white;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.4;
+            border-radius: 8px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--text);
+        }
+        
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--success);
+        }
+        
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+        
         @media (max-width: 480px) {
             body {
                 padding: 16px;
@@ -339,6 +455,12 @@
             
             .calendar-buttons {
                 flex-direction: column;
+            }
+            
+            .tooltip {
+                width: 200px;
+                left: 0;
+                transform: translateX(-20%);
             }
         }
     </style>
@@ -405,6 +527,23 @@
                     </div>
                 </div>
                 
+                <!-- MVP11: Toggle combinar vuelos -->
+                <div class="toggle-row">
+                    <div class="toggle-label">
+                        <span>Combinar vuelos compartidos</span>
+                        <div class="info-icon">
+                            i
+                            <div class="tooltip">
+                                Cuando viajás en el mismo vuelo que otra persona pero con reservas separadas, muestra todos los pasajeros juntos en lugar de cards duplicados.
+                            </div>
+                        </div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="combinar_vuelos" {% if current_user.combinar_vuelos or current_user.combinar_vuelos is none %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
             </form>
         </div>
@@ -421,7 +560,7 @@
                 {% for email in emails_adicionales %}
                 <li class="email-item">
                     {{ email.email }}
-                    <form method="POST" action="{{ url_for('remove_email', email_id=email.id) }}" style="display:inline;">
+                    <form method="POST" action="{{ url_for('viajes.remove_email', email_id=email.id) }}" style="display:inline;">
                         <button type="submit" class="btn btn-danger">Quitar</button>
                     </form>
                 </li>

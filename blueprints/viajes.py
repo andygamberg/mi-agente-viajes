@@ -16,6 +16,79 @@ from utils.helpers import calcular_ciudad_principal, normalize_name, get_viajes_
 viajes_bp = Blueprint('viajes', __name__)
 
 
+# ============================================
+# MVP11: DEDUPLICACIÓN DE VUELOS
+# ============================================
+
+def deduplicar_vuelos_en_grupo(vuelos):
+    """
+    MVP11: Combina vuelos idénticos (mismo numero_vuelo + fecha + ruta)
+    
+    Retorna lista de vuelos donde los duplicados tienen pasajeros combinados.
+    No modifica la BD - solo agrega atributos temporales para renderizado.
+    """
+    if not vuelos or len(vuelos) <= 1:
+        return vuelos
+    
+    # Crear clave única para cada vuelo
+    def vuelo_key(v):
+        fecha = v.fecha_salida.date() if v.fecha_salida else None
+        return (v.numero_vuelo, fecha, v.origen, v.destino)
+    
+    # Agrupar por clave
+    grupos_vuelos = {}
+    orden_original = []  # Para mantener orden por fecha
+    
+    for vuelo in vuelos:
+        key = vuelo_key(vuelo)
+        if key not in grupos_vuelos:
+            grupos_vuelos[key] = []
+            orden_original.append(key)
+        grupos_vuelos[key].append(vuelo)
+    
+    # Procesar cada grupo
+    resultado = []
+    for key in orden_original:
+        vuelos_iguales = grupos_vuelos[key]
+        
+        if len(vuelos_iguales) == 1:
+            # No hay duplicado - marcar como no combinado
+            vuelo = vuelos_iguales[0]
+            vuelo._es_combinado = False
+            resultado.append(vuelo)
+        else:
+            # Combinar pasajeros de todos los vuelos iguales
+            vuelo_principal = vuelos_iguales[0]
+            pasajeros_combinados = []
+            codigos_reserva = []
+            
+            for v in vuelos_iguales:
+                codigo = v.codigo_reserva or 'N/A'
+                if codigo not in codigos_reserva:
+                    codigos_reserva.append(codigo)
+                
+                # Parsear pasajeros
+                try:
+                    pax_list = json.loads(v.pasajeros) if v.pasajeros else []
+                except:
+                    pax_list = []
+                
+                # Agregar código de reserva a cada pasajero
+                for p in pax_list:
+                    p['codigo_reserva'] = codigo
+                    pasajeros_combinados.append(p)
+            
+            # Agregar atributos temporales (no se guardan en BD)
+            vuelo_principal._pasajeros_combinados = pasajeros_combinados
+            vuelo_principal._codigos_reserva = codigos_reserva
+            vuelo_principal._es_combinado = True
+            resultado.append(vuelo_principal)
+    
+    # Ordenar por fecha
+    resultado.sort(key=lambda v: v.fecha_salida)
+    return resultado
+
+
 @viajes_bp.route('/')
 @login_required
 def index():
@@ -29,6 +102,11 @@ def index():
     viajes_futuros = [v for v in viajes if v.fecha_salida >= ahora]
     viajes_pasados = [v for v in viajes if v.fecha_salida < ahora]
     
+    # MVP11: Obtener preferencia de usuario
+    combinar = getattr(current_user, 'combinar_vuelos', True)
+    if combinar is None:
+        combinar = True
+    
     # Agrupar por grupo_viaje
     def agrupar_viajes(lista_viajes):
         grupos = {}
@@ -37,8 +115,23 @@ def index():
             if grupo_id not in grupos:
                 grupos[grupo_id] = []
             grupos[grupo_id].append(v)
-        # Convertir a lista de grupos ordenados
-        return [sorted(vuelos, key=lambda x: x.fecha_salida) for vuelos in grupos.values()]
+        
+        # Convertir a lista de grupos
+        resultado = []
+        for grupo_id, vuelos in grupos.items():
+            vuelos_ordenados = sorted(vuelos, key=lambda x: x.fecha_salida)
+            
+            # MVP11: Si combinar_vuelos está ON, deduplicar dentro del grupo
+            if combinar:
+                vuelos_ordenados = deduplicar_vuelos_en_grupo(vuelos_ordenados)
+            else:
+                # Marcar todos como no combinados
+                for v in vuelos_ordenados:
+                    v._es_combinado = False
+            
+            resultado.append(vuelos_ordenados)
+        
+        return resultado
     
     proximos = agrupar_viajes(viajes_futuros)
     pasados = agrupar_viajes(viajes_pasados)
@@ -531,6 +624,8 @@ def update_profile():
     current_user.nombre = request.form.get('nombre', '').strip()
     current_user.nombre_pax = request.form.get('nombre_pax', '').strip() or None
     current_user.apellido_pax = request.form.get('apellido_pax', '').strip() or None
+    # MVP11: Toggle combinar vuelos
+    current_user.combinar_vuelos = request.form.get('combinar_vuelos') == 'on'
     db.session.commit()
     flash('Perfil actualizado', 'success')
     return redirect(url_for('viajes.perfil'))

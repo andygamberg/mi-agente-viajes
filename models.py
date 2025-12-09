@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):
     nombre_pax = db.Column(db.String(50))  # Nombre para match en reservas
     apellido_pax = db.Column(db.String(50))  # Apellido para match en reservas
     calendar_token = db.Column(db.String(36), unique=True, default=generate_calendar_token)  # MVP9: Token único para calendar feed
+    combinar_vuelos = db.Column(db.Boolean, default=True)  # MVP11: Deduplicar vuelos idénticos
     creado = db.Column(db.DateTime, default=datetime.utcnow)
     activo = db.Column(db.Boolean, default=True)
     

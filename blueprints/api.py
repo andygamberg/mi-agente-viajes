@@ -177,7 +177,7 @@ def check_flights_manual():
 
 @api_bp.route('/migrate-db')
 def migrate_db():
-    """Endpoint temporal para migración de BD"""
+    """Endpoint para migración de BD"""
     try:
         with db.engine.connect() as conn:
             # Agregar columnas si no existen
@@ -185,15 +185,28 @@ def migrate_db():
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS nombre_pax VARCHAR(50)"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS apellido_pax VARCHAR(50)"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS calendar_token VARCHAR(36)"))
+            # MVP11: Campo para toggle de combinación de vuelos
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS combinar_vuelos BOOLEAN DEFAULT TRUE"))
             conn.commit()
         
         # Generar tokens para usuarios existentes que no tienen
         users_sin_token = User.query.filter(User.calendar_token.is_(None)).all()
         for user in users_sin_token:
-            user.calendar_token = user.generate_calendar_token()
+            user.calendar_token = user.regenerate_calendar_token()
+        
+        # MVP11: Setear combinar_vuelos=True para usuarios existentes que tengan NULL
+        users_sin_combinar = User.query.filter(User.combinar_vuelos.is_(None)).all()
+        for user in users_sin_combinar:
+            user.combinar_vuelos = True
+        
         db.session.commit()
         
-        return {'success': True, 'message': 'Migración completada', 'tokens_generados': len(users_sin_token)}, 200
+        return {
+            'success': True, 
+            'message': 'Migración completada', 
+            'tokens_generados': len(users_sin_token),
+            'combinar_vuelos_seteados': len(users_sin_combinar)
+        }, 200
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
 

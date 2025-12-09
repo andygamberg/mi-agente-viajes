@@ -393,6 +393,12 @@
             color: #5B5FC7;
         }
         
+        /* MVP11: Badge para vuelos combinados */
+        .badge.combined {
+            background: #F0FDF4;
+            color: #16A34A;
+        }
+        
         .card-date {
             font-size: 13px;
             color: var(--text-secondary);
@@ -475,6 +481,12 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 12px;
+        }
+        
+        /* MVP11: Label para vuelo combinado */
+        .segment-label .combined-indicator {
+            color: #16A34A;
+            margin-left: 8px;
         }
         
         .route {
@@ -600,6 +612,14 @@
             color: var(--accent);
         }
         
+        /* MVP11: Tag para código de reserva */
+        .meta-tag.reservation {
+            background: #FEF3C7;
+            color: #92400E;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 11px;
+        }
+        
         .card-footer {
             padding: 12px 20px;
             border-top: 1px solid var(--border-light);
@@ -634,6 +654,36 @@
         
         .reservation-code strong {
             color: var(--text-muted);
+        }
+        
+        /* MVP11: Múltiples códigos de reserva */
+        .reservation-codes {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        
+        .reservation-codes strong {
+            color: var(--text-muted);
+        }
+        
+        .reservation-codes .codes-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        
+        .reservation-codes .code-tag {
+            background: #FEF3C7;
+            color: #92400E;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 12px;
+            font-weight: 500;
         }
         
         .empty-state {
@@ -1082,7 +1132,14 @@
                             {% for vuelo in grupo %}
                             <div class="segment">
                                 {% if es_multi %}
-                                <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
+                                <div class="segment-label">
+                                    Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
+                                    {% if vuelo._es_combinado %}<span class="combined-indicator">• Combinado</span>{% endif %}
+                                </div>
+                                {% elif vuelo._es_combinado %}
+                                <div class="segment-label">
+                                    <span class="combined-indicator">Vuelo combinado</span>
+                                </div>
                                 {% endif %}
                                 
                                 <div class="route">
@@ -1110,7 +1167,37 @@
                                 <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
                                 {% endif %}
                                 
-                                {% if vuelo.pasajeros %}
+                                {# MVP11: Renderizado de pasajeros combinados vs normales #}
+                                {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
+                                {# Pasajeros combinados de múltiples reservas #}
+                                <div class="passengers-section">
+                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 18l6-6-6-6"/>
+                                        </svg>
+                                        Pasajeros ({{ vuelo._pasajeros_combinados|length }})
+                                    </button>
+                                    <div class="passengers-list">
+                                        {% for p in vuelo._pasajeros_combinados %}
+                                        <div class="passenger">
+                                            <div class="passenger-name">{{ p.nombre }}</div>
+                                            <div class="passenger-meta">
+                                                {% if p.codigo_reserva %}
+                                                <span class="meta-tag reservation">{{ p.codigo_reserva }}</span>
+                                                {% endif %}
+                                                {% if p.asiento %}
+                                                <span class="meta-tag seat">{{ p.asiento }}</span>
+                                                {% endif %}
+                                                {% if p.cabina %}
+                                                <span class="meta-tag">{{ p.cabina }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% elif vuelo.pasajeros %}
+                                {# Pasajeros normales (sin combinar) #}
                                 {% set pasajeros_list = vuelo.pasajeros|fromjson %}
                                 {% if pasajeros_list %}
                                 <div class="passengers-section">
@@ -1141,7 +1228,18 @@
                             </div>
                             {% endfor %}
                             
-                            {% if primer_vuelo.codigo_reserva %}
+                            {# MVP11: Mostrar códigos de reserva - múltiples si es combinado #}
+                            {% set primer_vuelo_grupo = grupo[0] %}
+                            {% if primer_vuelo_grupo._es_combinado and primer_vuelo_grupo._codigos_reserva %}
+                            <div class="reservation-codes">
+                                <strong>Códigos de reserva:</strong>
+                                <div class="codes-list">
+                                    {% for codigo in primer_vuelo_grupo._codigos_reserva %}
+                                    <span class="code-tag">{{ codigo }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% elif primer_vuelo.codigo_reserva %}
                             <div class="reservation-code"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
                             {% endif %}
                         </div>
@@ -1199,7 +1297,10 @@
                             {% for vuelo in grupo %}
                             <div class="segment">
                                 {% if es_multi %}
-                                <div class="segment-label">Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}</div>
+                                <div class="segment-label">
+                                    Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
+                                    {% if vuelo._es_combinado %}<span class="combined-indicator">• Combinado</span>{% endif %}
+                                </div>
                                 {% endif %}
                                 
                                 <div class="route">
