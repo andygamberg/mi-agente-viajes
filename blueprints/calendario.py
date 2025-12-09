@@ -251,18 +251,7 @@ def _crear_evento_allday(grupo_id, vuelos):
     event.add('dtstart', fecha_inicio)
     event.add('dtend', fecha_fin)
     
-    # Descripción breve
-    ruta = f"{primer_vuelo.origen} → {ultimo_vuelo.destino}"
-    desc = [
-        f"{nombre_viaje}",
-        f"Ruta: {ruta}",
-        f"Vuelos: {len(vuelos)}"
-    ]
-    
-    if primer_vuelo.codigo_reserva:
-        desc.append(f"Código: {primer_vuelo.codigo_reserva}")
-    
-    event.add('description', '\n'.join(desc))
+    # Sin descripción - la info detallada está en cada vuelo individual
     
     # Transparencia: TRANSPARENT para que no bloquee el calendario
     event.add('transp', 'TRANSPARENT')
