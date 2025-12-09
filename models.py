@@ -5,8 +5,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import uuid
 
 db = SQLAlchemy()
+
+
+def generate_calendar_token():
+    """Genera token único para calendar feed"""
+    return str(uuid.uuid4())
 
 
 class User(UserMixin, db.Model):
@@ -17,6 +23,7 @@ class User(UserMixin, db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     nombre_pax = db.Column(db.String(50))  # Nombre para match en reservas
     apellido_pax = db.Column(db.String(50))  # Apellido para match en reservas
+    calendar_token = db.Column(db.String(36), unique=True, default=generate_calendar_token)  # MVP9: Token único para calendar feed
     creado = db.Column(db.DateTime, default=datetime.utcnow)
     activo = db.Column(db.Boolean, default=True)
     
@@ -28,6 +35,10 @@ class User(UserMixin, db.Model):
     
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def regenerate_calendar_token(self):
+        """Regenera el token del calendario (si el usuario lo compartió por error)"""
+        self.calendar_token = generate_calendar_token()
     
     def __repr__(self):
         return f'<User {self.email}>'

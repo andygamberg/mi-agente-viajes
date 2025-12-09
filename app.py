@@ -1170,26 +1170,52 @@ def export_calendar(grupo_id):
     return response
 
 
+# ============================================
+# MVP9: CALENDAR FEED PRIVADO POR USUARIO
+# ============================================
+
 @app.route('/calendar-feed')
-def calendar_feed():
+def calendar_feed_old():
     """
-    Webcal feed - genera .ics dinámico con TODOS los viajes futuros
-    Calendar.app consulta esta URL automáticamente
+    Feed viejo sin token - redirige a login o muestra error
+    Los usuarios deben usar /calendar-feed/<token> desde su perfil
+    """
+    return jsonify({
+        'error': 'Calendar feed requires authentication token',
+        'message': 'Please use your personal calendar link from your profile page',
+        'help': 'Login and go to Profile > Calendar section to get your personal link'
+    }), 403
+
+
+@app.route('/calendar-feed/<token>')
+def calendar_feed(token):
+    """
+    MVP9: Webcal feed privado - genera .ics solo con viajes del usuario
+    Cada usuario tiene su propio token único
     """
     from datetime import date
     
-    # Obtener TODOS los viajes futuros
+    # Buscar usuario por token
+    user = User.query.filter_by(calendar_token=token).first()
+    if not user:
+        return jsonify({'error': 'Invalid calendar token'}), 404
+    
+    # Obtener viajes del usuario (owner + pasajero)
+    viajes_futuros = get_viajes_for_user(user)
+    
+    # Filtrar solo futuros
     hoy = date.today()
-    viajes_futuros = Viaje.query.filter(Viaje.fecha_salida >= hoy).order_by(Viaje.fecha_salida, Viaje.hora_salida).all()
+    viajes_futuros = [v for v in viajes_futuros if v.fecha_salida.date() >= hoy]
+    viajes_futuros = sorted(viajes_futuros, key=lambda v: v.fecha_salida)
     
     # Crear calendario
     cal = Calendar()
     cal.add('prodid', '-//Mi Agente Viajes//')
     cal.add('version', '2.0')
-    cal.add('method', 'PUBLISH')  # PUBLISH para feeds (no REQUEST)
-    cal.add('x-wr-calname', 'Mis Viajes')
+    cal.add('method', 'PUBLISH')
+    cal.add('x-wr-calname', f'Mis Viajes - {user.nombre}')
     cal.add('x-wr-timezone', 'America/Argentina/Buenos_Aires')
-    cal.add('x-wr-caldesc', 'Calendario sincronizado de Mi Agente Viajes')
+    cal.add('x-wr-caldesc', f'Calendario de viajes de {user.nombre}')
     
     # Agrupar viajes por grupo_viaje
     grupos = {}
@@ -1283,6 +1309,19 @@ def calendar_feed():
     response.headers['Expires'] = '0'
     
     return response
+
+
+@app.route('/regenerate-calendar-token', methods=['POST'])
+@login_required
+def regenerate_calendar_token():
+    """
+    MVP9: Regenera el token del calendario (por si se compartió por error)
+    El usuario deberá re-suscribirse con el nuevo link
+    """
+    current_user.regenerate_calendar_token()
+    db.session.commit()
+    flash('Token de calendario regenerado. Deberás volver a suscribirte con el nuevo link.', 'success')
+    return redirect(url_for('perfil'))
 
 
 # MVP 4: FLIGHT MONITORING
@@ -1438,13 +1477,21 @@ def migrate_db():
             conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS user_id INTEGER"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS nombre_pax VARCHAR(50)"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS apellido_pax VARCHAR(50)"))
+            # MVP9: Agregar calendar_token
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS calendar_token VARCHAR(36)"))
             conn.commit()
+        
+        # Generar tokens para usuarios existentes que no tienen
+        users_sin_token = User.query.filter(User.calendar_token.is_(None)).all()
+        for user in users_sin_token:
+            user.calendar_token = user.generate_calendar_token()
+        db.session.commit()
         
         # Crear tabla user si no existe
         with app.app_context():
             db.create_all()
         
-        return {'success': True, 'message': 'Migración completada'}, 200
+        return {'success': True, 'message': 'Migración completada', 'tokens_generados': len(users_sin_token)}, 200
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
 

@@ -40,7 +40,6 @@
             padding: 24px;
         }
         
-        /* ===== HEADER UNIFICADO ===== */
         .header {
             display: flex;
             align-items: center;
@@ -66,7 +65,6 @@
             letter-spacing: -0.5px;
         }
         
-        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -123,7 +121,6 @@
             color: var(--danger);
         }
         
-        /* Profile Alert */
         .profile-alert {
             display: flex;
             align-items: center;
@@ -142,7 +139,6 @@
             background: #FDE68A;
         }
         
-        /* Hamburger Menu */
         .menu-container {
             position: relative;
         }
@@ -234,7 +230,6 @@
             letter-spacing: 0.5px;
         }
         
-        /* Email Banner */
         .email-banner {
             background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
             border-radius: var(--radius-lg);
@@ -310,7 +305,6 @@
             color: white;
         }
         
-        /* Sections */
         .section {
             margin-bottom: 40px;
         }
@@ -334,14 +328,12 @@
             color: var(--text-muted);
         }
         
-        /* Grid */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
             gap: 16px;
         }
         
-        /* Cards */
         .card {
             background: var(--bg-card);
             border-radius: var(--radius-lg);
@@ -446,7 +438,6 @@
             background: #F0F7FF;
         }
         
-        /* Card Body */
         .card-body {
             overflow: hidden;
             transition: max-height 0.3s ease, opacity 0.2s ease;
@@ -466,7 +457,6 @@
             padding: 0 20px 20px;
         }
         
-        /* Segment */
         .segment {
             background: var(--bg);
             border-radius: var(--radius);
@@ -529,7 +519,6 @@
             font-weight: 500;
         }
         
-        /* Passengers */
         .passengers-section {
             margin-top: 12px;
         }
@@ -611,7 +600,6 @@
             color: var(--accent);
         }
         
-        /* Card Footer */
         .card-footer {
             padding: 12px 20px;
             border-top: 1px solid var(--border-light);
@@ -648,7 +636,6 @@
             color: var(--text-muted);
         }
         
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -656,7 +643,6 @@
             font-size: 16px;
         }
         
-        /* Toolbar */
         .toolbar {
             position: fixed;
             bottom: 24px;
@@ -702,7 +688,6 @@
             border: 1px solid rgba(255,255,255,0.3);
         }
         
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -763,7 +748,6 @@
             flex: 1;
         }
         
-        /* Add Modal */
         .add-options {
             display: flex;
             flex-direction: column;
@@ -827,7 +811,6 @@
             font-weight: 600;
         }
         
-        /* Onboarding */
         .onboarding {
             display: none;
             position: fixed;
@@ -946,7 +929,6 @@
             color: var(--text-secondary);
         }
         
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .container {
                 padding: 16px;
@@ -1010,7 +992,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- ===== HEADER UNIFICADO (web = mobile) ===== -->
         <header class="header">
             <div class="header-left">
                 <h1 class="logo">Mis Viajes</h1>
@@ -1037,8 +1018,9 @@
                         <div class="divider"></div>
                         
                         <div class="menu-section-label">Calendario</div>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">Agregar a Apple Calendar</a>
-                        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed">Agregar a Google Calendar</a>
+                        <!-- MVP9: Links con token personal -->
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}">Agregar a Apple Calendar</a>
+                        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}">Agregar a Google Calendar</a>
                         
                         <div class="divider"></div>
                         
@@ -1053,7 +1035,6 @@
             </div>
         </header>
         
-        <!-- Email Banner -->
         <div class="email-banner hidden" id="emailBanner">
             <div class="banner-content">
                 <div class="banner-label">Reenviá tus confirmaciones de vuelo a:</div>
@@ -1065,7 +1046,6 @@
             <button class="banner-close" onclick="hideBanner()">×</button>
         </div>
         
-        <!-- Próximos Viajes -->
         <section class="section">
             <div class="section-header">
                 <h2 class="section-title">Próximos Viajes</h2>
@@ -1184,7 +1164,6 @@
             {% endif %}
         </section>
         
-        <!-- Pasados -->
         {% if pasados %}
         <section class="section">
             <div class="section-header">
@@ -1262,7 +1241,6 @@
         {% endif %}
     </div>
     
-    <!-- Modal Agregar -->
     <div class="modal" id="addModal">
         <div class="modal-content">
             <h2 class="modal-title">Agregar Viaje</h2>
@@ -1302,7 +1280,6 @@
         </div>
     </div>
     
-    <!-- Modal Editar Nombre -->
     <div class="modal" id="editModal">
         <div class="modal-content">
             <h2 class="modal-title">Editar nombre</h2>
@@ -1317,21 +1294,19 @@
         </div>
     </div>
     
-    <!-- Toolbar Agrupar -->
     <div class="toolbar" id="toolbarGroup">
         <span class="toolbar-text"><span id="countGroup">0</span> seleccionados</span>
         <button class="btn btn-primary" onclick="groupSelected()">Agrupar</button>
         <button class="btn btn-cancel" onclick="cancelGroupMode()">Cancelar</button>
     </div>
     
-    <!-- Toolbar Eliminar -->
     <div class="toolbar" id="toolbarDelete">
         <span class="toolbar-text"><span id="countDelete">0</span> seleccionados</span>
         <button class="btn btn-delete" onclick="deleteSelected()">Eliminar</button>
         <button class="btn btn-cancel" onclick="cancelDeleteMode()">Cancelar</button>
     </div>
     
-    <!-- Onboarding -->
+    <!-- MVP9: Onboarding actualizado con link personal -->
     <div class="onboarding" id="onboarding">
         <div class="onboarding-content">
             <div class="onboarding-header">
@@ -1364,7 +1339,7 @@
                     <div class="step-content">
                         <h3>Sincronizá con tu calendario</h3>
                         <p>Tus vuelos aparecerán en Apple Calendar, Google Calendar, etc.</p>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed" class="btn btn-secondary">Suscribirse</a>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary">Suscribirse</a>
                     </div>
                 </div>
             </div>
@@ -1376,13 +1351,11 @@
     </div>
     
     <script>
-        // Variables
         var groupMode = false;
         var deleteMode = false;
         var selectedGroup = new Set();
         var selectedDelete = new Set();
         
-        // Menu
         function toggleMenu() {
             document.getElementById('mainMenu').classList.toggle('open');
         }
@@ -1391,14 +1364,12 @@
             document.getElementById('mainMenu').classList.remove('open');
         }
         
-        // Close menu on outside click
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.menu-container')) {
                 closeMenu();
             }
         });
         
-        // Banner
         function showBanner() {
             document.getElementById('emailBanner').classList.remove('hidden');
             localStorage.removeItem('banner_hidden');
@@ -1420,12 +1391,10 @@
             });
         }
         
-        // Check banner state
         if (localStorage.getItem('banner_hidden') !== 'true') {
             document.getElementById('emailBanner').classList.remove('hidden');
         }
         
-        // Cards
         function toggleCard(event, card) {
             if (groupMode || deleteMode) return;
             event.stopPropagation();
@@ -1465,13 +1434,11 @@
             toolbar.classList.toggle('visible', set.size > 0);
         }
         
-        // Passengers
         function togglePassengers(btn) {
             btn.classList.toggle('expanded');
             btn.nextElementSibling.classList.toggle('visible');
         }
         
-        // Group Mode
         function toggleGroupMode() {
             if (groupMode) {
                 cancelGroupMode();
@@ -1511,7 +1478,6 @@
                 .then(function() { location.reload(); });
         }
         
-        // Delete Mode
         function toggleDeleteMode() {
             if (deleteMode) {
                 cancelDeleteMode();
@@ -1557,7 +1523,6 @@
             }
         }
         
-        // Modals
         function openAddModal() {
             document.getElementById('addModal').classList.add('visible');
         }
@@ -1576,7 +1541,6 @@
             document.getElementById('editModal').classList.remove('visible');
         }
         
-        // Close modals on backdrop click
         document.querySelectorAll('.modal').forEach(function(modal) {
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
@@ -1585,7 +1549,6 @@
             });
         });
         
-        // Onboarding
         function showOnboarding() {
             document.getElementById('onboarding').classList.add('visible');
         }
@@ -1601,7 +1564,6 @@
         }
         {% endif %}
         
-        // Auto refresh
         var lastCount = {{ proximos|length }};
         setInterval(function() {
             fetch('/api/viajes/count')
