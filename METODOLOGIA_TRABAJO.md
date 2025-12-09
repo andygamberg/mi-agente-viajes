@@ -1,7 +1,7 @@
 # 🤖 Metodología de Trabajo AI-Assisted Development
 
 **Proyecto:** Mi Agente Viajes
-**Última actualización:** 8 Diciembre 2025
+**Última actualización:** 9 Diciembre 2025
 **Stack:** Flask + PostgreSQL + Google Cloud Run
 
 ---
@@ -13,7 +13,8 @@
 3. [Estructura de Archivos para Deploy](#estructura-de-archivos-para-deploy)
 4. [Convenciones de Comunicación](#convenciones-de-comunicación)
 5. [Testing](#testing)
-6. [Troubleshooting](#troubleshooting)
+6. [Gestión de Sesiones con Claude](#gestión-de-sesiones-con-claude)
+7. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -192,6 +193,54 @@ echo "🧪 Running smoke tests..." && \
 
 ---
 
+## 🔄 Gestión de Sesiones con Claude
+
+### Cuándo abrir nueva conversación
+
+Claude monitoreará y sugerirá proactivamente nueva sesión cuando:
+
+| Señal | Acción |
+|-------|--------|
+| ~50+ intercambios | Sugerir corte en próximo punto natural |
+| Deploy/feature completado | Buen momento para cerrar y documentar |
+| Respuestas más lentas | Indicador de contexto saturado |
+| Nueva tarea compleja | Mejor arrancar fresh |
+| Cambio de tema grande | Evitar mezclar contextos |
+
+### Checklist de cierre de sesión
+
+Antes de cerrar, asegurar que quede documentado:
+
+```
+1. ¿Qué se completó? (commits, deploys, features)
+2. ¿Qué quedó pendiente? (próximo paso concreto)
+3. ¿Hay algo para actualizar en docs? (ROADMAP, METODOLOGIA, UX_UI)
+4. ¿Smoke tests pasaron?
+```
+
+### Checklist de inicio de sesión
+
+Para retomar contexto rápido, incluir en primer mensaje:
+
+```
+Proyecto: Mi Agente Viajes
+Repo: github.com/andygamberg/mi-agente-viajes
+Estado: [MVP actual, última feature completada]
+Objetivo: [Qué queremos lograr en esta sesión]
+Contexto: [Si hay algo específico de la sesión anterior]
+```
+
+### Ejemplo de mensaje de inicio
+
+```
+Proyecto: Mi Agente Viajes
+Estado: MVP8 completado, UX Sprint done
+Objetivo: Implementar MVP9 (deduplicación de vuelos)
+Contexto: En sesión anterior definimos la lógica de merge
+```
+
+---
+
 ## 🔥 Troubleshooting
 
 ### Deploy falla
@@ -246,6 +295,7 @@ curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 | 5 | Email automation | Dic 2025 |
 | 6 | Multi-usuario | 7 Dic 2025 |
 | 7 | Viajes por pasajero | 8 Dic 2025 |
+| 8 | Recuperar contraseña | 8 Dic 2025 |
 
 ### URLs Importantes
 
@@ -267,8 +317,8 @@ curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 ## 🔮 Backlog
 
 ### Alta Prioridad
-- [ ] Recuperar contraseña (en deploy)
-- [ ] Onboarding (recordatorio calendario + perfil)
+- [ ] MVP9: Deduplicación de vuelos
+- [ ] Onboarding mejorado (recordatorio calendario + perfil)
 
 ### Media Prioridad
 - [ ] Rediseño UI moderno
@@ -289,7 +339,7 @@ Al iniciar nueva conversación con Claude, incluir:
 Proyecto: Mi Agente Viajes
 Repo: github.com/andygamberg/mi-agente-viajes (conectado a Project Knowledge)
 Stack: Flask + PostgreSQL + Google Cloud Run
-Estado: MVP7 completado, trabajando en UX
+Estado: MVP8 completado, trabajando en [objetivo actual]
 Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 ```
 
@@ -302,3 +352,4 @@ Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 | 8 Dic 2025 | Documento inicial creado |
 | 8 Dic 2025 | MVP7 completado (viajes por pasajero) |
 | 8 Dic 2025 | Recuperar contraseña implementado |
+| 9 Dic 2025 | Agregada sección Gestión de Sesiones |
