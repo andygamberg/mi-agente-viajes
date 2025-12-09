@@ -999,7 +999,7 @@
             
             <div class="header-right">
                 {% if profile_incomplete %}
-                <a href="{{ url_for('perfil') }}" class="profile-alert">Completar perfil</a>
+                <a href="{{ url_for('viajes.perfil') }}" class="profile-alert">Completar perfil</a>
                 {% endif %}
                 
                 <button class="btn btn-primary" onclick="openAddModal()">+ Agregar</button>
@@ -1025,7 +1025,7 @@
                         <div class="divider"></div>
                         
                         <button onclick="showBanner(); closeMenu();">Ver email para reenvíos</button>
-                        <a href="{{ url_for('perfil') }}">Mi perfil</a>
+                        <a href="{{ url_for('viajes.perfil') }}">Mi perfil</a>
                         
                         <div class="divider"></div>
                         
@@ -1320,7 +1320,7 @@
                     <div class="step-content">
                         <h3>¿Cómo aparece tu nombre en los pasajes?</h3>
                         <p>Para reconocerte automáticamente cuando te incluyen en una reserva.</p>
-                        <a href="{{ url_for('perfil') }}" class="btn btn-primary">Completar perfil</a>
+                        <a href="{{ url_for('viajes.perfil') }}" class="btn btn-primary">Completar perfil</a>
                     </div>
                 </div>
                 
