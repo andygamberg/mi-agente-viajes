@@ -253,7 +253,7 @@ def _crear_evento_allday(grupo_id, vuelos):
     
     # Crear evento all-day
     event = Event()
-    event.add('summary', f"🌍 {nombre_viaje}")
+    event.add('summary', nombre_viaje)
     event.add('uid', f'viaje-allday-{grupo_id}@miagenteviajes.local')
     event.add('dtstamp', datetime.now(pytz.UTC))
     
