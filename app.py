@@ -14,6 +14,7 @@ from auth import auth, login_manager
 from blueprints.viajes import viajes_bp
 from blueprints.calendario import calendario_bp
 from blueprints.api import api_bp
+from blueprints.gmail_oauth import gmail_oauth_bp  # MVP14
 
 load_dotenv()
 
@@ -24,8 +25,8 @@ load_dotenv()
 app = Flask(__name__)
 
 # Config
-app.secret_key = 'mi-agente-viajes-secret-2024'
-app.config['SECRET_KEY'] = 'tu-clave-secreta-aqui'
+app.secret_key = os.getenv('SECRET_KEY', 'mi-agente-viajes-secret-2024')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'mi-agente-viajes-secret-2024')
 
 # Database
 if os.getenv('DATABASE_URL'):
@@ -66,6 +67,7 @@ app.register_blueprint(auth)
 app.register_blueprint(viajes_bp)
 app.register_blueprint(calendario_bp)
 app.register_blueprint(api_bp)
+app.register_blueprint(gmail_oauth_bp)  # MVP14
 
 # ============================================
 # MAIN

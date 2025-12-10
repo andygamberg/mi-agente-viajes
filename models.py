@@ -31,12 +31,19 @@ class User(UserMixin, db.Model):
     notif_delay = db.Column(db.Boolean, default=True)
     notif_cancelacion = db.Column(db.Boolean, default=True)
     notif_gate = db.Column(db.Boolean, default=True)
+    
+    # MVP14: Whitelist personal de remitentes (JSON array)
+    # Ejemplo: ["marta@miagentedeviajes.com", "@agenciaturismo.com.ar"]
+    custom_senders = db.Column(db.Text)
 
     creado = db.Column(db.DateTime, default=datetime.utcnow)
     activo = db.Column(db.Boolean, default=True)
     
     # Relación con viajes
     viajes = db.relationship('Viaje', backref='owner', lazy='dynamic')
+    
+    # MVP14: Relación con conexiones de email
+    email_connections = db.relationship('EmailConnection', backref='owner', lazy='dynamic')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -48,8 +55,82 @@ class User(UserMixin, db.Model):
         """Regenera el token del calendario (si el usuario lo compartió por error)"""
         self.calendar_token = generate_calendar_token()
     
+    def get_custom_senders(self):
+        """Retorna lista de remitentes custom del usuario"""
+        if not self.custom_senders:
+            return []
+        try:
+            import json
+            return json.loads(self.custom_senders)
+        except:
+            return []
+    
+    def set_custom_senders(self, senders_list):
+        """Guarda lista de remitentes custom"""
+        import json
+        self.custom_senders = json.dumps(senders_list)
+    
+    def add_custom_sender(self, sender):
+        """Agrega un remitente a la whitelist"""
+        senders = self.get_custom_senders()
+        sender = sender.strip().lower()
+        if sender and sender not in senders:
+            senders.append(sender)
+            self.set_custom_senders(senders)
+            return True
+        return False
+    
+    def remove_custom_sender(self, sender):
+        """Quita un remitente de la whitelist"""
+        senders = self.get_custom_senders()
+        sender = sender.strip().lower()
+        if sender in senders:
+            senders.remove(sender)
+            self.set_custom_senders(senders)
+            return True
+        return False
+    
     def __repr__(self):
         return f'<User {self.email}>'
+
+
+class EmailConnection(db.Model):
+    """
+    MVP14: Conexiones OAuth a proveedores de email
+    Soporta múltiples providers: gmail, outlook, apple (futuro)
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # Provider: 'gmail', 'outlook', 'apple'
+    provider = db.Column(db.String(20), nullable=False)
+    
+    # Email de la cuenta conectada
+    email = db.Column(db.String(120), nullable=False)
+    
+    # OAuth tokens (encriptados en producción idealmente)
+    access_token = db.Column(db.Text)
+    refresh_token = db.Column(db.Text)
+    token_expiry = db.Column(db.DateTime)
+    
+    # Estado y tracking
+    is_active = db.Column(db.Boolean, default=True)
+    last_scan = db.Column(db.DateTime)
+    last_error = db.Column(db.Text)
+    emails_processed = db.Column(db.Integer, default=0)
+    
+    # Timestamps
+    connected_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def is_token_expired(self):
+        """Verifica si el token expiró"""
+        if not self.token_expiry:
+            return True
+        return datetime.utcnow() > self.token_expiry
+    
+    def __repr__(self):
+        return f'<EmailConnection {self.provider}:{self.email}>'
 
 
 class Viaje(db.Model):
@@ -97,7 +178,7 @@ class Viaje(db.Model):
 
 
 class UserEmail(db.Model):
-    """Emails adicionales asociados a un usuario"""
+    """Emails adicionales asociados a un usuario (para matching de pasajeros)"""
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)

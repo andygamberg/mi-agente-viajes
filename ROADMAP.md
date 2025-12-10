@@ -324,3 +324,4 @@ Segment (Segmento individual)
 | 9 Dic 2025 | Calendar feed por usuario | Bug de privacidad reportado por beta user |
 | 9 Dic 2025 | Refactor a blueprints | app.py de 1400 líneas insostenible |
 | 9 Dic 2025 | utils/ separado | Mejor organización y testabilidad |
+- [ ] Tooltip 'Combinado' con delay reducido (CSS custom en lugar de title nativo)

@@ -180,11 +180,18 @@ def migrate_db():
     """Endpoint para migración de BD"""
     try:
         with db.engine.connect() as conn:
-            # Agregar columnas si no existen
+            # ========================================
+            # Migraciones existentes
+            # ========================================
+            
+            # Tabla viaje
             conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS user_id INTEGER"))
+            
+            # Tabla user - campos básicos
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS nombre_pax VARCHAR(50)"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS apellido_pax VARCHAR(50)"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS calendar_token VARCHAR(36)"))
+            
             # MVP11: Campo para toggle de combinación de vuelos
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS combinar_vuelos BOOLEAN DEFAULT TRUE"))
 
@@ -194,12 +201,48 @@ def migrate_db():
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_cancelacion BOOLEAN DEFAULT TRUE"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_gate BOOLEAN DEFAULT TRUE"))
 
+            # ========================================
+            # MVP14: Gmail Integration
+            # ========================================
+            
+            # Campo custom_senders en user (whitelist personal)
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS custom_senders TEXT"))
+            
+            # Crear tabla email_connection si no existe
+            conn.execute(db.text("""
+                CREATE TABLE IF NOT EXISTS email_connection (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES "user"(id),
+                    provider VARCHAR(20) NOT NULL,
+                    email VARCHAR(120) NOT NULL,
+                    access_token TEXT,
+                    refresh_token TEXT,
+                    token_expiry TIMESTAMP,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    last_scan TIMESTAMP,
+                    last_error TEXT,
+                    emails_processed INTEGER DEFAULT 0,
+                    connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """))
+            
+            # Índice para búsqueda rápida por user_id
+            conn.execute(db.text("""
+                CREATE INDEX IF NOT EXISTS idx_email_connection_user_id 
+                ON email_connection(user_id)
+            """))
+
             conn.commit()
+        
+        # ========================================
+        # Actualizar datos existentes
+        # ========================================
         
         # Generar tokens para usuarios existentes que no tienen
         users_sin_token = User.query.filter(User.calendar_token.is_(None)).all()
         for user in users_sin_token:
-            user.calendar_token = user.regenerate_calendar_token()
+            user.regenerate_calendar_token()
         
         # MVP11: Setear combinar_vuelos=True para usuarios existentes que tengan NULL
         users_sin_combinar = User.query.filter(User.combinar_vuelos.is_(None)).all()
@@ -218,12 +261,14 @@ def migrate_db():
 
         return {
             'success': True,
-            'message': 'Migración completada',
+            'message': 'Migración completada (incluye MVP14: EmailConnection)',
             'tokens_generados': len(users_sin_token),
             'combinar_vuelos_seteados': len(users_sin_combinar),
             'notificaciones_seteadas': len(users_sin_notif)
         }, 200
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return {'success': False, 'error': str(e)}, 500
 
 
