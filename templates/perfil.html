@@ -321,73 +321,49 @@
             margin-bottom: 12px;
         }
         
-        /* MVP11: Toggle con info */
-        .toggle-row {
+        /* MVP11: Preferencias Section */
+        .preferences-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .preferences-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+        
+        .preference-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 16px;
             background: var(--bg);
             border-radius: var(--radius);
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         
-        .toggle-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .preference-item:last-child {
+            margin-bottom: 0;
         }
         
-        .toggle-label span {
+        .preference-info {
+            flex: 1;
+            padding-right: 16px;
+        }
+        
+        .preference-label {
             font-size: 15px;
             font-weight: 500;
+            margin-bottom: 4px;
         }
         
-        .info-icon {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 18px;
-            height: 18px;
-            background: var(--border);
-            border-radius: 50%;
-            cursor: help;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        
-        .info-icon:hover .tooltip {
-            display: block;
-        }
-        
-        .tooltip {
-            display: none;
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            width: 260px;
-            padding: 12px;
-            background: var(--text);
-            color: white;
+        .preference-description {
             font-size: 13px;
-            font-weight: 400;
+            color: var(--text-secondary);
             line-height: 1.4;
-            border-radius: 8px;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: var(--text);
         }
         
         /* Toggle switch */
@@ -395,6 +371,7 @@
             position: relative;
             width: 50px;
             height: 28px;
+            flex-shrink: 0;
         }
         
         .toggle-switch input {
@@ -436,6 +413,18 @@
             transform: translateX(22px);
         }
         
+        /* Saved indicator */
+        .save-indicator {
+            display: none;
+            font-size: 12px;
+            color: var(--success);
+            margin-left: 8px;
+        }
+        
+        .save-indicator.visible {
+            display: inline;
+        }
+        
         @media (max-width: 480px) {
             body {
                 padding: 16px;
@@ -457,10 +446,14 @@
                 flex-direction: column;
             }
             
-            .tooltip {
-                width: 200px;
-                left: 0;
-                transform: translateX(-20%);
+            .preference-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .preference-info {
+                padding-right: 0;
             }
         }
     </style>
@@ -527,24 +520,30 @@
                     </div>
                 </div>
                 
-                <!-- MVP11: Toggle combinar vuelos -->
-                <div class="toggle-row">
-                    <div class="toggle-label">
-                        <span>Combinar vuelos compartidos</span>
-                        <div class="info-icon">
-                            i
-                            <div class="tooltip">
-                                Cuando viajás en el mismo vuelo que otra persona pero con reservas separadas, muestra todos los pasajeros juntos en lugar de cards duplicados.
+                <!-- MVP11: Preferencias Section -->
+                <div class="preferences-section">
+                    <div class="preferences-title">Preferencias</div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <div class="preference-label">
+                                Combinar vuelos compartidos
+                                <span class="save-indicator" id="saveIndicator">✓ Guardado</span>
+                            </div>
+                            <div class="preference-description">
+                                Cuando viajás en el mismo vuelo que otra persona pero con reservas separadas, 
+                                muestra todos los pasajeros juntos en lugar de cards duplicados.
                             </div>
                         </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="combinar_vuelos" id="combinarVuelos"
+                                   {% if current_user.combinar_vuelos or current_user.combinar_vuelos is none %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" name="combinar_vuelos" {% if current_user.combinar_vuelos or current_user.combinar_vuelos is none %}checked{% endif %}>
-                        <span class="toggle-slider"></span>
-                    </label>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <button type="submit" class="btn btn-primary" style="margin-top: 24px;">Guardar cambios</button>
             </form>
         </div>
         

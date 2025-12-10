@@ -393,10 +393,44 @@
             color: #5B5FC7;
         }
         
-        /* MVP11: Badge para vuelos combinados */
+        /* MVP11: Badge para vuelos combinados con tooltip */
         .badge.combined {
             background: #F0FDF4;
             color: #16A34A;
+            position: relative;
+            cursor: help;
+        }
+        
+        .badge.combined:hover::after {
+            content: 'Vuelos de distintas reservas combinados. Podés cambiar esto en Perfil → Preferencias';
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            white-space: normal;
+            width: 240px;
+            text-align: center;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .badge.combined:hover::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-bottom-color: var(--text);
+            z-index: 101;
         }
         
         .card-date {
@@ -618,6 +652,12 @@
             color: #92400E;
             font-family: 'SF Mono', Monaco, monospace;
             font-size: 11px;
+        }
+        
+        /* MVP11: Tag para viajero frecuente */
+        .meta-tag.ffp {
+            background: #F3E8FF;
+            color: #7C3AED;
         }
         
         .card-footer {
@@ -1016,6 +1056,17 @@
                 font-size: 12px;
                 padding: 5px 10px;
             }
+            
+            /* MVP11: Tooltip en mobile */
+            .badge.combined:hover::after {
+                left: 0;
+                transform: translateX(0);
+                width: 200px;
+            }
+            
+            .badge.combined:hover::before {
+                left: 30px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -1112,9 +1163,14 @@
                 <div class="card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
-                            <span class="badge {% if es_multi %}multi{% endif %}">
-                                {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
-                            </span>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="badge {% if es_multi %}multi{% endif %}">
+                                    {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
+                                </span>
+                                {% if primer_vuelo._es_combinado %}
+                                <span class="badge combined">Combinado</span>
+                                {% endif %}
+                            </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
                         
@@ -1135,10 +1191,6 @@
                                 <div class="segment-label">
                                     Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
                                     {% if vuelo._es_combinado %}<span class="combined-indicator">• Combinado</span>{% endif %}
-                                </div>
-                                {% elif vuelo._es_combinado %}
-                                <div class="segment-label">
-                                    <span class="combined-indicator">Vuelo combinado</span>
                                 </div>
                                 {% endif %}
                                 
@@ -1191,6 +1243,9 @@
                                                 {% if p.cabina %}
                                                 <span class="meta-tag">{{ p.cabina }}</span>
                                                 {% endif %}
+                                                {% if p.viajero_frecuente %}
+                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                         {% endfor %}
@@ -1217,6 +1272,9 @@
                                                 {% endif %}
                                                 {% if p.cabina %}
                                                 <span class="meta-tag">{{ p.cabina }}</span>
+                                                {% endif %}
+                                                {% if p.viajero_frecuente %}
+                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -1278,9 +1336,14 @@
                 <div class="card past collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
-                            <span class="badge {% if es_multi %}multi{% endif %}">
-                                {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
-                            </span>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="badge {% if es_multi %}multi{% endif %}">
+                                    {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
+                                </span>
+                                {% if primer_vuelo._es_combinado %}
+                                <span class="badge combined">Combinado</span>
+                                {% endif %}
+                            </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
                         
@@ -1326,6 +1389,69 @@
                                 {% endif %}
                                 {% if vuelo.numero_vuelo %}
                                 <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                                {% endif %}
+                                
+                                {# MVP11: Pasajeros en viajes pasados también #}
+                                {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
+                                <div class="passengers-section">
+                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 18l6-6-6-6"/>
+                                        </svg>
+                                        Pasajeros ({{ vuelo._pasajeros_combinados|length }})
+                                    </button>
+                                    <div class="passengers-list">
+                                        {% for p in vuelo._pasajeros_combinados %}
+                                        <div class="passenger">
+                                            <div class="passenger-name">{{ p.nombre }}</div>
+                                            <div class="passenger-meta">
+                                                {% if p.codigo_reserva %}
+                                                <span class="meta-tag reservation">{{ p.codigo_reserva }}</span>
+                                                {% endif %}
+                                                {% if p.asiento %}
+                                                <span class="meta-tag seat">{{ p.asiento }}</span>
+                                                {% endif %}
+                                                {% if p.cabina %}
+                                                <span class="meta-tag">{{ p.cabina }}</span>
+                                                {% endif %}
+                                                {% if p.viajero_frecuente %}
+                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% elif vuelo.pasajeros %}
+                                {% set pasajeros_list = vuelo.pasajeros|fromjson %}
+                                {% if pasajeros_list %}
+                                <div class="passengers-section">
+                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 18l6-6-6-6"/>
+                                        </svg>
+                                        Pasajeros ({{ pasajeros_list|length }})
+                                    </button>
+                                    <div class="passengers-list">
+                                        {% for p in pasajeros_list %}
+                                        <div class="passenger">
+                                            <div class="passenger-name">{{ p.nombre }}</div>
+                                            <div class="passenger-meta">
+                                                {% if p.asiento %}
+                                                <span class="meta-tag seat">{{ p.asiento }}</span>
+                                                {% endif %}
+                                                {% if p.cabina %}
+                                                <span class="meta-tag">{{ p.cabina }}</span>
+                                                {% endif %}
+                                                {% if p.viajero_frecuente %}
+                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
                                 {% endif %}
                             </div>
                             {% endfor %}

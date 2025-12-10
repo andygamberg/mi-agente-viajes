@@ -181,3 +181,86 @@ def calcular_ciudad_principal_dict(vuelos):
         return max(tiempo_por_ciudad, key=tiempo_por_ciudad.get)
     
     return vuelos[0].get('destino')
+
+
+def deduplicar_vuelos_en_grupo(vuelos):
+    """
+    MVP11: Combina vuelos idénticos (mismo numero_vuelo + fecha + ruta)
+    
+    Retorna lista de vuelos donde los duplicados tienen pasajeros combinados.
+    No modifica la BD - solo agrega atributos temporales para renderizado.
+    
+    Usado por:
+    - viajes.py (index route) para UI web
+    - calendario.py (calendar_feed) para eventos iCal
+    
+    Returns:
+        Lista de vuelos con atributos temporales:
+        - _es_combinado: bool
+        - _pasajeros_combinados: list (solo si combinado)
+        - _codigos_reserva: list (solo si combinado)
+    """
+    if not vuelos:
+        return vuelos
+    
+    if len(vuelos) == 1:
+        vuelos[0]._es_combinado = False
+        return vuelos
+    
+    # Crear clave única para cada vuelo
+    def vuelo_key(v):
+        fecha = v.fecha_salida.date() if v.fecha_salida else None
+        return (v.numero_vuelo, fecha, v.origen, v.destino)
+    
+    # Agrupar por clave
+    grupos_vuelos = {}
+    orden_original = []  # Para mantener orden por fecha
+    
+    for vuelo in vuelos:
+        key = vuelo_key(vuelo)
+        if key not in grupos_vuelos:
+            grupos_vuelos[key] = []
+            orden_original.append(key)
+        grupos_vuelos[key].append(vuelo)
+    
+    # Procesar cada grupo
+    resultado = []
+    for key in orden_original:
+        vuelos_iguales = grupos_vuelos[key]
+        
+        if len(vuelos_iguales) == 1:
+            # No hay duplicado - marcar como no combinado
+            vuelo = vuelos_iguales[0]
+            vuelo._es_combinado = False
+            resultado.append(vuelo)
+        else:
+            # Combinar pasajeros de todos los vuelos iguales
+            vuelo_principal = vuelos_iguales[0]
+            pasajeros_combinados = []
+            codigos_reserva = []
+            
+            for v in vuelos_iguales:
+                codigo = v.codigo_reserva or 'N/A'
+                if codigo not in codigos_reserva:
+                    codigos_reserva.append(codigo)
+                
+                # Parsear pasajeros
+                try:
+                    pax_list = json.loads(v.pasajeros) if v.pasajeros else []
+                except:
+                    pax_list = []
+                
+                # Agregar código de reserva a cada pasajero
+                for p in pax_list:
+                    p['codigo_reserva'] = codigo
+                    pasajeros_combinados.append(p)
+            
+            # Agregar atributos temporales (no se guardan en BD)
+            vuelo_principal._pasajeros_combinados = pasajeros_combinados
+            vuelo_principal._codigos_reserva = codigos_reserva
+            vuelo_principal._es_combinado = True
+            resultado.append(vuelo_principal)
+    
+    # Ordenar por fecha
+    resultado.sort(key=lambda v: v.fecha_salida)
+    return resultado
