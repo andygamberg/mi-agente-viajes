@@ -23,7 +23,7 @@ def load_user(user_id):
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('viajes.index'))
     
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
@@ -35,7 +35,7 @@ def login():
             login_user(user)
             next_page = request.args.get('next')
             flash('¡Bienvenido!', 'success')
-            return redirect(next_page or url_for('index'))
+            return redirect(next_page or url_for('viajes.index'))
         else:
             flash('Email o contraseña incorrectos', 'error')
     
@@ -45,7 +45,7 @@ def login():
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('viajes.index'))
     
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
@@ -78,7 +78,7 @@ def register():
         
         login_user(user)
         flash(f'¡Cuenta creada! Bienvenido {nombre}', 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('viajes.index'))
     
     return render_template('register.html')
 
@@ -95,7 +95,7 @@ def logout():
 def forgot_password():
     """Solicitar recuperación de contraseña"""
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('viajes.index'))
     
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
@@ -122,7 +122,7 @@ def forgot_password():
 def reset_password(token):
     """Restablecer contraseña con token"""
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('viajes.index'))
     
     # Verificar token (expira en 1 hora)
     s = get_serializer()
