@@ -917,125 +917,7 @@
         .tip-box code {
             font-weight: 600;
         }
-        
-        .onboarding {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .onboarding.visible {
-            display: flex;
-        }
-        
-        .onboarding-content {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            max-width: 480px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .onboarding-header {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        
-        .onboarding-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        
-        .onboarding-header p {
-            color: var(--text-secondary);
-            font-size: 15px;
-        }
-        
-        .onboarding-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        
-        .onboarding-step {
-            display: flex;
-            gap: 14px;
-            padding: 18px;
-            background: var(--bg);
-            border-radius: var(--radius);
-        }
-        
-        .step-number {
-            width: 28px;
-            height: 28px;
-            background: var(--accent);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-        
-        .step-content h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .step-content p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-        
-        .step-content .btn {
-            font-size: 13px;
-            padding: 8px 14px;
-        }
-        
-        .step-content code {
-            display: inline-block;
-            background: #E8F4FF;
-            color: var(--accent);
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin: 6px 0;
-        }
-        
-        .onboarding-footer {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .btn-skip {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 14px;
-            cursor: pointer;
-            padding: 8px 16px;
-        }
-        
-        .btn-skip:hover {
-            color: var(--text-secondary);
-        }
-        
+
         @media (max-width: 768px) {
             .container {
                 padding: 16px;
@@ -1595,51 +1477,7 @@
         <button class="btn btn-delete" onclick="deleteSelected()">Eliminar</button>
         <button class="btn btn-cancel" onclick="cancelDeleteMode()">Cancelar</button>
     </div>
-    
-    <!-- MVP9: Onboarding actualizado con link personal -->
-    <div class="onboarding" id="onboarding">
-        <div class="onboarding-content">
-            <div class="onboarding-header">
-                <h2>Bienvenido</h2>
-                <p>Configurá tu cuenta en 3 pasos</p>
-            </div>
-            
-            <div class="onboarding-steps">
-                <div class="onboarding-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>¿Cómo aparece tu nombre en los pasajes?</h3>
-                        <p>Para reconocerte automáticamente cuando te incluyen en una reserva.</p>
-                        <a href="{{ url_for('viajes.perfil') }}" class="btn btn-primary">Completar perfil</a>
-                    </div>
-                </div>
-                
-                <div class="onboarding-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Agregá tu primer viaje</h3>
-                        <p>Reenviá tus confirmaciones a:</p>
-                        <code>misviajes@gamberg.com.ar</code>
-                        <p style="margin-top: 8px;">Aparecerán automáticamente.</p>
-                    </div>
-                </div>
-                
-                <div class="onboarding-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Sincronizá con tu calendario</h3>
-                        <p>Tus vuelos aparecerán en Apple Calendar, Google Calendar, etc.</p>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary">Suscribirse</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="onboarding-footer">
-                <button type="button" class="btn-skip" onclick="skipOnboarding()">Omitir por ahora</button>
-            </div>
-        </div>
-    </div>
-    
+
     <script>
         var groupMode = false;
         var deleteMode = false;
@@ -1845,22 +1683,7 @@
                 }
             });
         });
-        
-        function showOnboarding() {
-            document.getElementById('onboarding').classList.add('visible');
-        }
-        
-        function skipOnboarding() {
-            document.getElementById('onboarding').classList.remove('visible');
-            localStorage.setItem('onboarding_seen', 'true');
-        }
-        
-        {% if show_onboarding %}
-        if (!localStorage.getItem('onboarding_seen')) {
-            showOnboarding();
-        }
-        {% endif %}
-        
+
         var lastCount = {{ proximos|length }};
         setInterval(function() {
             fetch('/api/viajes/count')
