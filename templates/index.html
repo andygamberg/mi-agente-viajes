@@ -521,6 +521,23 @@
         .segment-label .combined-indicator {
             color: #16A34A;
             margin-left: 8px;
+            position: relative;
+            cursor: help;
+        }
+        
+        .segment-label .combined-indicator:hover::after {
+            content: 'Mismo vuelo en distintas reservas';
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            background: var(--text);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
         .route {
