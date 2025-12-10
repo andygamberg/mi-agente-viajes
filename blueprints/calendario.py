@@ -10,7 +10,7 @@ import pytz
 from icalendar import Calendar, Event, Alarm
 
 from models import db, Viaje, User
-from utils.helpers import get_viajes_for_user
+from utils.helpers import get_viajes_for_user, deduplicar_vuelos_en_grupo
 
 calendario_bp = Blueprint('calendario', __name__)
 
@@ -35,6 +35,7 @@ def calendar_feed(token):
     Cada usuario tiene su propio token único
     
     MVP10: Agrega eventos all-day para viajes con múltiples vuelos
+    MVP11: Aplica deduplicación de vuelos idénticos
     """
     # Buscar usuario por token
     user = User.query.filter_by(calendar_token=token).first()
@@ -48,6 +49,11 @@ def calendar_feed(token):
     hoy = date.today()
     viajes_futuros = [v for v in viajes_futuros if v.fecha_salida.date() >= hoy]
     viajes_futuros = sorted(viajes_futuros, key=lambda v: v.fecha_salida)
+    
+    # MVP11: Obtener preferencia de usuario
+    combinar = getattr(user, 'combinar_vuelos', True)
+    if combinar is None:
+        combinar = True
     
     # Crear calendario
     cal = Calendar()
@@ -71,7 +77,15 @@ def calendar_feed(token):
         # Ordenar vuelos por fecha
         vuelos_ordenados = sorted(vuelos, key=lambda v: v.fecha_salida)
         
-        # Crear evento individual para cada vuelo
+        # MVP11: Si combinar_vuelos está ON, deduplicar dentro del grupo
+        if combinar:
+            vuelos_ordenados = deduplicar_vuelos_en_grupo(vuelos_ordenados)
+        else:
+            # Marcar todos como no combinados
+            for v in vuelos_ordenados:
+                v._es_combinado = False
+        
+        # Crear evento individual para cada vuelo (ya deduplicados si aplica)
         for vuelo in vuelos_ordenados:
             event = _crear_evento_calendario(vuelo)
             cal.add_component(event)
@@ -263,7 +277,12 @@ def _crear_evento_allday(grupo_id, vuelos):
 
 
 def _crear_evento_calendario(vuelo, sequence=0, method=None):
-    """Crea un evento iCal para un vuelo"""
+    """
+    Crea un evento iCal para un vuelo
+    
+    MVP11: Si el vuelo está combinado (_es_combinado=True), 
+    incluye todos los pasajeros en la descripción
+    """
     tz = pytz.timezone('America/Argentina/Buenos_Aires')
     
     event = Event()
@@ -275,24 +294,34 @@ def _crear_evento_calendario(vuelo, sequence=0, method=None):
     # Descripción completa
     desc = [f"Vuelo {vuelo.numero_vuelo} - {vuelo.aerolinea}"]
     
-    if vuelo.codigo_reserva:
+    # MVP11: Si es vuelo combinado, mostrar múltiples códigos
+    if getattr(vuelo, '_es_combinado', False) and hasattr(vuelo, '_codigos_reserva'):
+        desc.append(f"\nCódigos: {', '.join(vuelo._codigos_reserva)}")
+    elif vuelo.codigo_reserva:
         desc.append(f"\nCódigo: {vuelo.codigo_reserva}")
     
-    # Pasajeros
-    if vuelo.pasajeros:
+    # MVP11: Pasajeros - usar combinados si disponible
+    pasajeros_a_mostrar = []
+    if getattr(vuelo, '_es_combinado', False) and hasattr(vuelo, '_pasajeros_combinados'):
+        pasajeros_a_mostrar = vuelo._pasajeros_combinados
+    elif vuelo.pasajeros:
         try:
-            pasajeros = json.loads(vuelo.pasajeros)
-            if pasajeros:
-                desc.append("\nPasajeros:")
-                for p in pasajeros:
-                    pax = f"• {p.get('nombre', '')}"
-                    if p.get('asiento'):
-                        pax += f" - Asiento {p['asiento']}"
-                    if p.get('cabina'):
-                        pax += f" ({p['cabina']})"
-                    desc.append(pax)
+            pasajeros_a_mostrar = json.loads(vuelo.pasajeros)
         except:
-            pass
+            pasajeros_a_mostrar = []
+    
+    if pasajeros_a_mostrar:
+        desc.append("\nPasajeros:")
+        for p in pasajeros_a_mostrar:
+            pax = f"• {p.get('nombre', '')}"
+            if p.get('asiento'):
+                pax += f" - Asiento {p['asiento']}"
+            if p.get('cabina'):
+                pax += f" ({p['cabina']})"
+            # MVP11: Mostrar código de reserva si es combinado
+            if p.get('codigo_reserva'):
+                pax += f" [{p['codigo_reserva']}]"
+            desc.append(pax)
     
     # Horarios locales
     desc.append(f"\nSalida: {vuelo.origen} a las {vuelo.hora_salida} (hora local)")
@@ -321,8 +350,14 @@ def _crear_evento_calendario(vuelo, sequence=0, method=None):
     event.add('dtend', tz.localize(dtend))
     event.add('location', f'{vuelo.origen} Airport')
     
-    # UID único y estable
-    event.add('uid', f'vuelo-{vuelo.id}@miagenteviajes.local')
+    # UID único y estable - MVP11: usar numero_vuelo + fecha para combinados
+    if getattr(vuelo, '_es_combinado', False):
+        # UID basado en vuelo+fecha para que sea único y estable
+        fecha_str = vuelo.fecha_salida.strftime('%Y%m%d')
+        event.add('uid', f'vuelo-{vuelo.numero_vuelo}-{fecha_str}@miagenteviajes.local')
+    else:
+        event.add('uid', f'vuelo-{vuelo.id}@miagenteviajes.local')
+    
     event.add('dtstamp', datetime.now(pytz.UTC))
     event.add('sequence', sequence)
     
