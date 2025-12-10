@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import os
 import json
 
+import google.oauth2.credentials
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
@@ -121,9 +122,22 @@ def gmail_callback():
             flash('No se recibió código de autorización', 'error')
             return redirect(url_for('viajes.preferencias'))
         
-        # Intercambiar código por tokens
-        flow.fetch_token(code=code)
-        credentials = flow.credentials
+        # Intercambiar código por tokens (bypass scope validation)
+        # Usamos fetch_token directo del oauth2session para evitar validación estricta
+        token_response = flow.oauth2session.fetch_token(
+            flow.client_config['token_uri'],
+            code=code,
+            client_secret=GOOGLE_CLIENT_SECRET
+        )
+        
+        # Crear credentials manualmente
+        credentials = google.oauth2.credentials.Credentials(
+            token=token_response['access_token'],
+            refresh_token=token_response.get('refresh_token'),
+            token_uri='https://oauth2.googleapis.com/token',
+            client_id=GOOGLE_CLIENT_ID,
+            client_secret=GOOGLE_CLIENT_SECRET
+        )
         
         # Obtener email del usuario de Google
         service = build('oauth2', 'v2', credentials=credentials)
@@ -145,7 +159,7 @@ def gmail_callback():
             # Actualizar tokens existentes
             existing.access_token = credentials.token
             existing.refresh_token = credentials.refresh_token or existing.refresh_token
-            existing.token_expiry = credentials.expiry
+            existing.token_expiry = None  # No tenemos expiry directo del token_response
             existing.is_active = True
             existing.last_error = None
             existing.updated_at = datetime.utcnow()
@@ -158,7 +172,7 @@ def gmail_callback():
                 email=gmail_email,
                 access_token=credentials.token,
                 refresh_token=credentials.refresh_token,
-                token_expiry=credentials.expiry,
+                token_expiry=None,
                 is_active=True
             )
             db.session.add(connection)
