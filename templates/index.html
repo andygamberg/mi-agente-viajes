@@ -1167,9 +1167,6 @@
                                 <span class="badge {% if es_multi %}multi{% endif %}">
                                     {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
                                 </span>
-                                {% if primer_vuelo._es_combinado %}
-                                <span class="badge combined">Combinado</span>
-                                {% endif %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
@@ -1340,9 +1337,6 @@
                                 <span class="badge {% if es_multi %}multi{% endif %}">
                                     {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
                                 </span>
-                                {% if primer_vuelo._es_combinado %}
-                                <span class="badge combined">Combinado</span>
-                                {% endif %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>

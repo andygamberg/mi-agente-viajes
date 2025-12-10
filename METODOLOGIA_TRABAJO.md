@@ -1,7 +1,7 @@
 # 🤖 Metodología de Trabajo AI-Assisted Development
 
 **Proyecto:** Mi Agente Viajes
-**Última actualización:** 9 Diciembre 2025
+**Última actualización:** 10 Diciembre 2025
 **Stack:** Flask + PostgreSQL + Google Cloud Run
 
 ---
@@ -82,7 +82,7 @@ git add . && git commit -m "descripción del cambio" && git push
 gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthenticated
 
 # Ver logs de Cloud Run
-gcloud run logs read mi-agente-viajes --region us-east1 --limit 50
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=mi-agente-viajes" --limit 30
 ```
 
 ---
@@ -178,7 +178,7 @@ mi-agente-viajes/
 
 | Modelo | Campos clave | Relaciones |
 |--------|--------------|------------|
-| `User` | email, password_hash, nombre, nombre_pax, apellido_pax, calendar_token | has_many: Viaje, UserEmail |
+| `User` | email, password_hash, nombre, nombre_pax, apellido_pax, calendar_token, combinar_vuelos | has_many: Viaje, UserEmail |
 | `Viaje` | user_id, tipo, origen, destino, fecha_salida, grupo_viaje, pasajeros | belongs_to: User |
 | `UserEmail` | user_id, email, verificado | belongs_to: User |
 
@@ -290,8 +290,8 @@ Contexto: [Si hay algo específico de la sesión anterior]
 
 ```
 Proyecto: Mi Agente Viajes
-Estado: MVP9 completado + refactor arquitectónico
-Objetivo: Implementar MVP10 (calendario all-day)
+Estado: MVP11 completado + refactor arquitectónico
+Objetivo: Implementar MVP12 (onboarding)
 Contexto: App modular con blueprints/, utils/
 ```
 
@@ -306,7 +306,7 @@ Contexto: App modular con blueprints/, utils/
 gcloud builds list --limit 5
 
 # Ver logs de la app
-gcloud run logs read mi-agente-viajes --region us-east1 --limit 100
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=mi-agente-viajes" --limit 30
 ```
 
 ### Variables de entorno perdidas
@@ -339,6 +339,27 @@ gcloud sql connect mi-agente-viajes-db --user=postgres --database=viajes_db
 curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 ```
 
+### Archivo corrupto / deploy roto
+
+**Síntoma:** Internal Server Error después de deploy, logs muestran `TemplateSyntaxError: unexpected end of template`
+
+**Causa:** Archivos grandes (index.html ~1800 líneas) pueden truncarse al descargar de Claude.
+
+**Prevención:** Verificar siempre con `tail -10 archivo` antes de commitear.
+
+```bash
+# Si archivo no se commiteó aún:
+git checkout HEAD -- templates/archivo.html
+
+# Si archivo corrupto ya se commiteó, restaurar de commit anterior:
+git log --oneline -5
+git checkout <commit_hash> -- templates/archivo.html
+git add . && git commit -m "Rollback archivo a version estable" && git push
+
+# Redeploy
+gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthenticated
+```
+
 ---
 
 ## 📊 Estado del Proyecto
@@ -353,6 +374,8 @@ curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 | 7 | Viajes por pasajero | 8 Dic 2025 |
 | 8 | Recuperar contraseña | 8 Dic 2025 |
 | 9 | Calendar feed privado + Refactor arquitectónico | 9 Dic 2025 |
+| 10 | Calendario all-day | 9 Dic 2025 |
+| 11 | Deduplicación de vuelos compartidos | 10 Dic 2025 |
 
 ### URLs Importantes
 
@@ -374,9 +397,9 @@ curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 ## 🔮 Próximos Pasos
 
 ### Alta Prioridad
-- [ ] MVP10: Calendario all-day (evento multi-día para viajes completos)
-- [ ] MVP11: Deduplicación de vuelos (mismo vuelo en distintas reservas)
-- [ ] Onboarding mejorado (recordatorio calendario + perfil)
+- [ ] MVP12: Onboarding mejorado (recordatorio calendario + perfil)
+- [ ] Deduplicación en calendar feed (fix pendiente)
+- [ ] UX: badge combinado solo en segmentos desplegados
 
 ### Media Prioridad
 - [ ] MVP14: Gmail/Outlook integration (detectar cambios de vuelo)
@@ -397,7 +420,7 @@ Proyecto: Mi Agente Viajes
 Repo: github.com/andygamberg/mi-agente-viajes (conectado a Project Knowledge)
 Stack: Flask + PostgreSQL + Google Cloud Run
 URL: https://mi-agente-viajes-454542398872.us-east1.run.app
-Estado: MVP9 completado + Refactor arquitectónico (9 Dic 2025)
+Estado: MVP11 completado (10 Dic 2025)
 Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 ```
 
@@ -415,3 +438,6 @@ Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 | 9 Dic 2025 | Refactor arquitectónico: blueprints/ + utils/ |
 | 9 Dic 2025 | app.py reducido de 1400 a 75 líneas |
 | 9 Dic 2025 | Agregada sección Arquitectura del Proyecto |
+| 10 Dic 2025 | MVP10: Calendario all-day |
+| 10 Dic 2025 | MVP11: Deduplicación de vuelos compartidos |
+| 10 Dic 2025 | Agregado troubleshooting: archivo corrupto/deploy roto |
