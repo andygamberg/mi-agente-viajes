@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 9 Diciembre 2025
-**Versión actual:** MVP9
+**Última actualización:** 10 Diciembre 2025
+**Versión actual:** MVP11
 
 ---
 
@@ -75,6 +75,8 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 | 7 | Viajes por pasajero | 8 Dic 2025 | Usuario ve viajes donde es pasajero |
 | 8 | Recuperar contraseña | 8 Dic 2025 | Email con link seguro |
 | 9 | Calendar feed privado | 9 Dic 2025 | Token único por usuario, fix privacidad |
+| 10 | Calendario all-day | 9 Dic 2025 | Eventos multi-día para viajes |
+| 11 | Deduplicación inteligente | 10 Dic 2025 | Combina vuelos idénticos de distintas reservas |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -88,22 +90,6 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 ---
 
 ## 🔄 En Progreso / Próximos
-
-### MVP10: Calendario All-Day
-**Evento multi-día para viajes completos:**
-- Crear evento que abarca desde primer vuelo hasta último
-- Aparece como barra en parte superior del calendario
-- Nombre: "Viaje a [Ciudad Principal]"
-- Además de los eventos individuales de cada vuelo
-
-### MVP11: Deduplicación Inteligente
-**Problema:** Mismo vuelo en distintas reservas aparece duplicado.
-**Ejemplo:** Familia viaja junta pero Vero+Sol en una reserva (Business) y Andy en otra (Economy).
-
-**Solución:**
-- Detectar vuelos idénticos: mismo número + fecha + ruta
-- Consolidar en UN solo card con todos los pasajeros
-- Cada pasajero muestra: nombre, código reserva, asiento, clase
 
 ### MVP12: Onboarding Primera Vez
 - Modal de bienvenida con 3 pasos
