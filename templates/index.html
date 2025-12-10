@@ -1281,6 +1281,9 @@
                                         <div class="passenger">
                                             <div class="passenger-name">{{ p.nombre }}</div>
                                             <div class="passenger-meta">
+                                                {% if vuelo.codigo_reserva %}
+                                                <span class="meta-tag reservation">{{ vuelo.codigo_reserva }}</span>
+                                                {% endif %}
                                                 {% if p.asiento %}
                                                 <span class="meta-tag seat">{{ p.asiento }}</span>
                                                 {% endif %}
@@ -1300,20 +1303,6 @@
                             </div>
                             {% endfor %}
                             
-                            {# MVP11: Mostrar códigos de reserva - múltiples si es combinado #}
-                            {% set primer_vuelo_grupo = grupo[0] %}
-                            {% if primer_vuelo_grupo._es_combinado and primer_vuelo_grupo._codigos_reserva %}
-                            <div class="reservation-codes">
-                                <strong>Códigos de reserva:</strong>
-                                <div class="codes-list">
-                                    {% for codigo in primer_vuelo_grupo._codigos_reserva %}
-                                    <span class="code-tag">{{ codigo }}</span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% elif primer_vuelo.codigo_reserva %}
-                            <div class="reservation-code"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
-                            {% endif %}
                         </div>
                         
                         {% set codigos_unicos = grupo|map(attribute='codigo_reserva')|unique|list %}
@@ -1448,6 +1437,9 @@
                                         <div class="passenger">
                                             <div class="passenger-name">{{ p.nombre }}</div>
                                             <div class="passenger-meta">
+                                                {% if vuelo.codigo_reserva %}
+                                                <span class="meta-tag reservation">{{ vuelo.codigo_reserva }}</span>
+                                                {% endif %}
                                                 {% if p.asiento %}
                                                 <span class="meta-tag seat">{{ p.asiento }}</span>
                                                 {% endif %}
@@ -1467,9 +1459,6 @@
                             </div>
                             {% endfor %}
                             
-                            {% if primer_vuelo.codigo_reserva %}
-                            <div class="reservation-code"><strong>Código:</strong> {{ primer_vuelo.codigo_reserva }}</div>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
