@@ -1,7 +1,7 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
 **Última actualización:** 10 Diciembre 2025
-**Versión actual:** MVP11
+**Versión actual:** MVP12
 
 ---
 
@@ -77,6 +77,7 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 | 9 | Calendar feed privado | 9 Dic 2025 | Token único por usuario, fix privacidad |
 | 10 | Calendario all-day | 9 Dic 2025 | Eventos multi-día para viajes |
 | 11 | Deduplicación inteligente | 10 Dic 2025 | Combina vuelos idénticos de distintas reservas |
+| 12 | Onboarding UX | 10 Dic 2025 | Empty state educativo, Design System, SVG icons |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -90,12 +91,6 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 ---
 
 ## 🔄 En Progreso / Próximos
-
-### MVP12: Onboarding Primera Vez
-- Modal de bienvenida con 3 pasos
-- Recordar suscribirse al calendario (con SU link personalizado)
-- Guiar a completar perfil (nombre_pax/apellido_pax)
-- Explicar cómo reenviar emails
 
 ### MVP13: Notificaciones Email
 - Email cuando se detecta cambio en vuelo (delay, gate, cancelación)

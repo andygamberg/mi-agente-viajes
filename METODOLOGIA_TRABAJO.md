@@ -59,15 +59,29 @@ gcloud run services update mi-agente-viajes --update-env-vars KEY=value --region
 ### Ciclo típico de una feature
 
 ```
-1. Discutir requerimiento con Claude
-2. Claude genera archivos
-3. Usuario descarga archivos
-4. Usuario arrastra a Codespace
-5. git add . && git commit -m "mensaje" && git push
-6. gcloud run deploy...
-7. Smoke tests
-8. Sync repo en Claude (🔄)
+1. Discutir requerimiento con Claude (claude.ai)
+2. Claude prepara instrucciones de edición
+3. Usuario copia instrucciones a Claude Code (sidebar en Codespaces)
+4. Claude Code aplica cambios, usuario confirma
+5. Usuario ejecuta en terminal: git add . && git commit -m "mensaje" && git push
+6. Usuario ejecuta en terminal: gcloud run deploy...
+7. Smoke tests: ./smoke_tests.sh
+8. Sync repo en Claude (🔄 en Project Knowledge)
 ```
+
+### Workflow Claude.ai + Claude Code (Codespaces)
+
+| Claude.ai (esta ventana) | Claude Code (sidebar Codespaces) |
+|--------------------------|----------------------------------|
+| Planning, arquitectura, research | Ejecutar ediciones en archivos |
+| Ve todo el contexto del proyecto | Ve solo archivos locales |
+| Prepara instrucciones detalladas | Aplica cambios, muestra diff |
+| NO puede editar archivos | NO puede hacer git/deploy |
+
+**Reglas:**
+- Claude Code sidebar = solo editar código
+- Terminal directa = git, gcloud, comandos con auth
+- Nunca pedir a Claude Code que haga deploy
 
 ### Comandos frecuentes
 
@@ -423,6 +437,22 @@ URL: https://mi-agente-viajes-454542398872.us-east1.run.app
 Estado: MVP11 completado (10 Dic 2025)
 Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 ```
+
+---
+
+## 🎨 Design System
+
+El proyecto tiene un Design System documentado en `DESIGN_SYSTEM.md` que define:
+
+- Paleta de colores
+- Tipografía
+- Iconografía (Heroicons, NO emojis)
+- Espaciado y border-radius
+- Reglas de botones y componentes
+
+**REGLA FUNDAMENTAL:** Nunca usar emojis en la UI. Solo SVG de Heroicons.
+
+Ver `DESIGN_SYSTEM.md` para el catálogo completo de iconos y cómo usarlos.
 
 ---
 
