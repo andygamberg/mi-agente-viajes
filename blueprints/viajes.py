@@ -8,7 +8,7 @@ from datetime import datetime
 import json
 import uuid
 
-from models import db, Viaje, User, UserEmail
+from models import db, Viaje, User, UserEmail, EmailConnection
 from utils.iata import get_ciudad_nombre
 from utils.claude import extraer_info_con_claude
 from utils.helpers import calcular_ciudad_principal, normalize_name, get_viajes_for_user
@@ -665,7 +665,12 @@ def remove_email(email_id):
 @viajes_bp.route('/preferencias')
 @login_required
 def preferencias():
-    return render_template('preferencias.html')
+    gmail_connections = EmailConnection.query.filter_by(
+        user_id=current_user.id,
+        provider='gmail',
+        is_active=True
+    ).all()
+    return render_template('preferencias.html', gmail_connections=gmail_connections)
 
 
 @viajes_bp.route('/update-preferences', methods=['POST'])

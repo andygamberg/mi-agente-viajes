@@ -1,7 +1,7 @@
 """
 Blueprint de Gmail OAuth - Mi Agente Viajes
 MVP14: Conexión OAuth para leer emails del usuario
-Rutas: /conectar-gmail, /gmail-callback, /desconectar-gmail
+Rutas: /conectar-gmail, /gmail-callback, /desconectar-gmail, /desconectar-gmail/<id>
 """
 from flask import Blueprint, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
@@ -75,18 +75,8 @@ def conectar_gmail():
     """
     Inicia el flujo OAuth para conectar Gmail del usuario
     Redirige a Google para autorización
+    Permite múltiples cuentas Gmail
     """
-    # Verificar si ya tiene Gmail conectado
-    existing = EmailConnection.query.filter_by(
-        user_id=current_user.id,
-        provider='gmail',
-        is_active=True
-    ).first()
-    
-    if existing:
-        flash('Ya tenés Gmail conectado', 'info')
-        return redirect(url_for('viajes.preferencias'))
-    
     try:
         flow = create_oauth_flow()
         
@@ -144,7 +134,7 @@ def gmail_callback():
             flash('No se pudo obtener el email de la cuenta', 'error')
             return redirect(url_for('viajes.preferencias'))
         
-        # Verificar si ya existe una conexión para este email
+        # Verificar si ya existe una conexión para este email específico
         existing = EmailConnection.query.filter_by(
             user_id=current_user.id,
             provider='gmail',
@@ -188,24 +178,24 @@ def gmail_callback():
         return redirect(url_for('viajes.preferencias'))
 
 
-@gmail_oauth_bp.route('/desconectar-gmail', methods=['POST'])
+@gmail_oauth_bp.route('/desconectar-gmail/<int:connection_id>', methods=['POST'])
 @login_required
-def desconectar_gmail():
+def desconectar_gmail_by_id(connection_id):
     """
-    Desconecta Gmail del usuario
-    Revoca tokens y elimina de BD
+    Desconecta una cuenta Gmail específica por ID
     """
     try:
-        # Buscar conexión activa
+        # Buscar conexión por ID y verificar que pertenezca al usuario
         connection = EmailConnection.query.filter_by(
-            user_id=current_user.id,
-            provider='gmail',
-            is_active=True
+            id=connection_id,
+            user_id=current_user.id
         ).first()
         
         if not connection:
-            flash('No tenés Gmail conectado', 'info')
+            flash('Conexión no encontrada', 'error')
             return redirect(url_for('viajes.preferencias'))
+        
+        email = connection.email
         
         # Intentar revocar token en Google (opcional, puede fallar)
         try:
@@ -219,16 +209,41 @@ def desconectar_gmail():
         except:
             pass  # Si falla la revocación, continuamos igual
         
-        # Marcar como inactivo (soft delete)
-        connection.is_active = False
-        connection.access_token = None
-        connection.refresh_token = None
-        connection.updated_at = datetime.utcnow()
-        
+        # Eliminar la conexión de la BD (hard delete)
+        db.session.delete(connection)
         db.session.commit()
         
-        flash('Gmail desconectado', 'success')
+        flash(f'Gmail desconectado: {email}', 'success')
         return redirect(url_for('viajes.preferencias'))
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        flash(f'Error desconectando: {str(e)}', 'error')
+        return redirect(url_for('viajes.preferencias'))
+
+
+@gmail_oauth_bp.route('/desconectar-gmail', methods=['POST'])
+@login_required
+def desconectar_gmail():
+    """
+    Desconecta la primera cuenta Gmail activa del usuario
+    (Mantener por compatibilidad)
+    """
+    try:
+        # Buscar primera conexión activa
+        connection = EmailConnection.query.filter_by(
+            user_id=current_user.id,
+            provider='gmail',
+            is_active=True
+        ).first()
+        
+        if not connection:
+            flash('No tenés Gmail conectado', 'info')
+            return redirect(url_for('viajes.preferencias'))
+        
+        # Usar la función por ID
+        return desconectar_gmail_by_id(connection.id)
         
     except Exception as e:
         import traceback
@@ -291,9 +306,21 @@ def get_gmail_credentials(user_id):
     return credentials
 
 
+def get_user_gmail_connections(user_id):
+    """
+    Obtiene todas las conexiones Gmail activas de un usuario
+    Returns: Lista de EmailConnection
+    """
+    return EmailConnection.query.filter_by(
+        user_id=user_id,
+        provider='gmail',
+        is_active=True
+    ).all()
+
+
 def get_user_gmail_connection(user_id):
     """
-    Obtiene la conexión Gmail activa de un usuario
+    Obtiene la primera conexión Gmail activa de un usuario
     Returns: EmailConnection o None
     """
     return EmailConnection.query.filter_by(
