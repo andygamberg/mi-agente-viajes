@@ -242,8 +242,8 @@
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('viajes.perfil') }}" class="back-link">
-            ← Volver a Perfil
+        <a href="{{ url_for('viajes.index') }}" class="back-link">
+            ← Volver
         </a>
 
         <div class="page-header">
@@ -316,6 +316,22 @@
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Visualización</div>
+
+                <div class="preference-item">
+                    <div class="preference-info">
+                        <div class="preference-label">Combinar vuelos compartidos</div>
+                        <div class="preference-description">Mostrar como una sola tarjeta los vuelos idénticos de distintas reservas</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="combinar_vuelos"
+                               {% if current_user.combinar_vuelos %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
             </div>
 
