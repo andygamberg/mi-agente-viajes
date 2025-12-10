@@ -187,6 +187,13 @@ def migrate_db():
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS calendar_token VARCHAR(36)"))
             # MVP11: Campo para toggle de combinación de vuelos
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS combinar_vuelos BOOLEAN DEFAULT TRUE"))
+
+            # MVP13: Campos de notificaciones
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_email_master BOOLEAN DEFAULT TRUE"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_delay BOOLEAN DEFAULT TRUE"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_cancelacion BOOLEAN DEFAULT TRUE"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_gate BOOLEAN DEFAULT TRUE"))
+
             conn.commit()
         
         # Generar tokens para usuarios existentes que no tienen
@@ -198,14 +205,23 @@ def migrate_db():
         users_sin_combinar = User.query.filter(User.combinar_vuelos.is_(None)).all()
         for user in users_sin_combinar:
             user.combinar_vuelos = True
-        
+
+        # MVP13: Setear notificaciones activas para usuarios existentes
+        users_sin_notif = User.query.filter(User.notif_email_master.is_(None)).all()
+        for user in users_sin_notif:
+            user.notif_email_master = True
+            user.notif_delay = True
+            user.notif_cancelacion = True
+            user.notif_gate = True
+
         db.session.commit()
-        
+
         return {
-            'success': True, 
-            'message': 'Migración completada', 
+            'success': True,
+            'message': 'Migración completada',
             'tokens_generados': len(users_sin_token),
-            'combinar_vuelos_seteados': len(users_sin_combinar)
+            'combinar_vuelos_seteados': len(users_sin_combinar),
+            'notificaciones_seteadas': len(users_sin_notif)
         }, 200
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500

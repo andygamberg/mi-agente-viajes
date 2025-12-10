@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preferencias - Mis Viajes</title>
+    <style>
+        :root {
+            --bg: #F5F5F7;
+            --bg-card: #FFFFFF;
+            --text: #1D1D1F;
+            --text-secondary: #86868B;
+            --text-muted: #AEAEB2;
+            --accent: #0071E3;
+            --accent-hover: #0077ED;
+            --border: #D2D2D7;
+            --border-light: #E8E8ED;
+            --success: #16A34A;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #F0FDF4;
+            color: var(--success);
+            border: 1px solid #BBF7D0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        .preference-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+        }
+
+        .preference-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .preference-item.master {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+        }
+
+        .preference-item.sub-item {
+            margin-left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+        }
+
+        .preference-item.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .preference-info {
+            flex: 1;
+            padding-right: 16px;
+        }
+
+        .preference-label {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .preference-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .sub-preferences {
+            margin-top: 12px;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: var(--radius);
+        }
+
+        .sub-preferences-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .sub-preferences .preference-item {
+            margin-bottom: 8px;
+            padding: 12px 14px;
+        }
+
+        .sub-preferences .preference-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--accent);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('viajes.perfil') }}" class="back-link">
+            ← Volver a Perfil
+        </a>
+
+        <div class="page-header">
+            <h1>Preferencias</h1>
+            <p>Configurá cómo querés recibir notificaciones</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('viajes.guardar_preferencias') }}">
+            <div class="card">
+                <div class="card-title">Notificaciones por Email</div>
+
+                <!-- Master switch -->
+                <div class="preference-item master">
+                    <div class="preference-info">
+                        <div class="preference-label">Notificaciones por email</div>
+                        <div class="preference-description">Recibir alertas sobre cambios en tus vuelos</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="notif_email_master" id="masterToggle"
+                               {% if current_user.notif_email_master %}checked{% endif %}
+                               onchange="toggleSubPreferences(this)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <!-- Sub-preferences -->
+                <div class="sub-preferences" id="subPreferences">
+                    <div class="sub-preferences-label">Tipos de notificación:</div>
+
+                    <div class="preference-item sub-item">
+                        <div class="preference-info">
+                            <div class="preference-label">Delays y retrasos</div>
+                            <div class="preference-description">Cuando tu vuelo se retrasa</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="notif_delay" class="sub-toggle"
+                                   {% if current_user.notif_delay %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="preference-item sub-item">
+                        <div class="preference-info">
+                            <div class="preference-label">Cancelaciones</div>
+                            <div class="preference-description">Cuando se cancela tu vuelo</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="notif_cancelacion" class="sub-toggle"
+                                   {% if current_user.notif_cancelacion %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="preference-item sub-item">
+                        <div class="preference-info">
+                            <div class="preference-label">Cambios de puerta</div>
+                            <div class="preference-description">Cuando cambia la puerta de embarque</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="notif_gate" class="sub-toggle"
+                                   {% if current_user.notif_gate %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Guardar Preferencias</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleSubPreferences(masterToggle) {
+            const subPreferences = document.getElementById('subPreferences');
+            const subToggles = document.querySelectorAll('.sub-toggle');
+
+            if (!masterToggle.checked) {
+                // Deshabilitar visualmente
+                subPreferences.style.opacity = '0.5';
+                subPreferences.style.pointerEvents = 'none';
+            } else {
+                // Habilitar
+                subPreferences.style.opacity = '1';
+                subPreferences.style.pointerEvents = 'auto';
+            }
+        }
+
+        // Ejecutar al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            const masterToggle = document.getElementById('masterToggle');
+            toggleSubPreferences(masterToggle);
+        });
+    </script>
+</body>
+</html>

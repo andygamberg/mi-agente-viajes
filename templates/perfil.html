@@ -519,31 +519,9 @@
                         <p class="hint">Como aparece antes de la /</p>
                     </div>
                 </div>
-                
-                <!-- MVP11: Preferencias Section -->
-                <div class="preferences-section">
-                    <div class="preferences-title">Preferencias</div>
-                    
-                    <div class="preference-item">
-                        <div class="preference-info">
-                            <div class="preference-label">
-                                Combinar vuelos compartidos
-                                <span class="save-indicator" id="saveIndicator">✓ Guardado</span>
-                            </div>
-                            <div class="preference-description">
-                                Cuando viajás en el mismo vuelo que otra persona pero con reservas separadas, 
-                                muestra todos los pasajeros juntos en lugar de cards duplicados.
-                            </div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="combinar_vuelos" id="combinarVuelos"
-                                   {% if current_user.combinar_vuelos or current_user.combinar_vuelos is none %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-                
+
                 <button type="submit" class="btn btn-primary" style="margin-top: 24px;">Guardar cambios</button>
+                <a href="{{ url_for('viajes.preferencias') }}" class="btn btn-secondary" style="margin-top: 12px; display: block; text-align: center;">Preferencias y notificaciones</a>
             </form>
         </div>
         

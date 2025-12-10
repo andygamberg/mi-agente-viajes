@@ -660,3 +660,29 @@ def remove_email(email_id):
         db.session.commit()
         flash('Email eliminado', 'success')
     return redirect(url_for('viajes.perfil'))
+
+
+@viajes_bp.route('/preferencias')
+@login_required
+def preferencias():
+    return render_template('preferencias.html')
+
+
+@viajes_bp.route('/update-preferences', methods=['POST'])
+@login_required
+def update_preferences():
+    # Toggle maestro de notificaciones
+    current_user.notif_email_master = request.form.get('notif_email_master') == 'on'
+
+    # Sub-preferencias (solo si master está ON)
+    if current_user.notif_email_master:
+        current_user.notif_delay = request.form.get('notif_delay') == 'on'
+        current_user.notif_cancelacion = request.form.get('notif_cancelacion') == 'on'
+        current_user.notif_gate = request.form.get('notif_gate') == 'on'
+
+    # Preferencia de visualización
+    current_user.combinar_vuelos = request.form.get('combinar_vuelos') == 'on'
+
+    db.session.commit()
+    flash('Preferencias actualizadas', 'success')
+    return redirect(url_for('viajes.preferencias'))
