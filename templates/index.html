@@ -1140,7 +1140,7 @@
             <div class="banner-content">
                 <div class="banner-label">Reenviá tus confirmaciones de vuelo a:</div>
                 <div class="banner-email">
-                    <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e68b8f95908f878c8395a681878b84839481c885898bc88794">[email&#160;protected]</a></code>
+                    <code>misviajes@gamberg.com.ar</code>
                     <button class="btn-copy" onclick="copyEmail(this)">Copiar</button>
                 </div>
             </div>
@@ -1167,6 +1167,9 @@
                                 <span class="badge {% if es_multi %}multi{% endif %}">
                                     {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
                                 </span>
+                                {% if primer_vuelo._es_combinado %}
+                                <span class="badge combined">Combinado</span>
+                                {% endif %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
@@ -1187,7 +1190,7 @@
                                 {% if es_multi %}
                                 <div class="segment-label">
                                     Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
-                                    {% if vuelo._es_combinado %}<span class="badge combined segment-badge">Combinado</span>{% endif %}
+                                    {% if vuelo._es_combinado %}<span class="combined-indicator">• Combinado</span>{% endif %}
                                 </div>
                                 {% endif %}
                                 
@@ -1337,6 +1340,9 @@
                                 <span class="badge {% if es_multi %}multi{% endif %}">
                                     {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
                                 </span>
+                                {% if primer_vuelo._es_combinado %}
+                                <span class="badge combined">Combinado</span>
+                                {% endif %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
@@ -1356,7 +1362,7 @@
                                 {% if es_multi %}
                                 <div class="segment-label">
                                     Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
-                                    {% if vuelo._es_combinado %}<span class="badge combined segment-badge">Combinado</span>{% endif %}
+                                    {% if vuelo._es_combinado %}<span class="combined-indicator">• Combinado</span>{% endif %}
                                 </div>
                                 {% endif %}
                                 
@@ -1467,7 +1473,7 @@
             <h2 class="modal-title">Agregar Viaje</h2>
             
             <div class="tip-box">
-                Tip: Reenviá tu confirmación a <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2c41455f5a454d46495f6c4b4d414e495e4b024f4341024d5e">[email&#160;protected]</a></code>
+                Tip: Reenviá tu confirmación a <code>misviajes@gamberg.com.ar</code>
             </div>
             
             <div class="add-options">
@@ -1550,7 +1556,7 @@
                     <div class="step-content">
                         <h3>Agregá tu primer viaje</h3>
                         <p>Reenviá tus confirmaciones a:</p>
-                        <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1c71756f6a757d76796f5c7b7d717e796e7b327f7371327d6e">[email&#160;protected]</a></code>
+                        <code>misviajes@gamberg.com.ar</code>
                         <p style="margin-top: 8px;">Aparecerán automáticamente.</p>
                     </div>
                 </div>
@@ -1571,7 +1577,7 @@
         </div>
     </div>
     
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
         var groupMode = false;
         var deleteMode = false;
         var selectedGroup = new Set();
@@ -1779,4 +1785,19 @@
             localStorage.setItem('onboarding_seen', 'true');
         }
         
-        {% if show
+        {% if show_onboarding %}
+        if (!localStorage.getItem('onboarding_seen')) {
+            showOnboarding();
+        }
+        {% endif %}
+        
+        var lastCount = {{ proximos|length }};
+        setInterval(function() {
+            fetch('/api/viajes/count')
+                .then(function(r) { return r.json(); })
+                .then(function(d) { if (d.count !== lastCount) location.reload(); })
+                .catch(function() {});
+        }, 120000);
+    </script>
+</body>
+</html>
