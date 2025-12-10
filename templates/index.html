@@ -525,23 +525,6 @@
             cursor: help;
         }
         
-        .segment-label .combined-indicator:hover::after {
-            content: 'Mismo vuelo en distintas reservas';
-            position: fixed;
-            top: auto;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-top: 8px;
-            background: var(--text);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
         .route {
             display: flex;
             align-items: center;
@@ -1120,7 +1103,7 @@
                                 {% if es_multi %}
                                 <div class="segment-label">
                                     Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
-                                    {% if vuelo._es_combinado %}<span class="combined-indicator">• Combinado</span>{% endif %}
+                                    {% if vuelo._es_combinado %}<span class="combined-indicator" title="Mismo vuelo en distintas reservas">• Combinado</span>{% endif %}
                                 </div>
                                 {% endif %}
                                 
@@ -1313,7 +1296,7 @@
                                 {% if es_multi %}
                                 <div class="segment-label">
                                     Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
-                                    {% if vuelo._es_combinado %}<span class="combined-indicator">• Combinado</span>{% endif %}
+                                    {% if vuelo._es_combinado %}<span class="combined-indicator" title="Mismo vuelo en distintas reservas">• Combinado</span>{% endif %}
                                 </div>
                                 {% endif %}
                                 
