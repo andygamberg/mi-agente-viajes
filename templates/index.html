@@ -1058,7 +1058,8 @@
                 </div>
             </div>
         </header>
-        
+
+        {% if proximos or pasados %}
         <div class="email-banner hidden" id="emailBanner">
             <div class="banner-content">
                 <div class="banner-label">
@@ -1074,7 +1075,8 @@
             </div>
             <button class="banner-close" onclick="hideBanner()">×</button>
         </div>
-        
+        {% endif %}
+
         <section class="section">
             <div class="section-header">
                 <h2 class="section-title">Próximos Viajes</h2>
