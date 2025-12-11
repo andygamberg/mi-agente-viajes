@@ -1,5 +1,4 @@
-git add -A && git commit -m "MVP14 completo: multi-cuenta, PDFs, deduplicación, UX preferencias"
-git push# 🗺️ ROADMAP - Mi Agente Viajes
+# 🗺️ ROADMAP - Mi Agente Viajes
 
 ## 📊 Visión del Producto
 
@@ -64,9 +63,6 @@ git push# 🗺️ ROADMAP - Mi Agente Viajes
 | Issue | Descripción | Prioridad |
 |-------|-------------|-----------|
 | Menú hamburguesa | Click en "borrar/agrupar" no da feedback hasta seleccionar | Media |
-| Calendar duplicados | Eventos calendario muestran duplicados en vez de combinados | Media |
-| Frequent flyer | Info extraída pero no se muestra en UI | Baja |
-| Tooltips | Posicionamiento puede mejorar | Baja |
 
 ---
 
@@ -111,16 +107,6 @@ git push# 🗺️ ROADMAP - Mi Agente Viajes
 - [ ] Índices en BD (user_id, fecha_salida)
 - [ ] Query optimization
 - [ ] Caching donde corresponda
-
----
-
-## 💰 Modelo de Negocio (Futuro)
-
-| Modelo | Descripción | Pros | Contras |
-|--------|-------------|------|---------|
-| Freemium | Gratis hasta X reservas/mes | Fácil adopción | Necesita volumen |
-| B2B | Vender a agencias de viaje | Ticket alto | Ciclo venta largo |
-| White-label | Licenciar a empresas | Recurrente | Soporte complejo |
 
 ---
 
