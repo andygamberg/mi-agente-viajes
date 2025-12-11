@@ -118,7 +118,11 @@ class EmailConnection(db.Model):
     last_scan = db.Column(db.DateTime)
     last_error = db.Column(db.Text)
     emails_processed = db.Column(db.Integer, default=0)
-    
+
+    # MVP14c: Gmail Push Notifications
+    history_id = db.Column(db.String(50))  # Para tracking de cambios
+    watch_expiration = db.Column(db.DateTime)  # Cuándo renovar watch
+
     # Timestamps
     connected_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

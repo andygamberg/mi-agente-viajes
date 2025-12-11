@@ -15,6 +15,7 @@ from blueprints.viajes import viajes_bp
 from blueprints.calendario import calendario_bp
 from blueprints.api import api_bp
 from blueprints.gmail_oauth import gmail_oauth_bp  # MVP14
+from blueprints.gmail_webhook import gmail_webhook_bp  # MVP14c
 
 load_dotenv()
 
@@ -68,6 +69,7 @@ app.register_blueprint(viajes_bp)
 app.register_blueprint(calendario_bp)
 app.register_blueprint(api_bp)
 app.register_blueprint(gmail_oauth_bp)  # MVP14
+app.register_blueprint(gmail_webhook_bp)  # MVP14c
 
 # ============================================
 # MAIN

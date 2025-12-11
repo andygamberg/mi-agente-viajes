@@ -229,9 +229,13 @@ def migrate_db():
             
             # Índice para búsqueda rápida por user_id
             conn.execute(db.text("""
-                CREATE INDEX IF NOT EXISTS idx_email_connection_user_id 
+                CREATE INDEX IF NOT EXISTS idx_email_connection_user_id
                 ON email_connection(user_id)
             """))
+
+            # MVP14c: Campos para Gmail Push
+            conn.execute(db.text("ALTER TABLE email_connection ADD COLUMN IF NOT EXISTS history_id VARCHAR(50)"))
+            conn.execute(db.text("ALTER TABLE email_connection ADD COLUMN IF NOT EXISTS watch_expiration TIMESTAMP"))
 
             conn.commit()
         

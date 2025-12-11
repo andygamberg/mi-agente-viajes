@@ -162,7 +162,13 @@ def gmail_callback():
         
         db.session.commit()
         session.pop('oauth_state', None)
-        
+
+        # MVP14c: Activar Gmail Push Notifications
+        from blueprints.gmail_webhook import setup_gmail_watch
+        watch_result = setup_gmail_watch(current_user.id)
+        if watch_result.get('success'):
+            print(f"✅ Watch activado para {current_user.email}")
+
         return redirect(url_for('viajes.preferencias'))
         
     except Exception as e:
