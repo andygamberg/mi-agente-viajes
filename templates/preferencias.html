@@ -63,11 +63,6 @@
             margin-bottom: 8px;
         }
 
-        .page-header p {
-            color: var(--text-secondary);
-            font-size: 15px;
-        }
-
         .alert {
             padding: 14px 18px;
             border-radius: var(--radius);
@@ -107,118 +102,14 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
-        .preference-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: var(--bg);
-            border-radius: var(--radius);
-            margin-bottom: 12px;
-        }
-
-        .preference-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .preference-item.master {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-        }
-
-        .preference-item.sub-item {
-            margin-left: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-        }
-
-        .preference-info {
-            flex: 1;
-            padding-right: 16px;
-        }
-
-        .preference-label {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        .preference-description {
-            font-size: 13px;
+        .card-description {
+            font-size: 14px;
             color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .sub-preferences {
-            margin-top: 12px;
-            padding: 16px;
-            background: var(--bg);
-            border-radius: var(--radius);
-        }
-
-        .sub-preferences-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        .sub-preferences .preference-item {
-            margin-bottom: 8px;
-            padding: 12px 14px;
-        }
-
-        .sub-preferences .preference-item:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Toggle switch */
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #E5E5EA;
-            transition: var(--transition);
-            border-radius: 28px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 24px;
-            width: 24px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: var(--transition);
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--success);
-        }
-
-        .toggle-switch input:checked + .toggle-slider:before {
-            transform: translateX(22px);
+            line-height: 1.5;
+            margin-bottom: 16px;
         }
 
         /* Buttons */
@@ -254,14 +145,14 @@
         }
 
         .btn-danger {
-            background: #FEF2F2;
+            background: transparent;
             color: var(--danger);
             font-size: 13px;
-            padding: 8px 14px;
+            padding: 6px 12px;
         }
 
         .btn-danger:hover {
-            background: #FECACA;
+            background: #FEF2F2;
         }
 
         .btn-small {
@@ -278,10 +169,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px;
+            padding: 14px 16px;
             background: var(--bg);
             border-radius: var(--radius);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+        }
+
+        .connection-item:last-child {
+            margin-bottom: 0;
         }
 
         .connection-info {
@@ -291,8 +186,8 @@
         }
 
         .connection-icon {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             background: white;
             border-radius: 8px;
             display: flex;
@@ -302,143 +197,83 @@
         }
 
         .connection-icon svg {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
         }
 
         .connection-email {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
         }
 
         .connection-status {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--success);
             display: flex;
             align-items: center;
             gap: 4px;
+            margin-top: 2px;
         }
 
         .connection-status svg {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
         }
 
         .empty-state {
             text-align: center;
-            padding: 24px;
+            padding: 32px 24px;
             color: var(--text-secondary);
         }
 
         .empty-state-icon {
             width: 48px;
             height: 48px;
-            margin: 0 auto 12px;
+            margin: 0 auto 16px;
             color: var(--text-muted);
         }
 
         .empty-state p {
             font-size: 14px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             line-height: 1.5;
         }
 
-        .section-help {
-            background: var(--bg);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .section-help p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .actions-row {
-            display: flex;
-            gap: 12px;
+        .card-footer {
             margin-top: 16px;
-            flex-wrap: wrap;
-        }
-
-        /* Custom senders section - siguiendo patrón de perfil.html */
-        .senders-section {
-            margin-top: 20px;
-            padding-top: 20px;
+            padding-top: 16px;
             border-top: 1px solid var(--border-light);
         }
 
-        .senders-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .senders-help {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-
-        .senders-help strong {
-            color: var(--text);
-        }
-
-        /* Example box - mismo patrón que perfil.html */
-        .example-box {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 16px;
-            font-size: 13px;
-        }
-
-        .example-box .label {
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-
-        .example-box code {
-            font-family: 'SF Mono', Monaco, monospace;
-            color: var(--text);
-            font-size: 13px;
-            font-weight: 500;
-            background: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-right: 8px;
-        }
-
-        /* Sender list - mismo patrón que email-list de perfil.html */
+        /* Senders section */
         .sender-list {
             list-style: none;
-            margin-bottom: 16px;
         }
 
         .sender-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: var(--bg);
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 15px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .sender-item:last-child {
+            margin-bottom: 0;
         }
 
         .sender-item code {
             font-family: 'SF Mono', Monaco, monospace;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
         }
 
-        /* Add sender form - mismo patrón que add-form de perfil.html */
         .sender-form {
             display: flex;
             gap: 8px;
+            margin-top: 12px;
         }
 
         .sender-form input {
@@ -461,6 +296,119 @@
             color: var(--text-muted);
         }
 
+        .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Preferences */
+        .preference-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--bg);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+        }
+
+        .preference-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .preference-item.master {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+        }
+
+        .preference-item.sub-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+        }
+
+        .preference-info {
+            flex: 1;
+            padding-right: 16px;
+        }
+
+        .preference-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .preference-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .sub-preferences {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: var(--radius);
+        }
+
+        .sub-preferences-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .sub-preferences .preference-item {
+            margin-bottom: 6px;
+            padding: 10px 12px;
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 46px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E5E5EA;
+            transition: var(--transition);
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--success);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 16px;
@@ -468,6 +416,10 @@
 
             .page-header h1 {
                 font-size: 28px;
+            }
+
+            .card {
+                padding: 20px;
             }
 
             .preference-item {
@@ -496,7 +448,6 @@
         
         <div class="page-header">
             <h1>Preferencias</h1>
-            <p>Configurá cómo recibir tus viajes y notificaciones</p>
         </div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -509,7 +460,7 @@
         
         <!-- Gmail Connections -->
         <div class="card">
-            <div class="card-title">Cuentas conectadas</div>
+            <div class="card-title">Cuentas de email</div>
             
             {% if gmail_connections %}
                 <ul class="connection-list">
@@ -539,42 +490,8 @@
                     {% endfor %}
                 </ul>
                 
-                <div class="actions-row">
+                <div class="card-footer">
                     <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">Agregar otra cuenta</a>
-                </div>
-                
-                <!-- Sección de remitentes de confianza -->
-                <div class="senders-section">
-                    <div class="senders-title">Remitentes de confianza</div>
-                    <p class="senders-help">
-                        Detectamos automáticamente <strong>aerolíneas</strong> (LATAM, American, etc.) 
-                        y <strong>agencias online</strong> (Despegar, Booking, etc.).<br><br>
-                        Si tu agente de viajes o empresa te envía confirmaciones desde otro email, agregalos acá para que también se detecten:
-                    </p>
-
-                    <div class="example-box">
-                        <div class="label">Ejemplos de qué agregar:</div>
-                        <code>marta@miagencia.com</code> <code>@tuempresa.com.ar</code>
-                    </div>
-
-                    {% set custom_senders = current_user.get_custom_senders() %}
-                    {% if custom_senders %}
-                    <ul class="sender-list">
-                        {% for sender in custom_senders %}
-                        <li class="sender-item">
-                            <code>{{ sender }}</code>
-                            <form method="POST" action="{{ url_for('viajes.remove_sender', sender=sender) }}" style="margin: 0;">
-                                <button type="submit" class="btn btn-danger">Quitar</button>
-                            </form>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-
-                    <form method="POST" action="{{ url_for('viajes.add_sender') }}" class="sender-form">
-                        <input type="text" name="sender" placeholder="email@ejemplo.com o @dominio.com" required>
-                        <button type="submit" class="btn btn-secondary btn-small">Agregar</button>
-                    </form>
                 </div>
 
             {% else %}
@@ -585,21 +502,52 @@
                             <path d="M22 6L12 13L2 6" stroke-linecap="round"/>
                         </svg>
                     </div>
-                    <p>Conectá tu Gmail para detectar automáticamente tus reservas de vuelos cuando te lleguen confirmaciones.</p>
+                    <p>Conectá tu cuenta de email para detectar automáticamente tus reservas de vuelos.</p>
                     <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn">Conectar Gmail</a>
                 </div>
             {% endif %}
         </div>
         
+        <!-- Remitentes de confianza - Card separada, solo si hay Gmail conectado -->
+        {% if gmail_connections %}
+        <div class="card">
+            <div class="card-title">Remitentes de confianza</div>
+            <p class="card-description">
+                Detectamos aerolíneas y agencias automáticamente. 
+                Agregá otros remitentes (ej: tu agente de viajes) para que también se procesen.
+            </p>
+
+            {% set custom_senders = current_user.get_custom_senders() %}
+            {% if custom_senders %}
+            <ul class="sender-list">
+                {% for sender in custom_senders %}
+                <li class="sender-item">
+                    <code>{{ sender }}</code>
+                    <form method="POST" action="{{ url_for('viajes.remove_sender', sender=sender) }}" style="margin: 0;">
+                        <button type="submit" class="btn btn-danger">Quitar</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('viajes.add_sender') }}" class="sender-form">
+                <input type="text" name="sender" placeholder="email@ejemplo.com o @dominio.com" required>
+                <button type="submit" class="btn btn-secondary btn-small">Agregar</button>
+            </form>
+            <p class="hint">Usá @dominio.com para incluir cualquier email de ese dominio</p>
+        </div>
+        {% endif %}
+        
         <!-- Notification Preferences -->
         <form method="POST" action="{{ url_for('viajes.update_preferences') }}">
             <div class="card">
-                <div class="card-title">Notificaciones por email</div>
+                <div class="card-title">Notificaciones</div>
                 
                 <div class="preference-item master">
                     <div class="preference-info">
-                        <div class="preference-label">Recibir alertas por email</div>
-                        <div class="preference-description">Te avisamos sobre cambios en tus vuelos</div>
+                        <div class="preference-label">Alertas por email</div>
+                        <div class="preference-description">Cambios de horario, cancelaciones y puertas</div>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" name="notif_email_master" id="masterToggle"
@@ -615,7 +563,6 @@
                     <div class="preference-item sub-item">
                         <div class="preference-info">
                             <div class="preference-label">Demoras</div>
-                            <div class="preference-description">Cuando hay cambios en el horario</div>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" name="notif_delay"
@@ -627,7 +574,6 @@
                     <div class="preference-item sub-item">
                         <div class="preference-info">
                             <div class="preference-label">Cancelaciones</div>
-                            <div class="preference-description">Si tu vuelo se cancela</div>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" name="notif_cancelacion"
@@ -639,7 +585,6 @@
                     <div class="preference-item sub-item">
                         <div class="preference-info">
                             <div class="preference-label">Cambios de puerta</div>
-                            <div class="preference-description">Cuando cambia la puerta de embarque</div>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" name="notif_gate"
@@ -656,7 +601,7 @@
                 <div class="preference-item">
                     <div class="preference-info">
                         <div class="preference-label">Combinar vuelos compartidos</div>
-                        <div class="preference-description">Mostrar como una sola tarjeta los vuelos idénticos de distintas reservas</div>
+                        <div class="preference-description">Unificar vuelos idénticos de distintas reservas</div>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" name="combinar_vuelos"
@@ -666,7 +611,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn">Guardar Preferencias</button>
+            <button type="submit" class="btn">Guardar cambios</button>
         </form>
     </div>
 
@@ -684,7 +629,9 @@
 
         window.addEventListener('DOMContentLoaded', function() {
             const masterToggle = document.getElementById('masterToggle');
-            toggleSubPreferences(masterToggle);
+            if (masterToggle) {
+                toggleSubPreferences(masterToggle);
+            }
         });
     </script>
 </body>
