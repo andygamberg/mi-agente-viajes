@@ -264,9 +264,9 @@
             margin-bottom: 0;
         }
 
-        .sender-item code {
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 13px;
+        /* FIX: Usar tipografía normal en lugar de monospace */
+        .sender-item .sender-email {
+            font-size: 14px;
             font-weight: 500;
         }
 
@@ -522,7 +522,7 @@
             <ul class="sender-list">
                 {% for sender in custom_senders %}
                 <li class="sender-item">
-                    <code>{{ sender }}</code>
+                    <span class="sender-email">{{ sender }}</span>
                     <form method="POST" action="{{ url_for('viajes.remove_sender', sender=sender) }}" style="margin: 0;">
                         <button type="submit" class="btn btn-danger">Quitar</button>
                     </form>
