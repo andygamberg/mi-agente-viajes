@@ -1,4 +1,5 @@
-# 🗺️ ROADMAP - Mi Agente Viajes
+git add -A && git commit -m "MVP14 completo: multi-cuenta, PDFs, deduplicación, UX preferencias"
+git push# 🗺️ ROADMAP - Mi Agente Viajes
 
 ## 📊 Visión del Producto
 
@@ -31,60 +32,55 @@
 | 11 | Deduplicación inteligente | 10 Dic 2025 | Combina vuelos idénticos de distintas reservas |
 | 12 | Onboarding UX | 10 Dic 2025 | Empty state educativo, Design System, SVG icons |
 | 13 | Preferencias notificaciones | 10 Dic 2025 | UI toggles, campos BD (envío pendiente MVP13b) |
-| **14a** | **Gmail OAuth multi-cuenta** | **11 Dic 2025** | **Conectar múltiples Gmail, UI en preferencias** |
+| **14** | **Gmail Push + Multi-cuenta** | **11 Dic 2025** | **OAuth, push notifications, PDFs, deduplicación** |
+
+### Detalle MVP14 (Completado 11 Dic 2025)
+
+| Sub-MVP | Descripción | Estado |
+|---------|-------------|--------|
+| 14a | Gmail OAuth multi-cuenta | ✅ |
+| 14b | Escaneo manual de emails | ✅ |
+| 14c | Push notifications (Pub/Sub) | ✅ |
+| 14d | Microsoft/Outlook | ⏳ Futuro |
+| 14e | Custom senders por usuario | ✅ |
+| 14f | Fix multi-cuenta (.first() bug) | ✅ |
+| 14g | Extracción PDFs + deduplicación por contenido | ✅ |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
 | Cambio | Antes | Después |
 |--------|-------|---------|
 | app.py | 1,400 líneas (monolito) | 75 líneas (config + factory) |
-| Blueprints | No existían | viajes_bp, calendario_bp, api_bp, gmail_oauth_bp |
-| Utils | Inline en app.py | utils/iata.py, claude.py, helpers.py |
+| Blueprints | No existían | viajes_bp, calendario_bp, api_bp, gmail_oauth_bp, gmail_webhook_bp |
+| Utils | Inline en app.py | utils/iata.py, claude.py, helpers.py, gmail_scanner.py |
 | Smoke tests | 9 tests | 10 tests (+ calendar auth) |
 
 ---
 
-## 🔄 En Progreso
+## 🔄 Pendientes Técnicos
 
-### MVP14b: Gmail Scanning (En curso - 11 Dic 2025)
+### Bugs/UX Issues Identificados
 
-**Objetivo:** Escanear emails de cuentas conectadas para detectar confirmaciones de viaje.
-
-| Componente | Estado | Descripción |
-|------------|--------|-------------|
-| Whitelist global | ⏳ Pendiente | Lista hardcoded de aerolíneas/agencias |
-| Escaneo Gmail API | ⏳ Pendiente | Leer inbox, filtrar por remitente |
-| Procesamiento Claude | ⏳ Pendiente | Extraer datos de vuelos |
-| Trigger manual | ⏳ Pendiente | Botón "Escanear ahora" en UI |
-| Detección duplicados | ⏳ Pendiente | No crear viajes que ya existen |
-
-**Whitelist inicial (hardcoded):**
-```
-Aerolíneas: @latam.com, @aerolineas.com.ar, @aa.com, @united.com, @delta.com, @avianca.com
-OTAs: @despegar.com, @booking.com, @expedia.com, @kayak.com
-Agencias: @almundo.com.ar
-```
-
-**Fases MVP14 completo:**
-- ✅ MVP14a: OAuth + UI (completado)
-- 🔄 MVP14b: Escaneo manual (en curso)
-- ⏳ MVP14c: Escaneo automático (cron)
-- ⏳ MVP14d: Microsoft/Outlook
-- ⏳ MVP14e: Custom senders por usuario
+| Issue | Descripción | Prioridad |
+|-------|-------------|-----------|
+| Menú hamburguesa | Click en "borrar/agrupar" no da feedback hasta seleccionar | Media |
+| Calendar duplicados | Eventos calendario muestran duplicados en vez de combinados | Media |
+| Frequent flyer | Info extraída pero no se muestra en UI | Baja |
+| Tooltips | Posicionamiento puede mejorar | Baja |
 
 ---
 
 ## 📋 Próximos MVPs
 
-### MVP13b: Envío de Notificaciones
-- Enviar email cuando FR24 detecta cambio (delay, gate, cancelación)
-- Usar preferencias ya guardadas en BD
-- Resumen diario/semanal (opcional)
-
 ### MVP15: Compartir Viajes
 - Tab "Compartidos" separado de "Mis Viajes"
 - Invitar usuarios por email
 - Rol "asistente" que puede cargar viajes para otros
+
+### MVP13b: Envío de Notificaciones
+- Enviar email cuando FR24 detecta cambio (delay, gate, cancelación)
+- Usar preferencias ya guardadas en BD
+- Resumen diario/semanal (opcional)
 
 ### MVP16: Backoffice / Admin
 - Lista de usuarios (email, nombre, fecha registro, # viajes)
@@ -148,7 +144,9 @@ Agencias: @almundo.com.ar
 | 9 Dic 2025 | Refactor a blueprints | app.py de 1400 líneas insostenible |
 | 11 Dic 2025 | OAuth manual (requests) | Bypass scope validation de google-auth |
 | 11 Dic 2025 | Multi-cuenta Gmail | Usuarios con varias cuentas personales/trabajo |
+| 11 Dic 2025 | Extracción de PDFs adjuntos | Emails de agencias tienen info en PDF, no body |
+| 11 Dic 2025 | Deduplicación por contenido | Fallback cuando no hay código de reserva |
 
 ---
 
-*Última actualización: 11 Dic 2025 - MVP14a completado*
+*Última actualización: 11 Dic 2025 - MVP14 completado (14a-14g)*
