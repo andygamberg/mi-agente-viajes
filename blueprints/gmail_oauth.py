@@ -1,7 +1,8 @@
 """
 Blueprint de Gmail OAuth - Mi Agente Viajes
 MVP14: Conexión OAuth + Escaneo de emails
-Rutas: /conectar-gmail, /gmail-callback, /desconectar-gmail, /escanear-gmail
+MVP14f: Fix multi-cuenta - credentials y watch por email específico
+Rutas: /conectar-gmail, /gmail-callback, /desconectar-gmail
 """
 from flask import Blueprint, redirect, url_for, flash, request, session, jsonify
 from flask_login import login_required, current_user
@@ -163,11 +164,13 @@ def gmail_callback():
         db.session.commit()
         session.pop('oauth_state', None)
 
-        # MVP14c: Activar Gmail Push Notifications
+        # MVP14f: Activar watch para LA CUENTA ESPECÍFICA recién conectada
         from blueprints.gmail_webhook import setup_gmail_watch
-        watch_result = setup_gmail_watch(current_user.id)
+        watch_result = setup_gmail_watch(current_user.id, gmail_email=gmail_email)
         if watch_result.get('success'):
-            print(f"✅ Watch activado para {current_user.email}")
+            print(f"✅ Watch activado para {gmail_email}")
+        else:
+            print(f"⚠️ Error activando watch para {gmail_email}: {watch_result.get('error')}")
 
         return redirect(url_for('viajes.preferencias'))
         
@@ -220,7 +223,7 @@ def desconectar_gmail_by_id(connection_id):
 @gmail_oauth_bp.route('/desconectar-gmail', methods=['POST'])
 @login_required
 def desconectar_gmail():
-    """Desconecta la primera cuenta Gmail activa"""
+    """Desconecta la primera cuenta Gmail activa (legacy)"""
     try:
         connection = EmailConnection.query.filter_by(
             user_id=current_user.id,
@@ -242,91 +245,38 @@ def desconectar_gmail():
 
 
 # ============================================
-# ESCANEO DE EMAILS (MVP14b)
+# HELPERS - Multi-cuenta ready
 # ============================================
 
-@gmail_oauth_bp.route('/escanear-gmail', methods=['POST'])
-@login_required
-def escanear_gmail():
+def get_gmail_credentials(user_id, gmail_email=None, connection_id=None):
     """
-    Escanea emails de las cuentas Gmail conectadas
-    Busca confirmaciones de viaje y las procesa
+    Obtiene credenciales válidas de Gmail para una cuenta específica.
+    
+    Args:
+        user_id: ID del usuario
+        gmail_email: Email específico (preferido)
+        connection_id: ID de conexión alternativo
+    
+    Returns:
+        Credentials object o None
+    
+    Nota: Para multi-proveedor futuro (Outlook, Apple), crear funciones similares
+    o generalizar con get_email_credentials(user_id, provider, email)
     """
-    try:
-        from utils.gmail_scanner import scan_and_create_viajes
-        
-        # Obtener parámetros
-        days_back = request.form.get('days_back', 30, type=int)
-        if days_back > 90:
-            days_back = 90  # Límite máximo
-        
-        # Ejecutar escaneo
-        results = scan_and_create_viajes(current_user.id, days_back=days_back)
-        
-        # Mostrar resultados
-        if results['viajes_creados'] > 0:
-            flash(f"✓ {results['viajes_creados']} viaje(s) encontrado(s) y agregado(s)", 'success')
-        elif results['viajes_duplicados'] > 0:
-            flash(f"No se encontraron viajes nuevos ({results['viajes_duplicados']} ya existían)", 'info')
-        else:
-            flash('No se encontraron emails de viajes', 'info')
-        
-        if results['errors']:
-            for error in results['errors'][:3]:  # Mostrar máximo 3 errores
-                flash(f"Error: {error}", 'error')
-        
-        return redirect(url_for('viajes.preferencias'))
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        flash(f'Error escaneando: {str(e)}', 'error')
-        return redirect(url_for('viajes.preferencias'))
-
-
-@gmail_oauth_bp.route('/api/escanear-gmail', methods=['POST'])
-@login_required
-def api_escanear_gmail():
-    """
-    API endpoint para escaneo (retorna JSON)
-    Útil para llamadas AJAX desde frontend
-    """
-    try:
-        from utils.gmail_scanner import scan_and_create_viajes
-        
-        data = request.get_json() or {}
-        days_back = min(data.get('days_back', 30), 90)
-        
-        results = scan_and_create_viajes(current_user.id, days_back=days_back)
-        
-        return jsonify({
-            'success': True,
-            'emails_scanned': results.get('emails_scanned', 0),
-            'viajes_creados': results.get('viajes_creados', 0),
-            'viajes_duplicados': results.get('viajes_duplicados', 0),
-            'errors': results.get('errors', [])
-        })
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-# ============================================
-# HELPERS
-# ============================================
-
-def get_gmail_credentials(user_id):
-    """Obtiene credenciales válidas de Gmail para un usuario"""
-    connection = EmailConnection.query.filter_by(
-        user_id=user_id,
-        provider='gmail',
-        is_active=True
-    ).first()
+    # Buscar conexión específica
+    if connection_id:
+        connection = EmailConnection.query.filter_by(
+            id=connection_id, user_id=user_id, is_active=True
+        ).first()
+    elif gmail_email:
+        connection = EmailConnection.query.filter_by(
+            user_id=user_id, provider='gmail', email=gmail_email, is_active=True
+        ).first()
+    else:
+        # Fallback legacy - primera conexión (evitar en código nuevo)
+        connection = EmailConnection.query.filter_by(
+            user_id=user_id, provider='gmail', is_active=True
+        ).first()
     
     if not connection or not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         return None
@@ -358,18 +308,24 @@ def get_gmail_credentials(user_id):
 
 
 def get_user_gmail_connections(user_id):
-    """Obtiene todas las conexiones Gmail activas"""
+    """Obtiene todas las conexiones Gmail activas de un usuario"""
     return EmailConnection.query.filter_by(
-        user_id=user_id,
-        provider='gmail',
-        is_active=True
+        user_id=user_id, provider='gmail', is_active=True
     ).all()
 
 
-def get_user_gmail_connection(user_id):
-    """Obtiene la primera conexión Gmail activa"""
-    return EmailConnection.query.filter_by(
-        user_id=user_id,
-        provider='gmail',
-        is_active=True
-    ).first()
+def get_user_email_connections(user_id, provider=None):
+    """
+    Obtiene conexiones de email de un usuario.
+    
+    Args:
+        user_id: ID del usuario
+        provider: 'gmail', 'outlook', 'apple' o None para todos
+    
+    Returns:
+        Lista de EmailConnection
+    """
+    query = EmailConnection.query.filter_by(user_id=user_id, is_active=True)
+    if provider:
+        query = query.filter_by(provider=provider)
+    return query.all()

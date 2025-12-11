@@ -2,6 +2,7 @@
 Gmail Push Notifications - Mi Agente Viajes
 MVP14c: Webhook para recibir notificaciones de Gmail via Pub/Sub
 MVP14e: Soporte para custom senders
+MVP14f: Fix multi-cuenta - setup_gmail_watch por email específico
 """
 import base64
 import json
@@ -17,11 +18,30 @@ gmail_webhook_bp = Blueprint('gmail_webhook', __name__)
 PUBSUB_TOPIC = 'projects/mi-agente-viajes/topics/gmail-notifications'
 
 
-def setup_gmail_watch(user_id):
-    """Activa Gmail Push Notifications para un usuario."""
+def setup_gmail_watch(user_id, gmail_email=None):
+    """
+    Activa Gmail Push Notifications para una cuenta específica.
+    
+    Args:
+        user_id: ID del usuario
+        gmail_email: Email específico a activar (requerido si hay múltiples cuentas)
+    """
     from blueprints.gmail_oauth import get_gmail_credentials
     
-    credentials = get_gmail_credentials(user_id)
+    # Buscar la conexión específica
+    if gmail_email:
+        connection = EmailConnection.query.filter_by(
+            user_id=user_id, provider='gmail', email=gmail_email, is_active=True
+        ).first()
+    else:
+        connection = EmailConnection.query.filter_by(
+            user_id=user_id, provider='gmail', is_active=True
+        ).first()
+    
+    if not connection:
+        return {'success': False, 'error': 'No connection found'}
+    
+    credentials = get_gmail_credentials(user_id, gmail_email=connection.email)
     if not credentials:
         return {'success': False, 'error': 'No credentials'}
     
@@ -35,18 +55,14 @@ def setup_gmail_watch(user_id):
         history_id = watch_response.get('historyId')
         expiration = watch_response.get('expiration')
         
-        connection = EmailConnection.query.filter_by(
-            user_id=user_id, provider='gmail', is_active=True
-        ).first()
+        # Actualizar LA MISMA conexión que usamos
+        connection.history_id = history_id
+        if expiration:
+            connection.watch_expiration = datetime.fromtimestamp(int(expiration) / 1000)
+        db.session.commit()
         
-        if connection:
-            connection.history_id = history_id
-            if expiration:
-                connection.watch_expiration = datetime.fromtimestamp(int(expiration) / 1000)
-            db.session.commit()
-        
-        print(f"Gmail watch activado user {user_id}")
-        return {'success': True, 'history_id': history_id}
+        print(f"Gmail watch activado user {user_id}, email {connection.email}")
+        return {'success': True, 'history_id': history_id, 'email': connection.email}
         
     except Exception as e:
         print(f"Error watch: {e}")
@@ -62,9 +78,10 @@ def process_new_emails(connection, history_id):
         print(f"Sin history_id para {connection.email}")
         return 0
     
-    credentials = get_gmail_credentials(connection.user_id)
+    # Usar credenciales de la conexión específica
+    credentials = get_gmail_credentials(connection.user_id, gmail_email=connection.email)
     if not credentials:
-        print(f"Sin credenciales para user {connection.user_id}")
+        print(f"Sin credenciales para {connection.email}")
         return 0
     
     try:
@@ -191,7 +208,7 @@ def gmail_webhook():
         email_address = data.get('emailAddress')
         history_id = data.get('historyId')
         
-        print(f"📬 Notificación Gmail: {email_address}, historyId: {history_id}")
+        print(f"📬 Notif Gmail: {email_address}, historyId: {history_id}")
         
         if not email_address:
             return '', 200

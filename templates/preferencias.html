@@ -24,6 +24,7 @@
             --border: #D2D2D7;
             --border-light: #E8E8ED;
             --radius: 12px;
+            --transition: all 0.2s ease;
         }
 
         body {
@@ -194,44 +195,48 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: var(--border);
-            transition: 0.3s;
+            background-color: #E5E5EA;
+            transition: var(--transition);
             border-radius: 28px;
         }
 
         .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
+            height: 24px;
+            width: 24px;
+            left: 2px;
+            bottom: 2px;
             background-color: white;
-            transition: 0.3s;
+            transition: var(--transition);
             border-radius: 50%;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--accent);
+            background-color: var(--success);
         }
 
         .toggle-switch input:checked + .toggle-slider:before {
             transform: translateX(22px);
         }
 
+        /* Buttons */
         .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: var(--accent);
-            color: white;
-            border-radius: 10px;
-            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
             font-size: 15px;
             font-weight: 500;
             border: none;
+            border-radius: var(--radius);
             cursor: pointer;
-            transition: background 0.2s;
+            transition: var(--transition);
+            font-family: inherit;
+            text-decoration: none;
+            background: var(--accent);
+            color: white;
         }
 
         .btn:hover {
@@ -241,6 +246,7 @@
         .btn-secondary {
             background: var(--bg);
             color: var(--text);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
@@ -248,22 +254,22 @@
         }
 
         .btn-danger {
-            background: transparent;
+            background: #FEF2F2;
             color: var(--danger);
-            padding: 8px 12px;
             font-size: 13px;
+            padding: 8px 14px;
         }
 
         .btn-danger:hover {
-            background: #FEF2F2;
+            background: #FECACA;
         }
 
         .btn-small {
-            padding: 8px 16px;
-            font-size: 14px;
+            padding: 8px 14px;
+            font-size: 13px;
         }
 
-        /* Gmail connections */
+        /* Gmail Connections */
         .connection-list {
             list-style: none;
         }
@@ -272,14 +278,10 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 16px;
+            padding: 16px;
             background: var(--bg);
             border-radius: var(--radius);
-            margin-bottom: 10px;
-        }
-
-        .connection-item:last-child {
-            margin-bottom: 0;
+            margin-bottom: 12px;
         }
 
         .connection-info {
@@ -361,7 +363,7 @@
             flex-wrap: wrap;
         }
 
-        /* Custom senders section */
+        /* Custom senders section - siguiendo patrón de perfil.html */
         .senders-section {
             margin-top: 20px;
             padding-top: 20px;
@@ -385,6 +387,32 @@
             color: var(--text);
         }
 
+        /* Example box - mismo patrón que perfil.html */
+        .example-box {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .example-box .label {
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .example-box code {
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        /* Sender list - mismo patrón que email-list de perfil.html */
         .sender-list {
             list-style: none;
             margin-bottom: 16px;
@@ -392,80 +420,85 @@
 
         .sender-item {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 10px 14px;
+            align-items: center;
+            padding: 12px 16px;
             background: var(--bg);
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .sender-item:last-child {
-            margin-bottom: 0;
+            font-size: 15px;
         }
 
         .sender-item code {
             font-family: 'SF Mono', Monaco, monospace;
-            background: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 500;
         }
 
+        /* Add sender form - mismo patrón que add-form de perfil.html */
         .sender-form {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .sender-form input {
             flex: 1;
             padding: 10px 14px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-size: 14px;
+            font-family: inherit;
+            transition: var(--transition);
         }
 
         .sender-form input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
         }
 
-        .examples-box {
-            background: #FFFBEB;
-            border: 1px solid #FDE68A;
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 16px;
+        .sender-form input::placeholder {
+            color: var(--text-muted);
         }
 
-        .examples-box p {
-            font-size: 12px;
-            color: #92400E;
-            margin-bottom: 6px;
-        }
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
 
-        .examples-box code {
-            font-family: 'SF Mono', Monaco, monospace;
-            background: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-right: 8px;
+            .page-header h1 {
+                font-size: 28px;
+            }
+
+            .preference-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .preference-info {
+                padding-right: 0;
+            }
+
+            .sender-form {
+                flex-direction: column;
+            }
+
+            .sender-form button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('viajes.index') }}" class="back-link">
-            ← Volver
-        </a>
-
+        <a href="{{ url_for('viajes.index') }}" class="back-link">← Volver</a>
+        
         <div class="page-header">
             <h1>Preferencias</h1>
-            <p>Configurá cómo querés recibir notificaciones y conectar servicios</p>
+            <p>Configurá cómo recibir tus viajes y notificaciones</p>
         </div>
-
+        
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -473,15 +506,11 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-
-        <!-- MVP14: Conexiones de Email -->
+        
+        <!-- Gmail Connections -->
         <div class="card">
-            <div class="card-title">Conexiones de Email</div>
+            <div class="card-title">Cuentas conectadas</div>
             
-            <div class="section-help">
-                <p>Conectá tu cuenta de Gmail para detectar automáticamente emails de aerolíneas y agencias de viaje. Los viajes se agregan solos cuando recibís una confirmación.</p>
-            </div>
-
             {% if gmail_connections %}
                 <ul class="connection-list">
                     {% for conn in gmail_connections %}
@@ -489,21 +518,21 @@
                         <div class="connection-info">
                             <div class="connection-icon">
                                 <svg viewBox="0 0 24 24" fill="none">
-                                    <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M22 6L12 13L2 6" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="#EA4335" stroke-width="1.5"/>
+                                    <path d="M22 6L12 13L2 6" stroke="#EA4335" stroke-width="1.5" stroke-linecap="round"/>
                                 </svg>
                             </div>
                             <div>
                                 <div class="connection-email">{{ conn.email }}</div>
                                 <div class="connection-status">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                        <path d="M20 6L9 17l-5-5"/>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 6L9 17L4 12"/>
                                     </svg>
                                     Conectado
                                 </div>
                             </div>
                         </div>
-                        <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=conn.id) }}" style="margin: 0;">
+                        <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=conn.id) }}">
                             <button type="submit" class="btn btn-danger">Desconectar</button>
                         </form>
                     </li>
@@ -511,21 +540,20 @@
                 </ul>
                 
                 <div class="actions-row">
-                    <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">
-                        + Conectar otra cuenta
-                    </a>
+                    <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">Agregar otra cuenta</a>
                 </div>
-
-                <!-- MVP14e: Remitentes de confianza -->
+                
+                <!-- Sección de remitentes de confianza -->
                 <div class="senders-section">
                     <div class="senders-title">Remitentes de confianza</div>
                     <p class="senders-help">
-                        Detectamos automáticamente emails de <strong>aerolíneas</strong> (LATAM, American, etc.) y <strong>agencias online</strong> (Despegar, Booking, etc.).<br><br>
+                        Detectamos automáticamente <strong>aerolíneas</strong> (LATAM, American, etc.) 
+                        y <strong>agencias online</strong> (Despegar, Booking, etc.).<br><br>
                         Si tu agente de viajes o empresa te envía confirmaciones desde otro email, agregalos acá para que también se detecten:
                     </p>
 
-                    <div class="examples-box">
-                        <p>📧 Ejemplos de qué agregar:</p>
+                    <div class="example-box">
+                        <div class="label">Ejemplos de qué agregar:</div>
                         <code>marta@miagencia.com</code> <code>@tuempresa.com.ar</code>
                     </div>
 
@@ -553,69 +581,68 @@
                 <div class="empty-state">
                     <div class="empty-state-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M22 6L12 13L2 6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z"/>
+                            <path d="M22 6L12 13L2 6" stroke-linecap="round"/>
                         </svg>
                     </div>
-                    <p>No tenés ninguna cuenta de email conectada.<br>Conectá Gmail para detectar automáticamente tus reservas.</p>
-                    <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn">
-                        Conectar Gmail
-                    </a>
+                    <p>Conectá tu Gmail para detectar automáticamente tus reservas de vuelos cuando te lleguen confirmaciones.</p>
+                    <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn">Conectar Gmail</a>
                 </div>
             {% endif %}
         </div>
-
+        
+        <!-- Notification Preferences -->
         <form method="POST" action="{{ url_for('viajes.update_preferences') }}">
             <div class="card">
-                <div class="card-title">Notificaciones por Email</div>
-
+                <div class="card-title">Notificaciones por email</div>
+                
                 <div class="preference-item master">
                     <div class="preference-info">
-                        <div class="preference-label">Notificaciones por email</div>
-                        <div class="preference-description">Recibir alertas sobre cambios en tus vuelos</div>
+                        <div class="preference-label">Recibir alertas por email</div>
+                        <div class="preference-description">Te avisamos sobre cambios en tus vuelos</div>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" name="notif_email_master" id="masterToggle"
-                               {% if current_user.notif_email_master %}checked{% endif %}
-                               onchange="toggleSubPreferences(this)">
+                               onchange="toggleSubPreferences(this)"
+                               {% if current_user.notif_email_master %}checked{% endif %}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-
+                
                 <div class="sub-preferences" id="subPreferences">
-                    <div class="sub-preferences-label">Tipos de notificación:</div>
-
+                    <div class="sub-preferences-label">Tipos de alertas:</div>
+                    
                     <div class="preference-item sub-item">
                         <div class="preference-info">
-                            <div class="preference-label">Delays y retrasos</div>
-                            <div class="preference-description">Cuando tu vuelo se retrasa</div>
+                            <div class="preference-label">Demoras</div>
+                            <div class="preference-description">Cuando hay cambios en el horario</div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="notif_delay" class="sub-toggle"
+                            <input type="checkbox" name="notif_delay"
                                    {% if current_user.notif_delay %}checked{% endif %}>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
-
+                    
                     <div class="preference-item sub-item">
                         <div class="preference-info">
                             <div class="preference-label">Cancelaciones</div>
-                            <div class="preference-description">Cuando se cancela tu vuelo</div>
+                            <div class="preference-description">Si tu vuelo se cancela</div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="notif_cancelacion" class="sub-toggle"
+                            <input type="checkbox" name="notif_cancelacion"
                                    {% if current_user.notif_cancelacion %}checked{% endif %}>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
-
+                    
                     <div class="preference-item sub-item">
                         <div class="preference-info">
                             <div class="preference-label">Cambios de puerta</div>
                             <div class="preference-description">Cuando cambia la puerta de embarque</div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="notif_gate" class="sub-toggle"
+                            <input type="checkbox" name="notif_gate"
                                    {% if current_user.notif_gate %}checked{% endif %}>
                             <span class="toggle-slider"></span>
                         </label>
