@@ -450,6 +450,7 @@ def scan_and_create_viajes(user_id, days_back=30):
                         nuevo_viaje = Viaje(
                             user_id=user_id,
                             tipo='vuelo',
+                            descripcion='',
                             origen=vuelo_data.get('origen', ''),
                             destino=vuelo_data.get('destino', ''),
                             fecha_salida=fecha_salida,
