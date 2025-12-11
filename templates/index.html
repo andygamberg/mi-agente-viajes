@@ -779,7 +779,25 @@
             color: rgba(255,255,255,0.8);
             border: 1px solid rgba(255,255,255,0.3);
         }
-        
+
+        /* Toolbar instruction states */
+        .toolbar-instruction {
+            display: inline;
+        }
+        .toolbar-count {
+            display: none;
+        }
+        .toolbar.has-selection .toolbar-instruction {
+            display: none;
+        }
+        .toolbar.has-selection .toolbar-count {
+            display: inline;
+        }
+        .toolbar .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -1455,14 +1473,20 @@
     </div>
     
     <div class="toolbar" id="toolbarGroup">
-        <span class="toolbar-text"><span id="countGroup">0</span> seleccionados</span>
-        <button class="btn btn-primary" onclick="groupSelected()">Agrupar</button>
+        <span class="toolbar-text">
+            <span class="toolbar-instruction">Tocá los viajes para agrupar</span>
+            <span class="toolbar-count"><span id="countGroup">0</span> seleccionados</span>
+        </span>
+        <button class="btn btn-primary" id="btnGroup" onclick="groupSelected()" disabled>Agrupar</button>
         <button class="btn btn-cancel" onclick="cancelGroupMode()">Cancelar</button>
     </div>
-    
+
     <div class="toolbar" id="toolbarDelete">
-        <span class="toolbar-text"><span id="countDelete">0</span> seleccionados</span>
-        <button class="btn btn-delete" onclick="deleteSelected()">Eliminar</button>
+        <span class="toolbar-text">
+            <span class="toolbar-instruction">Tocá los viajes para eliminar</span>
+            <span class="toolbar-count"><span id="countDelete">0</span> seleccionados</span>
+        </span>
+        <button class="btn btn-delete" id="btnDelete" onclick="deleteSelected()" disabled>Eliminar</button>
         <button class="btn btn-cancel" onclick="cancelDeleteMode()">Cancelar</button>
     </div>
 
@@ -1552,9 +1576,17 @@
             var set = mode === 'group' ? selectedGroup : selectedDelete;
             var toolbar = document.getElementById(mode === 'group' ? 'toolbarGroup' : 'toolbarDelete');
             var count = document.getElementById(mode === 'group' ? 'countGroup' : 'countDelete');
-            
+            var btn = document.getElementById(mode === 'group' ? 'btnGroup' : 'btnDelete');
+
             count.textContent = set.size;
-            toolbar.classList.toggle('visible', set.size > 0);
+
+            if (set.size > 0) {
+                toolbar.classList.add('has-selection');
+                btn.disabled = (mode === 'group' && set.size < 2);
+            } else {
+                toolbar.classList.remove('has-selection');
+                btn.disabled = true;
+            }
         }
         
         function togglePassengers(btn) {
@@ -1574,6 +1606,10 @@
                     c.classList.remove('selected', 'selected-delete');
                 });
                 document.getElementById('toolbarDelete').classList.remove('visible');
+                // Mostrar toolbar inmediatamente con instrucciones
+                document.getElementById('toolbarGroup').classList.add('visible');
+                document.getElementById('toolbarGroup').classList.remove('has-selection');
+                document.getElementById('btnGroup').disabled = true;
             }
         }
         
@@ -1613,6 +1649,10 @@
                     c.classList.remove('selected', 'selected-delete');
                 });
                 document.getElementById('toolbarGroup').classList.remove('visible');
+                // Mostrar toolbar inmediatamente con instrucciones
+                document.getElementById('toolbarDelete').classList.add('visible');
+                document.getElementById('toolbarDelete').classList.remove('has-selection');
+                document.getElementById('btnDelete').disabled = true;
             }
         }
         
