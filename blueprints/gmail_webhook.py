@@ -1,6 +1,7 @@
 """
 Gmail Push Notifications - Mi Agente Viajes
 MVP14c: Webhook para recibir notificaciones de Gmail via Pub/Sub
+MVP14e: Soporte para custom senders
 """
 import base64
 import json
@@ -58,10 +59,12 @@ def process_new_emails(connection, history_id):
     import uuid
     
     if not connection.history_id:
+        print(f"Sin history_id para {connection.email}")
         return 0
     
     credentials = get_gmail_credentials(connection.user_id)
     if not credentials:
+        print(f"Sin credenciales para user {connection.user_id}")
         return 0
     
     try:
@@ -74,8 +77,10 @@ def process_new_emails(connection, history_id):
         ).execute()
         
         viajes_creados = 0
+        history_list = history_response.get('history', [])
+        print(f"Procesando {len(history_list)} cambios para {connection.email}")
         
-        for history in history_response.get('history', []):
+        for history in history_list:
             for msg_info in history.get('messagesAdded', []):
                 msg_id = msg_info.get('message', {}).get('id')
                 if not msg_id:
@@ -95,19 +100,23 @@ def process_new_emails(connection, history_id):
                         elif h['name'].lower() == 'subject':
                             subject = h['value']
                     
-                    if not is_whitelisted_sender(from_header):
+                    # MVP14e: Pasar user_id para chequear custom senders
+                    if not is_whitelisted_sender(from_header, connection.user_id):
+                        print(f"Remitente no whitelisted: {from_header}")
                         continue
                     
-                    print(f"Email aerolinea: {subject}")
+                    print(f"✅ Email de remitente confiable: {subject}")
                     
                     body = extract_body(msg.get('payload', {}))[:8000]
                     vuelos = extraer_info_con_claude(f"Subject: {subject}\n\n{body}")
                     
                     if not vuelos:
+                        print(f"No se encontraron vuelos en: {subject}")
                         continue
                     
                     codigo = vuelos[0].get('codigo_reserva')
                     if codigo and check_duplicate(codigo, connection.user_id):
+                        print(f"Duplicado detectado: {codigo}")
                         continue
                     
                     grupo = str(uuid.uuid4())[:8]
@@ -142,21 +151,25 @@ def process_new_emails(connection, history_id):
                         )
                         db.session.add(viaje)
                         viajes_creados += 1
+                        print(f"✅ Viaje creado: {v.get('origen')} → {v.get('destino')}")
                     
                     db.session.commit()
                     
                 except Exception as e:
-                    print(f"Error msg: {e}")
+                    print(f"Error procesando mensaje: {e}")
                     db.session.rollback()
         
-        connection.history_id = history_response.get('historyId', history_id)
+        # Actualizar history_id para próxima vez
+        new_history_id = history_response.get('historyId', history_id)
+        connection.history_id = new_history_id
         connection.last_scan = datetime.utcnow()
         db.session.commit()
+        print(f"history_id actualizado: {new_history_id}")
         
         return viajes_creados
         
     except Exception as e:
-        print(f"Error history: {e}")
+        print(f"Error history API: {e}")
         return 0
 
 
@@ -166,17 +179,19 @@ def gmail_webhook():
     try:
         envelope = request.get_json()
         if not envelope:
+            print("Webhook: sin payload")
             return '', 200
         
         data_b64 = envelope.get('message', {}).get('data', '')
         if not data_b64:
+            print("Webhook: sin data")
             return '', 200
         
         data = json.loads(base64.urlsafe_b64decode(data_b64).decode('utf-8'))
         email_address = data.get('emailAddress')
         history_id = data.get('historyId')
         
-        print(f"Notif Gmail: {email_address}, historyId: {history_id}")
+        print(f"📬 Notificación Gmail: {email_address}, historyId: {history_id}")
         
         if not email_address:
             return '', 200
@@ -188,7 +203,9 @@ def gmail_webhook():
         if connection:
             viajes = process_new_emails(connection, history_id)
             if viajes:
-                print(f"Creados {viajes} viajes")
+                print(f"🎉 Creados {viajes} viajes automáticamente")
+        else:
+            print(f"No se encontró conexión para: {email_address}")
         
         return '', 200
         

@@ -1,6 +1,7 @@
 """
 Gmail Scanner - Mi Agente Viajes
 MVP14b: Escanea emails de aerolíneas/agencias y extrae reservas
+MVP14e: Custom senders por usuario
 """
 import base64
 import re
@@ -9,7 +10,7 @@ import json as json_lib
 from datetime import datetime, timedelta
 from googleapiclient.discovery import build
 
-from models import db, Viaje, EmailConnection
+from models import db, Viaje, EmailConnection, User
 from utils.claude import extraer_info_con_claude
 from blueprints.gmail_oauth import get_gmail_credentials
 
@@ -55,15 +56,52 @@ WHITELIST_DOMAINS = [
 ]
 
 
-def is_whitelisted_sender(email_from):
-    """Verifica si remitente está en whitelist"""
+def is_whitelisted_sender(email_from, user_id=None):
+    """
+    Verifica si remitente está en whitelist global o custom del usuario.
+    
+    Args:
+        email_from: Header "From" del email
+        user_id: ID del usuario para chequear custom senders (opcional)
+    
+    Returns:
+        bool: True si el remitente está permitido
+    """
     if not email_from:
         return False
-    match = re.search(r'[\w\.-]+@([\w\.-]+)', email_from.lower())
+    
+    email_from_lower = email_from.lower()
+    
+    # Extraer email y dominio
+    match = re.search(r'[\w\.-]+@([\w\.-]+)', email_from_lower)
     if not match:
         return False
-    domain = match.group(1)
-    return any(domain.endswith(w) for w in WHITELIST_DOMAINS)
+    
+    full_email = match.group(0)  # email completo
+    domain = match.group(1)       # solo dominio
+    
+    # 1. Chequear whitelist global por dominio
+    if any(domain.endswith(w) for w in WHITELIST_DOMAINS):
+        return True
+    
+    # 2. Chequear custom senders del usuario
+    if user_id:
+        user = User.query.get(user_id)
+        if user:
+            custom_senders = user.get_custom_senders()
+            for sender in custom_senders:
+                sender = sender.strip().lower()
+                if not sender:
+                    continue
+                # Si empieza con @, es un dominio
+                if sender.startswith('@'):
+                    if domain.endswith(sender[1:]):
+                        return True
+                # Si no, es un email completo
+                elif full_email == sender:
+                    return True
+    
+    return False
 
 
 def search_travel_emails(service, days_back=30):
@@ -163,7 +201,7 @@ def scan_and_create_viajes(user_id, days_back=30):
             for msg_id in msg_ids[:MAX_EMAILS_PER_SCAN]:
                 try:
                     email = get_email_content(service, msg_id)
-                    if not email or not is_whitelisted_sender(email.get('from')):
+                    if not email or not is_whitelisted_sender(email.get('from'), user_id):
                         continue
                     
                     results['emails_procesados'] += 1
@@ -217,15 +255,10 @@ def scan_and_create_viajes(user_id, days_back=30):
                     db.session.commit()
                     
                 except Exception as e:
+                    results['errors'].append(str(e))
                     db.session.rollback()
-                    results['errors'].append(str(e)[:50])
-            
-            # Actualizar last_scan
-            conn.last_scan = datetime.utcnow()
-            db.session.commit()
-            
+        
         except Exception as e:
-            db.session.rollback()
-            results['errors'].append(str(e)[:50])
+            results['errors'].append(f"Error conexión {conn.email}: {str(e)}")
     
     return results
