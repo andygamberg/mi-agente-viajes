@@ -1,64 +1,16 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 10 Diciembre 2025
-**Versión actual:** MVP12
+## 📊 Visión del Producto
 
----
+**Problema original:** TripCase (app de gestión de viajes) fue discontinuado.
 
-## 🎯 Visión del Producto
+**Visión actual:** Sistema personal de organización que va más allá de viajes:
+- Viajes (vuelos, hoteles, autos)
+- Reservas (restaurantes, espectáculos)
+- Citas (médicas, profesionales)
+- Agenda personal inteligente
 
-### Visión Actual
-Reemplazo moderno de TripCase: sistema inteligente de gestión de viajes con carga automática, sincronización de calendario, y monitoreo de vuelos en tiempo real.
-
-### Visión Expandida (Futuro)
-**Asistente personal de reservas y agenda** que va más allá de viajes:
-- Reservas de restaurantes
-- Citas médicas
-- Eventos y espectáculos
-- Actividades cotidianas con fecha/hora/lugar
-
-Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede no ser parte de un viaje (cena del martes).
-
-**Usuarios actuales:** Familia y amigos (beta privada)
-**Objetivo próximo:** Validar producto antes de escalar
-
----
-
-## 🏷️ Rebranding & Naming (Futuro)
-
-### Problema
-"Mis Viajes" es limitante: no cubre restaurantes, citas, eventos cotidianos.
-
-### Requisitos de Naming
-- **Multi-idioma:** Debe funcionar en ES/EN/PT mínimo
-- **Expandible:** No limitado a "viajes" o "vuelos"
-- **Memorable:** Fácil de pronunciar en cualquier idioma
-- **Disponible:** Dominio .com y App Store
-
-### Opciones a Explorar
-
-| Nombre | Pros | Contras |
-|--------|------|---------|
-| **Agenda** | Universal (ES/EN/PT similar) | Genérico, mucha competencia |
-| **Planr** | Moderno, corto, multi-idioma | Difícil de pronunciar en ES |
-| **Itinero** | Latín (universal), elegante | Puede sonar a "itinerario" solo |
-| **Reserva** | Claro en ES/PT, "Reserve" EN | Limitado a reservas |
-| **Trippa** | Suena amigable, memorable | Puede confundirse con "trip" |
-| **Mova** | Corto, moderno, movimiento | Sin significado claro |
-| **Plana** | Plan + a, funciona multi-idioma | Puede sonar a "plana/flat" |
-
-### Dominio y Email Propio
-
-**Estado actual:** misviajes@gamberg.com.ar
-**Decisión pendiente:** ¿Cuándo migrar a dominio propio?
-
-| Opción | Pros | Contras |
-|--------|------|---------|
-| **Migrar ahora** | Branding limpio desde el inicio | Costo, complejidad, aún no sabemos el nombre final |
-| **Migrar con usuarios pagos** | Justifica inversión | Más trabajo de migración después |
-| **Migrar con nombre final** | Un solo cambio | Retrasa el branding profesional |
-
-**Recomendación:** Migrar cuando tengamos nombre final definido. Mientras tanto, gamberg.com.ar funciona para beta.
+**Diferenciador:** IA que extrae automáticamente información de emails/PDFs y la organiza.
 
 ---
 
@@ -78,227 +30,101 @@ Un viaje puede no incluir vuelos (solo hotel + actividades). Una reserva puede n
 | 10 | Calendario all-day | 9 Dic 2025 | Eventos multi-día para viajes |
 | 11 | Deduplicación inteligente | 10 Dic 2025 | Combina vuelos idénticos de distintas reservas |
 | 12 | Onboarding UX | 10 Dic 2025 | Empty state educativo, Design System, SVG icons |
+| 13 | Preferencias notificaciones | 10 Dic 2025 | UI toggles, campos BD (envío pendiente MVP13b) |
+| **14a** | **Gmail OAuth multi-cuenta** | **11 Dic 2025** | **Conectar múltiples Gmail, UI en preferencias** |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
 | Cambio | Antes | Después |
 |--------|-------|---------|
 | app.py | 1,400 líneas (monolito) | 75 líneas (config + factory) |
-| Blueprints | No existían | viajes_bp, calendario_bp, api_bp |
+| Blueprints | No existían | viajes_bp, calendario_bp, api_bp, gmail_oauth_bp |
 | Utils | Inline en app.py | utils/iata.py, claude.py, helpers.py |
 | Smoke tests | 9 tests | 10 tests (+ calendar auth) |
 
 ---
 
-## 🔄 En Progreso / Próximos
+## 🔄 En Progreso
 
-### MVP13: Notificaciones Email
-- Email cuando se detecta cambio en vuelo (delay, gate, cancelación)
-- Resumen diario/semanal de viajes próximos
-- Push notifications (requiere PWA)
+### MVP14b: Gmail Scanning (En curso - 11 Dic 2025)
 
-### MVP14: Gmail/Outlook Integration
-**Problema:** Si aerolínea cambia número de vuelo, FR24 pierde tracking. Usuario recibe email pero tiene que reenviar manualmente.
+**Objetivo:** Escanear emails de cuentas conectadas para detectar confirmaciones de viaje.
 
-**Solución:** Conectar inbox del usuario (OAuth) para auto-detectar emails de aerolíneas.
+| Componente | Estado | Descripción |
+|------------|--------|-------------|
+| Whitelist global | ⏳ Pendiente | Lista hardcoded de aerolíneas/agencias |
+| Escaneo Gmail API | ⏳ Pendiente | Leer inbox, filtrar por remitente |
+| Procesamiento Claude | ⏳ Pendiente | Extraer datos de vuelos |
+| Trigger manual | ⏳ Pendiente | Botón "Escanear ahora" en UI |
+| Detección duplicados | ⏳ Pendiente | No crear viajes que ya existen |
 
-| Aspecto | Gmail API | Microsoft Graph | Apple (iCloud) |
-|---------|-----------|-----------------|----------------|
-| **Complejidad** | Media | Media | Alta |
-| **OAuth** | Bien documentado | Bien documentado | Complejo |
-| **Costo** | Gratis | Gratis | Gratis pero limitado |
+**Whitelist inicial (hardcoded):**
+```
+Aerolíneas: @latam.com, @aerolineas.com.ar, @aa.com, @united.com, @delta.com, @avianca.com
+OTAs: @despegar.com, @booking.com, @expedia.com, @kayak.com
+Agencias: @almundo.com.ar
+```
 
-**Consideraciones de privacidad:**
-- Solo leer emails de remitentes conocidos (aerolíneas, booking, etc)
-- Mostrar al usuario exactamente qué procesamos
-- Siempre mantener opción manual como alternativa
-- Revocable en cualquier momento
+**Fases MVP14 completo:**
+- ✅ MVP14a: OAuth + UI (completado)
+- 🔄 MVP14b: Escaneo manual (en curso)
+- ⏳ MVP14c: Escaneo automático (cron)
+- ⏳ MVP14d: Microsoft/Outlook
+- ⏳ MVP14e: Custom senders por usuario
 
-**Fases:**
-1. Solo Gmail (80% de usuarios argentinos)
-2. Agregar Outlook/Hotmail
-3. Evaluar Apple si hay demanda
+---
+
+## 📋 Próximos MVPs
+
+### MVP13b: Envío de Notificaciones
+- Enviar email cuando FR24 detecta cambio (delay, gate, cancelación)
+- Usar preferencias ya guardadas en BD
+- Resumen diario/semanal (opcional)
 
 ### MVP15: Compartir Viajes
 - Tab "Compartidos" separado de "Mis Viajes"
 - Invitar usuarios por email
 - Rol "asistente" que puede cargar viajes para otros
-- Útil para: secretarias, agentes de viaje, familias
 
 ### MVP16: Backoffice / Admin
-**Necesidad:** Ver usuarios y datos sin acceder a BD directamente
-
-**Features básicos:**
 - Lista de usuarios (email, nombre, fecha registro, # viajes)
 - Ver viajes de un usuario específico
 - Estadísticas: usuarios activos, viajes cargados, emails procesados
-- Protegido con rol admin
-
-**Features avanzados (futuro):**
-- Impersonar usuario (para debugging)
-- Enviar email a usuarios
-- Desactivar/activar usuarios
-- Logs de actividad
 
 ---
 
-## 🔒 Preparación para Escalar (Pre-requisitos)
+## 🔒 Pre-requisitos para Escalar
 
-### Auditoría de Seguridad
+### OAuth Google - Verificación
+| Item | Estado | Notas |
+|------|--------|-------|
+| App en producción | ✅ | Ya publicada |
+| Límite 100 usuarios | ⚠️ | Requiere verificación para superar |
+| Política de Privacidad | ❌ | Crear página /privacy |
+| Términos de Servicio | ❌ | Crear página /terms |
+| Verificación Google | ❌ | Proceso de ~2 semanas |
+
+### Seguridad
 - [ ] Review de autenticación (tokens, sesiones)
 - [ ] Validación de inputs (SQL injection, XSS)
 - [ ] Rate limiting en endpoints públicos
-- [ ] Secrets management (no hardcodeados)
-- [ ] HTTPS everywhere (ya OK en Cloud Run)
+- [ ] Secrets en env vars (no hardcodeados) ✅
 - [ ] Backup automático de BD
 
-### Review de Performance
-- [ ] Índices en BD (user_id, fecha_salida, grupo_viaje)
-- [ ] Query optimization (N+1 queries)
+### Performance
+- [ ] Índices en BD (user_id, fecha_salida)
+- [ ] Query optimization
 - [ ] Caching donde corresponda
-- [ ] Lazy loading de datos pesados
-- [ ] Monitoreo de tiempos de respuesta
-
-### Escalabilidad de BD - Viajes Pasados
-**Problema:** BD crece indefinidamente con viajes históricos
-**Opciones:**
-- Archivar viajes >1 año a tabla `viajes_archivo`
-- Soft delete con flag `archivado`
-- Paginación obligatoria en queries
-- Cold storage para históricos (exportar a JSON/S3)
-
-### Requisitos App Store (iOS/Android)
-- [ ] PWA compliant
-- [ ] Icons en todos los tamaños
-- [ ] Splash screens
-- [ ] Offline básico
-- [ ] Privacy policy
-- [ ] Terms of service
 
 ---
 
-## 📋 Backlog (Prioridad Baja)
-
-### Tipos de Reserva (Expandir más allá de vuelos)
-
-| Tipo | Campos específicos | Icono |
-|------|-------------------|-------|
-| ✈️ Vuelo | Aerolínea, número, terminal, gate, asiento | Ya existe |
-| 🏨 Hotel | Nombre, dirección, check-in/out, # habitación | Pendiente |
-| 🚗 Auto | Empresa, pickup/dropoff location, # reserva | Pendiente |
-| 🚂 Tren | Operador, estación, vagón, asiento | Pendiente |
-| 🚢 Barco/Crucero | Naviera, puerto, cabina | Pendiente |
-| 🍽️ Restaurante | Nombre, dirección, hora, # personas | Pendiente |
-| 📍 Actividad | Nombre, ubicación, duración, tickets | Pendiente |
-| 🏥 Cita médica | Doctor, clínica, dirección | Futuro |
-| 🎭 Evento | Nombre, venue, asientos | Futuro |
-
-### Mejoras de Carga
-- [ ] Autocomplete aerolíneas (como origen/destino IATA)
-- [ ] Opción "Otro/Privado" para vuelos charter
-- [ ] Escanear pasaporte con cámara (Claude Vision)
-- [ ] Compartir itinerario por WhatsApp (info no sensible)
-
-### UI/UX
-- [ ] Dark mode
-- [ ] Placeholders genéricos (Juan Pérez, no nombres reales)
-- [ ] Rediseño visual más moderno
-
-### Multi-idioma
-- [ ] Español (default)
-- [ ] English
-- [ ] Português
-- [ ] Infraestructura i18n (flask-babel o similar)
-
----
-
-## 🏗️ Arquitectura Actual
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Google Cloud Run                      │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │                 Flask App                        │    │
-│  │  ┌─────────────────────────────────────────┐    │    │
-│  │  │ app.py (75 líneas)                      │    │    │
-│  │  │ • Config + Factory                      │    │    │
-│  │  │ • Blueprint registration                │    │    │
-│  │  └─────────────────────────────────────────┘    │    │
-│  │                                                  │    │
-│  │  Blueprints:                                    │    │
-│  │  • viajes_bp (/, /agregar, /perfil)           │    │
-│  │  • calendario_bp (/calendar-feed/<token>)      │    │
-│  │  • api_bp (/api/*, /cron/*)                   │    │
-│  │                                                  │    │
-│  │  Utils:                                         │    │
-│  │  • claude.py (extracción PDF)                  │    │
-│  │  • helpers.py (viajes por usuario)             │    │
-│  │  • iata.py (códigos aeropuertos)               │    │
-│  └─────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────┘
-           │                              │
-           ▼                              ▼
-    ┌─────────────┐              ┌─────────────────┐
-    │ Cloud SQL   │              │ Cloud Scheduler │
-    │ PostgreSQL  │              │ (cada 15 min)   │
-    │ viajes_db   │              └─────────────────┘
-    └─────────────┘
-```
-
-**Costos actuales:** ~$19/mes
-- Cloud SQL: ~$10
-- FR24 API: $9
-- Cloud Run: $0 (free tier)
-
----
-
-## 🔧 Deuda Técnica
-
-### Refactor Nomenclatura (CRÍTICO para escalar)
-**Problema actual:**
-- Modelo `Viaje` = en realidad es un SEGMENTO/VUELO
-- `grupo_viaje` = lo que el usuario ve como "Viaje"
-
-**Solución propuesta:**
-```
-Trip (Viaje/Reserva)
-├── id, nombre, user_id, tipo_general
-└── tiene muchos → Segments
-
-Segment (Segmento individual)
-├── id, trip_id
-├── tipo (vuelo, hotel, auto, restaurante, etc)
-├── campos específicos por tipo
-```
-
-### Otros
-- [ ] Tests automatizados (pytest)
-- [ ] CI/CD con GitHub Actions
-- [ ] Migrar emails a SendGrid/Mailgun (métricas, templates)
-
----
-
-## 📊 Métricas a Trackear (Futuro)
-
-- Usuarios registrados
-- Reservas cargadas por método (email vs PDF vs manual)
-- Reservas por tipo (vuelo, hotel, restaurante, etc)
-- Emails procesados exitosamente
-- Cambios de vuelo detectados
-- Usuarios activos semanales
-
----
-
-## 💰 Modelo de Negocio (Ideas)
-
-**Pendiente definir.** Opciones a explorar:
+## 💰 Modelo de Negocio (Futuro)
 
 | Modelo | Descripción | Pros | Contras |
 |--------|-------------|------|---------|
 | Freemium | Gratis hasta X reservas/mes | Fácil adopción | Necesita volumen |
 | B2B | Vender a agencias de viaje | Ticket alto | Ciclo venta largo |
 | White-label | Licenciar a empresas | Recurrente | Soporte complejo |
-| Comisiones | Afiliados con booking/hotels | Pasivo | Depende de terceros |
 
 ---
 
@@ -306,7 +132,7 @@ Segment (Segmento individual)
 
 - **App:** https://mi-agente-viajes-454542398872.us-east1.run.app
 - **Repo:** https://github.com/andygamberg/mi-agente-viajes
-- **Calendar Feed:** `/calendar-feed/<token>` (token personal en Perfil → Calendario)
+- **Calendar Feed:** `/calendar-feed/<token>` (token personal en Perfil)
 - **Email para reenvíos:** misviajes@gamberg.com.ar
 
 ---
@@ -318,10 +144,11 @@ Segment (Segmento individual)
 | Nov 2025 | Flask sobre Django | Simplicidad para MVP |
 | Nov 2025 | Claude API sobre GPT | Mejor extracción de PDFs |
 | Dic 2025 | FR24 sobre FlightAware | Mejor precio, SDK oficial |
-| Dic 2025 | Gmail API sobre SendGrid | Ya teníamos dominio configurado |
-| 8 Dic 2025 | Gmail send para emails | MVP suficiente, migrar después |
 | 8 Dic 2025 | Visión expandida | Más allá de vuelos: reservas + agenda |
-| 9 Dic 2025 | Calendar feed por usuario | Bug de privacidad reportado por beta user |
 | 9 Dic 2025 | Refactor a blueprints | app.py de 1400 líneas insostenible |
-| 9 Dic 2025 | utils/ separado | Mejor organización y testabilidad |
-- [ ] Tooltip 'Combinado' con delay reducido (CSS custom en lugar de title nativo)
+| 11 Dic 2025 | OAuth manual (requests) | Bypass scope validation de google-auth |
+| 11 Dic 2025 | Multi-cuenta Gmail | Usuarios con varias cuentas personales/trabajo |
+
+---
+
+*Última actualización: 11 Dic 2025 - MVP14a completado*
