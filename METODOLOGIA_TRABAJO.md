@@ -290,24 +290,83 @@ Antes de cerrar, asegurar que quede documentado:
 
 ### Checklist de inicio de sesión
 
-Para retomar contexto rápido, incluir en primer mensaje:
+**OBLIGATORIO** revisar estos archivos antes de empezar:
+
+- `METODOLOGIA_TRABAJO.md` - Workflow y convenciones
+- `ROADMAP.md` - Estado actual y próximos pasos
+- `DESIGN_SYSTEM.md` - Consistencia visual
+
+Template para primer mensaje:
 
 ```
 Proyecto: Mi Agente Viajes
-Repo: github.com/andygamberg/mi-agente-viajes
-Estado: [MVP actual, última feature completada]
-Objetivo: [Qué queremos lograr en esta sesión]
-Contexto: [Si hay algo específico de la sesión anterior]
+Conversación: Mis Viajes XX
+Estado: [MVP actual]
+Objetivo: [Qué queremos lograr]
+
+Por favor revisá METODOLOGIA, ROADMAP y DESIGN_SYSTEM antes de empezar.
 ```
 
-### Ejemplo de mensaje de inicio
+---
+
+## 📝 Estrategia para Archivos Largos
+
+### El problema
+
+Archivos grandes (>200 líneas) son riesgosos de generar completos en Claude.ai:
+- Pueden truncarse al descargar
+- Difícil verificar que estén correctos
+- Claude puede "congelarse" al crear múltiples archivos grandes
+
+### Solución: Prompt para Claude Code en Codespaces
+
+Cuando un archivo requiere cambios pero es muy largo para regenerar completo:
+
+1. **Claude.ai prepara un prompt detallado** con los cambios específicos
+2. **Usuario copia el prompt a Claude Code** (sidebar en Codespaces)
+3. **Claude Code aplica los cambios** directamente en el archivo
+4. **Usuario verifica con git diff** antes de commitear
+
+### Cuándo usar cada estrategia
+
+| Situación | Estrategia |
+|-----------|------------|
+| Archivo nuevo < 150 líneas | Claude.ai genera completo |
+| Archivo nuevo > 150 líneas | Dividir en partes o usar Claude Code |
+| Edición < 20 líneas | Claude.ai da instrucciones, edición manual |
+| Edición 20-100 líneas | Prompt para Claude Code |
+| Edición > 100 líneas | Evaluar si conviene regenerar |
+
+---
+
+## 🚀 Workflow de Deploy Seguro
+
+### Flujo obligatorio: Commit → Sync → Verificar → Deploy
 
 ```
-Proyecto: Mi Agente Viajes
-Estado: MVP11 completado + refactor arquitectónico
-Objetivo: Implementar MVP12 (onboarding)
-Contexto: App modular con blueprints/, utils/
+Hacer cambios en Codespaces (manual o con Claude Code)
+↓
+git add . && git commit -m "descripción" && git push
+↓
+Sync 🔄 en Project Knowledge de Claude
+↓
+Pedir a Claude que verifique los cambios en el repo
+↓
+Si todo OK → Deploy
+↓
+Smoke tests
+↓
+Sync 🔄 final
 ```
+
+### Por qué este orden
+
+| Paso | Propósito |
+|------|-----------|
+| Commit + Push | Código versionado, rollback posible |
+| Sync en Claude | Claude puede ver el código actual |
+| Verificar | Claude revisa que cambios estén completos |
+| Deploy | Solo después de verificación |
 
 ---
 
@@ -471,3 +530,6 @@ Ver `DESIGN_SYSTEM.md` para el catálogo completo de iconos y cómo usarlos.
 | 10 Dic 2025 | MVP10: Calendario all-day |
 | 10 Dic 2025 | MVP11: Deduplicación de vuelos compartidos |
 | 10 Dic 2025 | Agregado troubleshooting: archivo corrupto/deploy roto |
+| 11 Dic 2025 | Agregada estrategia para archivos largos (prompt a Claude Code) |
+| 11 Dic 2025 | Formalizado workflow: commit → sync → verificar → deploy |
+| 11 Dic 2025 | Obligatorio revisar docs clave en nuevas conversaciones |
