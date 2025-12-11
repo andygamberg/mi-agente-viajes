@@ -134,11 +134,6 @@
             border: 1px solid var(--border-light);
         }
 
-        .preference-item.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
         .preference-info {
             flex: 1;
             padding-right: 16px;
@@ -358,6 +353,48 @@
             color: var(--text-secondary);
             line-height: 1.5;
         }
+
+        /* Scan section */
+        .scan-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .scan-form {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .scan-form select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            color: var(--text);
+        }
+
+        .scan-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        .last-scan {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .actions-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -393,7 +430,6 @@
                     <li class="connection-item">
                         <div class="connection-info">
                             <div class="connection-icon">
-                                <!-- Gmail icon -->
                                 <svg viewBox="0 0 24 24" fill="none">
                                     <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M22 6L12 13L2 6" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -416,7 +452,25 @@
                     {% endfor %}
                 </ul>
                 
-                <div style="margin-top: 16px;">
+                <!-- Scan section -->
+                <div class="scan-section">
+                    <form method="POST" action="{{ url_for('gmail_oauth.escanear_gmail') }}" class="scan-form">
+                        <select name="days_back">
+                            <option value="7">Últimos 7 días</option>
+                            <option value="15">Últimos 15 días</option>
+                            <option value="30" selected>Últimos 30 días</option>
+                            <option value="60">Últimos 60 días</option>
+                        </select>
+                        <button type="submit" class="btn btn-small">
+                            Escanear ahora
+                        </button>
+                    </form>
+                    <p class="scan-info">
+                        Busca emails de aerolíneas (LATAM, Aerolíneas, AA, etc.) y agencias (Despegar, Booking, etc.)
+                    </p>
+                </div>
+                
+                <div class="actions-row">
                     <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">
                         + Conectar otra cuenta
                     </a>
@@ -441,7 +495,6 @@
             <div class="card">
                 <div class="card-title">Notificaciones por Email</div>
 
-                <!-- Master switch -->
                 <div class="preference-item master">
                     <div class="preference-info">
                         <div class="preference-label">Notificaciones por email</div>
@@ -455,7 +508,6 @@
                     </label>
                 </div>
 
-                <!-- Sub-preferences -->
                 <div class="sub-preferences" id="subPreferences">
                     <div class="sub-preferences-label">Tipos de notificación:</div>
 
@@ -520,20 +572,15 @@
     <script>
         function toggleSubPreferences(masterToggle) {
             const subPreferences = document.getElementById('subPreferences');
-            const subToggles = document.querySelectorAll('.sub-toggle');
-
             if (!masterToggle.checked) {
-                // Deshabilitar visualmente
                 subPreferences.style.opacity = '0.5';
                 subPreferences.style.pointerEvents = 'none';
             } else {
-                // Habilitar
                 subPreferences.style.opacity = '1';
                 subPreferences.style.pointerEvents = 'auto';
             }
         }
 
-        // Ejecutar al cargar la página
         window.addEventListener('DOMContentLoaded', function() {
             const masterToggle = document.getElementById('masterToggle');
             toggleSubPreferences(masterToggle);
