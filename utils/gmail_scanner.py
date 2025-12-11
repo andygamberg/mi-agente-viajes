@@ -12,77 +12,278 @@ from utils.claude import extraer_info_con_claude
 from blueprints.gmail_oauth import get_gmail_credentials
 
 # ============================================
-# WHITELIST DE REMITENTES
+# WHITELIST DE REMITENTES (150+ dominios)
 # ============================================
 
-# Dominios de aerolíneas
-AIRLINE_DOMAINS = [
-    'latam.com',
-    'lan.com',
+# Aerolíneas - Sudamérica
+AIRLINES_SOUTH_AMERICA = [
+    'latam.com', 'lan.com', 'tam.com.br',
     'aerolineas.com.ar',
-    'aa.com',
-    'americanairlines.com',
-    'united.com',
-    'delta.com',
+    'gol.com.br', 'voegol.com.br',
+    'azul.com.br', 'voeazul.com.br',
     'avianca.com',
-    'copa.com',
-    'gol.com.br',
-    'azul.com.br',
+    'copa.com', 'copaair.com',
     'jetsmart.com',
     'flybondi.com',
-    'aireuropa.com',
-    'iberia.com',
-    'airfrance.com',
-    'klm.com',
-    'lufthansa.com',
-    'british-airways.com',
-    'emirates.com',
-    'qatar.com',
-    'tam.com.br',
+    'skyairline.com',
+    'wingo.com',
+    'voepass.com.br',
+    'boliviana.bo', 'boa.bo',
+    'amaszonas.com',
+    'paranair.com',
+    'plusultra.com',
 ]
 
-# Dominios de OTAs y agencias
+# Aerolíneas - Norteamérica
+AIRLINES_NORTH_AMERICA = [
+    'aa.com', 'americanairlines.com',
+    'united.com',
+    'delta.com',
+    'southwest.com', 'southwestairlines.com',
+    'jetblue.com',
+    'alaskaair.com', 'alaskaairlines.com',
+    'spirit.com',
+    'frontierairlines.com', 'flyfrontier.com',
+    'aircanada.com',
+    'westjet.com',
+    'aeromexico.com',
+    'volaris.com',
+    'vivaaerobus.com',
+    'hawaiianairlines.com',
+    'suncountry.com',
+    'allegiantair.com',
+    'porterairlines.com',
+    'flair.com', 'flairair.com',
+    'breeze.com', 'breezeairways.com',
+]
+
+# Aerolíneas - Europa
+AIRLINES_EUROPE = [
+    # España
+    'iberia.com', 'iberia.es',
+    'aireuropa.com',
+    'vueling.com',
+    'iberiaexpress.com',
+    'airnostrum.es',
+    # Francia
+    'airfrance.com', 'airfrance.fr',
+    'transavia.com',
+    'corsair.fr',
+    'frenchbee.com',
+    # Alemania/Austria/Suiza
+    'lufthansa.com',
+    'swiss.com',
+    'austrian.com',
+    'eurowings.com',
+    'condor.com',
+    'tuifly.com',
+    # UK/Irlanda
+    'britishairways.com', 'british-airways.com', 'ba.com',
+    'virginatlantic.com',
+    'aerlingus.com',
+    'jet2.com',
+    'tui.co.uk',
+    # Benelux
+    'klm.com', 'klm.nl',
+    'brusselsairlines.com', 'brussels-airlines.com',
+    # Italia
+    'ita-airways.com', 'itaspa.com',
+    'alitalia.com',
+    'neos.it',
+    # Portugal
+    'flytap.com', 'tapportugal.com',
+    'sata.pt',
+    # Escandinavia
+    'flysas.com', 'sas.se',
+    'finnair.com',
+    'norwegian.com', 'norwegian.no',
+    'icelandair.com',
+    'wideroe.no',
+    # Europa del Este
+    'lot.com',
+    'czechairlines.com',
+    'tarom.ro',
+    'airserbia.com',
+    'croatiaairlines.com',
+    'aegeanair.com',
+    'olympicair.com',
+    'airmalta.com',
+    'airbaltic.com',
+    # Turquía
+    'turkishairlines.com', 'thy.com',
+    'pegasus.com', 'flypgs.com',
+    'sunexpress.com',
+    # Rusia/CIS
+    'aeroflot.com', 'aeroflot.ru',
+    's7.ru', 's7airlines.com',
+    'utair.ru',
+    'airastana.com',
+    'uzbekistanairways.com',
+]
+
+# Low Cost Europa
+AIRLINES_LOWCOST_EUROPE = [
+    'ryanair.com',
+    'easyjet.com',
+    'wizzair.com', 'wizzair.hu',
+    'volotea.com',
+    'vueling.com',
+    'eurowings.com',
+    'norwegian.com',
+    'transavia.com',
+    'corendon.com',
+    'smartwings.com',
+    'playwings.com',
+    'level.com', 'flylevel.com',
+    'lauda.com', 'laudamotion.com',
+]
+
+# Aerolíneas - Asia
+AIRLINES_ASIA = [
+    # Medio Oriente
+    'emirates.com',
+    'etihad.com',
+    'qatarairways.com', 'qatar.com',
+    'saudia.com',
+    'royaljordanian.com',
+    'omanair.com',
+    'gulfair.com',
+    'kuwaitairways.com',
+    'flynas.com',
+    'flydubai.com',
+    'flyegypt.com',
+    'egyptair.com',
+    'royalmaroc.com',
+    'tunisair.com',
+    'algerieairlines.com', 'airalgerie.dz',
+    'ethiopianairlines.com',
+    'kenya-airways.com',
+    'flysaa.com',
+    'rwandair.com',
+    # Asia del Sur
+    'airindia.com',
+    'goindigo.in', 'indigo.in',
+    'spicejet.com',
+    'goair.in',
+    'airvistara.com',
+    'srilankan.com',
+    'bfrairbangladesh.com',
+    'pakistanairlines.com', 'piac.com.pk',
+    # Sudeste Asiático
+    'singaporeair.com',
+    'thaiairways.com', 'thai.com',
+    'malaysiaairlines.com', 'mas.com.my',
+    'garuda-indonesia.com',
+    'philippineairlines.com',
+    'vietnamairlines.com',
+    'cathaypacific.com',
+    'airasia.com',
+    'scoot.com',
+    'jetstar.com',
+    'lionair.co.id',
+    'cebuair.com', 'cebupacificair.com',
+    'bangkokair.com',
+    'tigerair.com',
+    # Asia del Este
+    'ana.co.jp',
+    'jal.co.jp', 'jal.com',
+    'koreanair.com',
+    'asiana.com',
+    'jejuair.net',
+    'airchina.com',
+    'chinaeastern.com', 'ceair.com',
+    'csair.com',
+    'hainanairlines.com',
+    'xiamenair.com',
+    'shenzhenair.com',
+    'springairlines.com',
+    'evaair.com',
+    'china-airlines.com',
+    'starflyer.jp',
+    'peach-air.co.jp',
+    'skymark.co.jp',
+    # Oceanía
+    'qantas.com',
+    'virginaustralia.com',
+    'airnewzealand.com', 'airnz.com',
+    'fijiairways.com',
+]
+
+# OTAs y Agencias
 OTA_DOMAINS = [
-    'despegar.com',
+    # Globales
     'booking.com',
-    'expedia.com',
-    'kayak.com',
-    'skyscanner.com',
-    'decolar.com',
-    'almundo.com',
-    'avantrip.com',
-    'vuelos.com',
-    'turismocity.com',
+    'expedia.com', 'expedia.com.ar',
+    'kayak.com', 'kayak.com.ar',
+    'skyscanner.com', 'skyscanner.net',
+    'tripadvisor.com',
     'priceline.com',
     'orbitz.com',
     'travelocity.com',
     'cheaptickets.com',
     'hotwire.com',
-    'tripadvisor.com',
+    'hotels.com',
+    'agoda.com',
+    'trip.com', 'ctrip.com',
+    'kiwi.com',
+    'momondo.com',
+    'opodo.com',
+    'edreams.com',
+    'lastminute.com',
+    'travelgenio.com',
+    'travelstart.com',
+    'flightcentre.com',
+    'webjet.com.au',
+    # Latinoamérica
+    'despegar.com', 'despegar.com.ar',
+    'decolar.com',
+    'almundo.com', 'almundo.com.ar',
+    'avantrip.com',
+    'vuelos.com',
+    'turismocity.com',
+    'viajanet.com.br',
+    'maxmilhas.com.br',
+    'voopter.com.br',
+    'submarino.com.br',
+    'bestday.com',
+    'pricetravel.com',
+    'clickbus.com',
+    # Europa
+    'bravofly.com',
+    'govoyages.com',
+    'liligo.com',
+    'trabber.com',
+    'rumbo.es',
+    'logitravel.com',
+    'atrápalo.com', 'atrapalo.com',
+    'budgetair.com',
+    'flightnetwork.com',
+    'jetcost.com',
+    'volagratis.com',
+    'gotogate.com',
 ]
 
 # Combinar todos los dominios
-WHITELIST_DOMAINS = AIRLINE_DOMAINS + OTA_DOMAINS
+WHITELIST_DOMAINS = (
+    AIRLINES_SOUTH_AMERICA +
+    AIRLINES_NORTH_AMERICA +
+    AIRLINES_EUROPE +
+    AIRLINES_LOWCOST_EUROPE +
+    AIRLINES_ASIA +
+    OTA_DOMAINS
+)
 
 def is_whitelisted_sender(email_from):
-    """
-    Verifica si un remitente está en la whitelist
-    Args:
-        email_from: String del campo From del email
-    Returns:
-        True si el dominio está en whitelist
-    """
+    """Verifica si un remitente está en la whitelist"""
     if not email_from:
         return False
     
-    # Extraer dominio del email
     email_match = re.search(r'[\w\.-]+@([\w\.-]+)', email_from.lower())
     if not email_match:
         return False
     
     domain = email_match.group(1)
     
-    # Verificar contra whitelist
     for whitelisted in WHITELIST_DOMAINS:
         if domain.endswith(whitelisted):
             return True
@@ -95,10 +296,7 @@ def is_whitelisted_sender(email_from):
 # ============================================
 
 def get_gmail_service(user_id):
-    """
-    Crea un servicio de Gmail API para un usuario
-    Returns: Gmail service o None si no hay credenciales válidas
-    """
+    """Crea un servicio de Gmail API para un usuario"""
     credentials = get_gmail_credentials(user_id)
     if not credentials:
         return None
@@ -112,21 +310,12 @@ def get_gmail_service(user_id):
 
 
 def search_travel_emails(service, days_back=30, max_results=50):
-    """
-    Busca emails de viajes en el inbox
-    Args:
-        service: Gmail API service
-        days_back: Cuántos días hacia atrás buscar
-        max_results: Máximo de emails a retornar
-    Returns:
-        Lista de message IDs
-    """
-    # Construir query para buscar emails de remitentes en whitelist
-    # Gmail query: from:(@latam.com OR @despegar.com OR ...)
-    domain_queries = [f'from:@{domain}' for domain in WHITELIST_DOMAINS[:20]]  # Limitar para no exceder query length
+    """Busca emails de viajes en el inbox"""
+    # Gmail tiene límite de query, usar los dominios más comunes
+    top_domains = WHITELIST_DOMAINS[:25]
+    domain_queries = [f'from:@{domain}' for domain in top_domains]
     query = f"({' OR '.join(domain_queries)})"
     
-    # Agregar filtro de fecha
     after_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y/%m/%d')
     query += f" after:{after_date}"
     
@@ -145,11 +334,7 @@ def search_travel_emails(service, days_back=30, max_results=50):
 
 
 def get_email_content(service, message_id):
-    """
-    Obtiene el contenido de un email específico
-    Returns:
-        Dict con 'from', 'subject', 'date', 'body' o None si error
-    """
+    """Obtiene el contenido de un email específico"""
     try:
         message = service.users().messages().get(
             userId='me',
@@ -159,7 +344,6 @@ def get_email_content(service, message_id):
         
         headers = message.get('payload', {}).get('headers', [])
         
-        # Extraer headers
         email_data = {
             'id': message_id,
             'from': None,
@@ -178,7 +362,6 @@ def get_email_content(service, message_id):
             elif name == 'date':
                 email_data['date'] = value
         
-        # Extraer body
         email_data['body'] = extract_email_body(message.get('payload', {}))
         
         return email_data
@@ -188,16 +371,12 @@ def get_email_content(service, message_id):
 
 
 def extract_email_body(payload):
-    """
-    Extrae el texto del body de un email (maneja multipart)
-    """
+    """Extrae el texto del body de un email (maneja multipart)"""
     body_text = ''
     
-    # Caso simple: body directo
     if 'body' in payload and payload['body'].get('data'):
         body_text = base64.urlsafe_b64decode(payload['body']['data']).decode('utf-8', errors='ignore')
     
-    # Caso multipart
     if 'parts' in payload:
         for part in payload['parts']:
             mime_type = part.get('mimeType', '')
@@ -206,65 +385,22 @@ def extract_email_body(payload):
                 if part.get('body', {}).get('data'):
                     body_text += base64.urlsafe_b64decode(part['body']['data']).decode('utf-8', errors='ignore')
             elif mime_type == 'text/html' and not body_text:
-                # Solo usar HTML si no hay texto plano
                 if part.get('body', {}).get('data'):
                     html = base64.urlsafe_b64decode(part['body']['data']).decode('utf-8', errors='ignore')
-                    # Limpiar HTML básico
                     body_text = re.sub(r'<[^>]+>', ' ', html)
                     body_text = re.sub(r'\s+', ' ', body_text)
             elif mime_type.startswith('multipart/'):
-                # Recursivo para multipart anidado
                 body_text += extract_email_body(part)
     
     return body_text.strip()
 
 
 # ============================================
-# PROCESAMIENTO DE EMAILS
+# PROCESAMIENTO
 # ============================================
 
-def process_email_for_travel(email_data, user_id):
-    """
-    Procesa un email y extrae información de viaje si existe
-    Args:
-        email_data: Dict con from, subject, body
-        user_id: ID del usuario
-    Returns:
-        Dict con resultado del procesamiento
-    """
-    # Verificar whitelist
-    if not is_whitelisted_sender(email_data.get('from', '')):
-        return {'status': 'skipped', 'reason': 'not_whitelisted'}
-    
-    # Preparar texto para Claude
-    email_text = f"""
-Subject: {email_data.get('subject', '')}
-From: {email_data.get('from', '')}
-Date: {email_data.get('date', '')}
-
-{email_data.get('body', '')}
-"""
-    
-    # Extraer info con Claude
-    try:
-        vuelos = extraer_info_con_claude(email_text)
-        
-        if not vuelos:
-            return {'status': 'no_flights', 'reason': 'claude_no_extraction'}
-        
-        return {
-            'status': 'found',
-            'vuelos': vuelos,
-            'email_subject': email_data.get('subject', '')
-        }
-    except Exception as e:
-        return {'status': 'error', 'reason': str(e)}
-
-
 def check_duplicate_reservation(codigo_reserva, user_id):
-    """
-    Verifica si ya existe una reserva con este código para el usuario
-    """
+    """Verifica si ya existe una reserva con este código"""
     if not codigo_reserva:
         return False
     
@@ -277,106 +413,15 @@ def check_duplicate_reservation(codigo_reserva, user_id):
 
 
 # ============================================
-# FUNCIÓN PRINCIPAL DE ESCANEO
+# FUNCIÓN PRINCIPAL
 # ============================================
-
-def scan_gmail_for_user(user_id, days_back=30, connection_id=None):
-    """
-    Escanea Gmail de un usuario buscando emails de viajes
-    Args:
-        user_id: ID del usuario
-        days_back: Días hacia atrás para buscar
-        connection_id: ID específico de conexión (o None para todas)
-    Returns:
-        Dict con resultados del escaneo
-    """
-    results = {
-        'emails_scanned': 0,
-        'emails_processed': 0,
-        'vuelos_encontrados': 0,
-        'vuelos_nuevos': 0,
-        'vuelos_duplicados': 0,
-        'errors': []
-    }
-    
-    # Obtener conexiones activas
-    if connection_id:
-        connections = EmailConnection.query.filter_by(
-            id=connection_id,
-            user_id=user_id,
-            is_active=True
-        ).all()
-    else:
-        connections = EmailConnection.query.filter_by(
-            user_id=user_id,
-            provider='gmail',
-            is_active=True
-        ).all()
-    
-    if not connections:
-        results['errors'].append('No hay cuentas Gmail conectadas')
-        return results
-    
-    for connection in connections:
-        try:
-            # Obtener servicio Gmail para esta conexión
-            credentials = get_gmail_credentials(user_id)
-            if not credentials:
-                results['errors'].append(f'Credenciales inválidas para {connection.email}')
-                continue
-            
-            service = build('gmail', 'v1', credentials=credentials)
-            
-            # Buscar emails
-            message_ids = search_travel_emails(service, days_back=days_back)
-            results['emails_scanned'] += len(message_ids)
-            
-            # Procesar cada email
-            for msg_id in message_ids:
-                email_data = get_email_content(service, msg_id)
-                if not email_data:
-                    continue
-                
-                # Verificar whitelist
-                if not is_whitelisted_sender(email_data.get('from', '')):
-                    continue
-                
-                results['emails_processed'] += 1
-                
-                # Procesar con Claude
-                process_result = process_email_for_travel(email_data, user_id)
-                
-                if process_result['status'] == 'found':
-                    for vuelo_data in process_result.get('vuelos', []):
-                        results['vuelos_encontrados'] += 1
-                        
-                        # Verificar duplicado
-                        codigo = vuelo_data.get('codigo_reserva')
-                        if check_duplicate_reservation(codigo, user_id):
-                            results['vuelos_duplicados'] += 1
-                            continue
-                        
-                        # Crear viaje (sin guardar aún - retornar para confirmación)
-                        results['vuelos_nuevos'] += 1
-            
-            # Actualizar last_scan
-            connection.last_scan = datetime.utcnow()
-            connection.emails_processed = (connection.emails_processed or 0) + results['emails_processed']
-            db.session.commit()
-            
-        except Exception as e:
-            results['errors'].append(f'Error escaneando {connection.email}: {str(e)}')
-    
-    return results
-
 
 def scan_and_create_viajes(user_id, days_back=30):
     """
-    Escanea Gmail y crea viajes automáticamente (sin confirmación)
-    Returns:
-        Dict con resultados incluyendo viajes creados
+    Escanea Gmail y crea viajes automáticamente
     """
     import uuid
+    import json as json_lib
     from datetime import datetime as dt
     
     results = {
@@ -400,6 +445,7 @@ def scan_and_create_viajes(user_id, days_back=30):
         try:
             credentials = get_gmail_credentials(user_id)
             if not credentials:
+                results['errors'].append(f'Credenciales inválidas para {connection.email}')
                 continue
             
             service = build('gmail', 'v1', credentials=credentials)
@@ -407,14 +453,18 @@ def scan_and_create_viajes(user_id, days_back=30):
             results['emails_scanned'] += len(message_ids)
             
             for msg_id in message_ids:
-                email_data = get_email_content(service, msg_id)
-                if not email_data or not is_whitelisted_sender(email_data.get('from', '')):
-                    continue
-                
-                # Preparar texto
-                email_text = f"Subject: {email_data.get('subject', '')}\n\n{email_data.get('body', '')}"
-                
                 try:
+                    email_data = get_email_content(service, msg_id)
+                    if not email_data or not is_whitelisted_sender(email_data.get('from', '')):
+                        continue
+                    
+                    # Preparar texto para Claude
+                    email_text = f"Subject: {email_data.get('subject', '')}\n\n{email_data.get('body', '')}"
+                    
+                    # Limitar tamaño del texto
+                    if len(email_text) > 15000:
+                        email_text = email_text[:15000]
+                    
                     vuelos = extraer_info_con_claude(email_text)
                     if not vuelos:
                         continue
@@ -430,7 +480,6 @@ def scan_and_create_viajes(user_id, days_back=30):
                     grupo_id = str(uuid.uuid4())[:8]
                     
                     for vuelo_data in vuelos:
-                        # Parsear fechas
                         fecha_salida_str = vuelo_data.get('fecha_salida')
                         hora_salida = vuelo_data.get('hora_salida', '')
                         
@@ -445,12 +494,11 @@ def scan_and_create_viajes(user_id, days_back=30):
                         except:
                             continue
                         
-                        # Crear viaje
-                        import json as json_lib
+                        # Crear viaje con todos los campos requeridos
                         nuevo_viaje = Viaje(
                             user_id=user_id,
                             tipo='vuelo',
-                            descripcion='',
+                            descripcion='',  # FIX: Campo requerido
                             origen=vuelo_data.get('origen', ''),
                             destino=vuelo_data.get('destino', ''),
                             fecha_salida=fecha_salida,
@@ -467,13 +515,15 @@ def scan_and_create_viajes(user_id, days_back=30):
                     db.session.commit()
                     
                 except Exception as e:
-                    results['errors'].append(f'Error procesando email: {str(e)}')
+                    db.session.rollback()  # FIX: Limpiar transacción fallida
+                    results['errors'].append(f'Error en email: {str(e)[:100]}')
             
             # Actualizar conexión
             connection.last_scan = datetime.utcnow()
             db.session.commit()
             
         except Exception as e:
-            results['errors'].append(f'Error con {connection.email}: {str(e)}')
+            db.session.rollback()  # FIX: Limpiar transacción fallida
+            results['errors'].append(f'Error con {connection.email}: {str(e)[:100]}')
     
     return results
