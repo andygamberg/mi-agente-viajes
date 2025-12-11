@@ -1,5 +1,7 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
+**Última actualización:** 11 Diciembre 2025
+
 ## 📊 Visión del Producto
 
 **Problema original:** TripCase (app de gestión de viajes) fue discontinuado.
@@ -33,18 +35,6 @@
 | 13 | Preferencias notificaciones | 10 Dic 2025 | UI toggles, campos BD (envío pendiente MVP13b) |
 | **14** | **Gmail Push + Multi-cuenta** | **11 Dic 2025** | **OAuth, push notifications, PDFs, deduplicación** |
 
-### Detalle MVP14 (Completado 11 Dic 2025)
-
-| Sub-MVP | Descripción | Estado |
-|---------|-------------|--------|
-| 14a | Gmail OAuth multi-cuenta | ✅ |
-| 14b | Escaneo manual de emails | ✅ |
-| 14c | Push notifications (Pub/Sub) | ✅ |
-| 14d | Microsoft/Outlook | ⏳ Futuro |
-| 14e | Custom senders por usuario | ✅ |
-| 14f | Fix multi-cuenta (.first() bug) | ✅ |
-| 14g | Extracción PDFs + deduplicación por contenido | ✅ |
-
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
 | Cambio | Antes | Después |
@@ -56,38 +46,151 @@
 
 ---
 
+## 📧 Detalle MVP14: Email Integration
+
+### Estrategia de detección por tiers
+
+| Tier | Método | Proveedores | Automatización |
+|------|--------|-------------|----------------|
+| 1 | OAuth directo | Gmail ✅, Microsoft 365, Outlook.com | Un click |
+| 2 | Regla automática | Microsoft (alternativa), Yahoo | Un click |
+| 3 | Reenvío guiado | Apple Mail, Outlook app | Tutorial in-app |
+| 4 | Manual | Cualquiera | misviajes@gamberg.com.ar ✅ |
+
+### Sub-MVPs completados
+
+| Sub-MVP | Descripción | Estado |
+|---------|-------------|--------|
+| 14a | Gmail OAuth multi-cuenta | ✅ |
+| 14b | Escaneo manual de emails | ✅ |
+| 14c | Push notifications (Pub/Sub) | ✅ |
+| 14e | Custom senders por usuario | ✅ |
+| 14f | Fix multi-cuenta (.first() bug) | ✅ |
+| 14g | Extracción PDFs + deduplicación | ✅ |
+
+### Sub-MVPs pendientes
+
+| Sub-MVP | Descripción | Prioridad | Esfuerzo |
+|---------|-------------|-----------|----------|
+| 14h | Microsoft Graph OAuth (Exchange/365) | Alta | 6-8h |
+| 14i | Apple Mail guía contextual in-app | Media | 2-3h |
+| 14j | Outlook app guía contextual in-app | Media | 1h |
+| 14-UX | Rediseño preferencias: onboarding email | Alta | 3-4h |
+| 14-EXT | Extender Claude para detectar todos los tipos de eventos | Alta | 4h |
+
+**Nota:** Microsoft Graph API soporta tanto cuentas corporativas (Exchange/M365) como personales (@outlook.com, @hotmail.com). Una sola implementación cubre ambos casos.
+
+---
+
 ## 🔄 Pendientes Técnicos
 
 ### Bugs/UX Issues Identificados
 
-| Issue | Descripción | Prioridad |
-|-------|-------------|-----------|
-| Menú hamburguesa | Click en "borrar/agrupar" no da feedback hasta seleccionar | Media |
+| Issue | Descripción | Prioridad | Estado |
+|-------|-------------|-----------|--------|
+| ~~Menú hamburguesa~~ | ~~Click en "borrar/agrupar" no da feedback~~ | ~~Media~~ | ✅ Resuelto 11 Dic |
+| Onboarding email | Usuario conecta Gmail pero no sabe qué esperar | Alta | Pendiente (14-UX) |
+| Sin feedback conexión | No indica estado de detección automática | Media | Pendiente (14-UX) |
+
+---
+
+## 🏗️ Refactor Arquitectónico: Modelo de Eventos
+
+### Contexto
+
+La app comenzó como gestor de vuelos pero la visión es más amplia: viajes completos (vuelos + hoteles + autos), reservas (restaurantes, espectáculos), citas (médicas, profesionales). El modelo actual (`Viaje`) está limitado a vuelos.
+
+### Decisión de arquitectura (11 Dic 2025)
+
+**Opción elegida: Modelo Híbrido (Base + Extensiones)**
+
+Después de analizar UX y performance, elegimos arquitectura híbrida:
+
+```
+Evento (tabla base)
+├── Campos comunes: titulo, fecha_inicio, fecha_fin, lugar, codigo_reserva, trip_id
+├── tipo: vuelo | hotel | restaurante | auto | cita | actividad
+│
+├── DetalleVuelo (extensión 1:1)
+│   └── numero_vuelo, aerolinea, origen, destino, pasajeros, terminal...
+├── DetalleHotel (extensión 1:1)
+│   └── nombre_hotel, habitacion, check_in_hora, huespedes...
+├── DetalleRestaurante (extensión 1:1)
+│   └── num_personas, tipo_cocina, preferencias...
+└── DetalleCita (extensión 1:1)
+    └── profesional, especialidad, institucion...
+```
+
+### Por qué esta arquitectura
+
+| Criterio | Beneficio |
+|----------|-----------|
+| UX Timeline | Una query para listado cronológico mixto |
+| UX Detalle | Campos tipados con validación por tipo |
+| UX Agrupación | `trip_id` agrupa vuelo+hotel+restaurante en un "viaje" |
+| Performance | Índices en tabla base, JOINs solo al expandir detalle |
+| Extensibilidad | Nuevo tipo = nueva tabla extensión + componente UI |
+| Migración | Gradual, sin romper funcionalidad existente |
+
+### MVP-REF: Plan de migración
+
+| Fase | Descripción | Riesgo |
+|------|-------------|--------|
+| REF-1 | Crear tablas nuevas (Evento, DetalleVuelo) en paralelo | Bajo |
+| REF-2 | Script migración: Viaje → Evento + DetalleVuelo | Medio |
+| REF-3 | Actualizar blueprints para usar nuevo modelo | Medio |
+| REF-4 | Actualizar templates y calendar feed | Bajo |
+| REF-5 | Período de coexistencia, validar datos | Bajo |
+| REF-6 | Deprecar y eliminar tabla Viaje | Bajo |
+
+### Tipos de eventos planificados
+
+| Tipo | MVP | Campos específicos | Fuentes típicas |
+|------|-----|-------------------|-----------------|
+| Vuelo | ✅ Ya existe | numero_vuelo, aerolinea, origen, destino, pasajeros, terminal, puerta | Aerolíneas, Despegar, Almundo |
+| Hotel | Futuro | nombre_hotel, habitacion, check_in/out, huespedes, amenities | Booking, Airbnb, Hotels.com |
+| Auto | Futuro | empresa, modelo, pickup, dropoff, ubicaciones | Hertz, Avis, Localiza |
+| Restaurante | Futuro | num_personas, tipo_cocina, preferencias, ocasion | OpenTable, TheFork, email directo |
+| Espectáculo | Futuro | venue, asientos, sector | Ticketmaster, Eventbrite, AllAccess |
+| Cita médica | Futuro | profesional, especialidad, institucion, motivo | Swiss Medical, OSDE, consultorios |
+| Actividad | Futuro | proveedor, tipo_actividad, participantes | Civitatis, GetYourGuide, operadores |
 
 ---
 
 ## 📋 Próximos MVPs
 
-### MVP15: Compartir Viajes
-- Tab "Compartidos" separado de "Mis Viajes"
-- Invitar usuarios por email
-- Rol "asistente" que puede cargar viajes para otros
+### Prioridad Alta
 
-### MVP13b: Envío de Notificaciones
-- Enviar email cuando FR24 detecta cambio (delay, gate, cancelación)
-- Usar preferencias ya guardadas en BD
-- Resumen diario/semanal (opcional)
+| MVP | Descripción | Dependencias |
+|-----|-------------|--------------|
+| **14-UX** | Onboarding email: empty state, estado conexiones, feedback | - |
+| **14h** | Microsoft OAuth (corporativo + personal) | - |
+| **14-EXT** | Claude detecta hoteles, restaurantes, citas (no solo vuelos) | - |
+| **MVP-REF** | Refactor BD: Viaje → Evento + extensiones | 14-EXT |
 
-### MVP16: Backoffice / Admin
-- Lista de usuarios (email, nombre, fecha registro, # viajes)
-- Ver viajes de un usuario específico
-- Estadísticas: usuarios activos, viajes cargados, emails procesados
+### Prioridad Media
+
+| MVP | Descripción | Dependencias |
+|-----|-------------|--------------|
+| **14i/14j** | Guías in-app para Apple Mail y Outlook app | 14-UX |
+| **MVP13b** | Envío de notificaciones (email cuando FR24 detecta cambio) | - |
+| **MVP15** | Compartir viajes (tab "Compartidos", invitar por email) | MVP-REF |
+| **MVP-HOTEL** | Soporte completo para hoteles | MVP-REF |
+
+### Prioridad Baja
+
+| MVP | Descripción | Dependencias |
+|-----|-------------|--------------|
+| **MVP16** | Backoffice admin (usuarios, stats) | - |
+| **MVP-REST** | Soporte para restaurantes | MVP-REF |
+| **MVP-CITA** | Soporte para citas médicas | MVP-REF |
 
 ---
 
 ## 🔒 Pre-requisitos para Escalar
 
 ### OAuth Google - Verificación
+
 | Item | Estado | Notas |
 |------|--------|-------|
 | App en producción | ✅ | Ya publicada |
@@ -97,6 +200,7 @@
 | Verificación Google | ❌ | Proceso de ~2 semanas |
 
 ### Seguridad
+
 - [ ] Review de autenticación (tokens, sesiones)
 - [ ] Validación de inputs (SQL injection, XSS)
 - [ ] Rate limiting en endpoints públicos
@@ -104,6 +208,7 @@
 - [ ] Backup automático de BD
 
 ### Performance
+
 - [ ] Índices en BD (user_id, fecha_salida)
 - [ ] Query optimization
 - [ ] Caching donde corresponda
@@ -132,7 +237,10 @@
 | 11 Dic 2025 | Multi-cuenta Gmail | Usuarios con varias cuentas personales/trabajo |
 | 11 Dic 2025 | Extracción de PDFs adjuntos | Emails de agencias tienen info en PDF, no body |
 | 11 Dic 2025 | Deduplicación por contenido | Fallback cuando no hay código de reserva |
+| 11 Dic 2025 | Arquitectura híbrida para eventos | Evento base + extensiones por tipo (vuelo, hotel, etc.) |
+| 11 Dic 2025 | Estrategia email por tiers | OAuth (Gmail/MS), reglas automáticas, guías, reenvío manual |
+| 11 Dic 2025 | Microsoft Graph para corporativo | Una API cubre Exchange 365 y Outlook.com personal |
 
 ---
 
-*Última actualización: 11 Dic 2025 - MVP14 completado (14a-14g)*
+*Última actualización: 11 Dic 2025 - Definida arquitectura de eventos y estrategia email expandida*
