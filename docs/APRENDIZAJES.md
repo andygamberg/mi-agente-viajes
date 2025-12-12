@@ -146,6 +146,27 @@ Objetivo: evitar repetir errores y propagar conocimiento a otros proyectos.
 **Sesión:** Meta 1
 **Aplicable a:** Cualquier proyecto con Claude.ai + Project Knowledge
 
+### 20. Jinja2 no permite reasignar variables en loops
+**Problema:** Error al intentar reasignar variable dentro de {% for %} loop
+**Causa:** Jinja2 no permite `{% set var = valor %}` para modificar variables del scope externo
+**Solución:** Usar `{% set ns = namespace(var=valor) %}` y luego `ns.var`
+**Sesión:** MVP14-UX
+**Aplicable a:** Cualquier proyecto Flask/Jinja2
+
+### 21. Claude Code ignora prompts que empiezan con "/"
+**Problema:** Prompt con instrucciones se interpreta como comando slash
+**Causa:** Claude Code trata líneas que empiezan con "/" como comandos especiales
+**Solución:** No comenzar prompts con "/". Usar "Actualizar..." en lugar de "/actualizar..."
+**Sesión:** MVP14-UX
+**Aplicable a:** Cualquier uso de Claude Code
+
+### 22. Claude Code se pone lento con contexto >60%
+**Problema:** Respuestas lentas cuando el contexto está >60% lleno
+**Causa:** Token budget limitado, procesamiento más lento con contexto grande
+**Solución:** Iniciar nueva sesión cuando contexto >50%, usar Task tool para exploraciones
+**Sesión:** MVP14-UX
+**Aplicable a:** Cualquier proyecto con Claude Code
+
 ---
 
 ## Patrones Exitosos

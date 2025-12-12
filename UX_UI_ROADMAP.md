@@ -1,7 +1,7 @@
 # 🎨 UX/UI ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 11 Diciembre 2025
-**Versión:** 2.2 (unifica emails en perfil + toggle de detección automática)
+**Última actualización:** 12 Diciembre 2025
+**Versión:** 2.3 (toggle funcional clickeable + eliminación de botones confusos)
 
 ---
 
@@ -412,6 +412,13 @@ Próximos eventos
 
 ## ✅ COMPLETADO
 
+### MVP14-UX: Unificación Emails (12 Dic 2025)
+- [x] Unificar emails en perfil (12 Dic 2025)
+- [x] Eliminar duplicación de Preferencias
+- [x] Toggle funcional clickeable para desconectar
+- [x] Detección automática de proveedor (Gmail/Outlook/corporativo)
+- [x] Eliminar botones confusos en emails corporativos
+
 ### Fix UX (11 Dic 2025)
 - [x] Toolbar feedback inmediato en modo agrupar/eliminar
 - [x] Tipografía consistente en remitentes de confianza
@@ -444,8 +451,6 @@ Próximos eventos
 
 | Tarea | Descripción | Esfuerzo |
 |-------|-------------|----------|
-| Unificar emails en perfil | Una sola sección "Mis emails" con toggle | 3-4h |
-| Eliminar duplicación | Quitar "Cuentas de email" de Preferencias | 1h |
 | Onboarding post-registro | Pantalla de bienvenida con opciones OAuth | 2-3h |
 | Stats por email | trips_detected, last_activity | 1h |
 

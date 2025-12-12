@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 11 Diciembre 2025
+**Última actualización:** 12 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -34,6 +34,7 @@
 | 12 | Onboarding UX | 10 Dic 2025 | Empty state educativo, Design System, SVG icons |
 | 13 | Preferencias notificaciones | 10 Dic 2025 | UI toggles, campos BD (envío pendiente MVP13b) |
 | **14** | **Gmail Push + Multi-cuenta** | **11 Dic 2025** | **OAuth, push notifications, PDFs, deduplicación** |
+| 14-UX | Unificación emails en perfil | 12 Dic 2025 | Toggle visual, detección proveedor, deduplicación |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -67,6 +68,7 @@
 | 14e | Custom senders por usuario | ✅ |
 | 14f | Fix multi-cuenta (.first() bug) | ✅ |
 | 14g | Extracción PDFs + deduplicación | ✅ |
+| 14-UX | Unificación emails en perfil | ✅ |
 
 ### Sub-MVPs pendientes
 
@@ -75,7 +77,6 @@
 | 14h | Microsoft Graph OAuth (Exchange/365) | Alta | 6-8h |
 | 14i | Apple Mail guía contextual in-app | Media | 2-3h |
 | 14j | Outlook app guía contextual in-app | Media | 1h |
-| 14-UX | Rediseño preferencias: onboarding email | Alta | 3-4h |
 | 14-EXT | Extender Claude para detectar todos los tipos de eventos | Alta | 4h |
 
 **Nota:** Microsoft Graph API soporta tanto cuentas corporativas (Exchange/M365) como personales (@outlook.com, @hotmail.com). Una sola implementación cubre ambos casos.
@@ -89,8 +90,8 @@
 | Issue | Descripción | Prioridad | Estado |
 |-------|-------------|-----------|--------|
 | ~~Menú hamburguesa~~ | ~~Click en "borrar/agrupar" no da feedback~~ | ~~Media~~ | ✅ Resuelto 11 Dic |
-| Onboarding email | Usuario conecta Gmail pero no sabe qué esperar | Alta | Pendiente (14-UX) |
-| Sin feedback conexión | No indica estado de detección automática | Media | Pendiente (14-UX) |
+| ~~Onboarding email~~ | ~~Usuario conecta Gmail pero no sabe qué esperar~~ | ~~Alta~~ | ✅ Resuelto 12 Dic (14-UX) |
+| ~~Sin feedback conexión~~ | ~~No indica estado de detección automática~~ | ~~Media~~ | ✅ Resuelto 12 Dic (14-UX) |
 
 ---
 
@@ -163,7 +164,6 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
-| **14-UX** | Onboarding email: empty state, estado conexiones, feedback | - |
 | **14h** | Microsoft OAuth (corporativo + personal) | - |
 | **14-EXT** | Claude detecta hoteles, restaurantes, citas (no solo vuelos) | - |
 | **MVP-REF** | Refactor BD: Viaje → Evento + extensiones | 14-EXT |
@@ -243,4 +243,4 @@ Evento (tabla base)
 
 ---
 
-*Última actualización: 11 Dic 2025 - Definida arquitectura de eventos y estrategia email expandida*
+*Última actualización: 12 Dic 2025 - MVP14-UX completado: unificación de emails en perfil*
