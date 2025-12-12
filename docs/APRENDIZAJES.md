@@ -97,6 +97,55 @@ Objetivo: evitar repetir errores y propagar conocimiento a otros proyectos.
 **Sesión:** Meta 1
 **Aplicable a:** Cualquier proyecto en Codespaces con secrets
 
+### 13. Extensiones VS Code se pierden con Codespace rebuild
+**Problema:** Después de rebuild, Claude Code y otras extensiones desaparecen
+**Causa:** Codespaces reinstala el container desde cero
+**Solución:** Agregar extensiones a .devcontainer/devcontainer.json en customizations.vscode.extensions
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto en Codespaces con extensiones
+
+### 14. settings.json con permisos invertidos
+**Problema:** Claude Code no ejecutaba git/gcloud aunque debía
+**Causa:** Permisos estaban en "deny" en lugar de "allow"
+**Solución:** Revisar settings.json, verificar que comandos deseados estén en "allow"
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto con Claude Code
+
+### 15. settings.local.json conflicta con settings.json
+**Problema:** Permisos duplicados o contradictorios entre ambos archivos
+**Causa:** Claude Code crea settings.local.json automáticamente con "Yes, and don't ask again"
+**Solución:** Consolidar todo en settings.json y eliminar settings.local.json
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto con Claude Code
+
+### 16. Verificar que archivo existe antes de editarlo
+**Problema:** Intentar editar archivo que no existe (ej: base.html)
+**Causa:** Asumir estructura sin verificar
+**Solución:** Usar `ls templates/` o `find . -name "*.html"` antes de editar
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier edición de código
+
+### 17. "Yes, and don't ask again" para comandos seguros
+**Problema:** Claude Code pregunta permiso para cada comando, interrumpe flujo
+**Causa:** Comandos no están en allow list
+**Solución:** Usar opción 2 "Yes, and don't ask again" para git, gcloud, curl, etc.
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto con Claude Code
+
+### 18. Arquitectura de modelos: Opus + Sonnet
+**Problema:** ¿Qué modelo usar en cada capa?
+**Decisión:** Opus 4.5 en Claude.ai (planificación, decisiones complejas) + Sonnet 4 en Claude Code (ejecución, tareas específicas)
+**Razón:** Opus piensa mejor, Sonnet ejecuta más rápido y económico
+**Sesión:** Meta 1
+**Aplicable a:** Workflow agéntico con múltiples instancias de Claude
+
+### 19. Sync 🔄 después de cada push
+**Problema:** Claude.ai no ve cambios recientes del repo
+**Causa:** Project Knowledge no se actualiza automáticamente
+**Solución:** Después de git push, hacer sync manual en Claude.ai (botón 🔄)
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto con Claude.ai + Project Knowledge
+
 ---
 
 ## Patrones Exitosos
