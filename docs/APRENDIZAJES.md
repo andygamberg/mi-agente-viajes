@@ -1,219 +1,157 @@
-# 📘 APRENDIZAJES - Mi Agente Viajes
+# Aprendizajes del Proyecto Mi Agente Viajes
 
-> Lecciones aprendidas durante el desarrollo.  
-> Transferibles a otros proyectos.
-> 
-> **Última actualización:** 12 Diciembre 2025  
-> **Sesiones revisadas:** Mis Viajes 1-18 + Meta 1
+Registro de errores, soluciones y patrones descubiertos durante el desarrollo.
+Objetivo: evitar repetir errores y propagar conocimiento a otros proyectos.
 
 ---
 
-## 🔴 Errores críticos evitados
+## Errores y Soluciones
 
-### 1. Buscar antes de pedir al humano
-**Problema:** Claude pide información que podría obtener de otras fuentes  
-**Síntoma:** El humano pierde tiempo respondiendo lo que Claude ya tiene  
-**Solución:** Agotar fuentes automatizadas antes de preguntar:
-1. Project Knowledge (archivos del repo)
-2. `conversation_search` (conversaciones pasadas)
-3. Terminal (`cat`, `ls`, `grep`)
-4. Recién entonces preguntar al humano
+### 1. Archivos múltiples causan "incompatible messages"
+**Problema:** Crear varios archivos en una sola respuesta causa error de sistema
+**Causa:** Limitación de Claude Code con múltiples file_create consecutivos
+**Solución:** Crear UN archivo a la vez, esperar confirmación del usuario
+**Sesión:** Mis Viajes 16
+**Aplicable a:** Cualquier proyecto con Claude Code
 
-**Principio:** Andy es la última opción, no la primera.  
-**Sesión:** Meta 1  
-**Aplicable a:** Todo workflow con asistencia IA
+### 2. Multi-file deployments requieren orden específico
+**Problema:** Errores de deploy cuando archivos dependen unos de otros
+**Causa:** Orden de creación no respeta dependencias
+**Solución:** Agrupar por ubicación (root primero, luego templates, luego static)
+**Sesión:** Mis Viajes 16
+**Aplicable a:** Proyectos Flask con templates
 
----
+### 3. Gmail OAuth requiere configuración específica de scopes
+**Problema:** Token de Gmail no permite leer emails
+**Causa:** Scope incorrecto o insuficiente
+**Solución:** Usar scope `gmail.readonly` y verificar en Google Cloud Console
+**Sesión:** Mis Viajes 14
+**Aplicable a:** Cualquier integración OAuth con Google
 
-### 2. Archivos grandes traban Claude.ai
-**Problema:** Al generar múltiples archivos grandes (>200 líneas), Claude.ai se traba con "incompatible messages"  
-**Síntoma:** La interfaz se congela, hay que abrir nueva conversación  
-**Solución:** Crear archivos de a UNO con confirmación de Andy entre cada uno  
-**Sesiones afectadas:** Mis Viajes 8, 9, 10, 13  
-**Aplicable a:** Cualquier proyecto con Claude.ai que genere código
+### 4. Cloud Run cold starts afectan UX
+**Problema:** Primera request después de inactividad tarda ~5 segundos
+**Causa:** Container se apaga después de inactividad
+**Solución:** Configurar `min-instances=1` (tiene costo) o aceptar el delay
+**Sesión:** Mis Viajes 12
+**Aplicable a:** Todos los proyectos en Cloud Run
 
----
+### 5. PDF parsing falla con ciertos formatos
+**Problema:** Algunos PDFs de aerolíneas no se parsean correctamente
+**Causa:** Estructura no estándar del PDF
+**Solución:** Usar Claude API para extracción inteligente en lugar de regex
+**Sesión:** Mis Viajes 10
+**Aplicable a:** Proyectos que procesan PDFs de terceros
 
-### 3. Código después de `if __name__`
-**Problema:** Nuevos endpoints en Flask no se registran si están después del bloque main  
-**Síntoma:** 404 en endpoints que deberían existir  
-**Solución:** Siempre verificar ubicación del código nuevo, debe estar ANTES de `if __name__ == '__main__'`  
-**Sesión:** Mis Viajes 3  
-**Aplicable a:** Proyectos Flask
+### 6. Verificar estado actual antes de proponer cambios
+**Problema:** Proponer fixes para cosas que ya están implementadas
+**Causa:** No verificar el estado actual del código/UI antes de sugerir
+**Solución:** Siempre verificar en browser/código antes de proponer cambios
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto, especialmente con múltiples sesiones
 
----
+### 7. Contexto de conversaciones no persiste entre Claude.ai y Claude Code
+**Problema:** Claude Code no sabe lo que se discutió en Claude.ai
+**Causa:** Son instancias separadas sin memoria compartida
+**Solución:** Documentar specs complejas en archivos del repo (ej: docs/MVP14-UX-SPEC.md)
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto con workflow Claude.ai + Claude Code
 
-### 4. Secrets montados en `/app`
-**Problema:** Montar secrets de GCP en /app sobreescribe el código de la aplicación  
-**Síntoma:** App no arranca, archivos desaparecen  
-**Solución:** Usar `/secrets/` u otra ruta separada para secrets  
-**Sesión:** Mis Viajes 4  
-**Aplicable a:** Google Cloud Run con secrets
+### 8. gcloud no disponible por defecto en Codespaces
+**Problema:** `gcloud: command not found` al intentar deploy
+**Causa:** Codespaces no incluye gcloud CLI por defecto
+**Solución:** Instalar gcloud + Service Account (ver docs/GCLOUD_SETUP.md)
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto GCP en Codespaces
 
----
+### 9. Service Account requiere 6 roles específicos para deploy
+**Problema:** Deploy falla con "Permission denied" múltiples veces
+**Causa:** Cada paso del deploy requiere permisos diferentes
+**Solución:** Agregar TODOS los roles de una vez (ver docs/GCLOUD_SETUP.md):
+- Administrador de almacenamiento
+- Administrador de Artifact Registry  
+- Administrador de Cloud Run
+- Editor de Cloud Build
+- Usuario de cuenta de servicio
+- Consumidor de Service Usage
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier deploy a Cloud Run con Service Account
 
-### 5. Archivos truncados/corruptos
-**Problema:** Archivos grandes a veces se generan incompletos  
-**Síntoma:** Internal Server Error, `TemplateSyntaxError: unexpected end of template`  
-**Solución:** Verificar integridad antes de deploy con `tail -20 archivo`, tener rollback listo: `git checkout HEAD -- archivo`  
-**Sesión:** Mis Viajes 14  
-**Aplicable a:** Cualquier proyecto con generación de código
+### 10. Interfaces GCP pueden estar en español
+**Problema:** Instrucciones en inglés no coinciden con UI en español
+**Causa:** GCP usa el idioma del browser/cuenta
+**Solución:** Dar instrucciones en ambos idiomas o usar IDs de roles (ej: `roles/storage.admin`)
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier documentación de GCP/AWS/Azure
 
----
+### 11. Permisos de GCP tardan en propagarse
+**Problema:** "Permission denied" inmediatamente después de agregar rol
+**Causa:** Propagación de permisos no es instantánea
+**Solución:** Esperar 1-2 minutos después de agregar roles antes de reintentar
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier cambio de IAM en GCP
 
-### 6. GitHub secret scanning bloquea commits
-**Problema:** Credenciales hardcodeadas en código bloquean el push  
-**Síntoma:** `git push` rechazado por GitHub  
-**Solución:** SIEMPRE usar variables de entorno para credenciales desde el inicio  
-**Sesión:** Mis Viajes 17  
-**Aplicable a:** Cualquier proyecto con OAuth o API keys
-
----
-
-### 7. OAuth scope validation estricta
-**Problema:** Google OAuth falla al conectar múltiples cuentas por validación de scopes  
-**Síntoma:** Error de autenticación en segunda cuenta  
-**Solución:** Bypassear strict scope validation en el flow de auth  
-**Sesión:** Mis Viajes 17  
-**Aplicable a:** Proyectos con Google OAuth multi-cuenta
-
----
-
-## 🟢 Patterns exitosos
-
-### 1. Smoke tests obligatorios
-**Qué:** Script `smoke_tests.sh` que verifica endpoints críticos post-deploy  
-**Implementación:** curl a cada endpoint, verificar status codes esperados  
-**Por qué funciona:** Detecta roturas inmediatamente, da confianza para deployar seguido  
-**Sesión implementado:** Mis Viajes 2  
-**Aplicable a:** Cualquier web app
-
----
-
-### 2. Design System documentado
-**Qué:** UX_UI_ROADMAP.md con principios, colores, componentes  
-**Por qué funciona:** Consistencia visual sin repensar cada decisión  
-**Aplicable a:** Cualquier producto con UI
-
----
-
-### 3. Documentación como código
-**Qué:** ROADMAP.md, METODOLOGIA.md versionados en git  
-**Por qué funciona:** Historia de decisiones, onboarding de nuevos contextos (sesiones de Claude)  
-**Aplicable a:** Cualquier proyecto
+### 12. Codespaces secrets requieren rebuild para aplicar
+**Problema:** Variable de entorno no disponible después de agregar secret
+**Causa:** Secrets se cargan al crear/rebuild del container
+**Solución:** Hacer "Rebuild Container" después de agregar secrets
+**Sesión:** Meta 1
+**Aplicable a:** Cualquier proyecto en Codespaces con secrets
 
 ---
 
-### 4. Screenshots > Descripciones
-**Qué:** Compartir screenshots en lugar de describir problemas  
-**Por qué funciona:** Claude ve exactamente el estado de la UI, errores, o comportamiento  
-**Aplicable a:** Debugging de UI
+## Patrones Exitosos
 
----
+### A. Workflow de desarrollo MVP-a-MVP
+1. Definir scope mínimo del MVP
+2. Implementar en una sesión
+3. Deploy + smoke tests
+4. Validar con usuario real
+5. Documentar aprendizajes
+6. Siguiente MVP
 
-### 5. Validar antes de implementar
-**Qué:** Discutir opciones primero, elegir enfoque, LUEGO implementar  
-**Por qué funciona:** Evita retrabajo en features complejas  
-**Aplicable a:** Features con múltiples enfoques posibles
+### B. Commits frecuentes con mensajes descriptivos
+- `feat:` nueva funcionalidad
+- `fix:` corrección de bug
+- `refactor:` mejora sin cambio de comportamiento
+- `docs:` documentación
+- `style:` formato, no afecta lógica
 
----
-
-## 🛠️ Herramientas descubiertas
-
-### Claude Code en VS Code/Codespaces
-**Qué:** CLI que ejecuta comandos, edita archivos  
-**Descubierto:** 10 Dic 2025  
-**Documentación:** https://docs.anthropic.com/claude-code  
-**Configuración:** `.claude/settings.json` para permisos
-
----
-
-### Project Knowledge sync
-**Qué:** Claude.ai puede leer repo de GitHub si está en Project Knowledge  
-**Limitación:** Sync manual, puede tener delay  
-**Workaround:** Recordar hacer sync después de cada push, usar `cat` para ver actual
-
----
-
-## 💡 Insights de producto
-
-### Usuarios piensan en "viajes", no en "vuelos"
-**Contexto:** Un viaje = vuelo + hotel + restaurantes + actividades  
-**Implicación:** Arquitectura debe soportar múltiples tipos de eventos agrupados  
-**Decisión:** Modelo híbrido Evento + DetalleVuelo/Hotel/etc
-
----
-
-### Duplicación de UI confunde
-**Contexto:** Emails aparecían en Perfil Y en Preferencias  
-**Implicación:** Un concepto = un lugar en la UI  
-**Decisión:** Unificar en "Mis emails" con toggle de OAuth
-
----
-
-## 🚫 Anti-patrones
-
-| Anti-patrón | Por qué es malo | Alternativa |
-|-------------|-----------------|-------------|
-| Pedir info sin buscar | Fricción innecesaria | Agotar fuentes automatizadas |
-| Regenerar archivos largos | Truncamiento | str_replace |
-| Múltiples archivos a la vez | Bloqueo | Uno por uno |
-| Deploy sin verificar | Rollbacks | git diff primero |
-| Sesiones infinitas | Degradación | Cortar a ~50 intercambios |
-| Saltar sync | Contexto desactualizado | 🔄 después de push |
-
----
-
-## 📅 Changelog de aprendizajes
-
-| Fecha | Categoría | Resumen | Sesión |
-|-------|-----------|---------|--------|
-| 12 Dic | Workflow | Buscar antes de pedir al humano | Meta 1 |
-| 11 Dic | Workflow | Sistema de agentes Claude.ai + Claude Code | 18 |
-| 11 Dic | UX | Unificar conceptos duplicados | 18 |
-| 11 Dic | Producto | Estrategia email por tiers | 18 |
-| 10 Dic | Proceso | Archivos de a uno para evitar trabas | 15 |
-| 10 Dic | UX | Empty states > modals de onboarding | 15 |
-| 10 Dic | UX | Heroicons SVG, no emojis | 15 |
-| 9 Dic | Infra | Refactor a blueprints | 11 |
-| 9 Dic | Feature | Calendar feed privado por token | 9 |
-| 8 Dic | Auth | Multi-usuario con Flask-Login | 5-6 |
-| 7 Dic | UX | Header unificado mobile/desktop | 7 |
-| 6 Dic | Infra | Secrets no en /app | 4 |
-| 6 Dic | Flask | Código antes de if __name__ | 3 |
-| 5 Dic | Infra | Cloud Run + PostgreSQL setup | 2 |
-| 5 Dic | Core | MVP inicial funcionando | 1 |
-
----
-
-## 🔄 Proceso de actualización
-
-### Cuándo agregar a este archivo
-- Cuando algo salga mal que no debería haber pasado
-- Cuando descubramos un pattern que funciona bien
-- Cuando encontremos una herramienta útil
-- Cuando tengamos un insight de producto o colaboración
-
-### Formato de entrada
-```markdown
-### Título descriptivo
-**Problema/Qué:** [Descripción]
-**Solución/Por qué funciona:** [Explicación]
-**Sesión:** Mis Viajes XX
-**Aplicable a:** [Contextos donde aplica]
+### C. Smoke tests post-deploy
+```bash
+./smoke_tests.sh
 ```
+Verificar endpoints críticos antes de considerar deploy exitoso.
 
-### Revisión periódica
-Cada 5 sesiones, revisar si hay aprendizajes no documentados.
+### D. Documentación en el repo
+- README.md: setup inicial
+- METODOLOGIA_TRABAJO.md: cómo trabajamos
+- docs/: documentación técnica específica
+- APRENDIZAJES.md: este archivo
+
+### E. Workflow agéntico de 3 capas
+1. **Andy**: Visión, decisiones de producto, validación
+2. **Claude.ai**: Arquitectura, planificación, diseño
+3. **Claude Code**: Implementación, git, deploy
 
 ---
 
-## 🔮 Pendientes de validar
+## Checklist para Nuevos Proyectos
 
-- [ ] ¿Claude Code con `settings.json` mejora autonomía?
-- [ ] ¿CLAUDE.md reduce errores de contexto?
-- [ ] ¿Modelo híbrido de eventos escala bien?
+### Setup inicial
+- [ ] Crear repo en GitHub
+- [ ] Configurar Codespaces
+- [ ] Copiar scripts/setup-gcloud.sh
+- [ ] Crear Service Account con 6 roles
+- [ ] Agregar GCLOUD_SERVICE_KEY como secret
+- [ ] Ejecutar setup-gcloud.sh
+- [ ] Verificar deploy funciona
 
----
+### Documentación mínima
+- [ ] README.md con setup
+- [ ] APRENDIZAJES.md (copiar estructura)
+- [ ] docs/GCLOUD_SETUP.md (copiar y adaptar)
 
-**Este archivo es portable. Copialo a nuevos proyectos y adaptalo.**
+### Claude Code
+- [ ] Crear CLAUDE.md con instrucciones
+- [ ] Configurar .claude/settings.json con permisos
+- [ ] Probar ciclo completo: edit → commit → push → deploy

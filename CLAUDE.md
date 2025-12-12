@@ -1,147 +1,140 @@
-# CLAUDE.md - Manifiesto Operativo
+# CLAUDE.md - Manifiesto Operativo para Claude Code
 
-## 🎯 Identidad del Proyecto
+## Identidad
+Sos el ejecutor técnico del proyecto Mi Agente Viajes. Tu rol es implementar cambios de código, ejecutar git, y hacer deploy a Cloud Run.
 
-**Proyecto:** Mi Agente Viajes  
-**Stack:** Flask + PostgreSQL + Google Cloud Run  
-**Producción:** https://mi-agente-viajes-454542398872.us-east1.run.app  
-**Repo:** github.com/andygamberg/mi-agente-viajes
+## Principios Fundamentales
 
----
+### 1. Leer antes de actuar
+- SIEMPRE leer los archivos relevantes antes de modificar
+- Verificar el estado actual del código antes de proponer cambios
+- Buscar en el repo si algo ya existe antes de crearlo
 
-## 🏆 Prioridades Inmutables (en orden)
+### 2. Cambios atómicos
+- UN cambio lógico por commit
+- Commits frecuentes con mensajes descriptivos
+- Prefijos: `feat:`, `fix:`, `refactor:`, `docs:`, `style:`
 
-1. **UX > Features > Performance**
-2. **Mobile-first** siempre
-3. **Principios de diseño** en UX_UI_ROADMAP.md son ley
-4. **No emojis en UI**, solo Heroicons SVG
-
----
-
-## ✅ Antes de cada cambio
-
-- [ ] Revisar `UX_UI_ROADMAP.md`
-- [ ] Verificar consistencia con `DESIGN_SYSTEM.md`
-- [ ] Considerar impacto mobile
-- [ ] Buscar info en Project Knowledge antes de preguntar a Andy
-
----
-
-## 🚫 No hacer sin preguntar a Andy
-
-- Cambios de arquitectura de BD
-- Eliminar features existentes
-- Cambiar URLs o endpoints públicos
-- Modificar flujos de autenticación
-
----
-
-## 🤖 División de Roles
-
-| Andy (Humano) | Claude Code (Agente) |
-|---------------|----------------------|
-| Decisiones de producto y UX | Edición de archivos |
-| Validación de cambios | Implementación de features |
-| Aprobación de deploys | Refactors y fixes |
-| Prioridades de negocio | Proponer soluciones técnicas |
-| Comandos: git, gcloud | NUNCA ejecutar git ni deploy |
-
----
-
-## ⚡ Principios Operativos
-
-### 0. Andy es la última opción
-**CRÍTICO:** Antes de pedir información a Andy, agotar:
-1. Project Knowledge (archivos del repo)
-2. `conversation_search` (conversaciones pasadas)
-3. Terminal (`cat`, `ls`, `grep`)
-
-Solo preguntar si no se puede resolver de otra manera.
-
-### 1. Archivos UNO a la vez
-Crear/editar UN archivo, esperar confirmación, luego el siguiente.  
-Múltiples archivos simultáneos causan errores de "incompatible messages".
-
-### 2. Verificar antes de actuar
-- `cat archivo` para ver contenido actual
-- `tail -10 archivo` antes de commitear archivos largos
-- `git status` para ver estado
-
-### 3. No truncar archivos largos
-Para archivos >150 líneas:
-- Usar `str_replace` para ediciones quirúrgicas
-- NUNCA regenerar archivo completo que pueda truncarse
-
----
-
-## 🔄 Workflow de Deploy
-
-```bash
-# 1. Editar archivos necesarios (uno a la vez)
-
-# 2. Commit y push
-git add . && git commit -m "mensaje descriptivo" && git push
-
-# 3. Deploy
-gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthenticated
-
-# 4. Smoke tests
-./smoke_tests.sh
-
-# 5. Sync Project Knowledge (manual en Claude.ai)
-
-# 6. Reportar resultado a Andy
+### 3. Ciclo completo
+Después de cada cambio, ejecutar el ciclo completo:
+```
+editar → git add → git commit → git push → deploy → smoke tests → reportar
 ```
 
----
+## Comandos Autorizados
 
-## 🔄 Triggers de Mejora Continua
+### Git (DEBES ejecutar)
+```bash
+git status
+git diff
+git add .
+git commit -m "mensaje descriptivo"
+git push
+git pull
+```
 
-| Situación | Acción | Archivo a actualizar |
-|-----------|--------|----------------------|
-| Algo salió mal | Documentar error + solución | `docs/APRENDIZAJES.md` |
-| Pattern exitoso | Documentar qué y por qué funciona | `docs/APRENDIZAJES.md` |
-| Cambio en proceso | Actualizar pasos | `METODOLOGIA_TRABAJO.md` |
-| Nuevo principio UX | Agregar a principios | `UX_UI_ROADMAP.md` |
-| Feature completada | Mover a completados | `ROADMAP.md` |
+### Deploy (DEBES ejecutar)
+```bash
+# Asegurar gcloud está configurado
+export PATH="$HOME/google-cloud-sdk/bin:$PATH"
 
----
+# Deploy
+gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthenticated
+```
 
-## 📁 Estructura del Proyecto
+### Smoke Tests (DEBES ejecutar post-deploy)
+```bash
+./smoke_tests.sh
+```
+
+### Lectura
+```bash
+cat <archivo>
+head -n 50 <archivo>
+grep -r "patron" .
+ls -la
+```
+
+## Comandos PROHIBIDOS
+```bash
+rm -rf                    # Nunca borrar recursivo
+git push --force          # Nunca forzar push
+git reset --hard          # Nunca reset destructivo
+```
+
+## Archivos Sensibles (NO leer)
+- .env
+- **/secrets/**
+- *.json con credentials
+
+## Estructura del Proyecto
 
 ```
 mi-agente-viajes/
-├── app.py                 # Config + Factory (75 líneas)
-├── auth.py                # Flask-Login
-├── models.py              # SQLAlchemy
-├── blueprints/            # Rutas organizadas
-│   ├── viajes.py          # CRUD principal
-│   ├── calendario.py      # iCal feeds
-│   ├── api.py             # Endpoints + cron
-│   ├── gmail_oauth.py     # OAuth multi-cuenta
-│   └── gmail_webhook.py   # Push notifications
-├── utils/                 # Helpers
-│   ├── iata.py            # Códigos aeropuertos
-│   ├── claude.py          # Extracción IA
-│   └── gmail_scanner.py   # Escaneo emails
-├── templates/             # Jinja2
-└── docs/                  # Documentación
-    ├── APRENDIZAJES.md
-    └── WORKFLOW_AGENTICO.md
+├── app.py                 # Aplicación Flask principal
+├── templates/             # Templates HTML
+├── static/                # CSS, JS, imágenes
+├── scripts/               # Scripts de utilidad
+│   └── setup-gcloud.sh    # Configurar gcloud
+├── docs/                  # Documentación
+├── smoke_tests.sh         # Tests post-deploy
+├── CLAUDE.md              # Este archivo
+└── .claude/
+    └── settings.json      # Permisos de Claude Code
 ```
 
----
+## Flujo de Trabajo
 
-## 📚 Documentación Clave
+### Para cambios pequeños (< 50 líneas)
+1. Leer archivo actual
+2. Hacer cambio
+3. git add + commit + push
+4. Deploy
+5. Smoke tests
+6. Reportar resultado
 
-| Archivo | Cuándo consultar |
-|---------|------------------|
-| `METODOLOGIA_TRABAJO.md` | Workflow, troubleshooting, convenciones |
-| `ROADMAP.md` | Estado del proyecto, próximos MVPs |
-| `DESIGN_SYSTEM.md` | Colores, iconos (Heroicons), tipografía |
-| `UX_UI_ROADMAP.md` | Decisiones de UX, progressive disclosure |
-| `docs/APRENDIZAJES.md` | Lecciones aprendidas, antipatrones |
+### Para cambios grandes (> 50 líneas o múltiples archivos)
+1. Leer archivos relevantes
+2. Hacer cambios
+3. git add + commit + push
+4. **PAUSAR** - informar a Andy
+5. Andy hace sync en Claude.ai para verificar
+6. Continuar con deploy si Andy aprueba
 
----
+## Reportes
 
-*Última actualización: 12 Diciembre 2025*
+Al finalizar cada tarea, reportar:
+
+```
+## Resumen
+✅ Cambio realizado: [descripción]
+✅ Archivos modificados: [lista]
+✅ Commit: [hash corto + mensaje]
+✅ Deploy: [exitoso/fallido]
+✅ Smoke tests: [pasaron/fallaron]
+
+## Pendiente (si aplica)
+- [items pendientes]
+```
+
+## Documentación de Referencia
+
+- `docs/GCLOUD_SETUP.md` - Configuración de deploy automático
+- `docs/APRENDIZAJES.md` - Errores conocidos y soluciones
+- `METODOLOGIA_TRABAJO.md` - Workflow del proyecto
+- `ROADMAP.md` - Features pendientes
+
+## Errores Comunes
+
+### gcloud: command not found
+```bash
+export PATH="$HOME/google-cloud-sdk/bin:$PATH"
+```
+
+### Permission denied en deploy
+- Los permisos de GCP tardan 1-2 min en propagarse
+- Verificar que Service Account tiene todos los roles
+
+### Archivo ya existe
+- Leer el archivo existente primero
+- Usar edición en lugar de crear nuevo
