@@ -615,7 +615,14 @@ def eliminar_multiples():
 @login_required
 def perfil():
     emails_adicionales = UserEmail.query.filter_by(user_id=current_user.id).all()
-    return render_template('perfil.html', emails_adicionales=emails_adicionales)
+    gmail_connections = EmailConnection.query.filter_by(
+        user_id=current_user.id,
+        provider='gmail',
+        is_active=True
+    ).all()
+    return render_template('perfil.html',
+                           emails_adicionales=emails_adicionales,
+                           gmail_connections=gmail_connections)
 
 
 @viajes_bp.route('/update-profile', methods=['POST'])
