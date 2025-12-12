@@ -160,66 +160,6 @@
             font-size: 13px;
         }
 
-        /* Gmail Connections */
-        .connection-list {
-            list-style: none;
-        }
-
-        .connection-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: var(--bg);
-            border-radius: var(--radius);
-            margin-bottom: 8px;
-        }
-
-        .connection-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .connection-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .connection-icon {
-            width: 32px;
-            height: 32px;
-            background: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .connection-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .connection-email {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .connection-status {
-            font-size: 11px;
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 2px;
-        }
-
-        .connection-status svg {
-            width: 10px;
-            height: 10px;
-        }
-
         .empty-state {
             text-align: center;
             padding: 32px 24px;
@@ -457,57 +397,6 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
-        <!-- Gmail Connections -->
-        <div class="card">
-            <div class="card-title">Cuentas de email</div>
-            
-            {% if gmail_connections %}
-                <ul class="connection-list">
-                    {% for conn in gmail_connections %}
-                    <li class="connection-item">
-                        <div class="connection-info">
-                            <div class="connection-icon">
-                                <svg viewBox="0 0 24 24" fill="none">
-                                    <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="#EA4335" stroke-width="1.5"/>
-                                    <path d="M22 6L12 13L2 6" stroke="#EA4335" stroke-width="1.5" stroke-linecap="round"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="connection-email">{{ conn.email }}</div>
-                                <div class="connection-status">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20 6L9 17L4 12"/>
-                                    </svg>
-                                    Conectado
-                                </div>
-                            </div>
-                        </div>
-                        <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=conn.id) }}">
-                            <button type="submit" class="btn btn-danger">Desconectar</button>
-                        </form>
-                    </li>
-                    {% endfor %}
-                </ul>
-                
-                <div class="card-footer">
-                    <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">Agregar otra cuenta</a>
-                </div>
-
-            {% else %}
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z"/>
-                            <path d="M22 6L12 13L2 6" stroke-linecap="round"/>
-                        </svg>
-                    </div>
-                    <p>Conectá tu cuenta de email para detectar automáticamente tus reservas de vuelos.</p>
-                    <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn">Conectar Gmail</a>
-                </div>
-            {% endif %}
-        </div>
-        
         <!-- Remitentes de confianza - Card separada, solo si hay Gmail conectado -->
         {% if gmail_connections %}
         <div class="card">
