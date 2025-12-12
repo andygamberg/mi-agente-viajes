@@ -167,6 +167,20 @@ Objetivo: evitar repetir errores y propagar conocimiento a otros proyectos.
 **Sesión:** MVP14-UX
 **Aplicable a:** Cualquier proyecto con Claude Code
 
+### 23. gcloud --set-env-vars reemplaza todas las variables
+**Problema:** Al usar `gcloud run services update --set-env-vars` se perdieron todas las variables existentes
+**Causa:** `--set-env-vars` REEMPLAZA todas las variables, no las agrega
+**Solución:** Usar `--update-env-vars` para agregar/actualizar sin borrar las existentes
+**Sesión:** MVP14h
+**Aplicable a:** Cualquier deploy a Cloud Run con múltiples env vars
+
+### 24. DATABASE_URL incorrecta causa errores SSL con Render
+**Problema:** App mostraba errores `SSL connection has been closed unexpectedly` al usar BD de Render
+**Causa:** Se restauró DATABASE_URL vieja que apuntaba a Render en lugar de Cloud SQL
+**Solución:** Verificar que DATABASE_URL apunte a Cloud SQL: `postgresql://postgres:PASSWORD@/DB_NAME?host=/cloudsql/PROJECT:REGION:INSTANCE`
+**Sesión:** MVP14h
+**Aplicable a:** Proyectos Flask en Cloud Run con Cloud SQL
+
 ---
 
 ## Patrones Exitosos
