@@ -548,255 +548,215 @@
             border-top: 1px solid var(--border-light);
         }
 
-        /* MVP14-UX Fase A: Toggle Visual */
+        /* MVP14-UX: Email list */
         .unified-email-list {
             margin: 20px 0;
         }
 
-        .email-provider-item {
+        .unified-email-item {
             background: var(--bg);
             border-radius: var(--radius);
             padding: 16px;
             margin-bottom: 12px;
-            border: 1px solid var(--border-light);
         }
 
-        .provider-header {
+        .email-header {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 12px;
+            flex-wrap: wrap;
         }
 
         .email-address {
             font-size: 15px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text);
         }
 
-        .badge {
+        .badge-principal {
             background: var(--accent);
             color: white;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             padding: 3px 8px;
             border-radius: 4px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .provider-toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding: 12px;
-            background: var(--bg-light);
-            border-radius: 8px;
+        .email-action {
+            margin-left: auto;
         }
 
-        .provider-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .provider-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .toggle-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toggle-indicator {
-            width: 40px;
-            height: 22px;
-            border-radius: 11px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .toggle-indicator.on {
-            background: var(--success);
-            justify-content: flex-end;
-            padding-right: 2px;
-        }
-
-        .toggle-indicator.on::after {
-            content: '';
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .toggle-indicator.on svg {
-            position: absolute;
-            left: 5px;
-            color: white;
-        }
-
-        .toggle-indicator.off {
-            background: #E5E7EB;
-            justify-content: flex-start;
-            padding-left: 2px;
-        }
-
-        .toggle-indicator.off::after {
-            content: '';
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .toggle-indicator.disabled {
-            background: #F3F4F6;
-            justify-content: flex-start;
-            padding-left: 2px;
-            opacity: 0.6;
-        }
-
-        .toggle-indicator.disabled::after {
-            content: '';
-            width: 18px;
-            height: 18px;
-            background: #D1D5DB;
-            border-radius: 50%;
-        }
-
-        .toggle-label {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .toggle-status.connected .toggle-label {
-            color: var(--success);
-        }
-
-        .toggle-status.available .toggle-label {
-            color: var(--text-secondary);
-        }
-
-        .toggle-status.unavailable .toggle-label {
-            color: var(--text-tertiary);
-        }
-
-        .provider-actions {
-            padding-left: 12px;
-        }
-
-        .btn-connect-gmail {
-            display: inline-block;
-            background: var(--accent);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-
-        .btn-connect-gmail:hover {
-            opacity: 0.9;
-        }
-
-        .btn-disconnect {
-            background: transparent;
+        .btn-text-danger {
+            background: none;
+            border: none;
             color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: inherit;
         }
 
-        .btn-disconnect:hover {
-            background: var(--danger);
-            color: white;
+        .btn-text-danger:hover {
+            background: #FEE2E2;
         }
 
-        .btn-remove {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-remove:hover {
-            background: var(--danger);
-            color: white;
-            border-color: var(--danger);
-        }
-
-        .coming-soon-msg {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-style: italic;
-            margin: 0;
-        }
-
-        .manual-forward-msg {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        .manual-forward-msg strong {
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .unified-email-footer {
+        .email-detection {
             display: flex;
+            align-items: center;
             gap: 12px;
-            margin-top: 20px;
-            padding-top: 16px;
+            margin-top: 14px;
+            padding-top: 14px;
             border-top: 1px solid var(--border-light);
             flex-wrap: wrap;
         }
 
+        .detection-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            min-width: 130px;
+        }
+
+        .detection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-pill {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-pill.on {
+            background: var(--success);
+            color: white;
+        }
+
+        .toggle-pill.off {
+            background: var(--border);
+            color: var(--text-secondary);
+        }
+
+        .provider-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--success);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-provider {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-provider:hover {
+            border-color: var(--text-secondary);
+        }
+
+        .btn-provider.gmail:hover {
+            border-color: #EA4335;
+            color: #EA4335;
+        }
+
+        .btn-provider.microsoft:hover {
+            border-color: #00A4EF;
+            color: #00A4EF;
+        }
+
+        .btn-provider.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .provider-letter {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .gmail .provider-letter { background: #EA4335; }
+        .microsoft .provider-letter { background: #00A4EF; }
+
+        .coming-soon {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .unavailable-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .email-tip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #F0F9FF;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #0369A1;
+        }
+
+        .email-tip code {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 11px;
+        }
+
+        .email-footer {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+        }
+
         .add-email-form {
             display: flex;
-            gap: 8px;
-            flex: 1;
-            min-width: 200px;
+            gap: 10px;
         }
 
         .add-email-form input {
             flex: 1;
+            min-width: 180px;
         }
 
-        @media (max-width: 480px) {
-            .provider-toggle-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .unified-email-footer {
-                flex-direction: column;
-            }
-
-            .add-email-form {
-                width: 100%;
-            }
+        @media (max-width: 500px) {
+            .email-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .email-action { margin-left: 0; }
+            .email-detection { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .add-email-form { flex-direction: column; }
         }
     </style>
 </head>
@@ -867,100 +827,108 @@
             </form>
         </div>
         
-        <!-- MVP14-UX: Mis emails unificado -->
+        <!-- MVP14-UX: Mis emails -->
         <div class="card">
             <h2 class="card-title">Mis emails</h2>
-            <p class="hint">Emails desde donde podés reenviar confirmaciones.</p>
+            <p class="hint">Conectá tus cuentas para detectar viajes automáticamente.</p>
 
             <div class="unified-email-list">
                 {% for item in unified_emails %}
-                <div class="email-provider-item">
-                    <!-- Email y badge principal -->
-                    <div class="provider-header">
+                <div class="unified-email-item">
+                    <!-- Row 1: Email + Badge + Quitar -->
+                    <div class="email-header">
                         <span class="email-address">{{ item.email }}</span>
                         {% if item.is_principal %}
-                        <span class="badge">Principal</span>
+                        <span class="badge-principal">Principal</span>
+                        {% endif %}
+                        {% if not item.is_principal %}
+                        <div class="email-action">
+                            {% if item.gmail_connection %}
+                            <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
+                                <button type="submit" class="btn-text-danger">Quitar</button>
+                            </form>
+                            {% elif item.user_email_id %}
+                            <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display:inline;">
+                                <button type="submit" class="btn-text-danger">Quitar</button>
+                            </form>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
 
-                    <!-- Proveedor y toggle -->
-                    <div class="provider-toggle-row">
-                        <div class="provider-info">
-                            <span class="provider-name">{{ item.provider_info.name }}</span>
-                        </div>
+                    <!-- Row 2: Detección automática -->
+                    <div class="email-detection">
+                        <span class="detection-label">Detección automática</span>
 
                         {% if item.gmail_connection %}
-                        <!-- Estado: CONECTADO -->
-                        <div class="toggle-status connected">
-                            <div class="toggle-indicator on">
-                                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        <!-- CONECTADO -->
+                        <div class="detection-status connected">
+                            <span class="toggle-pill on">ON</span>
+                            <span class="provider-status">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <path d="M20 6L9 17L4 12"/>
                                 </svg>
-                            </div>
-                            <span class="toggle-label">Conectado</span>
+                                Gmail conectado
+                            </span>
                         </div>
 
-                        {% elif item.provider_info.oauth_implemented %}
-                        <!-- Estado: DISPONIBLE PERO NO CONECTADO (Gmail) -->
-                        <div class="toggle-status available">
-                            <div class="toggle-indicator off"></div>
-                            <span class="toggle-label">Desconectado</span>
+                        {% elif item.provider_info.provider == 'gmail' %}
+                        <!-- GMAIL NO CONECTADO -->
+                        <div class="detection-status available">
+                            <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-provider gmail">
+                                <span class="provider-letter">G</span> Conectar Gmail
+                            </a>
                         </div>
 
-                        {% elif item.provider_info.oauth_available %}
-                        <!-- Estado: PRÓXIMAMENTE (Outlook, Yahoo, iCloud) -->
-                        <div class="toggle-status unavailable">
-                            <div class="toggle-indicator disabled"></div>
-                            <span class="toggle-label">Próximamente</span>
+                        {% elif item.provider_info.provider == 'other' %}
+                        <!-- CORPORATIVO: Mostrar ambas opciones -->
+                        <div class="detection-status available">
+                            <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-provider gmail">
+                                <span class="provider-letter">G</span> Google
+                            </a>
+                            <span class="btn-provider microsoft disabled" title="Próximamente">
+                                <span class="provider-letter">M</span> Microsoft
+                            </span>
+                        </div>
+
+                        {% elif item.provider_info.provider == 'outlook' %}
+                        <!-- MICROSOFT: Próximamente -->
+                        <div class="detection-status available">
+                            <span class="btn-provider microsoft disabled" title="Próximamente">
+                                <span class="provider-letter">M</span> Conectar Outlook
+                            </span>
+                            <span class="coming-soon">Próximamente</span>
                         </div>
 
                         {% else %}
-                        <!-- Estado: NO DISPONIBLE (Corporativo) -->
-                        <div class="toggle-status unavailable">
-                            <div class="toggle-indicator disabled"></div>
-                            <span class="toggle-label">No disponible</span>
+                        <!-- NO SOPORTADO: Yahoo, iCloud, etc -->
+                        <div class="detection-status unavailable">
+                            <span class="toggle-pill off">—</span>
+                            <span class="unavailable-text">No disponible para {{ item.provider_info.name }}</span>
                         </div>
                         {% endif %}
                     </div>
 
-                    <!-- Acciones -->
-                    <div class="provider-actions">
-                        {% if item.gmail_connection %}
-                        <!-- Conectado: botón desconectar -->
-                        <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display: inline;">
-                            <button type="submit" class="btn-disconnect">Desconectar</button>
-                        </form>
-
-                        {% elif item.provider_info.oauth_implemented %}
-                        <!-- Gmail no conectado: botón conectar -->
-                        <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-connect-gmail">Conectar con Gmail</a>
-
-                        {% elif item.provider_info.oauth_available %}
-                        <!-- Outlook/Yahoo/iCloud: mensaje próximamente -->
-                        <p class="coming-soon-msg">Conectá {{ item.provider_info.name }} automáticamente muy pronto</p>
-
-                        {% else %}
-                        <!-- Corporativo: explicar reenvío manual -->
-                        <p class="manual-forward-msg">Para usar este email, reenviá tus confirmaciones manualmente a <strong>{{ current_user.email }}</strong></p>
-                        {% endif %}
-
-                        <!-- Botón quitar (solo para emails adicionales no principales) -->
-                        {% if item.user_email_id %}
-                        <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display: inline; margin-left: 12px;">
-                            <button type="submit" class="btn-remove">Quitar</button>
-                        </form>
-                        {% endif %}
+                    <!-- Row 3: Tip de reenvío (solo si no está conectado) -->
+                    {% if not item.gmail_connection %}
+                    <div class="email-tip">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        <span>Reenviá confirmaciones a <code>misviajes@gamberg.com.ar</code></span>
                     </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
 
-            <div class="unified-email-footer">
+            <!-- Footer: Solo agregar email -->
+            <div class="email-footer">
                 <form method="POST" action="{{ url_for('viajes.add_email') }}" class="add-email-form">
                     <input type="email" name="email" placeholder="otro@email.com" required>
-                    <button type="submit" class="btn btn-secondary">Agregar</button>
+                    <button type="submit" class="btn btn-secondary">Agregar email</button>
                 </form>
-                <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-primary">Conectar Gmail</a>
             </div>
         </div>
         
