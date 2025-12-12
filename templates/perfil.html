@@ -789,7 +789,6 @@
                             </svg>
                             Gmail conectado
                         </span>
-                        <a href="{{ url_for('gmail_oauth.escanear_gmail') }}" class="action-link">Escanear ahora</a>
                         {% else %}
                         <span class="status-badge manual">Solo reenvío manual</span>
                         {% if '@gmail.com' in item.email or '@googlemail.com' in item.email %}
