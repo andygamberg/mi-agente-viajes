@@ -1,13 +1,14 @@
 # 🤖 Metodología de Trabajo AI-Assisted Development
 
 **Proyecto:** Mi Agente Viajes
-**Última actualización:** 10 Diciembre 2025
+**Última actualización:** 12 Diciembre 2025
 **Stack:** Flask + PostgreSQL + Google Cloud Run
 
 ---
 
 ## 📋 Índice
 
+0. [Sistema Agéntico](#sistema-agéntico) ⭐ NUEVO
 1. [Setup del Entorno](#setup-del-entorno)
 2. [Flujo de Desarrollo](#flujo-de-desarrollo)
 3. [Estructura de Archivos para Deploy](#estructura-de-archivos-para-deploy)
@@ -16,6 +17,31 @@
 6. [Testing](#testing)
 7. [Gestión de Sesiones con Claude](#gestión-de-sesiones-con-claude)
 8. [Troubleshooting](#troubleshooting)
+
+---
+
+## 🤖 Sistema Agéntico
+
+> **Implementado:** 12 Diciembre 2025 (Meta 1)
+
+Este proyecto usa un sistema de trabajo de tres capas:
+
+```
+Andy (Humano) → Claude.ai (Arquitecto) → Claude Code (Ejecutor)
+```
+
+### Archivos del sistema
+
+| Archivo | Propósito |
+|---------|-----------|
+| CLAUDE.md | Manifiesto operativo |
+| .claude/settings.json | Permisos para Claude Code |
+| docs/WORKFLOW_AGENTICO.md | Setup completo |
+| docs/APRENDIZAJES.md | Lecciones aprendidas |
+
+### Principio fundamental
+
+Andy es la última opción. Claude debe buscar en Project Knowledge, conversaciones pasadas, y terminal antes de preguntar.
 
 ---
 
@@ -449,6 +475,8 @@ gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthen
 | 9 | Calendar feed privado + Refactor arquitectónico | 9 Dic 2025 |
 | 10 | Calendario all-day | 9 Dic 2025 |
 | 11 | Deduplicación de vuelos compartidos | 10 Dic 2025 |
+| 12-14 | Onboarding, Notificaciones, Gmail | 10-11 Dic 2025 |
+| Meta 1 | Sistema agéntico | 12 Dic 2025 |
 
 ### URLs Importantes
 
