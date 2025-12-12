@@ -1,34 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Read",
-      "Edit",
-      "Write",
-      "Bash(cat:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
-      "Bash(ls:*)",
-      "Bash(find:*)",
-      "Bash(grep:*)",
-      "Bash(wc:*)",
-      "Bash(diff:*)",
-      "Bash(git status)",
-      "Bash(git diff:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push)",
-      "Bash(git log:*)",
-      "Bash(git checkout:*)",
-      "Bash(gcloud run deploy:*)",
-      "Bash(curl:*)",
-      "Bash(./smoke_tests.sh)"
+      "bash(cat:*)",
+      "bash(head:*)",
+      "bash(tail:*)",
+      "bash(ls:*)",
+      "bash(find:*)",
+      "bash(grep:*)",
+      "bash(wc:*)",
+      "bash(diff:*)",
+      "read:**",
+      "write:**"
     ],
     "deny": [
-      "Bash(rm -rf:*)",
-      "Bash(git push --force)",
-      "Bash(git reset --hard:*)",
-      "Read(.env)",
-      "Read(**/secrets/**)"
+      "bash(git:*)",
+      "bash(gcloud:*)",
+      "bash(rm -rf:*)",
+      "bash(curl:*)",
+      "bash(wget:*)"
     ]
   },
   "model": "claude-sonnet-4-20250514",
