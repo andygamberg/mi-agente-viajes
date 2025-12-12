@@ -1,6 +1,8 @@
 {
   "permissions": {
     "allow": [
+      "read:**",
+      "write:**",
       "bash(cat:*)",
       "bash(head:*)",
       "bash(tail:*)",
@@ -9,22 +11,32 @@
       "bash(grep:*)",
       "bash(wc:*)",
       "bash(diff:*)",
-      "read:**",
-      "write:**"
+      "bash(git status)",
+      "bash(git diff:*)",
+      "bash(git add:*)",
+      "bash(git commit:*)",
+      "bash(git push)",
+      "bash(git pull)",
+      "bash(git revert:*)",
+      "bash(git log:*)",
+      "bash(gcloud run deploy:*)",
+      "bash(gcloud run services:*)",
+      "bash(gcloud config:*)",
+      "bash(curl:*)",
+      "bash(./smoke_tests.sh)",
+      "bash(export PATH=*)",
+      "bash(chmod:*)"
     ],
     "deny": [
-      "bash(git:*)",
-      "bash(gcloud:*)",
       "bash(rm -rf:*)",
-      "bash(curl:*)",
-      "bash(wget:*)"
+      "bash(git push --force)",
+      "bash(git reset --hard:*)"
     ]
   },
   "model": "claude-sonnet-4-20250514",
   "context": {
     "always_read": [
-      "CLAUDE.md",
-      "METODOLOGIA_TRABAJO.md"
+      "CLAUDE.md"
     ]
   }
 }
