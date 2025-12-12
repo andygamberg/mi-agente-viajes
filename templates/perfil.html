@@ -636,13 +636,13 @@
                             <span class="badge">Principal</span>
                         </div>
                     </div>
-                    {% set principal_connection = None %}
+                    {% set ns = namespace(principal_connection=None) %}
                     {% for conn in gmail_connections %}
                         {% if conn.email == current_user.email %}
-                            {% set principal_connection = conn %}
+                            {% set ns.principal_connection = conn %}
                         {% endif %}
                     {% endfor %}
-                    {% if principal_connection %}
+                    {% if ns.principal_connection %}
                     <div class="email-unified-status">
                         <span class="status-connected">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
@@ -693,13 +693,13 @@
 
                 <!-- Emails adicionales (sin OAuth) -->
                 {% for email in emails_adicionales %}
-                {% set has_oauth = False %}
+                {% set ns_email = namespace(has_oauth=False) %}
                 {% for conn in gmail_connections %}
                     {% if conn.email == email.email %}
-                        {% set has_oauth = True %}
+                        {% set ns_email.has_oauth = True %}
                     {% endif %}
                 {% endfor %}
-                {% if not has_oauth %}
+                {% if not ns_email.has_oauth %}
                 <div class="email-unified-item">
                     <div class="email-unified-header">
                         <div class="email-unified-icon">

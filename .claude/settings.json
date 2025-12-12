@@ -25,7 +25,8 @@
       "bash(curl:*)",
       "bash(./smoke_tests.sh)",
       "bash(export PATH=*)",
-      "bash(chmod:*)"
+      "bash(chmod:*)",
+      "bash(gcloud logging:*)"
     ],
     "deny": [
       "bash(rm -rf:*)",
