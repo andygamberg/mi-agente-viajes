@@ -758,6 +758,52 @@
             .email-detection { flex-direction: column; align-items: flex-start; gap: 10px; }
             .add-email-form { flex-direction: column; }
         }
+
+        /* Toggle button funcional */
+        .toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px 4px 4px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.on {
+            background: var(--success);
+            color: white;
+        }
+
+        .toggle-btn.on:hover {
+            background: #22A557;
+        }
+
+        .toggle-btn.off {
+            background: #E5E7EB;
+            color: #9CA3AF;
+        }
+
+        .toggle-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .toggle-circle {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .toggle-label {
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -861,9 +907,14 @@
                         <span class="detection-label">Detección automática</span>
 
                         {% if item.gmail_connection %}
-                        <!-- CONECTADO -->
+                        <!-- CONECTADO: Toggle ON clickeable -->
                         <div class="detection-status connected">
-                            <span class="toggle-pill on">ON</span>
+                            <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
+                                <button type="submit" class="toggle-btn on" title="Click para desconectar">
+                                    <span class="toggle-circle"></span>
+                                    <span class="toggle-label">ON</span>
+                                </button>
+                            </form>
                             <span class="provider-status">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                                     <path d="M20 6L9 17L4 12"/>
@@ -873,38 +924,31 @@
                         </div>
 
                         {% elif item.provider_info.provider == 'gmail' %}
-                        <!-- GMAIL NO CONECTADO -->
+                        <!-- GMAIL SIN CONECTAR: Botón conectar -->
                         <div class="detection-status available">
                             <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-provider gmail">
                                 <span class="provider-letter">G</span> Conectar Gmail
                             </a>
                         </div>
 
-                        {% elif item.provider_info.provider == 'other' %}
-                        <!-- CORPORATIVO: Mostrar ambas opciones -->
-                        <div class="detection-status available">
-                            <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-provider gmail">
-                                <span class="provider-letter">G</span> Google
-                            </a>
-                            <span class="btn-provider microsoft disabled" title="Próximamente">
-                                <span class="provider-letter">M</span> Microsoft
-                            </span>
-                        </div>
-
-                        {% elif item.provider_info.provider == 'outlook' %}
+                        {% elif item.provider_info.provider == 'microsoft' %}
                         <!-- MICROSOFT: Próximamente -->
-                        <div class="detection-status available">
-                            <span class="btn-provider microsoft disabled" title="Próximamente">
-                                <span class="provider-letter">M</span> Conectar Outlook
+                        <div class="detection-status unavailable">
+                            <span class="toggle-btn off disabled">
+                                <span class="toggle-circle"></span>
+                                <span class="toggle-label">OFF</span>
                             </span>
-                            <span class="coming-soon">Próximamente</span>
+                            <span class="unavailable-text">Outlook próximamente</span>
                         </div>
 
                         {% else %}
-                        <!-- NO SOPORTADO: Yahoo, iCloud, etc -->
+                        <!-- CORPORATIVO / OTROS: No disponible -->
                         <div class="detection-status unavailable">
-                            <span class="toggle-pill off">—</span>
-                            <span class="unavailable-text">No disponible para {{ item.provider_info.name }}</span>
+                            <span class="toggle-btn off disabled">
+                                <span class="toggle-circle"></span>
+                                <span class="toggle-label">OFF</span>
+                            </span>
+                            <span class="unavailable-text">No disponible</span>
                         </div>
                         {% endif %}
                     </div>
