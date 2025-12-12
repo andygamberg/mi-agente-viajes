@@ -616,125 +616,47 @@
             </form>
         </div>
         
-        <!-- MVP14-UX: Mis emails unificado -->
         <div class="card">
             <h2 class="card-title">Mis emails</h2>
-            <p class="hint">Emails desde donde podés reenviar confirmaciones de viajes.</p>
+            <p class="hint">Emails desde donde podés reenviar confirmaciones.</p>
 
-            <div class="emails-unified-list">
+            <ul class="email-list">
                 <!-- Email principal -->
-                <div class="email-unified-item">
-                    <div class="email-unified-header">
-                        <div class="email-unified-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
-                                <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z"/>
-                                <path d="M22 6L12 13L2 6"/>
-                            </svg>
-                        </div>
-                        <div class="email-unified-info">
-                            <span class="email-unified-address">{{ current_user.email }}</span>
-                            <span class="badge">Principal</span>
-                        </div>
-                    </div>
-                    {% set ns = namespace(principal_connection=None) %}
-                    {% for conn in gmail_connections %}
-                        {% if conn.email == current_user.email %}
-                            {% set ns.principal_connection = conn %}
-                        {% endif %}
-                    {% endfor %}
-                    {% if ns.principal_connection %}
-                    <div class="email-unified-status">
-                        <span class="status-connected">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-                                <path d="M20 6L9 17L4 12"/>
-                            </svg>
-                            Gmail conectado
-                        </span>
-                        <a href="{{ url_for('gmail_oauth.escanear_gmail') }}" class="btn-link">Escanear ahora</a>
-                    </div>
-                    {% else %}
-                    <div class="email-unified-status">
-                        <span class="status-manual">Solo reenvío manual</span>
-                        {% if '@gmail.com' in current_user.email or '@googlemail.com' in current_user.email %}
-                        <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-link">Activar detección automática</a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
+                <li class="email-item">
+                    {{ current_user.email }}
+                    <span class="badge">Principal</span>
+                </li>
 
-                <!-- Gmail connections (que no sean el principal) -->
-                {% for conn in gmail_connections if conn.email != current_user.email %}
-                <div class="email-unified-item">
-                    <div class="email-unified-header">
-                        <div class="email-unified-icon gmail">
-                            <svg viewBox="0 0 24 24" fill="none" width="20" height="20">
-                                <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="#EA4335" stroke-width="1.5"/>
-                                <path d="M22 6L12 13L2 6" stroke="#EA4335" stroke-width="1.5"/>
-                            </svg>
-                        </div>
-                        <div class="email-unified-info">
-                            <span class="email-unified-address">{{ conn.email }}</span>
-                        </div>
-                        <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=conn.id) }}" style="margin-left: auto;">
-                            <button type="submit" class="btn btn-danger btn-small">Desconectar</button>
-                        </form>
-                    </div>
-                    <div class="email-unified-status">
-                        <span class="status-connected">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-                                <path d="M20 6L9 17L4 12"/>
-                            </svg>
-                            Gmail conectado
-                        </span>
-                        <a href="{{ url_for('gmail_oauth.escanear_gmail') }}" class="btn-link">Escanear ahora</a>
-                    </div>
-                </div>
-                {% endfor %}
-
-                <!-- Emails adicionales (sin OAuth) -->
-                {% for email in emails_adicionales %}
-                {% set ns_email = namespace(has_oauth=False) %}
+                <!-- Gmail connections -->
                 {% for conn in gmail_connections %}
-                    {% if conn.email == email.email %}
-                        {% set ns_email.has_oauth = True %}
-                    {% endif %}
-                {% endfor %}
-                {% if not ns_email.has_oauth %}
-                <div class="email-unified-item">
-                    <div class="email-unified-header">
-                        <div class="email-unified-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
-                                <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z"/>
-                                <path d="M22 6L12 13L2 6"/>
-                            </svg>
-                        </div>
-                        <div class="email-unified-info">
-                            <span class="email-unified-address">{{ email.email }}</span>
-                        </div>
-                        <form method="POST" action="{{ url_for('viajes.remove_email', email_id=email.id) }}" style="margin-left: auto;">
-                            <button type="submit" class="btn btn-danger btn-small">Quitar</button>
-                        </form>
-                    </div>
-                    <div class="email-unified-status">
-                        <span class="status-manual">Solo reenvío manual</span>
-                        {% if '@gmail.com' in email.email or '@googlemail.com' in email.email %}
-                        <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-link">Activar detección</a>
-                        {% endif %}
-                    </div>
-                </div>
+                {% if conn.email != current_user.email %}
+                <li class="email-item">
+                    {{ conn.email }}
+                    <span class="status-connected" style="color: #34C759; font-size: 12px;">✓ Gmail conectado</span>
+                    <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=conn.id) }}" style="display:inline; margin-left: auto;">
+                        <button type="submit" class="btn btn-danger">Desconectar</button>
+                    </form>
+                </li>
                 {% endif %}
                 {% endfor %}
-            </div>
 
-            <!-- Acciones -->
-            <div class="email-unified-actions">
-                <form method="POST" action="{{ url_for('viajes.add_email') }}" class="add-form">
+                <!-- Emails adicionales sin OAuth -->
+                {% for email in emails_adicionales %}
+                <li class="email-item">
+                    {{ email.email }}
+                    <form method="POST" action="{{ url_for('viajes.remove_email', email_id=email.id) }}" style="display:inline; margin-left: auto;">
+                        <button type="submit" class="btn btn-danger">Quitar</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+                <form method="POST" action="{{ url_for('viajes.add_email') }}" class="add-form" style="flex: 1;">
                     <input type="email" name="email" placeholder="otro@email.com" required>
-                    <button type="submit" class="btn btn-secondary">Agregar email</button>
+                    <button type="submit" class="btn btn-secondary">Agregar</button>
                 </form>
-                <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-primary" style="margin-top: 12px; display: block; text-align: center;">
-                    Conectar cuenta Gmail
-                </a>
+                <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-primary">Conectar Gmail</a>
             </div>
         </div>
         
