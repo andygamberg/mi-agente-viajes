@@ -614,13 +614,55 @@ def eliminar_multiples():
 @viajes_bp.route('/perfil')
 @login_required
 def perfil():
+    """Perfil con lista unificada de emails"""
     emails_adicionales = UserEmail.query.filter_by(user_id=current_user.id).all()
     gmail_connections = EmailConnection.query.filter_by(
         user_id=current_user.id,
         provider='gmail',
         is_active=True
     ).all()
+
+    # Crear diccionario de conexiones Gmail por email
+    gmail_by_email = {conn.email: conn for conn in gmail_connections}
+
+    # Lista unificada de emails
+    unified_emails = []
+    seen_emails = set()
+
+    # 1. Email principal
+    principal = {
+        'email': current_user.email,
+        'is_principal': True,
+        'gmail_connection': gmail_by_email.get(current_user.email),
+        'user_email_id': None
+    }
+    unified_emails.append(principal)
+    seen_emails.add(current_user.email.lower())
+
+    # 2. Gmail connections (que no sean el principal)
+    for conn in gmail_connections:
+        if conn.email.lower() not in seen_emails:
+            unified_emails.append({
+                'email': conn.email,
+                'is_principal': False,
+                'gmail_connection': conn,
+                'user_email_id': None
+            })
+            seen_emails.add(conn.email.lower())
+
+    # 3. Emails adicionales (que no tengan Gmail ni sean el principal)
+    for ue in emails_adicionales:
+        if ue.email.lower() not in seen_emails:
+            unified_emails.append({
+                'email': ue.email,
+                'is_principal': False,
+                'gmail_connection': gmail_by_email.get(ue.email),
+                'user_email_id': ue.id
+            })
+            seen_emails.add(ue.email.lower())
+
     return render_template('perfil.html',
+                           unified_emails=unified_emails,
                            emails_adicionales=emails_adicionales,
                            gmail_connections=gmail_connections)
 
