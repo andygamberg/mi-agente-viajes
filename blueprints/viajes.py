@@ -625,12 +625,12 @@ def detect_email_provider(email):
         }
 
     # Outlook/Hotmail/Live
-    elif any(d in domain for d in ['outlook.', 'hotmail.', 'live.']):
+    elif any(d in domain for d in ['outlook.', 'hotmail.', 'live.', 'msn.']):
         return {
-            'provider': 'outlook',
+            'provider': 'microsoft',
             'name': 'Outlook',
             'oauth_available': True,
-            'oauth_implemented': False  # Próximamente
+            'oauth_implemented': True  # MVP14h
         }
 
     # Yahoo
@@ -670,9 +670,15 @@ def perfil():
         provider='gmail',
         is_active=True
     ).all()
+    microsoft_connections = EmailConnection.query.filter_by(
+        user_id=current_user.id,
+        provider='microsoft',
+        is_active=True
+    ).all()
 
-    # Crear diccionario de conexiones Gmail por email
+    # Crear diccionarios de conexiones por email
     gmail_by_email = {conn.email: conn for conn in gmail_connections}
+    microsoft_by_email = {conn.email: conn for conn in microsoft_connections}
 
     # Lista unificada de emails
     unified_emails = []
@@ -683,6 +689,7 @@ def perfil():
         'email': current_user.email,
         'is_principal': True,
         'gmail_connection': gmail_by_email.get(current_user.email),
+        'microsoft_connection': microsoft_by_email.get(current_user.email),
         'user_email_id': None,
         'provider_info': detect_email_provider(current_user.email)
     }
@@ -696,18 +703,33 @@ def perfil():
                 'email': conn.email,
                 'is_principal': False,
                 'gmail_connection': conn,
+                'microsoft_connection': None,
                 'user_email_id': None,
                 'provider_info': detect_email_provider(conn.email)
             })
             seen_emails.add(conn.email.lower())
 
-    # 3. Emails adicionales (que no tengan Gmail ni sean el principal)
+    # 3. Microsoft connections (que no sean el principal ni Gmail)
+    for conn in microsoft_connections:
+        if conn.email.lower() not in seen_emails:
+            unified_emails.append({
+                'email': conn.email,
+                'is_principal': False,
+                'gmail_connection': None,
+                'microsoft_connection': conn,
+                'user_email_id': None,
+                'provider_info': detect_email_provider(conn.email)
+            })
+            seen_emails.add(conn.email.lower())
+
+    # 4. Emails adicionales (que no tengan conexión ni sean el principal)
     for ue in emails_adicionales:
         if ue.email.lower() not in seen_emails:
             unified_emails.append({
                 'email': ue.email,
                 'is_principal': False,
                 'gmail_connection': gmail_by_email.get(ue.email),
+                'microsoft_connection': microsoft_by_email.get(ue.email),
                 'user_email_id': ue.id,
                 'provider_info': detect_email_provider(ue.email)
             })
@@ -716,7 +738,8 @@ def perfil():
     return render_template('perfil.html',
                            unified_emails=unified_emails,
                            emails_adicionales=emails_adicionales,
-                           gmail_connections=gmail_connections)
+                           gmail_connections=gmail_connections,
+                           microsoft_connections=microsoft_connections)
 
 
 @viajes_bp.route('/update-profile', methods=['POST'])

@@ -893,6 +893,10 @@
                             <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
                                 <button type="submit" class="btn-text-danger">Quitar</button>
                             </form>
+                            {% elif item.microsoft_connection %}
+                            <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
+                                <button type="submit" class="btn-text-danger">Quitar</button>
+                            </form>
                             {% elif item.user_email_id %}
                             <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display:inline;">
                                 <button type="submit" class="btn-text-danger">Quitar</button>
@@ -907,7 +911,7 @@
                         <span class="detection-label">Detección automática</span>
 
                         {% if item.gmail_connection %}
-                        <!-- CONECTADO: Toggle ON clickeable -->
+                        <!-- GMAIL CONECTADO: Toggle ON clickeable -->
                         <div class="detection-status connected">
                             <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
                                 <button type="submit" class="toggle-btn on" title="Click para desconectar">
@@ -923,6 +927,23 @@
                             </span>
                         </div>
 
+                        {% elif item.microsoft_connection %}
+                        <!-- MICROSOFT CONECTADO: Toggle ON clickeable -->
+                        <div class="detection-status connected">
+                            <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
+                                <button type="submit" class="toggle-btn on" title="Click para desconectar">
+                                    <span class="toggle-circle"></span>
+                                    <span class="toggle-label">ON</span>
+                                </button>
+                            </form>
+                            <span class="provider-status">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <path d="M20 6L9 17L4 12"/>
+                                </svg>
+                                Microsoft conectado
+                            </span>
+                        </div>
+
                         {% elif item.provider_info.provider == 'gmail' %}
                         <!-- GMAIL SIN CONECTAR: Botón conectar -->
                         <div class="detection-status available">
@@ -932,13 +953,11 @@
                         </div>
 
                         {% elif item.provider_info.provider == 'microsoft' %}
-                        <!-- MICROSOFT: Próximamente -->
-                        <div class="detection-status unavailable">
-                            <span class="toggle-btn off disabled">
-                                <span class="toggle-circle"></span>
-                                <span class="toggle-label">OFF</span>
-                            </span>
-                            <span class="unavailable-text">Outlook próximamente</span>
+                        <!-- MICROSOFT SIN CONECTAR: Botón conectar -->
+                        <div class="detection-status available">
+                            <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn-provider microsoft">
+                                <span class="provider-letter">M</span> Conectar Outlook
+                            </a>
                         </div>
 
                         {% else %}
@@ -954,7 +973,7 @@
                     </div>
 
                     <!-- Row 3: Tip de reenvío (solo si no está conectado) -->
-                    {% if not item.gmail_connection %}
+                    {% if not item.gmail_connection and not item.microsoft_connection %}
                     <div class="email-tip">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
                             <circle cx="12" cy="12" r="10"/>
