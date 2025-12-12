@@ -611,6 +611,55 @@ def eliminar_multiples():
 # PERFIL DE USUARIO
 # ============================================
 
+def detect_email_provider(email):
+    """Detecta proveedor de email y disponibilidad de OAuth"""
+    domain = email.split('@')[-1].lower()
+
+    # Gmail
+    if 'gmail.com' in domain or 'googlemail.com' in domain:
+        return {
+            'provider': 'gmail',
+            'name': 'Gmail',
+            'oauth_available': True,
+            'oauth_implemented': True
+        }
+
+    # Outlook/Hotmail/Live
+    elif any(d in domain for d in ['outlook.', 'hotmail.', 'live.']):
+        return {
+            'provider': 'outlook',
+            'name': 'Outlook',
+            'oauth_available': True,
+            'oauth_implemented': False  # Próximamente
+        }
+
+    # Yahoo
+    elif 'yahoo.' in domain:
+        return {
+            'provider': 'yahoo',
+            'name': 'Yahoo',
+            'oauth_available': True,
+            'oauth_implemented': False  # Próximamente
+        }
+
+    # iCloud
+    elif 'icloud.com' in domain or 'me.com' in domain or 'mac.com' in domain:
+        return {
+            'provider': 'icloud',
+            'name': 'iCloud',
+            'oauth_available': True,
+            'oauth_implemented': False  # Próximamente
+        }
+
+    # Corporativos u otros
+    else:
+        return {
+            'provider': 'other',
+            'name': 'Corporativo',
+            'oauth_available': False,
+            'oauth_implemented': False
+        }
+
 @viajes_bp.route('/perfil')
 @login_required
 def perfil():
@@ -634,7 +683,8 @@ def perfil():
         'email': current_user.email,
         'is_principal': True,
         'gmail_connection': gmail_by_email.get(current_user.email),
-        'user_email_id': None
+        'user_email_id': None,
+        'provider_info': detect_email_provider(current_user.email)
     }
     unified_emails.append(principal)
     seen_emails.add(current_user.email.lower())
@@ -646,7 +696,8 @@ def perfil():
                 'email': conn.email,
                 'is_principal': False,
                 'gmail_connection': conn,
-                'user_email_id': None
+                'user_email_id': None,
+                'provider_info': detect_email_provider(conn.email)
             })
             seen_emails.add(conn.email.lower())
 
@@ -657,7 +708,8 @@ def perfil():
                 'email': ue.email,
                 'is_principal': False,
                 'gmail_connection': gmail_by_email.get(ue.email),
-                'user_email_id': ue.id
+                'user_email_id': ue.id,
+                'provider_info': detect_email_provider(ue.email)
             })
             seen_emails.add(ue.email.lower())
 
