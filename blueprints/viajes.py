@@ -654,10 +654,10 @@ def detect_email_provider(email):
     # Corporativos u otros
     else:
         return {
-            'provider': 'other',
+            'provider': 'corporate',
             'name': 'Corporativo',
-            'oauth_available': False,
-            'oauth_implemented': False
+            'oauth_available': True,
+            'oauth_implemented': True  # Microsoft OAuth soporta Exchange/M365
         }
 
 @viajes_bp.route('/perfil')

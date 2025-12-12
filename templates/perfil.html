@@ -960,8 +960,16 @@
                             </a>
                         </div>
 
+                        {% elif item.provider_info.provider == 'corporate' %}
+                        <!-- CORPORATIVO: Ofrecer Microsoft (Exchange/M365) -->
+                        <div class="detection-status available">
+                            <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn-provider microsoft">
+                                <span class="provider-letter">M</span> Conectar Microsoft
+                            </a>
+                        </div>
+
                         {% else %}
-                        <!-- CORPORATIVO / OTROS: No disponible -->
+                        <!-- OTROS: No disponible -->
                         <div class="detection-status unavailable">
                             <span class="toggle-btn off disabled">
                                 <span class="toggle-circle"></span>
