@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "bash(cat:*)",
+      "bash(head:*)",
+      "bash(tail:*)",
+      "bash(ls:*)",
+      "bash(find:*)",
+      "bash(grep:*)",
+      "bash(wc:*)",
+      "bash(diff:*)",
+      "read:**",
+      "write:**"
+    ],
+    "deny": [
+      "bash(git:*)",
+      "bash(gcloud:*)",
+      "bash(rm -rf:*)",
+      "bash(curl:*)",
+      "bash(wget:*)"
+    ]
+  },
+  "model": "claude-sonnet-4-20250514",
+  "context": {
+    "always_read": [
+      "CLAUDE.md",
+      "METODOLOGIA_TRABAJO.md"
+    ]
+  }
+}
