@@ -131,7 +131,7 @@ def microsoft_callback():
 
         if not microsoft_email:
             flash('No se pudo obtener el email de la cuenta', 'error')
-            return redirect(url_for('viajes.preferencias'))
+            return redirect(url_for('viajes.perfil'))
 
         # Verificar si ya existe conexión
         existing = EmailConnection.query.filter_by(
@@ -164,13 +164,13 @@ def microsoft_callback():
         db.session.commit()
         session.pop('ms_oauth_state', None)
 
-        return redirect(url_for('viajes.preferencias'))
+        return redirect(url_for('viajes.perfil'))
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         flash(f'Error conectando Microsoft: {str(e)}', 'error')
-        return redirect(url_for('viajes.preferencias'))
+        return redirect(url_for('viajes.perfil'))
 
 
 @microsoft_oauth_bp.route('/desconectar-microsoft/<int:connection_id>', methods=['POST'])
