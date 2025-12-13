@@ -318,7 +318,10 @@ def scan_and_create_viajes(user_id, days_back=30):
     from googleapiclient.discovery import build
     from utils.claude import extraer_info_con_claude
     import uuid
-    
+    import logging
+
+    logger = logging.getLogger(__name__)
+
     results = {
         'emails_encontrados': 0,
         'emails_procesados': 0,
@@ -326,33 +329,43 @@ def scan_and_create_viajes(user_id, days_back=30):
         'viajes_duplicados': 0,
         'errors': []
     }
-    
+
     connections = EmailConnection.query.filter_by(
         user_id=user_id, provider='gmail', is_active=True
     ).all()
-    
+
     if not connections:
         results['errors'].append('No hay cuentas Gmail conectadas')
         return results
-    
+
     for conn in connections:
         try:
+            # Detectar primera conexión para backfill
+            is_first_scan = conn.last_scan is None or conn.emails_processed == 0
+            scan_days = 180 if is_first_scan else days_back
+
+            if is_first_scan:
+                logger.info(f"🆕 Primera conexión Gmail detectada: {conn.email} - Backfill de {scan_days} días")
+
             creds = get_gmail_credentials(user_id, gmail_email=conn.email)
             if not creds:
                 continue
-            
+
             service = build('gmail', 'v1', credentials=creds)
-            msg_ids = search_travel_emails(service, days_back)
+            msg_ids = search_travel_emails(service, scan_days)
             results['emails_encontrados'] += len(msg_ids)
-            
+
+            emails_processed_count = 0
+
             # Limitar para evitar timeout
             for msg_id in msg_ids[:MAX_EMAILS_PER_SCAN]:
                 try:
                     email = get_email_content(service, msg_id)
                     if not email or not is_whitelisted_sender(email.get('from'), user_id):
                         continue
-                    
+
                     results['emails_procesados'] += 1
+                    emails_processed_count += 1
                     
                     # Extraer con Claude
                     text = f"Subject: {email.get('subject', '')}\n\n{email.get('body', '')}"
@@ -394,7 +407,12 @@ def scan_and_create_viajes(user_id, days_back=30):
                                 fecha = datetime.strptime(fecha_str, '%Y-%m-%d')
                         except:
                             continue
-                        
+
+                        # En backfill, solo procesar vuelos futuros
+                        if is_first_scan and fecha.date() < datetime.utcnow().date():
+                            logger.info(f"⏭️ Saltando vuelo pasado en backfill: {fecha_str}")
+                            continue
+
                         viaje = Viaje(
                             user_id=user_id,
                             tipo='vuelo',
@@ -416,7 +434,13 @@ def scan_and_create_viajes(user_id, days_back=30):
                 except Exception as e:
                     results['errors'].append(str(e))
                     db.session.rollback()
-                    
+
+            # Actualizar tracking de la conexión
+            conn.last_scan = datetime.utcnow()
+            conn.emails_processed = (conn.emails_processed or 0) + emails_processed_count
+            db.session.commit()
+            logger.info(f"✅ Conexión Gmail actualizada: last_scan={conn.last_scan}, total_emails={conn.emails_processed}")
+
         except Exception as e:
             results['errors'].append(f"Error con {conn.email}: {str(e)}")
     

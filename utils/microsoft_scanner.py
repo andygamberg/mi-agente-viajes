@@ -187,7 +187,7 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
 
     Args:
         user_id: ID del usuario
-        days_back: Días hacia atrás para buscar
+        days_back: Días hacia atrás para buscar (30 por defecto, 180 en backfill)
 
     Returns:
         dict: Estadísticas del escaneo
@@ -219,14 +219,22 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
 
     for conn in connections:
         try:
-            logger.info(f"      📬 Procesando cuenta: {conn.email}")
+            # Detectar primera conexión para backfill
+            is_first_scan = conn.last_scan is None or conn.emails_processed == 0
+            scan_days = 180 if is_first_scan else days_back
+
+            if is_first_scan:
+                logger.info(f"      🆕 Primera conexión detectada: {conn.email} - Backfill de {scan_days} días")
+            else:
+                logger.info(f"      📬 Procesando cuenta: {conn.email} - Últimos {scan_days} días")
+
             creds = get_microsoft_credentials(user_id, email=conn.email)
             if not creds:
                 logger.warning(f"      ⚠️ No se pudieron obtener credenciales para {conn.email}")
                 continue
 
             access_token = creds['access_token']
-            messages = search_travel_emails_microsoft(access_token, days_back)
+            messages = search_travel_emails_microsoft(access_token, scan_days)
             logger.info(f"      📥 {len(messages)} emails encontrados en {conn.email}")
 
             # Filtrar por remitentes whitelistados
@@ -245,10 +253,13 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
             results['emails_encontrados'] += len(filtered_messages)
             logger.info(f"      🎯 {len(filtered_messages)} emails whitelistados para procesar")
 
+            emails_processed_count = 0
+
             # Limitar para evitar timeout
             for message in filtered_messages[:MAX_EMAILS_PER_SCAN]:
                 try:
                     results['emails_procesados'] += 1
+                    emails_processed_count += 1
 
                     # Obtener contenido completo
                     full_content = get_full_email_content_microsoft(access_token, message)
@@ -293,6 +304,11 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                         except:
                             continue
 
+                        # En backfill, solo procesar vuelos futuros
+                        if is_first_scan and fecha.date() < datetime.utcnow().date():
+                            logger.info(f"        ⏭️ Saltando vuelo pasado en backfill: {fecha_str}")
+                            continue
+
                         viaje = Viaje(
                             user_id=user_id,
                             tipo='vuelo',
@@ -314,6 +330,12 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                 except Exception as e:
                     results['errors'].append(str(e))
                     db.session.rollback()
+
+            # Actualizar tracking de la conexión
+            conn.last_scan = datetime.utcnow()
+            conn.emails_processed = (conn.emails_processed or 0) + emails_processed_count
+            db.session.commit()
+            logger.info(f"      ✅ Conexión actualizada: last_scan={conn.last_scan}, total_emails={conn.emails_processed}")
 
         except Exception as e:
             results['errors'].append(f"Error con {conn.email}: {str(e)}")
