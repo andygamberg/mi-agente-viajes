@@ -1243,7 +1243,7 @@
                         {% elif primer_vuelo.tipo == 'vuelo' %}
                             {# Buscar el último vuelo del grupo para obtener destino final #}
                             {% set ultimo_vuelo = grupo|selectattr('tipo', 'equalto', 'vuelo')|list|last %}
-                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim %}
+                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim and ultimo_vuelo.destino != 'None' %}
                                 {% set titulo_default = 'Viaje a ' ~ ultimo_vuelo.destino %}
                             {% else %}
                                 {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
@@ -1647,7 +1647,7 @@
                         {% elif primer_vuelo.tipo == 'vuelo' %}
                             {# Buscar el último vuelo del grupo para obtener destino final #}
                             {% set ultimo_vuelo = grupo|selectattr('tipo', 'equalto', 'vuelo')|list|last %}
-                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim %}
+                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim and ultimo_vuelo.destino != 'None' %}
                                 {% set titulo_default = 'Viaje a ' ~ ultimo_vuelo.destino %}
                             {% else %}
                                 {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
