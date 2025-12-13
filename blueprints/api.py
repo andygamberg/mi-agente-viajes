@@ -525,6 +525,33 @@ def debug_raw_data():
         return jsonify({'error': str(e)}), 500
 
 
+@api_bp.route('/debug-espectaculos')
+def debug_espectaculos():
+    """Debug endpoint - muestra todos los espectáculos"""
+    try:
+        espectaculos = Viaje.query.filter_by(tipo='espectaculo').order_by(Viaje.id.desc()).limit(10).all()
+
+        results = []
+        for v in espectaculos:
+            results.append({
+                'id': v.id,
+                'tipo': v.tipo,
+                'proveedor': v.proveedor,
+                'descripcion': v.descripcion,
+                'codigo_reserva': v.codigo_reserva,
+                'grupo_viaje': v.grupo_viaje,
+                'pasajeros': v.pasajeros,
+                'raw_data': v.raw_data
+            })
+
+        return jsonify({
+            'total': len(results),
+            'espectaculos': results
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @api_bp.route('/assign-viajes-to-user/<int:user_id>')
 def assign_viajes(user_id):
     """Endpoint temporal para asignar viajes huérfanos a un usuario"""
