@@ -85,7 +85,15 @@ def microsoft_callback():
     if 'error' in request.args:
         error = request.args.get('error')
         error_description = request.args.get('error_description', '')
-        flash(f'Error de autorización: {error_description or error}', 'error')
+
+        # Detectar error AADSTS65004: User declined consent or admin approval required
+        if 'AADSTS65004' in error_description or 'AADSTS65001' in error_description:
+            flash('Autorización pendiente: Tu administrador de IT debe aprobar la app. Una vez aprobada, volvé a hacer click en "Conectar Microsoft".', 'warning')
+        elif error == 'access_denied':
+            flash('Cancelaste la autorización. Podés volver a intentar cuando quieras.', 'info')
+        else:
+            flash(f'Error de autorización: {error_description or error}', 'error')
+
         return redirect(url_for('viajes.perfil'))
 
     try:
