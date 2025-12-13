@@ -24,6 +24,7 @@ SCOPES = [
     'openid',
     'profile',
     'email',
+    'User.Read',
     'Mail.Read',
     'offline_access'
 ]
