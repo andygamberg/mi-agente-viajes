@@ -771,9 +771,9 @@ def perfil():
 @viajes_bp.route('/update-profile', methods=['POST'])
 @login_required
 def update_profile():
-    current_user.nombre = request.form.get('nombre', '').strip()
-    current_user.nombre_pax = request.form.get('nombre_pax', '').strip() or None
-    current_user.apellido_pax = request.form.get('apellido_pax', '').strip() or None
+    current_user.nombre = request.form.get('nombre', '').strip().title()
+    current_user.nombre_pax = request.form.get('nombre_pax', '').strip().title() or None
+    current_user.apellido_pax = request.form.get('apellido_pax', '').strip().title() or None
     # MVP11: Toggle combinar vuelos
     current_user.combinar_vuelos = request.form.get('combinar_vuelos') == 'on'
     db.session.commit()

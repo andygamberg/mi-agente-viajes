@@ -118,8 +118,8 @@ def guardar_nombre_pax():
     """Guarda nombre y apellido del pasajero para detección automática"""
     try:
         data = request.get_json()
-        nombre_pax = data.get('nombre_pax', '').strip()
-        apellido_pax = data.get('apellido_pax', '').strip()
+        nombre_pax = data.get('nombre_pax', '').strip().title()
+        apellido_pax = data.get('apellido_pax', '').strip().title()
 
         current_user.nombre_pax = nombre_pax
         current_user.apellido_pax = apellido_pax
