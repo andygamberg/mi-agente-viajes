@@ -181,6 +181,27 @@ Objetivo: evitar repetir errores y propagar conocimiento a otros proyectos.
 **Sesión:** MVP14h
 **Aplicable a:** Proyectos Flask en Cloud Run con Cloud SQL
 
+### 25. Backfill en primera conexión mejora UX dramáticamente
+**Problema:** Usuarios conectan cuenta pero no ven viajes históricos, solo futuros
+**Causa:** Scanner por defecto busca últimos 30 días, pierde emails más antiguos
+**Solución:** Detectar primera conexión (last_scan=NULL) y buscar 180 días, pero solo crear viajes futuros
+**Sesión:** MVP14h
+**Aplicable a:** Cualquier integración de email/calendario que sincroniza datos históricos
+
+### 26. Campos de BD deben tener defaults para evitar rollbacks silenciosos
+**Problema:** Scanner reporta "4 viajes creados" pero no aparecen en la app
+**Causa:** Campo NOT NULL sin default causa rollback de transacción completa, pero counter ya incrementó
+**Solución:** Todos los campos NOT NULL deben tener `default=''` o `default=0` en el modelo
+**Sesión:** MVP14h
+**Aplicable a:** Cualquier proyecto SQLAlchemy/Flask
+
+### 27. Claude Code local (VS Code + Mac) funciona igual que Codespaces sin límites
+**Problema:** Codespaces tiene límite de 120 horas/mes en plan free
+**Causa:** GitHub cobra por uso de Codespaces
+**Solución:** Usar Claude Code localmente: `brew install node && npm install -g @anthropic-ai/claude-code && claude`
+**Sesión:** MVP14h
+**Aplicable a:** Cualquier proyecto que usa Claude Code
+
 ---
 
 ## Patrones Exitosos

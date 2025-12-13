@@ -67,6 +67,45 @@ Andy es la última opción. Claude debe buscar en Project Knowledge, conversacio
 - **Abrir:** github.com/[usuario]/[repo] → Code → Codespaces → Create/Open
 - **Es básicamente VS Code en el navegador** con terminal integrada
 - **gcloud ya configurado** (si se hizo setup previo)
+- **Límite:** 120 horas/mes en plan free
+
+### Setup Local (alternativa a Codespaces)
+
+**Ideal para:** Desarrollo sin límites de horas, mejor performance en Mac/Linux
+
+1. **Instalar Node.js (si no lo tenés):**
+   ```bash
+   brew install node
+   ```
+
+2. **Instalar Claude Code CLI:**
+   ```bash
+   npm install -g @anthropic-ai/claude-code
+   ```
+
+3. **Clonar repo:**
+   ```bash
+   git clone https://github.com/[usuario]/mi-agente-viajes.git
+   cd mi-agente-viajes
+   ```
+
+4. **Abrir en VS Code:**
+   ```bash
+   code .
+   ```
+
+5. **Iniciar Claude Code:**
+   - Abrir terminal integrada en VS Code (Ctrl+`)
+   - Ejecutar: `claude`
+   - Claude Code funciona igual que en Codespaces
+
+**Ventajas:**
+- ✅ Sin límites de horas
+- ✅ Mejor performance (local vs cloud)
+- ✅ Funciona offline para edición
+- ✅ Mismo workflow que Codespaces
+
+**Nota:** Configurar gcloud localmente usando `scripts/setup-gcloud.sh`
 
 ### Credenciales y Variables de Entorno
 

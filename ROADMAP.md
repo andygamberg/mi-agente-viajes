@@ -243,4 +243,4 @@ Evento (tabla base)
 
 ---
 
-*Última actualización: 12 Dic 2025 - MVP14h completado: Microsoft OAuth para Outlook y corporativos*
+*Última actualización: 14 Dic 2025 - MVP14h completado: Microsoft OAuth para Outlook y corporativos*
