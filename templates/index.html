@@ -398,7 +398,7 @@
             color: white;
         }
 
-        .badge-crucero {
+        .badge-barco {
             background: #3b82f6;
             color: white;
         }
@@ -605,6 +605,20 @@
         .info-row strong {
             color: var(--text-muted);
             font-weight: 500;
+        }
+
+        .entradas-detalle {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .entrada-item {
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .entrada-item:last-child {
+            border-bottom: none;
         }
         
         .passengers-section {
@@ -1145,8 +1159,8 @@
                                     <span class="badge">VUELO</span>
                                     {% elif primer_vuelo.tipo == 'hotel' %}
                                     <span class="badge badge-hotel">HOTEL</span>
-                                    {% elif primer_vuelo.tipo == 'crucero' %}
-                                    <span class="badge badge-crucero">CRUCERO</span>
+                                    {% elif primer_vuelo.tipo == 'crucero' or primer_vuelo.tipo == 'barco' %}
+                                    <span class="badge badge-barco">BARCO</span>
                                     {% elif primer_vuelo.tipo == 'espectaculo' %}
                                     <span class="badge badge-espectaculo">SHOW</span>
                                     {% elif primer_vuelo.tipo == 'restaurante' %}
@@ -1175,16 +1189,42 @@
                                 {% if primer_vuelo.nombre_viaje %}
                                     {{ primer_vuelo.nombre_viaje }}
                                 {% else %}
-                                    {% if primer_vuelo.tipo == 'hotel' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion }}
-                                    {% elif primer_vuelo.tipo == 'restaurante' %}
-                                        {{ primer_vuelo.proveedor }}
+                                    {% if primer_vuelo.tipo == 'vuelo' %}
+                                        {% if grupo[-1].destino %}
+                                            Viaje a {{ grupo[-1].destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or 'Vuelo' }}
+                                        {% endif %}
+                                    {% elif primer_vuelo.tipo == 'hotel' %}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' }}
+                                    {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
+                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                            {{ primer_vuelo.proveedor or '' }} {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' }}
+                                        {% endif %}
                                     {% elif primer_vuelo.tipo == 'espectaculo' %}
-                                        {{ primer_vuelo.descripcion }}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' }}
+                                    {% elif primer_vuelo.tipo == 'restaurante' %}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' }}
                                     {% elif primer_vuelo.tipo == 'actividad' %}
-                                        {{ primer_vuelo.descripcion }}
+                                        {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' }}
+                                    {% elif primer_vuelo.tipo == 'auto' %}
+                                        {{ primer_vuelo.proveedor or 'Rental' }}{% if primer_vuelo.origen %} - {{ primer_vuelo.origen }}{% endif %}
+                                    {% elif primer_vuelo.tipo == 'tren' %}
+                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or 'Tren' }}
+                                        {% endif %}
+                                    {% elif primer_vuelo.tipo == 'transfer' %}
+                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or 'Transfer' }}
+                                        {% endif %}
                                     {% else %}
-                                        Viaje a {{ grupo[-1].destino }}
+                                        {{ primer_vuelo.descripcion or 'Reserva' }}
                                     {% endif %}
                                 {% endif %}
                             </span>
@@ -1245,7 +1285,90 @@
                                     <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>
                                     {% endif %}
                                 {% endif %}
-                                
+
+                                {# Detalles adicionales desde raw_data #}
+                                {% if vuelo.raw_data %}
+                                    {% set raw = vuelo.raw_data|fromjson %}
+                                {% else %}
+                                    {% set raw = {} %}
+                                {% endif %}
+
+                                {# BARCO/CRUCERO details #}
+                                {% if vuelo.tipo == 'crucero' or vuelo.tipo == 'barco' %}
+                                    {% if raw.hora_embarque or raw.clase %}
+                                    <div class="info-row">
+                                        {% if raw.hora_embarque %}<span><strong>Embarque:</strong> {{ raw.hora_embarque }}</span>{% endif %}
+                                        {% if raw.clase %}<span><strong>Clase:</strong> {{ raw.clase }}</span>{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if raw.vehiculos and raw.vehiculos|length > 0 %}
+                                    <div class="info-row"><strong>Vehículos:</strong> {{ raw.vehiculos|join(', ') }}</div>
+                                    {% endif %}
+                                    {% if raw.embarcacion %}
+                                    <div class="info-row"><strong>Embarcación:</strong> {{ raw.embarcacion }}</div>
+                                    {% endif %}
+                                {% endif %}
+
+                                {# SHOW details #}
+                                {% if vuelo.tipo == 'espectaculo' %}
+                                    {% if raw.hora or raw.sector %}
+                                    <div class="info-row">
+                                        {% if raw.hora %}<span><strong>Hora:</strong> {{ raw.hora }}</span>{% endif %}
+                                        {% if raw.sector %}<span><strong>Sector:</strong> {{ raw.sector }}</span>{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if raw.detalles_entradas and raw.detalles_entradas|length > 0 %}
+                                    <div class="entradas-detalle">
+                                        {% for entrada in raw.detalles_entradas %}
+                                        <div class="entrada-item">
+                                            Puesto {{ entrada.puesto }}: {{ entrada.ubicacion }} ({{ entrada.categoria }}) - {{ entrada.precio }}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+
+                                {# HOTEL details #}
+                                {% if vuelo.tipo == 'hotel' %}
+                                    {% if raw.noches or raw.habitacion %}
+                                    <div class="info-row">
+                                        {% if raw.noches %}<span><strong>Noches:</strong> {{ raw.noches }}</span>{% endif %}
+                                        {% if raw.habitacion %}<span><strong>Habitación:</strong> {{ raw.habitacion }}</span>{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if raw.hora_checkin or raw.hora_checkout %}
+                                    <div class="info-row">
+                                        {% if raw.hora_checkin %}<span><strong>Check-in:</strong> {{ raw.hora_checkin }}</span>{% endif %}
+                                        {% if raw.hora_checkout %}<span><strong>Check-out:</strong> {{ raw.hora_checkout }}</span>{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if raw.incluye_desayuno %}
+                                    <div class="info-row">✓ Desayuno incluido</div>
+                                    {% endif %}
+                                {% endif %}
+
+                                {# AUTO details #}
+                                {% if vuelo.tipo == 'auto' %}
+                                    {% if raw.modelo or raw.categoria %}
+                                    <div class="info-row">
+                                        {% if raw.modelo %}<span><strong>Vehículo:</strong> {{ raw.modelo }}</span>{% endif %}
+                                        {% if raw.categoria %}<span>({{ raw.categoria }})</span>{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if raw.hora_retiro or raw.hora_devolucion %}
+                                    <div class="info-row">
+                                        {% if raw.hora_retiro %}<span><strong>Retiro:</strong> {{ raw.hora_retiro }}</span>{% endif %}
+                                        {% if raw.hora_devolucion %}<span><strong>Devolución:</strong> {{ raw.hora_devolucion }}</span>{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if raw.incluye_seguro %}
+                                    <div class="info-row">✓ Seguro incluido</div>
+                                    {% endif %}
+                                    {% if raw.kilometraje %}
+                                    <div class="info-row"><strong>Km:</strong> {{ raw.kilometraje }}</div>
+                                    {% endif %}
+                                {% endif %}
+
                                 {# MVP11: Renderizado de pasajeros combinados vs normales #}
                                 {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
                                 {# Pasajeros combinados de múltiples reservas #}
@@ -1395,8 +1518,8 @@
                                     <span class="badge">VUELO</span>
                                     {% elif primer_vuelo.tipo == 'hotel' %}
                                     <span class="badge badge-hotel">HOTEL</span>
-                                    {% elif primer_vuelo.tipo == 'crucero' %}
-                                    <span class="badge badge-crucero">CRUCERO</span>
+                                    {% elif primer_vuelo.tipo == 'crucero' or primer_vuelo.tipo == 'barco' %}
+                                    <span class="badge badge-barco">BARCO</span>
                                     {% elif primer_vuelo.tipo == 'espectaculo' %}
                                     <span class="badge badge-espectaculo">SHOW</span>
                                     {% elif primer_vuelo.tipo == 'restaurante' %}
@@ -1425,16 +1548,42 @@
                                 {% if primer_vuelo.nombre_viaje %}
                                     {{ primer_vuelo.nombre_viaje }}
                                 {% else %}
-                                    {% if primer_vuelo.tipo == 'hotel' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion }}
-                                    {% elif primer_vuelo.tipo == 'restaurante' %}
-                                        {{ primer_vuelo.proveedor }}
+                                    {% if primer_vuelo.tipo == 'vuelo' %}
+                                        {% if grupo[-1].destino %}
+                                            Viaje a {{ grupo[-1].destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or 'Vuelo' }}
+                                        {% endif %}
+                                    {% elif primer_vuelo.tipo == 'hotel' %}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' }}
+                                    {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
+                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                            {{ primer_vuelo.proveedor or '' }} {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' }}
+                                        {% endif %}
                                     {% elif primer_vuelo.tipo == 'espectaculo' %}
-                                        {{ primer_vuelo.descripcion }}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' }}
+                                    {% elif primer_vuelo.tipo == 'restaurante' %}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' }}
                                     {% elif primer_vuelo.tipo == 'actividad' %}
-                                        {{ primer_vuelo.descripcion }}
+                                        {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' }}
+                                    {% elif primer_vuelo.tipo == 'auto' %}
+                                        {{ primer_vuelo.proveedor or 'Rental' }}{% if primer_vuelo.origen %} - {{ primer_vuelo.origen }}{% endif %}
+                                    {% elif primer_vuelo.tipo == 'tren' %}
+                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or 'Tren' }}
+                                        {% endif %}
+                                    {% elif primer_vuelo.tipo == 'transfer' %}
+                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
+                                        {% else %}
+                                            {{ primer_vuelo.descripcion or 'Transfer' }}
+                                        {% endif %}
                                     {% else %}
-                                        Viaje a {{ grupo[-1].destino }}
+                                        {{ primer_vuelo.descripcion or 'Reserva' }}
                                     {% endif %}
                                 {% endif %}
                             </span>
