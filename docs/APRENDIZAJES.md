@@ -209,6 +209,20 @@ Objetivo: evitar repetir errores y propagar conocimiento a otros proyectos.
 **Sesión:** MVP14h
 **Aplicable a:** Cualquier deploy a Cloud Run con múltiples env vars
 
+### 29. Template inheritance reduce código duplicado significativamente
+**Problema:** Cada template tenía ~100-200 líneas de CSS duplicado
+**Solución:** Crear base.html con header, menú y estilos comunes. Templates extienden con {% extends "base.html" %}
+**Resultado:** Reducción de 67-93 líneas por template, menú consistente en toda la app
+**Sesión:** Mis Viajes 20
+**Aplicable a:** Cualquier proyecto Flask/Jinja con múltiples templates
+
+### 30. OAuth Client ID debe coincidir con el proyecto correcto
+**Problema:** "OAuth client was not found" / "invalid_client" error
+**Causa:** Client ID en Cloud Run era de otro proyecto GCP (684337806599 vs 454542398872)
+**Solución:** Verificar en Google Console que el Client ID existe y actualizar env vars con el correcto
+**Sesión:** Mis Viajes 20
+**Aplicable a:** Cualquier integración OAuth con múltiples proyectos GCP
+
 ---
 
 ## Patrones Exitosos

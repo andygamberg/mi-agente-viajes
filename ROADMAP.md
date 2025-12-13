@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 12 Diciembre 2025
+**Última actualización:** 14 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -36,6 +36,8 @@
 | **14** | **Gmail Push + Multi-cuenta** | **11 Dic 2025** | **OAuth, push notifications, PDFs, deduplicación** |
 | 14-UX | Unificación emails en perfil | 12 Dic 2025 | Toggle visual, detección proveedor, deduplicación |
 | **14h** | **Microsoft OAuth** | **12 Dic 2025** | **Outlook, Hotmail, Exchange 365, corporativos** |
+| 15 | Onboarding post-registro | 14 Dic 2025 | Pantalla bienvenida con OAuth + nombre pax |
+| 15-UX | Template inheritance (base.html) | 14 Dic 2025 | Menú global, reducción código duplicado |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 

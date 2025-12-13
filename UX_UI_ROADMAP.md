@@ -1,6 +1,6 @@
 # 🎨 UX/UI ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 12 Diciembre 2025
+**Última actualización:** 14 Diciembre 2025
 **Versión:** 2.3 (toggle funcional clickeable + eliminación de botones confusos)
 
 ---
@@ -412,6 +412,25 @@ Próximos eventos
 
 ## ✅ COMPLETADO
 
+### Onboarding Post-Registro (14 Dic 2025)
+- [x] Pantalla /bienvenida después de registro
+- [x] Botones OAuth (Gmail/Microsoft)
+- [x] Opción reenvío manual con copy email
+- [x] Formulario inline nombre/apellido pax
+- [x] Redirect a /perfil después de OAuth
+
+### Template Inheritance (14 Dic 2025)
+- [x] base.html con header y menú global
+- [x] Refactor: preferencias, perfil, agregar, carga_rapida, bienvenida
+- [x] Menú reorganizado (Perfil/Preferencias primero)
+- [x] Botón Agregar cambiado a secundario
+- [x] Favicon paper-airplane
+
+### Fixes UX (14 Dic 2025)
+- [x] Dominios custom muestran opción Google/Microsoft
+- [x] Alias corporativos detectan conexión vía dominio
+- [x] Redirect OAuth a /perfil (no /preferencias)
+
 ### MVP14-UX: Unificación Emails (12 Dic 2025)
 - [x] Unificar emails en perfil (12 Dic 2025)
 - [x] Eliminar duplicación de Preferencias
@@ -451,7 +470,6 @@ Próximos eventos
 
 | Tarea | Descripción | Esfuerzo |
 |-------|-------------|----------|
-| Onboarding post-registro | Pantalla de bienvenida con opciones OAuth | 2-3h |
 | Stats por email | trips_detected, last_activity | 1h |
 
 ### Media Prioridad
