@@ -8,6 +8,7 @@ from datetime import datetime, date
 import json
 import base64
 import logging
+import fitz  # PyMuPDF
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +130,81 @@ def guardar_nombre_pax():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@api_bp.route('/api/test-extraction', methods=['GET', 'POST'])
+@login_required
+def test_extraction():
+    """Endpoint de prueba para ver qué detecta Claude (no guarda en BD)"""
+    if request.method == 'GET':
+        return '''
+        <html>
+        <head><title>Test Extracción</title></head>
+        <body style="font-family: system-ui; max-width: 800px; margin: 40px auto; padding: 20px;">
+            <h1>🧪 Test Extracción Multi-Tipo</h1>
+            <form method="POST" enctype="multipart/form-data">
+                <p><strong>Subir PDF:</strong></p>
+                <input type="file" name="pdf" accept=".pdf"><br><br>
+                <p><strong>O pegar texto del email:</strong></p>
+                <textarea name="email_text" rows="10" style="width:100%"></textarea><br><br>
+                <button type="submit" style="padding: 10px 20px; font-size: 16px;">Analizar con Claude</button>
+            </form>
+        </body>
+        </html>
+        '''
+
+    # POST - procesar
+    email_text = ""
+
+    # Intentar leer PDF
+    if 'pdf' in request.files:
+        pdf_file = request.files['pdf']
+        if pdf_file.filename:
+            try:
+                pdf_bytes = pdf_file.read()
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+                for page in doc:
+                    email_text += page.get_text()
+                doc.close()
+            except Exception as e:
+                return f"<pre>Error leyendo PDF: {e}</pre>"
+
+    # Si no hay PDF, usar texto
+    if not email_text.strip():
+        email_text = request.form.get('email_text', '')
+
+    if not email_text.strip():
+        return "<pre>No se proporcionó contenido</pre>"
+
+    # Extraer con Claude
+    try:
+        reservas = extraer_info_con_claude(email_text)
+
+        if not reservas:
+            return "<pre>Claude no detectó reservas en este documento</pre>"
+
+        # Mostrar resultado formateado
+        resultado_html = f'''
+        <html>
+        <head><title>Resultado</title></head>
+        <body style="font-family: system-ui; max-width: 900px; margin: 40px auto; padding: 20px;">
+            <h1>✅ {len(reservas)} reserva(s) detectada(s)</h1>
+            <a href="/api/test-extraction">← Probar otro</a>
+            <hr>
+        '''
+
+        for i, r in enumerate(reservas):
+            tipo = r.get('tipo', 'desconocido')
+            desc = r.get('descripcion', 'Sin descripción')
+            resultado_html += f'<h2>{i+1}. [{tipo.upper()}] {desc}</h2>'
+            resultado_html += f'<pre style="background:#f5f5f5; padding:15px; overflow-x:auto;">{json.dumps(r, indent=2, ensure_ascii=False)}</pre>'
+
+        resultado_html += '</body></html>'
+        return resultado_html
+
+    except Exception as e:
+        import traceback
+        return f"<pre>Error: {e}\n\n{traceback.format_exc()}</pre>"
 
 
 # ============================================
