@@ -735,6 +735,25 @@ def perfil():
             })
             seen_emails.add(ue.email.lower())
 
+    # 5. Detectar alias corporativos (emails con mismo dominio que conexiones Microsoft)
+    # Extraer dominios de conexiones Microsoft activas
+    ms_domains = {}  # domain -> email conectado
+    for conn in microsoft_connections:
+        domain = conn.email.split('@')[1].lower() if '@' in conn.email else None
+        if domain:
+            ms_domains[domain] = conn.email
+
+    # Para cada email, verificar si es alias de una conexión Microsoft
+    for email_info in unified_emails:
+        email = email_info['email']
+        domain = email.split('@')[1].lower() if '@' in email else None
+
+        # Si no tiene conexión Microsoft propia y su dominio está conectado
+        if not email_info['microsoft_connection'] and domain and domain in ms_domains:
+            email_info['connected_via'] = ms_domains[domain]
+        else:
+            email_info['connected_via'] = None
+
     return render_template('perfil.html',
                            unified_emails=unified_emails,
                            emails_adicionales=emails_adicionales,
