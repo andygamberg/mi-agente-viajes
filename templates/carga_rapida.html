@@ -1,430 +1,363 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carga Rápida - Mis Viajes</title>
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-    <style>
-        :root {
-            --bg: #FAFAFA;
-            --card: #FFFFFF;
-            --text: #1D1D1F;
-            --text-secondary: #86868B;
-            --text-tertiary: #AEAEB2;
-            --accent: #0071E3;
-            --border: #E5E5E5;
-            --border-light: #F0F0F0;
-            --success: #34C759;
-            --radius: 12px;
-            --radius-lg: 16px;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 32px 20px;
-        }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 24px;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        .back-link svg {
-            width: 16px;
-            height: 16px;
-        }
-        
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-        
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 15px;
-            margin-bottom: 32px;
-        }
-        
-        .card {
-            background: var(--card);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            border: 1px solid var(--border-light);
-        }
-        
-        .alert {
-            background: #FFF9E6;
-            border: 1px solid #F5E6B3;
-            border-radius: var(--radius);
-            padding: 14px 16px;
-            margin-bottom: 24px;
-            font-size: 14px;
-            color: #946800;
-        }
-        
-        /* Drop Zone - Método principal */
-        .drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius-lg);
-            padding: 48px 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: var(--bg);
-            margin-bottom: 24px;
-        }
-        
-        .drop-zone:hover {
-            border-color: var(--accent);
-            background: #F5F9FF;
-        }
-        
-        .drop-zone.dragover {
-            border-color: var(--accent);
-            background: #EBF4FF;
-            transform: scale(1.01);
-        }
-        
-        .drop-zone.has-file {
-            border-color: var(--success);
-            border-style: solid;
-            background: #F0FDF4;
-        }
-        
-        .drop-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 16px;
-            color: var(--text-tertiary);
-        }
-        
-        .drop-zone.has-file .drop-icon {
-            color: var(--success);
-        }
-        
-        .drop-title {
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-        
-        .drop-subtitle {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-        
-        .btn-select {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 20px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-select:hover {
-            background: var(--bg);
-            border-color: var(--text-tertiary);
-        }
-        
-        .drop-zone.has-file .btn-select {
-            display: none;
-        }
-        
-        .file-name {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--success);
-        }
-        
-        .drop-zone.has-file .file-name {
-            display: flex;
-        }
-        
-        .file-name svg {
-            width: 16px;
-            height: 16px;
-        }
-        
-        /* Alternativa colapsable */
-        .alternative-section {
-            border-top: 1px solid var(--border-light);
-            padding-top: 24px;
-        }
-        
-        .alternative-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg);
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-        
-        .alternative-toggle:hover {
-            color: var(--text);
-            background: var(--border-light);
-        }
-        
-        .alternative-toggle svg {
-            width: 16px;
-            height: 16px;
-            transition: transform 0.2s;
-        }
-        
-        .alternative-toggle.expanded svg {
-            transform: rotate(180deg);
-        }
-        
-        .alternative-content {
-            display: none;
-            padding-top: 16px;
-        }
-        
-        .alternative-content.visible {
-            display: block;
-        }
-        
-        textarea {
-            width: 100%;
-            padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 15px;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 160px;
-            transition: all 0.2s;
-            background: var(--card);
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
-        }
-        
-        textarea::placeholder {
-            color: var(--text-tertiary);
-        }
-        
-        /* Submit */
-        .submit-section {
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-light);
-        }
-        
-        .btn-submit {
-            width: 100%;
-            padding: 16px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-submit:hover {
-            background: #0077ED;
-        }
-        
-        .btn-submit:disabled {
-            background: var(--border);
-            cursor: not-allowed;
-        }
-        
-        .supported-formats {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 13px;
-            color: var(--text-tertiary);
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px 16px;
-            }
-            
-            h1 {
-                font-size: 28px;
-            }
-            
-            .card {
-                padding: 24px 20px;
-            }
-            
-            .drop-zone {
-                padding: 32px 16px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="{{ url_for('viajes.index') }}" class="back-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
+{% extends "base.html" %}
+
+{% block title %}Carga Rápida - Mis Viajes{% endblock %}
+
+{% block styles %}
+.container {
+    max-width: 600px;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-bottom: 32px;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    border: 1px solid var(--border-light);
+}
+
+.alert {
+    background: #FFF9E6;
+    border: 1px solid #F5E6B3;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #946800;
+}
+
+/* Drop Zone - Método principal */
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--bg);
+    margin-bottom: 24px;
+}
+
+.drop-zone:hover {
+    border-color: var(--accent);
+    background: #F5F9FF;
+}
+
+.drop-zone.dragover {
+    border-color: var(--accent);
+    background: #EBF4FF;
+    transform: scale(1.01);
+}
+
+.drop-zone.has-file {
+    border-color: var(--success);
+    border-style: solid;
+    background: #F0FDF4;
+}
+
+.drop-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    color: var(--text-muted);
+}
+
+.drop-zone.has-file .drop-icon {
+    color: var(--success);
+}
+
+.drop-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.drop-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.btn-select {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-select:hover {
+    background: var(--bg);
+    border-color: var(--text-muted);
+}
+
+.drop-zone.has-file .btn-select {
+    display: none;
+}
+
+.file-name {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--success);
+}
+
+.drop-zone.has-file .file-name {
+    display: flex;
+}
+
+.file-name svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Alternativa colapsable */
+.alternative-section {
+    border-top: 1px solid var(--border-light);
+    padding-top: 24px;
+}
+
+.alternative-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.alternative-toggle:hover {
+    color: var(--text);
+    background: var(--border-light);
+}
+
+.alternative-toggle svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+}
+
+.alternative-toggle.expanded svg {
+    transform: rotate(180deg);
+}
+
+.alternative-content {
+    display: none;
+    padding-top: 16px;
+}
+
+.alternative-content.visible {
+    display: block;
+}
+
+textarea {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 160px;
+    transition: all 0.2s;
+    background: var(--bg-card);
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+}
+
+textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* Submit */
+.submit-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-submit:hover {
+    background: var(--accent-hover);
+}
+
+.btn-submit:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+}
+
+.supported-formats {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 28px;
+    }
+
+    .card {
+        padding: 24px 20px;
+    }
+
+    .drop-zone {
+        padding: 32px 16px;
+    }
+}
+{% endblock %}
+
+{% block content %}
+<h1>Carga Rápida</h1>
+<p class="subtitle">Subí tu confirmación y extraemos los datos automáticamente</p>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card">
+    <form method="POST" enctype="multipart/form-data">
+        <!-- Método principal: PDF -->
+        <div class="drop-zone" id="dropZone">
+            <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
-            Volver
-        </a>
-        
-        <h1>Carga Rápida</h1>
-        <p class="subtitle">Subí tu confirmación y extraemos los datos automáticamente</p>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <div class="card">
-            <form method="POST" enctype="multipart/form-data">
-                <!-- Método principal: PDF -->
-                <div class="drop-zone" id="dropZone">
-                    <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M9 12h6m-3-3v6m-7 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                    <div class="drop-title">Arrastrá tu PDF aquí</div>
-                    <div class="drop-subtitle">o hacé click para seleccionar</div>
-                    <input type="file" name="pdf_file" id="pdfInput" accept=".pdf" hidden>
-                    <button type="button" class="btn-select" onclick="document.getElementById('pdfInput').click();">
-                        Seleccionar archivo
-                    </button>
-                    <div class="file-name" id="fileName">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 13l4 4L19 7"/>
-                        </svg>
-                        <span id="fileNameText"></span>
-                    </div>
-                </div>
-                
-                <!-- Alternativa: Pegar email -->
-                <div class="alternative-section">
-                    <button type="button" class="alternative-toggle" id="altToggle" onclick="toggleAlternative()">
-                        <span>¿No tenés PDF? Pegá el email</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    
-                    <div class="alternative-content" id="altContent">
-                        <textarea name="email_text" placeholder="Pegá el contenido del email de confirmación aquí..."></textarea>
-                    </div>
-                </div>
-                
-                <!-- Submit -->
-                <div class="submit-section">
-                    <button type="submit" class="btn-submit">Procesar</button>
-                    <p class="supported-formats">Idiomas soportados: Español, English, Português, Italiano, Français</p>
-                </div>
-            </form>
+            <div class="drop-title">Arrastrá tu PDF aquí</div>
+            <div class="drop-subtitle">o hacé click para seleccionar</div>
+            <input type="file" name="pdf_file" id="pdfInput" accept=".pdf" hidden>
+            <button type="button" class="btn-select" onclick="document.getElementById('pdfInput').click();">
+                Seleccionar archivo
+            </button>
+            <div class="file-name" id="fileName">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+                <span id="fileNameText"></span>
+            </div>
         </div>
-    </div>
-    
-    <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('pdfInput');
-        const fileNameText = document.getElementById('fileNameText');
-        
-        // Drag & drop
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-        
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-        
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0 && files[0].name.toLowerCase().endsWith('.pdf')) {
-                fileInput.files = files;
-                showFileName(files[0].name);
-            }
-        });
-        
-        // Click to upload
-        dropZone.addEventListener('click', (e) => {
-            if (!e.target.closest('button')) {
-                fileInput.click();
-            }
-        });
-        
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                showFileName(fileInput.files[0].name);
-            }
-        });
-        
-        function showFileName(name) {
-            fileNameText.textContent = name;
-            dropZone.classList.add('has-file');
-        }
-        
-        // Toggle alternativa
-        function toggleAlternative() {
-            const toggle = document.getElementById('altToggle');
-            const content = document.getElementById('altContent');
-            toggle.classList.toggle('expanded');
-            content.classList.toggle('visible');
-        }
-    </script>
-</body>
-</html>
+
+        <!-- Alternativa: Pegar email -->
+        <div class="alternative-section">
+            <button type="button" class="alternative-toggle" id="altToggle" onclick="toggleAlternative()">
+                <span>¿No tenés PDF? Pegá el email</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div class="alternative-content" id="altContent">
+                <textarea name="email_text" placeholder="Pegá el contenido del email de confirmación aquí..."></textarea>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-section">
+            <button type="submit" class="btn-submit">Procesar</button>
+            <p class="supported-formats">Idiomas soportados: Español, English, Português, Italiano, Français</p>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('pdfInput');
+const fileNameText = document.getElementById('fileNameText');
+
+// Drag & drop
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].name.toLowerCase().endsWith('.pdf')) {
+        fileInput.files = files;
+        showFileName(files[0].name);
+    }
+});
+
+// Click to upload
+dropZone.addEventListener('click', (e) => {
+    if (!e.target.closest('button')) {
+        fileInput.click();
+    }
+});
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+        showFileName(fileInput.files[0].name);
+    }
+});
+
+function showFileName(name) {
+    fileNameText.textContent = name;
+    dropZone.classList.add('has-file');
+}
+
+// Toggle alternativa
+function toggleAlternative() {
+    const toggle = document.getElementById('altToggle');
+    const content = document.getElementById('altContent');
+    toggle.classList.toggle('expanded');
+    content.classList.toggle('visible');
+}
+{% endblock %}
