@@ -576,7 +576,24 @@
             letter-spacing: 0.5px;
             margin-bottom: 12px;
         }
-        
+
+        /* Segment header with icon */
+        .segment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        .segment-header .segment-label {
+            text-transform: uppercase;
+            margin-bottom: 0;
+        }
+
         /* MVP11: Label para vuelo combinado */
         .segment-label .combined-indicator {
             color: #16A34A;
@@ -1226,7 +1243,7 @@
                         {% elif primer_vuelo.tipo == 'vuelo' %}
                             {# Buscar el último vuelo del grupo para obtener destino final #}
                             {% set ultimo_vuelo = grupo|selectattr('tipo', 'equalto', 'vuelo')|list|last %}
-                            {% if ultimo_vuelo and ultimo_vuelo.destino %}
+                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim %}
                                 {% set titulo_default = 'Viaje a ' ~ ultimo_vuelo.destino %}
                             {% else %}
                                 {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
@@ -1235,7 +1252,11 @@
                             {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' %}
                         {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
                             {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                {% set titulo_default = (primer_vuelo.proveedor or '') ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                                {% if primer_vuelo.proveedor %}
+                                    {% set titulo_default = primer_vuelo.proveedor ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                                {% else %}
+                                    {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                                {% endif %}
                             {% else %}
                                 {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' %}
                             {% endif %}
@@ -1248,16 +1269,16 @@
                         {% elif primer_vuelo.tipo == 'auto' %}
                             {% set titulo_default = (primer_vuelo.proveedor or 'Rental') ~ (' - ' ~ primer_vuelo.origen if primer_vuelo.origen else '') %}
                         {% elif primer_vuelo.tipo == 'tren' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
                                 {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
                             {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or 'Tren' %}
+                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Tren' %}
                             {% endif %}
                         {% elif primer_vuelo.tipo == 'transfer' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
                                 {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
                             {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or 'Transfer' %}
+                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Transfer' %}
                             {% endif %}
                         {% else %}
                             {% set titulo_default = primer_vuelo.descripcion or 'Reserva' %}
@@ -1277,9 +1298,27 @@
                             {% for vuelo in grupo %}
                             <div class="segment">
                                 {% if es_multi %}
-                                <div class="segment-label">
-                                    Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
-                                    {% if vuelo._es_combinado %}<span class="combined-indicator" title="Mismo vuelo en distintas reservas">• Combinado</span>{% endif %}
+                                <div class="segment-header">
+                                    {% if vuelo.tipo == 'vuelo' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
+                                    {% elif vuelo.tipo == 'hotel' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" /></svg>
+                                    {% elif vuelo.tipo in ['crucero', 'barco'] %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.712 4.33a9.027 9.027 0 0 1 1.652 1.306c.51.51.944 1.064 1.306 1.652M16.712 4.33l-3.448 4.138m3.448-4.138a9.014 9.014 0 0 0-9.424 0M19.67 7.288l-4.138 3.448m4.138-3.448a9.014 9.014 0 0 1 0 9.424m-4.138-5.976a3.736 3.736 0 0 0-.88-1.388 3.737 3.737 0 0 0-1.388-.88m2.268 2.268a3.765 3.765 0 0 1 0 2.528m-2.268-4.796a3.765 3.765 0 0 0-2.528 0m4.796 4.796c-.181.506-.475.982-.88 1.388a3.736 3.736 0 0 1-1.388.88m2.268-2.268 4.138 3.448m0 0a9.027 9.027 0 0 1-1.306 1.652c-.51.51-1.064.944-1.652 1.306m0 0-3.448-4.138m3.448 4.138a9.014 9.014 0 0 1-9.424 0m5.976-4.138a3.765 3.765 0 0 1-2.528 0m0 0a3.736 3.736 0 0 1-1.388-.88 3.737 3.737 0 0 1-.88-1.388m2.268 2.268L7.288 19.67m0 0a9.024 9.024 0 0 1-1.652-1.306 9.027 9.027 0 0 1-1.306-1.652m0 0 4.138-3.448M4.33 16.712a9.014 9.014 0 0 1 0-9.424m4.138 5.976a3.765 3.765 0 0 1 0-2.528m0 0c.181-.506.475-.982.88-1.388a3.736 3.736 0 0 1 1.388-.88m-2.268 2.268L4.33 7.288m6.406 1.18L7.288 4.33m0 0a9.024 9.024 0 0 0-1.652 1.306A9.025 9.025 0 0 0 4.33 7.288" /></svg>
+                                    {% elif vuelo.tipo == 'espectaculo' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
+                                    {% elif vuelo.tipo == 'restaurante' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75-1.5.75a3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0L3 16.5m15-3.379a48.474 48.474 0 0 0-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.169c0 .621-.504 1.125-1.125 1.125H4.125A1.125 1.125 0 0 1 3 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 0 1 6 13.12M12.265 3.11a.375.375 0 1 1-.53 0L12 2.845l.265.265Zm-3 0a.375.375 0 1 1-.53 0L9 2.845l.265.265Zm6 0a.375.375 0 1 1-.53 0L15 2.845l.265.265Z" /></svg>
+                                    {% elif vuelo.tipo == 'auto' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                                    {% elif vuelo.tipo == 'tren' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                    {% elif vuelo.tipo == 'actividad' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                                    {% elif vuelo.tipo == 'transfer' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                                    {% endif %}
+                                    <span class="segment-label">{{ vuelo.tipo|upper }} · {{ vuelo.fecha_salida.strftime('%d %b')|upper }}{% if vuelo._es_combinado %} <span class="combined-indicator" title="Mismo vuelo en distintas reservas">• Combinado</span>{% endif %}</span>
                                 </div>
                                 {% endif %}
                                 
@@ -1608,7 +1647,7 @@
                         {% elif primer_vuelo.tipo == 'vuelo' %}
                             {# Buscar el último vuelo del grupo para obtener destino final #}
                             {% set ultimo_vuelo = grupo|selectattr('tipo', 'equalto', 'vuelo')|list|last %}
-                            {% if ultimo_vuelo and ultimo_vuelo.destino %}
+                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim %}
                                 {% set titulo_default = 'Viaje a ' ~ ultimo_vuelo.destino %}
                             {% else %}
                                 {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
@@ -1617,7 +1656,11 @@
                             {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' %}
                         {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
                             {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                {% set titulo_default = (primer_vuelo.proveedor or '') ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                                {% if primer_vuelo.proveedor %}
+                                    {% set titulo_default = primer_vuelo.proveedor ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                                {% else %}
+                                    {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                                {% endif %}
                             {% else %}
                                 {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' %}
                             {% endif %}
@@ -1630,16 +1673,16 @@
                         {% elif primer_vuelo.tipo == 'auto' %}
                             {% set titulo_default = (primer_vuelo.proveedor or 'Rental') ~ (' - ' ~ primer_vuelo.origen if primer_vuelo.origen else '') %}
                         {% elif primer_vuelo.tipo == 'tren' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
                                 {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
                             {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or 'Tren' %}
+                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Tren' %}
                             {% endif %}
                         {% elif primer_vuelo.tipo == 'transfer' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
                                 {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
                             {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or 'Transfer' %}
+                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Transfer' %}
                             {% endif %}
                         {% else %}
                             {% set titulo_default = primer_vuelo.descripcion or 'Reserva' %}
@@ -1658,9 +1701,27 @@
                             {% for vuelo in grupo %}
                             <div class="segment">
                                 {% if es_multi %}
-                                <div class="segment-label">
-                                    Segmento {{ loop.index }} · {{ vuelo.fecha_salida.strftime("%d %b") }}
-                                    {% if vuelo._es_combinado %}<span class="combined-indicator" title="Mismo vuelo en distintas reservas">• Combinado</span>{% endif %}
+                                <div class="segment-header">
+                                    {% if vuelo.tipo == 'vuelo' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" /></svg>
+                                    {% elif vuelo.tipo == 'hotel' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" /></svg>
+                                    {% elif vuelo.tipo in ['crucero', 'barco'] %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.712 4.33a9.027 9.027 0 0 1 1.652 1.306c.51.51.944 1.064 1.306 1.652M16.712 4.33l-3.448 4.138m3.448-4.138a9.014 9.014 0 0 0-9.424 0M19.67 7.288l-4.138 3.448m4.138-3.448a9.014 9.014 0 0 1 0 9.424m-4.138-5.976a3.736 3.736 0 0 0-.88-1.388 3.737 3.737 0 0 0-1.388-.88m2.268 2.268a3.765 3.765 0 0 1 0 2.528m-2.268-4.796a3.765 3.765 0 0 0-2.528 0m4.796 4.796c-.181.506-.475.982-.88 1.388a3.736 3.736 0 0 1-1.388.88m2.268-2.268 4.138 3.448m0 0a9.027 9.027 0 0 1-1.306 1.652c-.51.51-1.064.944-1.652 1.306m0 0-3.448-4.138m3.448 4.138a9.014 9.014 0 0 1-9.424 0m5.976-4.138a3.765 3.765 0 0 1-2.528 0m0 0a3.736 3.736 0 0 1-1.388-.88 3.737 3.737 0 0 1-.88-1.388m2.268 2.268L7.288 19.67m0 0a9.024 9.024 0 0 1-1.652-1.306 9.027 9.027 0 0 1-1.306-1.652m0 0 4.138-3.448M4.33 16.712a9.014 9.014 0 0 1 0-9.424m4.138 5.976a3.765 3.765 0 0 1 0-2.528m0 0c.181-.506.475-.982.88-1.388a3.736 3.736 0 0 1 1.388-.88m-2.268 2.268L4.33 7.288m6.406 1.18L7.288 4.33m0 0a9.024 9.024 0 0 0-1.652 1.306A9.025 9.025 0 0 0 4.33 7.288" /></svg>
+                                    {% elif vuelo.tipo == 'espectaculo' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
+                                    {% elif vuelo.tipo == 'restaurante' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75-1.5.75a3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0L3 16.5m15-3.379a48.474 48.474 0 0 0-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.169c0 .621-.504 1.125-1.125 1.125H4.125A1.125 1.125 0 0 1 3 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 0 1 6 13.12M12.265 3.11a.375.375 0 1 1-.53 0L12 2.845l.265.265Zm-3 0a.375.375 0 1 1-.53 0L9 2.845l.265.265Zm6 0a.375.375 0 1 1-.53 0L15 2.845l.265.265Z" /></svg>
+                                    {% elif vuelo.tipo == 'auto' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                                    {% elif vuelo.tipo == 'tren' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                    {% elif vuelo.tipo == 'actividad' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                                    {% elif vuelo.tipo == 'transfer' %}
+                                        <svg class="type-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                                    {% endif %}
+                                    <span class="segment-label">{{ vuelo.tipo|upper }} · {{ vuelo.fecha_salida.strftime('%d %b')|upper }}{% if vuelo._es_combinado %} <span class="combined-indicator" title="Mismo vuelo en distintas reservas">• Combinado</span>{% endif %}</span>
                                 </div>
                                 {% endif %}
                                 

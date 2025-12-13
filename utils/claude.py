@@ -54,6 +54,38 @@ IMPORTANTE:
 - Fechas en formato YYYY-MM-DD
 - Horas en formato HH:MM (24h)
 
+IMPORTANTE - CONSOLIDACIÓN DE ENTRADAS:
+Para espectáculos/eventos con múltiples entradas/tickets del MISMO evento (misma fecha, mismo venue):
+- Crear UN SOLO objeto con el total de entradas
+- Incluir array "detalles_entradas" con información de cada entrada individual
+- NO crear objetos separados por cada ticket
+
+Ejemplo CORRECTO para 4 entradas del mismo evento:
+{{
+  "tipo": "espectaculo",
+  "evento": "Venere e Adone",
+  "venue": "Teatro La Fenice Venezia",
+  "fecha": "2026-06-28",
+  "hora": "17:00",
+  "sector": "Palco 23",
+  "entradas": 4,
+  "detalles_entradas": [
+    {{"puesto": 1, "ubicacion": "Palco centrale-parapetto", "precio": "€209,00"}},
+    {{"puesto": 2, "ubicacion": "Palco centrale-parapetto", "precio": "€209,00"}},
+    {{"puesto": 3, "ubicacion": "Palco centrale-dietro", "precio": "€165,00"}},
+    {{"puesto": 4, "ubicacion": "Palco centrale-dietro", "precio": "€165,00"}}
+  ],
+  "precio_total": "€748,00"
+}}
+
+Ejemplo INCORRECTO (NO hacer esto):
+[
+  {{"tipo": "espectaculo", "evento": "Venere e Adone", "entradas": 1, ...}},
+  {{"tipo": "espectaculo", "evento": "Venere e Adone", "entradas": 1, ...}},
+  {{"tipo": "espectaculo", "evento": "Venere e Adone", "entradas": 1, ...}},
+  {{"tipo": "espectaculo", "evento": "Venere e Adone", "entradas": 1, ...}}
+]
+
 Email/PDF:
 {email_text}
 
