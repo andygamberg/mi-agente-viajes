@@ -391,6 +391,47 @@
             background: #EEF2FF;
             color: #5B5FC7;
         }
+
+        /* Badge colors para multi-tipo */
+        .badge-hotel {
+            background: #10b981;
+            color: white;
+        }
+
+        .badge-crucero {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .badge-espectaculo {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .badge-restaurante {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .badge-auto {
+            background: #6366f1;
+            color: white;
+        }
+
+        .badge-tren {
+            background: #14b8a6;
+            color: white;
+        }
+
+        .badge-actividad {
+            background: #ec4899;
+            color: white;
+        }
+
+        .badge-transfer {
+            background: #64748b;
+            color: white;
+        }
         
         /* MVP11: Badge para vuelos combinados con tooltip */
         .badge.combined {
@@ -1097,9 +1138,31 @@
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
                             <div style="display: flex; gap: 6px; align-items: center;">
-                                <span class="badge {% if es_multi %}multi{% endif %}">
-                                    {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
-                                </span>
+                                {% if es_multi %}
+                                <span class="badge multi">{{ grupo|length }} vuelos</span>
+                                {% else %}
+                                    {% if primer_vuelo.tipo == 'vuelo' %}
+                                    <span class="badge">VUELO</span>
+                                    {% elif primer_vuelo.tipo == 'hotel' %}
+                                    <span class="badge badge-hotel">HOTEL</span>
+                                    {% elif primer_vuelo.tipo == 'crucero' %}
+                                    <span class="badge badge-crucero">CRUCERO</span>
+                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
+                                    <span class="badge badge-espectaculo">SHOW</span>
+                                    {% elif primer_vuelo.tipo == 'restaurante' %}
+                                    <span class="badge badge-restaurante">RESTO</span>
+                                    {% elif primer_vuelo.tipo == 'auto' %}
+                                    <span class="badge badge-auto">AUTO</span>
+                                    {% elif primer_vuelo.tipo == 'tren' %}
+                                    <span class="badge badge-tren">TREN</span>
+                                    {% elif primer_vuelo.tipo == 'actividad' %}
+                                    <span class="badge badge-actividad">TOUR</span>
+                                    {% elif primer_vuelo.tipo == 'transfer' %}
+                                    <span class="badge badge-transfer">TRANSFER</span>
+                                    {% else %}
+                                    <span class="badge">{{ primer_vuelo.tipo|upper }}</span>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
@@ -1108,7 +1171,23 @@
                             <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
-                            <span class="card-title">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
+                            <span class="card-title">
+                                {% if primer_vuelo.nombre_viaje %}
+                                    {{ primer_vuelo.nombre_viaje }}
+                                {% else %}
+                                    {% if primer_vuelo.tipo == 'hotel' %}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion }}
+                                    {% elif primer_vuelo.tipo == 'restaurante' %}
+                                        {{ primer_vuelo.proveedor }}
+                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
+                                        {{ primer_vuelo.descripcion }}
+                                    {% elif primer_vuelo.tipo == 'actividad' %}
+                                        {{ primer_vuelo.descripcion }}
+                                    {% else %}
+                                        Viaje a {{ grupo[-1].destino }}
+                                    {% endif %}
+                                {% endif %}
+                            </span>
                             <button type="button" class="btn-edit" onclick="event.stopPropagation(); editName('{{ grupo_id }}', '{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}')">Editar</button>
                         </div>
                     </div>
@@ -1124,29 +1203,47 @@
                                 </div>
                                 {% endif %}
                                 
-                                <div class="route">
-                                    <div class="city">
-                                        <div class="city-code">{{ vuelo.origen }}</div>
-                                        {% if vuelo.hora_salida %}
-                                        <div class="city-time">{{ vuelo.hora_salida }}</div>
-                                        {% endif %}
+                                {# Layout condicional según tipo #}
+                                {% if vuelo.tipo in ['vuelo', 'tren', 'crucero', 'transfer', 'auto'] %}
+                                    {# Tipos con transporte: mostrar origen → destino #}
+                                    <div class="route">
+                                        <div class="city">
+                                            <div class="city-code">{{ vuelo.origen }}</div>
+                                            {% if vuelo.hora_salida %}
+                                            <div class="city-time">{{ vuelo.hora_salida }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                                        </svg>
+                                        <div class="city end">
+                                            <div class="city-code">{{ vuelo.destino }}</div>
+                                            {% if vuelo.hora_llegada %}
+                                            <div class="city-time">{{ vuelo.hora_llegada }}</div>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                    <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                                    </svg>
-                                    <div class="city end">
-                                        <div class="city-code">{{ vuelo.destino }}</div>
-                                        {% if vuelo.hora_llegada %}
-                                        <div class="city-time">{{ vuelo.hora_llegada }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                
-                                {% if vuelo.aerolinea %}
-                                <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
-                                {% endif %}
-                                {% if vuelo.numero_vuelo %}
-                                <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+
+                                    {% if vuelo.aerolinea %}
+                                    <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
+                                    {% endif %}
+                                    {% if vuelo.numero_vuelo %}
+                                    <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                                    {% endif %}
+                                {% else %}
+                                    {# Tipos en ubicación fija: hotel, restaurante, espectaculo, actividad #}
+                                    {% if vuelo.proveedor %}
+                                    <div class="info-row"><strong>{{ vuelo.tipo|capitalize }}:</strong> {{ vuelo.proveedor }}</div>
+                                    {% endif %}
+                                    {% if vuelo.ubicacion %}
+                                    <div class="info-row"><strong>Ubicación:</strong> {{ vuelo.ubicacion }}</div>
+                                    {% endif %}
+                                    {% if vuelo.precio %}
+                                    <div class="info-row"><strong>Precio:</strong> {{ vuelo.precio }}</div>
+                                    {% endif %}
+                                    {% if vuelo.hora_salida %}
+                                    <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>
+                                    {% endif %}
                                 {% endif %}
                                 
                                 {# MVP11: Renderizado de pasajeros combinados vs normales #}
@@ -1291,9 +1388,31 @@
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
                             <div style="display: flex; gap: 6px; align-items: center;">
-                                <span class="badge {% if es_multi %}multi{% endif %}">
-                                    {% if es_multi %}{{ grupo|length }} vuelos{% else %}Vuelo{% endif %}
-                                </span>
+                                {% if es_multi %}
+                                <span class="badge multi">{{ grupo|length }} vuelos</span>
+                                {% else %}
+                                    {% if primer_vuelo.tipo == 'vuelo' %}
+                                    <span class="badge">VUELO</span>
+                                    {% elif primer_vuelo.tipo == 'hotel' %}
+                                    <span class="badge badge-hotel">HOTEL</span>
+                                    {% elif primer_vuelo.tipo == 'crucero' %}
+                                    <span class="badge badge-crucero">CRUCERO</span>
+                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
+                                    <span class="badge badge-espectaculo">SHOW</span>
+                                    {% elif primer_vuelo.tipo == 'restaurante' %}
+                                    <span class="badge badge-restaurante">RESTO</span>
+                                    {% elif primer_vuelo.tipo == 'auto' %}
+                                    <span class="badge badge-auto">AUTO</span>
+                                    {% elif primer_vuelo.tipo == 'tren' %}
+                                    <span class="badge badge-tren">TREN</span>
+                                    {% elif primer_vuelo.tipo == 'actividad' %}
+                                    <span class="badge badge-actividad">TOUR</span>
+                                    {% elif primer_vuelo.tipo == 'transfer' %}
+                                    <span class="badge badge-transfer">TRANSFER</span>
+                                    {% else %}
+                                    <span class="badge">{{ primer_vuelo.tipo|upper }}</span>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
@@ -1302,7 +1421,23 @@
                             <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
-                            <span class="card-title">{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}</span>
+                            <span class="card-title">
+                                {% if primer_vuelo.nombre_viaje %}
+                                    {{ primer_vuelo.nombre_viaje }}
+                                {% else %}
+                                    {% if primer_vuelo.tipo == 'hotel' %}
+                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion }}
+                                    {% elif primer_vuelo.tipo == 'restaurante' %}
+                                        {{ primer_vuelo.proveedor }}
+                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
+                                        {{ primer_vuelo.descripcion }}
+                                    {% elif primer_vuelo.tipo == 'actividad' %}
+                                        {{ primer_vuelo.descripcion }}
+                                    {% else %}
+                                        Viaje a {{ grupo[-1].destino }}
+                                    {% endif %}
+                                {% endif %}
+                            </span>
                         </div>
                     </div>
                     
@@ -1317,29 +1452,47 @@
                                 </div>
                                 {% endif %}
                                 
-                                <div class="route">
-                                    <div class="city">
-                                        <div class="city-code">{{ vuelo.origen }}</div>
-                                        {% if vuelo.hora_salida %}
-                                        <div class="city-time">{{ vuelo.hora_salida }}</div>
-                                        {% endif %}
+                                {# Layout condicional según tipo #}
+                                {% if vuelo.tipo in ['vuelo', 'tren', 'crucero', 'transfer', 'auto'] %}
+                                    {# Tipos con transporte: mostrar origen → destino #}
+                                    <div class="route">
+                                        <div class="city">
+                                            <div class="city-code">{{ vuelo.origen }}</div>
+                                            {% if vuelo.hora_salida %}
+                                            <div class="city-time">{{ vuelo.hora_salida }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                                        </svg>
+                                        <div class="city end">
+                                            <div class="city-code">{{ vuelo.destino }}</div>
+                                            {% if vuelo.hora_llegada %}
+                                            <div class="city-time">{{ vuelo.hora_llegada }}</div>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                    <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                                    </svg>
-                                    <div class="city end">
-                                        <div class="city-code">{{ vuelo.destino }}</div>
-                                        {% if vuelo.hora_llegada %}
-                                        <div class="city-time">{{ vuelo.hora_llegada }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                
-                                {% if vuelo.aerolinea %}
-                                <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
-                                {% endif %}
-                                {% if vuelo.numero_vuelo %}
-                                <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+
+                                    {% if vuelo.aerolinea %}
+                                    <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
+                                    {% endif %}
+                                    {% if vuelo.numero_vuelo %}
+                                    <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
+                                    {% endif %}
+                                {% else %}
+                                    {# Tipos en ubicación fija: hotel, restaurante, espectaculo, actividad #}
+                                    {% if vuelo.proveedor %}
+                                    <div class="info-row"><strong>{{ vuelo.tipo|capitalize }}:</strong> {{ vuelo.proveedor }}</div>
+                                    {% endif %}
+                                    {% if vuelo.ubicacion %}
+                                    <div class="info-row"><strong>Ubicación:</strong> {{ vuelo.ubicacion }}</div>
+                                    {% endif %}
+                                    {% if vuelo.precio %}
+                                    <div class="info-row"><strong>Precio:</strong> {{ vuelo.precio }}</div>
+                                    {% endif %}
+                                    {% if vuelo.hora_salida %}
+                                    <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>
+                                    {% endif %}
                                 {% endif %}
                                 
                                 {# MVP11: Pasajeros en viajes pasados también #}
