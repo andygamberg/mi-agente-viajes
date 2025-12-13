@@ -7,6 +7,9 @@ from flask_login import login_required, current_user
 from datetime import datetime, date
 import json
 import base64
+import logging
+
+logger = logging.getLogger(__name__)
 
 from models import db, Viaje, User
 from utils.claude import extraer_info_con_claude
@@ -133,7 +136,7 @@ def process_microsoft_emails_cron():
         from utils.microsoft_scanner import scan_and_create_viajes_microsoft
         from models import EmailConnection
 
-        print("🔍 Microsoft scanner iniciado")
+        logger.info("🔍 Microsoft scanner iniciado")
 
         # Obtener todos los usuarios con cuentas Microsoft activas
         connections = EmailConnection.query.filter_by(
@@ -141,13 +144,13 @@ def process_microsoft_emails_cron():
         ).all()
 
         if not connections:
-            print("ℹ️ No hay cuentas Microsoft activas")
+            logger.info("ℹ️ No hay cuentas Microsoft activas")
             return {'success': True, 'message': 'No hay cuentas Microsoft activas'}, 200
 
         # Agrupar por user_id para evitar procesar el mismo usuario múltiples veces
         user_ids = list(set([conn.user_id for conn in connections]))
 
-        print(f"📧 Procesando {len(user_ids)} usuarios con cuentas Microsoft")
+        logger.info(f"📧 Procesando {len(user_ids)} usuarios con cuentas Microsoft")
 
         total_results = {
             'usuarios_procesados': 0,
@@ -160,7 +163,7 @@ def process_microsoft_emails_cron():
 
         for user_id in user_ids:
             try:
-                print(f"  👤 Usuario {user_id}...")
+                logger.info(f"  👤 Usuario {user_id}...")
                 result = scan_and_create_viajes_microsoft(user_id, days_back=30)
 
                 total_results['usuarios_procesados'] += 1
@@ -170,19 +173,20 @@ def process_microsoft_emails_cron():
                 total_results['viajes_duplicados'] += result.get('viajes_duplicados', 0)
                 total_results['errors'].extend(result.get('errors', []))
 
-                print(f"    ✅ {result.get('viajes_creados', 0)} viajes creados")
+                logger.info(f"    ✅ {result.get('viajes_creados', 0)} viajes creados, {result.get('emails_procesados', 0)} procesados, {result.get('emails_encontrados', 0)} encontrados")
 
             except Exception as e:
                 error_msg = f"Error procesando usuario {user_id}: {str(e)}"
-                print(f"    ❌ {error_msg}")
+                logger.error(f"    ❌ {error_msg}")
                 total_results['errors'].append(error_msg)
 
-        print(f"✅ Microsoft scanner completado: {total_results}")
+        logger.info(f"✅ Microsoft scanner completado: {total_results}")
         return {'success': True, 'result': total_results}, 200
 
     except Exception as e:
         import traceback
         traceback.print_exc()
+        logger.error(f"Error en Microsoft scanner: {str(e)}")
         return {'success': False, 'error': str(e)}, 500
 
 

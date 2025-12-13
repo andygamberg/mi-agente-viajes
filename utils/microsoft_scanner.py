@@ -7,6 +7,9 @@ import re
 import io
 from datetime import datetime, timedelta
 import requests as http_requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 from models import db, EmailConnection, Viaje
 from utils.gmail_scanner import (
@@ -193,7 +196,7 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
     from utils.claude import extraer_info_con_claude
     import uuid
 
-    print(f"    🔍 Microsoft scanner: user_id={user_id}, days_back={days_back}")
+    logger.info(f"    🔍 Microsoft scanner: user_id={user_id}, days_back={days_back}")
 
     results = {
         'emails_encontrados': 0,
@@ -208,23 +211,23 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
     ).all()
 
     if not connections:
-        print(f"    ⚠️ No hay cuentas Microsoft conectadas para user {user_id}")
+        logger.warning(f"    ⚠️ No hay cuentas Microsoft conectadas para user {user_id}")
         results['errors'].append('No hay cuentas Microsoft conectadas')
         return results
 
-    print(f"    📧 Encontradas {len(connections)} conexiones Microsoft")
+    logger.info(f"    📧 Encontradas {len(connections)} conexiones Microsoft")
 
     for conn in connections:
         try:
-            print(f"      📬 Procesando cuenta: {conn.email}")
+            logger.info(f"      📬 Procesando cuenta: {conn.email}")
             creds = get_microsoft_credentials(user_id, email=conn.email)
             if not creds:
-                print(f"      ⚠️ No se pudieron obtener credenciales para {conn.email}")
+                logger.warning(f"      ⚠️ No se pudieron obtener credenciales para {conn.email}")
                 continue
 
             access_token = creds['access_token']
             messages = search_travel_emails_microsoft(access_token, days_back)
-            print(f"      📥 {len(messages)} emails encontrados en {conn.email}")
+            logger.info(f"      📥 {len(messages)} emails encontrados en {conn.email}")
 
             # Filtrar por remitentes whitelistados
             filtered_messages = []
@@ -235,12 +238,12 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
 
                 if is_whitelisted_sender(from_email, user_id):
                     filtered_messages.append(msg)
-                    print(f"      ✅ Whitelisted: {from_name} <{from_email}> - {subject}")
+                    logger.info(f"      ✅ Whitelisted: {from_name} <{from_email}> - {subject[:50]}")
                 else:
-                    print(f"      Remitente no whitelisted: {from_name} <{from_email}>")
+                    logger.info(f"      ⏭️ Remitente no whitelisted: {from_name} <{from_email}>")
 
             results['emails_encontrados'] += len(filtered_messages)
-            print(f"      🎯 {len(filtered_messages)} emails whitelistados para procesar")
+            logger.info(f"      🎯 {len(filtered_messages)} emails whitelistados para procesar")
 
             # Limitar para evitar timeout
             for message in filtered_messages[:MAX_EMAILS_PER_SCAN]:
