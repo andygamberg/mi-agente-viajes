@@ -1,594 +1,503 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar Viaje - Mis Viajes</title>
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-    <style>
-        :root {
-            --bg: #FAFAFA;
-            --card: #FFFFFF;
-            --text: #1D1D1F;
-            --text-secondary: #86868B;
-            --text-tertiary: #AEAEB2;
-            --accent: #0071E3;
-            --border: #E5E5E5;
-            --border-light: #F0F0F0;
-            --radius: 12px;
-            --radius-lg: 16px;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 32px 20px;
-        }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 24px;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        .back-link svg {
-            width: 16px;
-            height: 16px;
-        }
-        
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-        
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 15px;
-            margin-bottom: 32px;
-        }
-        
-        /* Tip box */
-        .tip-box {
-            background: #F0F7FF;
-            border-radius: var(--radius);
-            padding: 14px 16px;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        
-        .tip-box svg {
-            width: 18px;
-            height: 18px;
-            color: var(--accent);
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        
-        .tip-box p {
-            font-size: 14px;
-            color: #1a5490;
-            line-height: 1.4;
-        }
-        
-        .tip-box a {
-            color: var(--accent);
-            font-weight: 500;
-        }
-        
-        .card {
-            background: var(--card);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            border: 1px solid var(--border-light);
-        }
-        
-        /* Form */
-        .form-section {
-            margin-bottom: 28px;
-        }
-        
-        .section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-        
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-        
-        label .optional {
-            color: var(--text-tertiary);
-            font-weight: 400;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 14px 16px;
-            font-size: 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--card);
-            color: var(--text);
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
-        }
-        
-        input::placeholder {
-            color: var(--text-tertiary);
-        }
-        
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 44px;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        
-        /* Autocomplete */
-        .input-wrapper {
-            position: relative;
-        }
-        
-        .autocomplete-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-        }
-        
-        .autocomplete-list.visible {
-            display: block;
-        }
-        
-        .autocomplete-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        
-        .autocomplete-item:hover {
-            background: var(--bg);
-        }
-        
-        .autocomplete-item .code {
-            font-weight: 600;
-            color: var(--text);
-        }
-        
-        .autocomplete-item .city {
-            color: var(--text-secondary);
-            margin-left: 8px;
-        }
-        
-        /* Acordeón Más detalles */
-        .accordion {
-            border-top: 1px solid var(--border-light);
-            margin-top: 28px;
-            padding-top: 20px;
-        }
-        
-        .accordion-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            padding: 14px 16px;
-            background: var(--bg);
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-        
-        .accordion-toggle:hover {
-            color: var(--text);
-            background: var(--border-light);
-        }
-        
-        .accordion-toggle svg {
-            width: 16px;
-            height: 16px;
-            transition: transform 0.2s;
-        }
-        
-        .accordion-toggle.expanded svg {
-            transform: rotate(180deg);
-        }
-        
-        .accordion-content {
-            display: none;
-            padding-top: 20px;
-        }
-        
-        .accordion-content.visible {
-            display: block;
-        }
-        
-        /* Actions */
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-light);
-        }
-        
-        .btn {
-            flex: 1;
-            padding: 16px;
-            border-radius: var(--radius);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            text-decoration: none;
-            border: none;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #0077ED;
-        }
-        
-        .btn-secondary {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--border-light);
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px 16px;
-            }
-            
-            h1 {
-                font-size: 28px;
-            }
-            
-            .card {
-                padding: 24px 20px;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="{{ url_for('viajes.index') }}" class="back-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Volver
-        </a>
-        
-        <h1>Agregar Viaje</h1>
-        <p class="subtitle">Completá los datos de tu vuelo manualmente</p>
-        
-        <div class="tip-box">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4M12 8h.01"/>
-            </svg>
-            <p>¿Tenés el PDF o email de confirmación? Es más fácil con <a href="{{ url_for('viajes.carga_rapida') }}">Carga Rápida</a></p>
+{% extends "base.html" %}
+
+{% block title %}Agregar Viaje - Mis Viajes{% endblock %}
+
+{% block styles %}
+.container {
+    max-width: 600px;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-bottom: 32px;
+}
+
+/* Tip box */
+.tip-box {
+    background: #F0F7FF;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.tip-box svg {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.tip-box p {
+    font-size: 14px;
+    color: #1a5490;
+    line-height: 1.4;
+}
+
+.tip-box a {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    border: 1px solid var(--border-light);
+}
+
+/* Form */
+.form-section {
+    margin-bottom: 28px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+label .optional {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+}
+
+input::placeholder {
+    color: var(--text-muted);
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 44px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Autocomplete */
+.input-wrapper {
+    position: relative;
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+}
+
+.autocomplete-list.visible {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.autocomplete-item:hover {
+    background: var(--bg);
+}
+
+.autocomplete-item .code {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.autocomplete-item .city {
+    color: var(--text-secondary);
+    margin-left: 8px;
+}
+
+/* Acordeón Más detalles */
+.accordion {
+    border-top: 1px solid var(--border-light);
+    margin-top: 28px;
+    padding-top: 20px;
+}
+
+.accordion-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.accordion-toggle:hover {
+    color: var(--text);
+    background: var(--border-light);
+}
+
+.accordion-toggle svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+}
+
+.accordion-toggle.expanded svg {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    display: none;
+    padding-top: 20px;
+}
+
+.accordion-content.visible {
+    display: block;
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+}
+
+.form-actions .btn {
+    flex: 1;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 28px;
+    }
+
+    .card {
+        padding: 24px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+}
+{% endblock %}
+
+{% block content %}
+<h1>Agregar Viaje</h1>
+<p class="subtitle">Completá los datos de tu vuelo manualmente</p>
+
+<div class="tip-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 16v-4M12 8h.01"/>
+    </svg>
+    <p>¿Tenés el PDF o email de confirmación? Es más fácil con <a href="{{ url_for('viajes.carga_rapida') }}">Carga Rápida</a></p>
+</div>
+
+<div class="card">
+    <form method="POST">
+        <!-- Información básica -->
+        <div class="form-section">
+            <div class="section-title">Información básica</div>
+
+            <div class="form-group">
+                <label>Tipo de viaje</label>
+                <select name="tipo" required>
+                    <option value="vuelo">Vuelo</option>
+                    <option value="hotel">Hotel</option>
+                    <option value="auto">Auto</option>
+                    <option value="tren">Tren</option>
+                    <option value="actividad">Actividad</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Descripción <span class="optional">(opcional)</span></label>
+                <input type="text" name="descripcion" placeholder="Ej: Vuelo a Madrid">
+            </div>
         </div>
-        
-        <div class="card">
-            <form method="POST">
-                <!-- Información básica -->
-                <div class="form-section">
-                    <div class="section-title">Información básica</div>
-                    
-                    <div class="form-group">
-                        <label>Tipo de viaje</label>
-                        <select name="tipo" required>
-                            <option value="vuelo">Vuelo</option>
-                            <option value="hotel">Hotel</option>
-                            <option value="auto">Auto</option>
-                            <option value="tren">Tren</option>
-                            <option value="actividad">Actividad</option>
-                            <option value="otro">Otro</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Descripción <span class="optional">(opcional)</span></label>
-                        <input type="text" name="descripcion" placeholder="Ej: Vuelo a Madrid">
+
+        <!-- Ruta -->
+        <div class="form-section">
+            <div class="section-title">Ruta</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Origen</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="origen" id="inputOrigen" placeholder="EZE" autocomplete="off" required>
+                        <div class="autocomplete-list" id="listOrigen"></div>
                     </div>
                 </div>
-                
-                <!-- Ruta -->
-                <div class="form-section">
-                    <div class="section-title">Ruta</div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Origen</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="origen" id="inputOrigen" placeholder="EZE" autocomplete="off" required>
-                                <div class="autocomplete-list" id="listOrigen"></div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Destino</label>
-                            <div class="input-wrapper">
-                                <input type="text" name="destino" id="inputDestino" placeholder="MAD" autocomplete="off" required>
-                                <div class="autocomplete-list" id="listDestino"></div>
-                            </div>
-                        </div>
+                <div class="form-group">
+                    <label>Destino</label>
+                    <div class="input-wrapper">
+                        <input type="text" name="destino" id="inputDestino" placeholder="MAD" autocomplete="off" required>
+                        <div class="autocomplete-list" id="listDestino"></div>
                     </div>
                 </div>
-                
-                <!-- Fecha y hora -->
-                <div class="form-section">
-                    <div class="section-title">Fecha y hora</div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Fecha salida</label>
-                            <input type="date" name="fecha_salida" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Hora salida <span class="optional">(opcional)</span></label>
-                            <input type="time" name="hora_salida">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Código de reserva <span class="optional">(opcional)</span></label>
-                        <input type="text" name="codigo_reserva" placeholder="ABC123">
-                    </div>
-                </div>
-                
-                <!-- Acordeón: Más detalles -->
-                <div class="accordion">
-                    <button type="button" class="accordion-toggle" id="accordionToggle" onclick="toggleAccordion()">
-                        <span>Más detalles</span>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    
-                    <div class="accordion-content" id="accordionContent">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Aerolínea</label>
-                                <input type="text" name="aerolinea" placeholder="LATAM">
-                            </div>
-                            <div class="form-group">
-                                <label>Número de vuelo</label>
-                                <input type="text" name="numero_vuelo" placeholder="LA1234">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Fecha llegada</label>
-                                <input type="date" name="fecha_llegada">
-                            </div>
-                            <div class="form-group">
-                                <label>Hora llegada</label>
-                                <input type="time" name="hora_llegada">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Terminal</label>
-                                <input type="text" name="terminal" placeholder="A">
-                            </div>
-                            <div class="form-group">
-                                <label>Puerta</label>
-                                <input type="text" name="puerta" placeholder="12">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Asiento</label>
-                            <input type="text" name="asiento" placeholder="12A">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Notas</label>
-                            <textarea name="notas" placeholder="Información adicional..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Actions -->
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <a href="{{ url_for('viajes.index') }}" class="btn btn-secondary">Cancelar</a>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-    
-    <script>
-        // Diccionario IATA
-        const AIRPORTS = {
-            'EZE': 'Buenos Aires Ezeiza',
-            'AEP': 'Buenos Aires Aeroparque',
-            'COR': 'Córdoba',
-            'MDZ': 'Mendoza',
-            'FTE': 'El Calafate',
-            'USH': 'Ushuaia',
-            'IGR': 'Iguazú',
-            'SCL': 'Santiago de Chile',
-            'GRU': 'São Paulo',
-            'GIG': 'Rio de Janeiro',
-            'MAD': 'Madrid',
-            'BCN': 'Barcelona',
-            'CDG': 'París',
-            'LHR': 'Londres',
-            'FCO': 'Roma',
-            'AMS': 'Amsterdam',
-            'FRA': 'Frankfurt',
-            'MUC': 'Munich',
-            'ZRH': 'Zurich',
-            'VIE': 'Viena',
-            'JFK': 'New York JFK',
-            'LAX': 'Los Angeles',
-            'MIA': 'Miami',
-            'ORD': 'Chicago',
-            'SFO': 'San Francisco',
-            'ATL': 'Atlanta',
-            'LAS': 'Las Vegas',
-            'MEX': 'Ciudad de México',
-            'CUN': 'Cancún',
-            'PTY': 'Panamá',
-            'BOG': 'Bogotá',
-            'LIM': 'Lima',
-            'MVD': 'Montevideo',
-            'DXB': 'Dubai',
-            'SIN': 'Singapur',
-            'HKG': 'Hong Kong',
-            'NRT': 'Tokyo Narita',
-            'SYD': 'Sydney'
-        };
-        
-        function setupAutocomplete(inputId, listId) {
-            const input = document.getElementById(inputId);
-            const list = document.getElementById(listId);
-            
-            input.addEventListener('input', function() {
-                const value = this.value.toUpperCase();
-                list.innerHTML = '';
-                
-                if (value.length < 1) {
-                    list.classList.remove('visible');
-                    return;
-                }
-                
-                const matches = Object.entries(AIRPORTS).filter(([code, city]) => 
-                    code.includes(value) || city.toUpperCase().includes(value)
-                ).slice(0, 6);
-                
-                if (matches.length > 0) {
-                    matches.forEach(([code, city]) => {
-                        const item = document.createElement('div');
-                        item.className = 'autocomplete-item';
-                        item.innerHTML = `<span class="code">${code}</span><span class="city">${city}</span>`;
-                        item.addEventListener('click', () => {
-                            input.value = code;
-                            list.classList.remove('visible');
-                        });
-                        list.appendChild(item);
-                    });
-                    list.classList.add('visible');
-                } else {
-                    list.classList.remove('visible');
-                }
-            });
-            
-            input.addEventListener('blur', () => {
-                setTimeout(() => list.classList.remove('visible'), 150);
-            });
-            
-            input.addEventListener('focus', function() {
-                if (this.value.length > 0) {
-                    this.dispatchEvent(new Event('input'));
-                }
-            });
+
+        <!-- Fecha y hora -->
+        <div class="form-section">
+            <div class="section-title">Fecha y hora</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Fecha salida</label>
+                    <input type="date" name="fecha_salida" required>
+                </div>
+                <div class="form-group">
+                    <label>Hora salida <span class="optional">(opcional)</span></label>
+                    <input type="time" name="hora_salida">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Código de reserva <span class="optional">(opcional)</span></label>
+                <input type="text" name="codigo_reserva" placeholder="ABC123">
+            </div>
+        </div>
+
+        <!-- Acordeón: Más detalles -->
+        <div class="accordion">
+            <button type="button" class="accordion-toggle" id="accordionToggle" onclick="toggleAccordion()">
+                <span>Más detalles</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div class="accordion-content" id="accordionContent">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Aerolínea</label>
+                        <input type="text" name="aerolinea" placeholder="LATAM">
+                    </div>
+                    <div class="form-group">
+                        <label>Número de vuelo</label>
+                        <input type="text" name="numero_vuelo" placeholder="LA1234">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha llegada</label>
+                        <input type="date" name="fecha_llegada">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora llegada</label>
+                        <input type="time" name="hora_llegada">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Terminal</label>
+                        <input type="text" name="terminal" placeholder="A">
+                    </div>
+                    <div class="form-group">
+                        <label>Puerta</label>
+                        <input type="text" name="puerta" placeholder="12">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Asiento</label>
+                    <input type="text" name="asiento" placeholder="12A">
+                </div>
+
+                <div class="form-group">
+                    <label>Notas</label>
+                    <textarea name="notas" placeholder="Información adicional..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{{ url_for('viajes.index') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+// Diccionario IATA
+const AIRPORTS = {
+    'EZE': 'Buenos Aires Ezeiza',
+    'AEP': 'Buenos Aires Aeroparque',
+    'COR': 'Córdoba',
+    'MDZ': 'Mendoza',
+    'FTE': 'El Calafate',
+    'USH': 'Ushuaia',
+    'IGR': 'Iguazú',
+    'SCL': 'Santiago de Chile',
+    'GRU': 'São Paulo',
+    'GIG': 'Rio de Janeiro',
+    'MAD': 'Madrid',
+    'BCN': 'Barcelona',
+    'CDG': 'París',
+    'LHR': 'Londres',
+    'FCO': 'Roma',
+    'AMS': 'Amsterdam',
+    'FRA': 'Frankfurt',
+    'MUC': 'Munich',
+    'ZRH': 'Zurich',
+    'VIE': 'Viena',
+    'JFK': 'New York JFK',
+    'LAX': 'Los Angeles',
+    'MIA': 'Miami',
+    'ORD': 'Chicago',
+    'SFO': 'San Francisco',
+    'ATL': 'Atlanta',
+    'LAS': 'Las Vegas',
+    'MEX': 'Ciudad de México',
+    'CUN': 'Cancún',
+    'PTY': 'Panamá',
+    'BOG': 'Bogotá',
+    'LIM': 'Lima',
+    'MVD': 'Montevideo',
+    'DXB': 'Dubai',
+    'SIN': 'Singapur',
+    'HKG': 'Hong Kong',
+    'NRT': 'Tokyo Narita',
+    'SYD': 'Sydney'
+};
+
+function setupAutocomplete(inputId, listId) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+
+    input.addEventListener('input', function() {
+        const value = this.value.toUpperCase();
+        list.innerHTML = '';
+
+        if (value.length < 1) {
+            list.classList.remove('visible');
+            return;
         }
-        
-        setupAutocomplete('inputOrigen', 'listOrigen');
-        setupAutocomplete('inputDestino', 'listDestino');
-        
-        // Acordeón
-        function toggleAccordion() {
-            const toggle = document.getElementById('accordionToggle');
-            const content = document.getElementById('accordionContent');
-            toggle.classList.toggle('expanded');
-            content.classList.toggle('visible');
+
+        const matches = Object.entries(AIRPORTS).filter(([code, city]) =>
+            code.includes(value) || city.toUpperCase().includes(value)
+        ).slice(0, 6);
+
+        if (matches.length > 0) {
+            matches.forEach(([code, city]) => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `<span class="code">${code}</span><span class="city">${city}</span>`;
+                item.addEventListener('click', () => {
+                    input.value = code;
+                    list.classList.remove('visible');
+                });
+                list.appendChild(item);
+            });
+            list.classList.add('visible');
+        } else {
+            list.classList.remove('visible');
         }
-    </script>
-</body>
-</html>
+    });
+
+    input.addEventListener('blur', () => {
+        setTimeout(() => list.classList.remove('visible'), 150);
+    });
+
+    input.addEventListener('focus', function() {
+        if (this.value.length > 0) {
+            this.dispatchEvent(new Event('input'));
+        }
+    });
+}
+
+setupAutocomplete('inputOrigen', 'listOrigen');
+setupAutocomplete('inputDestino', 'listDestino');
+
+// Acordeón
+function toggleAccordion() {
+    const toggle = document.getElementById('accordionToggle');
+    const content = document.getElementById('accordionContent');
+    toggle.classList.toggle('expanded');
+    content.classList.toggle('visible');
+}
+{% endblock %}
