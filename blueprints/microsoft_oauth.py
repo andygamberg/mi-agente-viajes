@@ -204,7 +204,7 @@ def desconectar_microsoft_by_id(connection_id):
 
         if not connection:
             flash('Conexión no encontrada', 'error')
-            return redirect(url_for('viajes.preferencias'))
+            return redirect(url_for('viajes.perfil'))
 
         email = connection.email
 
@@ -219,17 +219,28 @@ def desconectar_microsoft_by_id(connection_id):
         except:
             pass
 
+        # Eliminar conexión
         db.session.delete(connection)
+
+        # También eliminar UserEmail si existe para ese email
+        from models import UserEmail
+        user_email = UserEmail.query.filter_by(
+            user_id=current_user.id,
+            email=email
+        ).first()
+        if user_email:
+            db.session.delete(user_email)
+
         db.session.commit()
 
-        flash(f'Microsoft desconectado: {email}', 'success')
-        return redirect(url_for('viajes.preferencias'))
+        flash(f'Email eliminado: {email}', 'success')
+        return redirect(url_for('viajes.perfil'))
 
     except Exception as e:
         import traceback
         traceback.print_exc()
-        flash(f'Error desconectando: {str(e)}', 'error')
-        return redirect(url_for('viajes.preferencias'))
+        flash(f'Error eliminando email: {str(e)}', 'error')
+        return redirect(url_for('viajes.perfil'))
 
 
 # ============================================
