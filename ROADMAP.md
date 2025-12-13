@@ -35,6 +35,7 @@
 | 13 | Preferencias notificaciones | 10 Dic 2025 | UI toggles, campos BD (envío pendiente MVP13b) |
 | **14** | **Gmail Push + Multi-cuenta** | **11 Dic 2025** | **OAuth, push notifications, PDFs, deduplicación** |
 | 14-UX | Unificación emails en perfil | 12 Dic 2025 | Toggle visual, detección proveedor, deduplicación |
+| **14h** | **Microsoft OAuth** | **12 Dic 2025** | **Outlook, Hotmail, Exchange 365, corporativos** |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -69,12 +70,12 @@
 | 14f | Fix multi-cuenta (.first() bug) | ✅ |
 | 14g | Extracción PDFs + deduplicación | ✅ |
 | 14-UX | Unificación emails en perfil | ✅ |
+| **14h** | **Microsoft Graph OAuth (Exchange/365)** | ✅ |
 
 ### Sub-MVPs pendientes
 
 | Sub-MVP | Descripción | Prioridad | Esfuerzo |
 |---------|-------------|-----------|----------|
-| 14h | Microsoft Graph OAuth (Exchange/365) | Alta | 6-8h |
 | 14i | Apple Mail guía contextual in-app | Media | 2-3h |
 | 14j | Outlook app guía contextual in-app | Media | 1h |
 | 14-EXT | Extender Claude para detectar todos los tipos de eventos | Alta | 4h |
@@ -164,7 +165,6 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
-| **14h** | Microsoft OAuth (corporativo + personal) | - |
 | **14-EXT** | Claude detecta hoteles, restaurantes, citas (no solo vuelos) | - |
 | **MVP-REF** | Refactor BD: Viaje → Evento + extensiones | 14-EXT |
 
@@ -243,4 +243,4 @@ Evento (tabla base)
 
 ---
 
-*Última actualización: 12 Dic 2025 - MVP14-UX completado: unificación de emails en perfil*
+*Última actualización: 12 Dic 2025 - MVP14h completado: Microsoft OAuth para Outlook y corporativos*
