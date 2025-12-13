@@ -118,16 +118,14 @@
             justify-content: center;
             width: 44px;
             height: 44px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: transparent;
+            border: none;
             cursor: pointer;
             transition: var(--transition);
         }
 
         .menu-toggle:hover {
-            border-color: var(--text-secondary);
-            background: var(--bg);
+            opacity: 0.7;
         }
 
         .menu-toggle svg {
@@ -230,15 +228,6 @@
                         <a href="https://outlook.live.com/calendar/0/addfromweb?url=https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" target="_blank">Agregar a Outlook</a>
 
                         <div class="divider"></div>
-
-                        {% if request.endpoint == 'viajes.index' %}
-                        <div class="menu-section-label">Acciones</div>
-                        <button onclick="showBanner(); closeMenu();">Ver email para reenvíos</button>
-                        <button onclick="toggleGroupMode(); closeMenu();">Agrupar viajes</button>
-                        <button class="danger" onclick="toggleDeleteMode(); closeMenu();">Eliminar viajes</button>
-
-                        <div class="divider"></div>
-                        {% endif %}
 
                         <a href="{{ url_for('auth.logout') }}" class="muted">Cerrar sesión</a>
                     </div>
