@@ -658,13 +658,13 @@ def detect_email_provider(email):
             'oauth_implemented': False  # Próximamente
         }
 
-    # Corporativos u otros
+    # Otros proveedores no soportados
     else:
         return {
-            'provider': 'corporate',
-            'name': 'Corporativo',
-            'oauth_available': True,
-            'oauth_implemented': True  # Microsoft OAuth soporta Exchange/M365
+            'provider': 'unknown',
+            'name': 'Otro',
+            'oauth_available': False,
+            'oauth_implemented': False
         }
 
 @viajes_bp.route('/perfil')

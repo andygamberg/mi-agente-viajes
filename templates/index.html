@@ -1029,7 +1029,7 @@
                 <a href="{{ url_for('viajes.perfil') }}" class="profile-alert">Completar perfil</a>
                 {% endif %}
                 
-                <button class="btn btn-primary" onclick="openAddModal()">+ Agregar</button>
+                <button class="btn btn-secondary" onclick="openAddModal()">+ Agregar</button>
                 
                 <div class="menu-container" id="mainMenu">
                     <button class="menu-toggle" onclick="toggleMenu()">
@@ -1038,25 +1038,24 @@
                         </svg>
                     </button>
                     <div class="menu-dropdown">
-                        <div class="menu-section-label">Acciones</div>
-                        <button onclick="toggleGroupMode(); closeMenu();">Agrupar viajes</button>
-                        <button class="danger" onclick="toggleDeleteMode(); closeMenu();">Eliminar viajes</button>
-                        
+                        <a href="{{ url_for('viajes.perfil') }}">Mi perfil</a>
+                        <a href="{{ url_for('viajes.preferencias') }}">Preferencias</a>
+
                         <div class="divider"></div>
-                        
+
                         <div class="menu-section-label">Calendario</div>
-                        <!-- MVP9: Links con token personal -->
                         <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}">Agregar a Apple Calendar</a>
                         <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}">Agregar a Google Calendar</a>
-                        
+
                         <div class="divider"></div>
-                        
+
+                        <div class="menu-section-label">Acciones</div>
                         <button onclick="showBanner(); closeMenu();">Ver email para reenvíos</button>
-                        <a href="{{ url_for('viajes.preferencias') }}">Preferencias</a>
-                        <a href="{{ url_for('viajes.perfil') }}">Mi perfil</a>
-                        
+                        <button onclick="toggleGroupMode(); closeMenu();">Agrupar viajes</button>
+                        <button class="danger" onclick="toggleDeleteMode(); closeMenu();">Eliminar viajes</button>
+
                         <div class="divider"></div>
-                        
+
                         <a href="{{ url_for('auth.logout') }}" class="muted">Cerrar sesión</a>
                     </div>
                 </div>
