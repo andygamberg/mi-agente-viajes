@@ -501,6 +501,30 @@ def migrate_multi_type():
         return {"status": "error", "message": str(e)}, 500
 
 
+@api_bp.route('/debug-raw-data')
+def debug_raw_data():
+    """Debug endpoint - muestra raw_data de últimos 3 viajes"""
+    try:
+        viajes = Viaje.query.order_by(Viaje.id.desc()).limit(3).all()
+
+        results = []
+        for v in viajes:
+            results.append({
+                'id': v.id,
+                'tipo': v.tipo,
+                'descripcion': v.descripcion,
+                'proveedor': v.proveedor,
+                'ubicacion': v.ubicacion,
+                'precio': v.precio,
+                'raw_data': v.raw_data[:500] if v.raw_data else None,
+                'raw_data_full': v.raw_data
+            })
+
+        return jsonify({'viajes': results})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @api_bp.route('/assign-viajes-to-user/<int:user_id>')
 def assign_viajes(user_id):
     """Endpoint temporal para asignar viajes huérfanos a un usuario"""
