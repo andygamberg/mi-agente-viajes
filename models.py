@@ -146,7 +146,7 @@ class Viaje(db.Model):
     
     # Campos existentes
     tipo = db.Column(db.String(50), nullable=False)
-    descripcion = db.Column(db.String(200), nullable=False)
+    descripcion = db.Column(db.String(200), nullable=False, default='')
     origen = db.Column(db.String(100))
     destino = db.Column(db.String(100))
     fecha_salida = db.Column(db.DateTime, nullable=False)

@@ -312,6 +312,7 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                         viaje = Viaje(
                             user_id=user_id,
                             tipo='vuelo',
+                            descripcion='',
                             origen=v.get('origen', ''),
                             destino=v.get('destino', ''),
                             fecha_salida=fecha,
