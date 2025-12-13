@@ -634,6 +634,18 @@ input::placeholder {
     color: var(--text-muted);
 }
 
+.provider-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: block;
+}
+
+.provider-buttons {
+    display: flex;
+    gap: 8px;
+}
+
 .email-tip {
     display: flex;
     align-items: center;
@@ -906,6 +918,20 @@ input::placeholder {
                     </a>
                 </div>
 
+                {% elif item.provider_info.provider == 'other' %}
+                <!-- OTRO: Usuario elige -->
+                <div class="detection-status available">
+                    <span class="provider-hint">¿Tu email usa Google o Microsoft?</span>
+                    <div class="provider-buttons">
+                        <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-provider gmail">
+                            <span class="provider-letter">G</span> Google
+                        </a>
+                        <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn-provider microsoft">
+                            <span class="provider-letter">M</span> Microsoft
+                        </a>
+                    </div>
+                </div>
+
                 {% elif item.connected_via %}
                 <!-- ALIAS CORPORATIVO: Conectado vía otra cuenta del mismo dominio -->
                 <div class="detection-status connected">
@@ -928,12 +954,6 @@ input::placeholder {
                         <span class="toggle-circle"></span>
                     </span>
                     <span class="provider-status muted">No disponible</span>
-                </div>
-                <div class="fallback-tip">
-                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
-                    </svg>
-                    Reenviá confirmaciones a <code>misviajes@gamberg.com.ar</code>
                 </div>
                 {% endif %}
             </div>

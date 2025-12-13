@@ -661,10 +661,10 @@ def detect_email_provider(email):
     # Otros proveedores no soportados
     else:
         return {
-            'provider': 'unknown',
+            'provider': 'other',
             'name': 'Otro',
-            'oauth_available': False,
-            'oauth_implemented': False
+            'oauth_available': True,
+            'oauth_implemented': True
         }
 
 @viajes_bp.route('/perfil')
