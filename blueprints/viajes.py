@@ -612,10 +612,39 @@ def guardar_vuelos():
                         pass
                 
                 pasajeros_json = json.dumps(vuelo_data.get('pasajeros', []))
-                
+
+                # Detectar tipo y mapear campos
+                tipo = vuelo_data.get('tipo', 'vuelo')
+                proveedor = None
+                ubicacion = None
+                precio = vuelo_data.get('precio_total')
+
+                if tipo == 'vuelo':
+                    proveedor = vuelo_data.get('aerolinea')
+                elif tipo == 'hotel':
+                    proveedor = vuelo_data.get('nombre_propiedad')
+                    ubicacion = vuelo_data.get('direccion')
+                elif tipo == 'crucero':
+                    proveedor = vuelo_data.get('compania') or vuelo_data.get('embarcacion')
+                elif tipo == 'auto':
+                    proveedor = vuelo_data.get('empresa')
+                elif tipo == 'restaurante':
+                    proveedor = vuelo_data.get('nombre')
+                    ubicacion = vuelo_data.get('direccion')
+                elif tipo == 'espectaculo':
+                    proveedor = vuelo_data.get('evento')
+                    ubicacion = vuelo_data.get('venue')
+                elif tipo == 'actividad':
+                    proveedor = vuelo_data.get('proveedor') or vuelo_data.get('nombre')
+                    ubicacion = vuelo_data.get('punto_encuentro')
+                elif tipo == 'tren':
+                    proveedor = vuelo_data.get('operador')
+                elif tipo == 'transfer':
+                    proveedor = vuelo_data.get('empresa')
+
                 nuevo_viaje = Viaje(
                     user_id=current_user.id,
-                    tipo='vuelo',
+                    tipo=tipo,
                     descripcion=vuelo_data.get('descripcion', ''),
                     origen=vuelo_data.get('origen', ''),
                     destino=vuelo_data.get('destino', ''),
@@ -624,16 +653,21 @@ def guardar_vuelos():
                     fecha_llegada=fecha_llegada,
                     hora_salida=hora_salida,
                     hora_llegada=hora_llegada,
-                    aerolinea=vuelo_data.get('aerolinea', ''),
-                    numero_vuelo=vuelo_data.get('numero_vuelo', ''),
+                    aerolinea=vuelo_data.get('aerolinea', '') if tipo == 'vuelo' else None,
+                    numero_vuelo=vuelo_data.get('numero_vuelo', '') if tipo == 'vuelo' else None,
                     codigo_reserva=vuelo_data.get('codigo_reserva', ''),
-                    terminal=vuelo_data.get('terminal', ''),
-                    puerta=vuelo_data.get('puerta', ''),
-                    asiento=vuelo_data.get('pasajeros', [{}])[0].get('asiento', '') if vuelo_data.get('pasajeros') else '',
+                    terminal=vuelo_data.get('terminal', '') if tipo == 'vuelo' else None,
+                    puerta=vuelo_data.get('puerta', '') if tipo == 'vuelo' else None,
+                    asiento=vuelo_data.get('pasajeros', [{}])[0].get('asiento', '') if tipo == 'vuelo' and vuelo_data.get('pasajeros') else None,
                     pasajeros=pasajeros_json,
-                    equipaje_facturado=vuelo_data.get('equipaje_facturado', ''),
-                    equipaje_mano=vuelo_data.get('equipaje_mano', ''),
-                    notas=vuelo_data.get('notas', '')
+                    equipaje_facturado=vuelo_data.get('equipaje_facturado', '') if tipo == 'vuelo' else None,
+                    equipaje_mano=vuelo_data.get('equipaje_mano', '') if tipo == 'vuelo' else None,
+                    notas=vuelo_data.get('notas', ''),
+                    # Nuevos campos multi-tipo
+                    proveedor=proveedor,
+                    ubicacion=ubicacion,
+                    precio=precio,
+                    raw_data=json.dumps(vuelo_data, ensure_ascii=False)
                 )
                 
                 db.session.add(nuevo_viaje)

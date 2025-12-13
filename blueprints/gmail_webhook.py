@@ -209,20 +209,54 @@ def process_new_emails(connection, history_id):
                                 fecha = datetime.strptime(fecha_str, '%Y-%m-%d')
                         except:
                             continue
-                        
+
+                        # Detectar tipo y mapear campos
+                        tipo = v.get('tipo', 'vuelo')
+                        proveedor = None
+                        ubicacion = None
+                        precio = v.get('precio_total')
+
+                        if tipo == 'vuelo':
+                            proveedor = v.get('aerolinea')
+                        elif tipo == 'hotel':
+                            proveedor = v.get('nombre_propiedad')
+                            ubicacion = v.get('direccion')
+                        elif tipo == 'crucero':
+                            proveedor = v.get('compania') or v.get('embarcacion')
+                        elif tipo == 'auto':
+                            proveedor = v.get('empresa')
+                        elif tipo == 'restaurante':
+                            proveedor = v.get('nombre')
+                            ubicacion = v.get('direccion')
+                        elif tipo == 'espectaculo':
+                            proveedor = v.get('evento')
+                            ubicacion = v.get('venue')
+                        elif tipo == 'actividad':
+                            proveedor = v.get('proveedor') or v.get('nombre')
+                            ubicacion = v.get('punto_encuentro')
+                        elif tipo == 'tren':
+                            proveedor = v.get('operador')
+                        elif tipo == 'transfer':
+                            proveedor = v.get('empresa')
+
                         viaje = Viaje(
                             user_id=connection.user_id,
-                            tipo='vuelo',
-                            descripcion='',
+                            tipo=tipo,
+                            descripcion=v.get('descripcion', ''),
                             origen=v.get('origen', ''),
                             destino=v.get('destino', ''),
                             fecha_salida=fecha,
                             hora_salida=hora,
-                            aerolinea=v.get('aerolinea', ''),
-                            numero_vuelo=v.get('numero_vuelo', ''),
+                            aerolinea=v.get('aerolinea', '') if tipo == 'vuelo' else None,
+                            numero_vuelo=v.get('numero_vuelo', '') if tipo == 'vuelo' else None,
                             codigo_reserva=v.get('codigo_reserva', ''),
-                            pasajeros=json.dumps(v.get('pasajeros', [])),
-                            grupo_viaje=grupo
+                            pasajeros=json.dumps(v.get('pasajeros', [])) if v.get('pasajeros') else None,
+                            grupo_viaje=grupo,
+                            # Nuevos campos multi-tipo
+                            proveedor=proveedor,
+                            ubicacion=ubicacion,
+                            precio=precio,
+                            raw_data=json.dumps(v, ensure_ascii=False)
                         )
                         db.session.add(viaje)
                         viajes_creados += 1

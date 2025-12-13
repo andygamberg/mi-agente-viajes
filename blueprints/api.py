@@ -92,16 +92,53 @@ def api_auto_process():
         
         vuelos_creados = 0
         for v in vuelos:
+            tipo = v.get('tipo', 'vuelo')
+
+            # Extraer campos comunes
+            proveedor = None
+            ubicacion = None
+            precio = v.get('precio_total')
+
+            # Mapear campos específicos por tipo
+            if tipo == 'vuelo':
+                proveedor = v.get('aerolinea')
+            elif tipo == 'hotel':
+                proveedor = v.get('nombre_propiedad')
+                ubicacion = v.get('direccion')
+            elif tipo == 'crucero':
+                proveedor = v.get('compania') or v.get('embarcacion')
+            elif tipo == 'auto':
+                proveedor = v.get('empresa')
+            elif tipo == 'restaurante':
+                proveedor = v.get('nombre')
+                ubicacion = v.get('direccion')
+            elif tipo == 'espectaculo':
+                proveedor = v.get('evento')
+                ubicacion = v.get('venue')
+            elif tipo == 'actividad':
+                proveedor = v.get('proveedor') or v.get('nombre')
+                ubicacion = v.get('punto_encuentro')
+            elif tipo == 'tren':
+                proveedor = v.get('operador')
+            elif tipo == 'transfer':
+                proveedor = v.get('empresa')
+
             viaje = Viaje(
-                tipo='vuelo',
+                tipo=tipo,
                 descripcion=v.get('descripcion', f"{v.get('origen','')} → {v.get('destino','')}"),
                 origen=v.get('origen'),
                 destino=v.get('destino'),
                 fecha_salida=v.get('fecha_salida'),
                 hora_salida=v.get('hora_salida'),
-                aerolinea=v.get('aerolinea'),
-                numero_vuelo=v.get('numero_vuelo'),
-                codigo_reserva=v.get('codigo_reserva')
+                aerolinea=v.get('aerolinea') if tipo == 'vuelo' else None,
+                numero_vuelo=v.get('numero_vuelo') if tipo == 'vuelo' else None,
+                codigo_reserva=v.get('codigo_reserva'),
+                pasajeros=json.dumps(v.get('pasajeros', [])) if v.get('pasajeros') else None,
+                # Nuevos campos multi-tipo
+                proveedor=proveedor,
+                ubicacion=ubicacion,
+                precio=precio,
+                raw_data=json.dumps(v, ensure_ascii=False)
             )
             db.session.add(viaje)
             vuelos_creados += 1
