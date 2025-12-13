@@ -169,7 +169,13 @@ class Viaje(db.Model):
     nombre_viaje = db.Column(db.String(200))
     creado = db.Column(db.DateTime, default=datetime.utcnow)
     actualizado = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
+    # Campos nuevos para multi-tipo (14-EXT)
+    ubicacion = db.Column(db.String(500))   # dirección/ciudad para lugares fijos
+    proveedor = db.Column(db.String(200))   # nombre del hotel/restaurante/empresa/aerolinea
+    precio = db.Column(db.String(100))      # "USD 450", "€748", formato libre
+    raw_data = db.Column(db.Text)           # JSON completo de Claude como backup
+
     # Campos para monitoreo FR24
     ultima_actualizacion_fr24 = db.Column(db.DateTime)
     status_fr24 = db.Column(db.String(50))

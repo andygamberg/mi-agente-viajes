@@ -263,58 +263,249 @@ def carga_rapida():
             grupo_id = str(uuid.uuid4())[:8]
             vuelos_guardados = 0
             
-            for vuelo_data in vuelos:
-                # Parsear fechas
-                fecha_salida_str = vuelo_data.get('fecha_salida')
-                hora_salida = vuelo_data.get('hora_salida', '')
-                
-                if not fecha_salida_str:
-                    continue
-                
-                if hora_salida:
-                    fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_salida}", '%Y-%m-%d %H:%M')
-                else:
-                    fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
-                
+            for reserva_data in vuelos:
+                tipo = reserva_data.get('tipo', 'vuelo')
+
+                # Mapear campos según tipo
+                fecha_salida = None
                 fecha_llegada = None
-                fecha_llegada_str = vuelo_data.get('fecha_llegada')
-                hora_llegada = vuelo_data.get('hora_llegada', '')
-                if fecha_llegada_str:
-                    try:
-                        if hora_llegada:
-                            fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_llegada}", '%Y-%m-%d %H:%M')
+                origen = None
+                destino = None
+                proveedor = None
+                ubicacion = None
+                precio = None
+                descripcion = reserva_data.get('descripcion', '')
+                codigo_reserva = reserva_data.get('codigo_reserva')
+                pasajeros_json = None
+                hora_salida = ''
+                hora_llegada = ''
+
+                if tipo == 'vuelo':
+                    # Lógica existente para vuelos
+                    fecha_salida_str = reserva_data.get('fecha_salida')
+                    hora_salida = reserva_data.get('hora_salida', '')
+                    if fecha_salida_str:
+                        if hora_salida:
+                            fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_salida}", '%Y-%m-%d %H:%M')
                         else:
-                            fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
-                    except:
-                        pass
-                
-                # Convertir pasajeros a JSON
-                pasajeros_json = json.dumps(vuelo_data.get('pasajeros', []))
-                
+                            fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
+
+                    fecha_llegada_str = reserva_data.get('fecha_llegada')
+                    hora_llegada = reserva_data.get('hora_llegada', '')
+                    if fecha_llegada_str:
+                        try:
+                            if hora_llegada:
+                                fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_llegada}", '%Y-%m-%d %H:%M')
+                            else:
+                                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
+                        except:
+                            pass
+
+                    origen = reserva_data.get('origen')
+                    destino = reserva_data.get('destino')
+                    proveedor = reserva_data.get('aerolinea')
+                    pasajeros_json = json.dumps(reserva_data.get('pasajeros', []))
+
+                elif tipo == 'hotel':
+                    fecha_salida_str = reserva_data.get('fecha_checkin')
+                    hora_checkin = reserva_data.get('hora_checkin', '')
+                    if fecha_salida_str:
+                        if hora_checkin:
+                            fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_checkin}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
+
+                    fecha_llegada_str = reserva_data.get('fecha_checkout')
+                    hora_checkout = reserva_data.get('hora_checkout', '')
+                    if fecha_llegada_str:
+                        try:
+                            if hora_checkout:
+                                fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_checkout}", '%Y-%m-%d %H:%M')
+                            else:
+                                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
+                        except:
+                            pass
+
+                    proveedor = reserva_data.get('nombre_propiedad')
+                    ubicacion = reserva_data.get('direccion')
+                    precio = reserva_data.get('precio_total')
+                    huespedes = reserva_data.get('huespedes', [])
+                    if huespedes:
+                        pasajeros_json = json.dumps([{"nombre": h} for h in huespedes])
+
+                elif tipo == 'crucero':
+                    fecha_salida_str = reserva_data.get('fecha_embarque')
+                    hora_embarque = reserva_data.get('hora_embarque', '')
+                    if fecha_salida_str:
+                        if hora_embarque:
+                            fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_embarque}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
+
+                    fecha_llegada_str = reserva_data.get('fecha_desembarque')
+                    hora_desembarque = reserva_data.get('hora_desembarque', '')
+                    if fecha_llegada_str:
+                        try:
+                            if hora_desembarque:
+                                fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_desembarque}", '%Y-%m-%d %H:%M')
+                            else:
+                                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
+                        except:
+                            pass
+
+                    origen = reserva_data.get('puerto_embarque')
+                    destino = reserva_data.get('puerto_desembarque')
+                    proveedor = reserva_data.get('compania') or reserva_data.get('embarcacion')
+                    precio = reserva_data.get('precio_total')
+                    pasajeros = reserva_data.get('pasajeros', [])
+                    if pasajeros:
+                        pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+
+                elif tipo == 'auto':
+                    fecha_salida_str = reserva_data.get('fecha_retiro')
+                    hora_retiro = reserva_data.get('hora_retiro', '')
+                    if fecha_salida_str:
+                        if hora_retiro:
+                            fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_retiro}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
+
+                    fecha_llegada_str = reserva_data.get('fecha_devolucion')
+                    hora_devolucion = reserva_data.get('hora_devolucion', '')
+                    if fecha_llegada_str:
+                        try:
+                            if hora_devolucion:
+                                fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_devolucion}", '%Y-%m-%d %H:%M')
+                            else:
+                                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
+                        except:
+                            pass
+
+                    origen = reserva_data.get('lugar_retiro')
+                    destino = reserva_data.get('lugar_devolucion')
+                    proveedor = reserva_data.get('empresa')
+                    precio = reserva_data.get('precio_total')
+
+                elif tipo == 'restaurante':
+                    fecha_str = reserva_data.get('fecha')
+                    hora = reserva_data.get('hora', '')
+                    if fecha_str:
+                        if hora:
+                            fecha_salida = datetime.strptime(f"{fecha_str} {hora}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_str, '%Y-%m-%d')
+
+                    proveedor = reserva_data.get('nombre')
+                    ubicacion = reserva_data.get('direccion')
+                    comensales = reserva_data.get('comensales')
+                    if comensales:
+                        pasajeros_json = json.dumps([{"comensales": comensales}])
+
+                elif tipo == 'espectaculo':
+                    fecha_str = reserva_data.get('fecha')
+                    hora = reserva_data.get('hora', '')
+                    if fecha_str:
+                        if hora:
+                            fecha_salida = datetime.strptime(f"{fecha_str} {hora}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_str, '%Y-%m-%d')
+
+                    proveedor = reserva_data.get('evento')
+                    ubicacion = reserva_data.get('venue')
+                    precio = reserva_data.get('precio_total')
+                    entradas = reserva_data.get('entradas') or reserva_data.get('detalles_entradas')
+                    if entradas:
+                        pasajeros_json = json.dumps(entradas if isinstance(entradas, list) else [{"entradas": entradas}])
+
+                elif tipo == 'actividad':
+                    fecha_str = reserva_data.get('fecha')
+                    hora = reserva_data.get('hora', '')
+                    if fecha_str:
+                        if hora:
+                            fecha_salida = datetime.strptime(f"{fecha_str} {hora}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_str, '%Y-%m-%d')
+
+                    proveedor = reserva_data.get('proveedor') or reserva_data.get('nombre')
+                    ubicacion = reserva_data.get('punto_encuentro')
+                    precio = reserva_data.get('precio_total')
+                    participantes = reserva_data.get('participantes')
+                    if participantes:
+                        pasajeros_json = json.dumps([{"participantes": participantes}])
+
+                elif tipo == 'tren':
+                    fecha_salida_str = reserva_data.get('fecha_salida')
+                    hora_salida = reserva_data.get('hora_salida', '')
+                    if fecha_salida_str:
+                        if hora_salida:
+                            fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_salida}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
+
+                    fecha_llegada_str = reserva_data.get('fecha_llegada')
+                    hora_llegada = reserva_data.get('hora_llegada', '')
+                    if fecha_llegada_str:
+                        try:
+                            if hora_llegada:
+                                fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_llegada}", '%Y-%m-%d %H:%M')
+                            else:
+                                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
+                        except:
+                            pass
+
+                    origen = reserva_data.get('origen')
+                    destino = reserva_data.get('destino')
+                    proveedor = reserva_data.get('operador')
+                    pasajeros = reserva_data.get('pasajeros', [])
+                    if pasajeros:
+                        pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+
+                elif tipo == 'transfer':
+                    fecha_str = reserva_data.get('fecha')
+                    hora = reserva_data.get('hora', '')
+                    if fecha_str:
+                        if hora:
+                            fecha_salida = datetime.strptime(f"{fecha_str} {hora}", '%Y-%m-%d %H:%M')
+                        else:
+                            fecha_salida = datetime.strptime(fecha_str, '%Y-%m-%d')
+
+                    origen = reserva_data.get('desde')
+                    destino = reserva_data.get('hasta')
+                    proveedor = reserva_data.get('empresa')
+
+                # Verificar fecha mínima
+                if not fecha_salida:
+                    continue
+
                 # Crear viaje
                 nuevo_viaje = Viaje(
                     user_id=current_user.id,
-                    tipo='vuelo',
-                    descripcion=vuelo_data.get('descripcion', ''),
-                    origen=vuelo_data.get('origen', ''),
-                    destino=vuelo_data.get('destino', ''),
-                    grupo_viaje=grupo_id,
+                    tipo=tipo,
+                    descripcion=descripcion,
+                    origen=origen,
+                    destino=destino,
                     fecha_salida=fecha_salida,
                     fecha_llegada=fecha_llegada,
                     hora_salida=hora_salida,
                     hora_llegada=hora_llegada,
-                    aerolinea=vuelo_data.get('aerolinea', ''),
-                    numero_vuelo=vuelo_data.get('numero_vuelo', ''),
-                    codigo_reserva=vuelo_data.get('codigo_reserva', ''),
-                    terminal=vuelo_data.get('terminal', ''),
-                    puerta=vuelo_data.get('puerta', ''),
-                    asiento=vuelo_data.get('pasajeros', [{}])[0].get('asiento', '') if vuelo_data.get('pasajeros') else '',
+                    aerolinea=reserva_data.get('aerolinea') if tipo == 'vuelo' else None,
+                    numero_vuelo=reserva_data.get('numero_vuelo') if tipo == 'vuelo' else None,
+                    codigo_reserva=codigo_reserva,
                     pasajeros=pasajeros_json,
-                    equipaje_facturado=vuelo_data.get('equipaje_facturado', ''),
-                    equipaje_mano=vuelo_data.get('equipaje_mano', ''),
-                    notas=vuelo_data.get('notas', '')
+                    terminal=reserva_data.get('terminal') if tipo == 'vuelo' else None,
+                    puerta=reserva_data.get('puerta') if tipo == 'vuelo' else None,
+                    asiento=reserva_data.get('pasajeros', [{}])[0].get('asiento', '') if tipo == 'vuelo' and reserva_data.get('pasajeros') else None,
+                    equipaje_facturado=reserva_data.get('equipaje_facturado') if tipo == 'vuelo' else None,
+                    equipaje_mano=reserva_data.get('equipaje_mano') if tipo == 'vuelo' else None,
+                    grupo_viaje=grupo_id,
+                    notas=reserva_data.get('notas', ''),
+                    # Nuevos campos multi-tipo
+                    proveedor=proveedor,
+                    ubicacion=ubicacion,
+                    precio=precio,
+                    raw_data=json.dumps(reserva_data, ensure_ascii=False),
                 )
-                
+
                 db.session.add(nuevo_viaje)
                 vuelos_guardados += 1
             

@@ -435,6 +435,35 @@ def migrate_db():
         return {'success': False, 'error': str(e)}, 500
 
 
+@api_bp.route('/migrate-multi-type')
+def migrate_multi_type():
+    """Ejecuta migración para campos multi-tipo"""
+    try:
+        from sqlalchemy import text
+        columns_to_add = [
+            ("ubicacion", "VARCHAR(500)"),
+            ("proveedor", "VARCHAR(200)"),
+            ("precio", "VARCHAR(100)"),
+            ("raw_data", "TEXT"),
+        ]
+
+        results = []
+        for col_name, col_type in columns_to_add:
+            try:
+                db.session.execute(text(f"ALTER TABLE viaje ADD COLUMN {col_name} {col_type}"))
+                results.append(f"✅ {col_name} agregada")
+            except Exception as e:
+                if "already exists" in str(e).lower() or "duplicate" in str(e).lower():
+                    results.append(f"ℹ️ {col_name} ya existe")
+                else:
+                    results.append(f"❌ {col_name}: {e}")
+
+        db.session.commit()
+        return {"status": "ok", "results": results}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+
+
 @api_bp.route('/assign-viajes-to-user/<int:user_id>')
 def assign_viajes(user_id):
     """Endpoint temporal para asignar viajes huérfanos a un usuario"""
