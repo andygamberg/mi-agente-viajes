@@ -126,6 +126,66 @@ def process_emails_cron():
         return {'success': False, 'error': str(e)}, 500
 
 
+@api_bp.route('/cron/process-microsoft-emails', methods=['GET', 'POST'])
+def process_microsoft_emails_cron():
+    """Procesa emails de Microsoft/Exchange - llamado por Cloud Scheduler"""
+    try:
+        from utils.microsoft_scanner import scan_and_create_viajes_microsoft
+        from models import EmailConnection
+
+        print("🔍 Microsoft scanner iniciado")
+
+        # Obtener todos los usuarios con cuentas Microsoft activas
+        connections = EmailConnection.query.filter_by(
+            provider='microsoft', is_active=True
+        ).all()
+
+        if not connections:
+            print("ℹ️ No hay cuentas Microsoft activas")
+            return {'success': True, 'message': 'No hay cuentas Microsoft activas'}, 200
+
+        # Agrupar por user_id para evitar procesar el mismo usuario múltiples veces
+        user_ids = list(set([conn.user_id for conn in connections]))
+
+        print(f"📧 Procesando {len(user_ids)} usuarios con cuentas Microsoft")
+
+        total_results = {
+            'usuarios_procesados': 0,
+            'emails_encontrados': 0,
+            'emails_procesados': 0,
+            'viajes_creados': 0,
+            'viajes_duplicados': 0,
+            'errors': []
+        }
+
+        for user_id in user_ids:
+            try:
+                print(f"  👤 Usuario {user_id}...")
+                result = scan_and_create_viajes_microsoft(user_id, days_back=30)
+
+                total_results['usuarios_procesados'] += 1
+                total_results['emails_encontrados'] += result.get('emails_encontrados', 0)
+                total_results['emails_procesados'] += result.get('emails_procesados', 0)
+                total_results['viajes_creados'] += result.get('viajes_creados', 0)
+                total_results['viajes_duplicados'] += result.get('viajes_duplicados', 0)
+                total_results['errors'].extend(result.get('errors', []))
+
+                print(f"    ✅ {result.get('viajes_creados', 0)} viajes creados")
+
+            except Exception as e:
+                error_msg = f"Error procesando usuario {user_id}: {str(e)}"
+                print(f"    ❌ {error_msg}")
+                total_results['errors'].append(error_msg)
+
+        print(f"✅ Microsoft scanner completado: {total_results}")
+        return {'success': True, 'result': total_results}, 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {'success': False, 'error': str(e)}, 500
+
+
 @api_bp.route('/cron/check-flights', methods=['GET', 'POST'])
 def cron_check_flights():
     return api_check_flights()

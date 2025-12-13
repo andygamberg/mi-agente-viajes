@@ -193,6 +193,8 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
     from utils.claude import extraer_info_con_claude
     import uuid
 
+    print(f"    🔍 Microsoft scanner: user_id={user_id}, days_back={days_back}")
+
     results = {
         'emails_encontrados': 0,
         'emails_procesados': 0,
@@ -206,26 +208,39 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
     ).all()
 
     if not connections:
+        print(f"    ⚠️ No hay cuentas Microsoft conectadas para user {user_id}")
         results['errors'].append('No hay cuentas Microsoft conectadas')
         return results
 
+    print(f"    📧 Encontradas {len(connections)} conexiones Microsoft")
+
     for conn in connections:
         try:
+            print(f"      📬 Procesando cuenta: {conn.email}")
             creds = get_microsoft_credentials(user_id, email=conn.email)
             if not creds:
+                print(f"      ⚠️ No se pudieron obtener credenciales para {conn.email}")
                 continue
 
             access_token = creds['access_token']
             messages = search_travel_emails_microsoft(access_token, days_back)
+            print(f"      📥 {len(messages)} emails encontrados en {conn.email}")
 
             # Filtrar por remitentes whitelistados
             filtered_messages = []
             for msg in messages:
                 from_email = msg.get('from', {}).get('emailAddress', {}).get('address', '')
+                from_name = msg.get('from', {}).get('emailAddress', {}).get('name', '')
+                subject = msg.get('subject', '')
+
                 if is_whitelisted_sender(from_email, user_id):
                     filtered_messages.append(msg)
+                    print(f"      ✅ Whitelisted: {from_name} <{from_email}> - {subject}")
+                else:
+                    print(f"      Remitente no whitelisted: {from_name} <{from_email}>")
 
             results['emails_encontrados'] += len(filtered_messages)
+            print(f"      🎯 {len(filtered_messages)} emails whitelistados para procesar")
 
             # Limitar para evitar timeout
             for message in filtered_messages[:MAX_EMAILS_PER_SCAN]:
