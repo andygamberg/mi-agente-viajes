@@ -94,6 +94,16 @@
 | ~~Onboarding email~~ | ~~Usuario conecta Gmail pero no sabe qué esperar~~ | ~~Alta~~ | ✅ Resuelto 12 Dic (14-UX) |
 | ~~Sin feedback conexión~~ | ~~No indica estado de detección automática~~ | ~~Media~~ | ✅ Resuelto 12 Dic (14-UX) |
 
+### Pre-escala / Técnico
+
+| Item | Descripción | Prioridad | Status |
+|------|-------------|-----------|--------|
+| Google OAuth verification | App en modo testing, límite de usuarios. Verificar para producción | Alta | Pendiente |
+| Auditoría seguridad | Review completo de seguridad antes de escalar | Alta | Pendiente |
+| Performance review | Optimización para escala (queries, caching, etc.) | Media | Pendiente |
+| Impacto BD viajes pasados | Evaluar impacto de vuelos históricos en performance | Media | Pendiente |
+| Migración a modelo Eventos | Refactor arquitectónico para soportar hoteles, autos, citas | Baja | Planificado |
+
 ---
 
 ## 🏗️ Refactor Arquitectónico: Modelo de Eventos
@@ -243,4 +253,17 @@ Evento (tabla base)
 
 ---
 
-*Última actualización: 14 Dic 2025 - MVP14h completado: Microsoft OAuth para Outlook y corporativos*
+*Última actualización: 14 Dic 2025*
+
+## ✅ Completados (14 Dic 2025)
+
+### MVP14h: Microsoft OAuth + Scanner Automático
+- ✅ Microsoft OAuth para cuentas personales (Outlook.com, Hotmail)
+- ✅ Microsoft OAuth para cuentas corporativas (Exchange 365)
+- ✅ Scanner automático de emails Microsoft con Cloud Scheduler (cada 15 min)
+- ✅ Backfill en primera conexión (180 días, solo vuelos futuros)
+- ✅ Detección automática de alias corporativos (mismo dominio = conectado)
+- ✅ Setup local con Claude Code (alternativa a Codespaces sin límites de billing)
+- ✅ Fix campo descripcion NOT NULL que causaba rollbacks silenciosos
+
+---

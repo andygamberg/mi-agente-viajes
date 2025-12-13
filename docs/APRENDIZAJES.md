@@ -202,6 +202,13 @@ Objetivo: evitar repetir errores y propagar conocimiento a otros proyectos.
 **Sesión:** MVP14h
 **Aplicable a:** Cualquier proyecto que usa Claude Code
 
+### 28. --update-env-vars vs --set-env-vars: uno agrega, el otro reemplaza
+**Problema:** Después de usar `--set-env-vars` para configurar una variable, todas las demás desaparecen
+**Causa:** `--set-env-vars` reemplaza TODAS las variables, `--update-env-vars` solo actualiza/agrega las especificadas
+**Solución:** Usar siempre `--update-env-vars` para agregar o modificar variables sin afectar las existentes
+**Sesión:** MVP14h
+**Aplicable a:** Cualquier deploy a Cloud Run con múltiples env vars
+
 ---
 
 ## Patrones Exitosos
