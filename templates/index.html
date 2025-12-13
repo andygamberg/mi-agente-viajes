@@ -374,7 +374,13 @@
             justify-content: space-between;
             margin-bottom: 12px;
         }
-        
+
+        .badges-container {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         .badge {
             display: inline-flex;
             padding: 4px 10px;
@@ -1151,84 +1157,81 @@
                 <div class="card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
-                            <div style="display: flex; gap: 6px; align-items: center;">
-                                {% if es_multi %}
-                                <span class="badge multi">{{ grupo|length }} vuelos</span>
-                                {% else %}
-                                    {% if primer_vuelo.tipo == 'vuelo' %}
-                                    <span class="badge">VUELO</span>
-                                    {% elif primer_vuelo.tipo == 'hotel' %}
-                                    <span class="badge badge-hotel">HOTEL</span>
-                                    {% elif primer_vuelo.tipo == 'crucero' or primer_vuelo.tipo == 'barco' %}
-                                    <span class="badge badge-barco">BARCO</span>
-                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
-                                    <span class="badge badge-espectaculo">SHOW</span>
-                                    {% elif primer_vuelo.tipo == 'restaurante' %}
-                                    <span class="badge badge-restaurante">RESTO</span>
-                                    {% elif primer_vuelo.tipo == 'auto' %}
-                                    <span class="badge badge-auto">AUTO</span>
-                                    {% elif primer_vuelo.tipo == 'tren' %}
-                                    <span class="badge badge-tren">TREN</span>
-                                    {% elif primer_vuelo.tipo == 'actividad' %}
-                                    <span class="badge badge-actividad">TOUR</span>
-                                    {% elif primer_vuelo.tipo == 'transfer' %}
-                                    <span class="badge badge-transfer">TRANSFER</span>
+                            <div class="badges-container">
+                                {% for tipo, items in grupo|groupby('tipo') %}
+                                    {% if tipo == 'vuelo' %}
+                                        <span class="badge">VUELO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'hotel' %}
+                                        <span class="badge badge-hotel">HOTEL{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'crucero' or tipo == 'barco' %}
+                                        <span class="badge badge-barco">BARCO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'espectaculo' %}
+                                        <span class="badge badge-espectaculo">SHOW{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'restaurante' %}
+                                        <span class="badge badge-restaurante">RESTO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'auto' %}
+                                        <span class="badge badge-auto">AUTO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'tren' %}
+                                        <span class="badge badge-tren">TREN{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'actividad' %}
+                                        <span class="badge badge-actividad">TOUR{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'transfer' %}
+                                        <span class="badge badge-transfer">TRANSFER{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
                                     {% else %}
-                                    <span class="badge">{{ primer_vuelo.tipo|upper }}</span>
+                                        <span class="badge">{{ tipo|upper }}{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
                                     {% endif %}
-                                {% endif %}
+                                {% endfor %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
-                        
+
+                        {# Computar título default basado en tipo #}
+                        {% if primer_vuelo.nombre_viaje %}
+                            {% set titulo_default = primer_vuelo.nombre_viaje %}
+                        {% elif primer_vuelo.tipo == 'vuelo' %}
+                            {% if grupo[-1].destino %}
+                                {% set titulo_default = 'Viaje a ' ~ grupo[-1].destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
+                            {% endif %}
+                        {% elif primer_vuelo.tipo == 'hotel' %}
+                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' %}
+                        {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                {% set titulo_default = (primer_vuelo.proveedor or '') ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' %}
+                            {% endif %}
+                        {% elif primer_vuelo.tipo == 'espectaculo' %}
+                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' %}
+                        {% elif primer_vuelo.tipo == 'restaurante' %}
+                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' %}
+                        {% elif primer_vuelo.tipo == 'actividad' %}
+                            {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' %}
+                        {% elif primer_vuelo.tipo == 'auto' %}
+                            {% set titulo_default = (primer_vuelo.proveedor or 'Rental') ~ (' - ' ~ primer_vuelo.origen if primer_vuelo.origen else '') %}
+                        {% elif primer_vuelo.tipo == 'tren' %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or 'Tren' %}
+                            {% endif %}
+                        {% elif primer_vuelo.tipo == 'transfer' %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or 'Transfer' %}
+                            {% endif %}
+                        {% else %}
+                            {% set titulo_default = primer_vuelo.descripcion or 'Reserva' %}
+                        {% endif %}
+
                         <div class="card-title-row">
                             <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
-                            <span class="card-title">
-                                {% if primer_vuelo.nombre_viaje %}
-                                    {{ primer_vuelo.nombre_viaje }}
-                                {% else %}
-                                    {% if primer_vuelo.tipo == 'vuelo' %}
-                                        {% if grupo[-1].destino %}
-                                            Viaje a {{ grupo[-1].destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or 'Vuelo' }}
-                                        {% endif %}
-                                    {% elif primer_vuelo.tipo == 'hotel' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' }}
-                                    {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
-                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                            {{ primer_vuelo.proveedor or '' }} {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' }}
-                                        {% endif %}
-                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' }}
-                                    {% elif primer_vuelo.tipo == 'restaurante' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' }}
-                                    {% elif primer_vuelo.tipo == 'actividad' %}
-                                        {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' }}
-                                    {% elif primer_vuelo.tipo == 'auto' %}
-                                        {{ primer_vuelo.proveedor or 'Rental' }}{% if primer_vuelo.origen %} - {{ primer_vuelo.origen }}{% endif %}
-                                    {% elif primer_vuelo.tipo == 'tren' %}
-                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or 'Tren' }}
-                                        {% endif %}
-                                    {% elif primer_vuelo.tipo == 'transfer' %}
-                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or 'Transfer' }}
-                                        {% endif %}
-                                    {% else %}
-                                        {{ primer_vuelo.descripcion or 'Reserva' }}
-                                    {% endif %}
-                                {% endif %}
-                            </span>
-                            <button type="button" class="btn-edit" onclick="event.stopPropagation(); editName('{{ grupo_id }}', '{{ primer_vuelo.nombre_viaje or ('Viaje a ' ~ grupo[-1].destino) }}')">Editar</button>
+                            <span class="card-title">{{ titulo_default }}</span>
+                            <button type="button" class="btn-edit" onclick="event.stopPropagation(); editName('{{ grupo_id }}', '{{ titulo_default }}')">Editar</button>
                         </div>
                     </div>
                     
@@ -1370,6 +1373,8 @@
                                 {% endif %}
 
                                 {# MVP11: Renderizado de pasajeros combinados vs normales #}
+                                {# Ocultar pasajeros para espectaculos (usan detalles_entradas en raw_data) #}
+                                {% if vuelo.tipo != 'espectaculo' %}
                                 {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
                                 {# Pasajeros combinados de múltiples reservas #}
                                 <div class="passengers-section">
@@ -1436,6 +1441,7 @@
                                 </div>
                                 {% endif %}
                                 {% endif %}
+                                {% endif %} {# Cierre de if tipo != 'espectaculo' #}
                             </div>
                             {% endfor %}
                             
@@ -1510,83 +1516,80 @@
                 <div class="card past collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="card-top">
-                            <div style="display: flex; gap: 6px; align-items: center;">
-                                {% if es_multi %}
-                                <span class="badge multi">{{ grupo|length }} vuelos</span>
-                                {% else %}
-                                    {% if primer_vuelo.tipo == 'vuelo' %}
-                                    <span class="badge">VUELO</span>
-                                    {% elif primer_vuelo.tipo == 'hotel' %}
-                                    <span class="badge badge-hotel">HOTEL</span>
-                                    {% elif primer_vuelo.tipo == 'crucero' or primer_vuelo.tipo == 'barco' %}
-                                    <span class="badge badge-barco">BARCO</span>
-                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
-                                    <span class="badge badge-espectaculo">SHOW</span>
-                                    {% elif primer_vuelo.tipo == 'restaurante' %}
-                                    <span class="badge badge-restaurante">RESTO</span>
-                                    {% elif primer_vuelo.tipo == 'auto' %}
-                                    <span class="badge badge-auto">AUTO</span>
-                                    {% elif primer_vuelo.tipo == 'tren' %}
-                                    <span class="badge badge-tren">TREN</span>
-                                    {% elif primer_vuelo.tipo == 'actividad' %}
-                                    <span class="badge badge-actividad">TOUR</span>
-                                    {% elif primer_vuelo.tipo == 'transfer' %}
-                                    <span class="badge badge-transfer">TRANSFER</span>
+                            <div class="badges-container">
+                                {% for tipo, items in grupo|groupby('tipo') %}
+                                    {% if tipo == 'vuelo' %}
+                                        <span class="badge">VUELO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'hotel' %}
+                                        <span class="badge badge-hotel">HOTEL{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'crucero' or tipo == 'barco' %}
+                                        <span class="badge badge-barco">BARCO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'espectaculo' %}
+                                        <span class="badge badge-espectaculo">SHOW{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'restaurante' %}
+                                        <span class="badge badge-restaurante">RESTO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'auto' %}
+                                        <span class="badge badge-auto">AUTO{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'tren' %}
+                                        <span class="badge badge-tren">TREN{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'actividad' %}
+                                        <span class="badge badge-actividad">TOUR{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
+                                    {% elif tipo == 'transfer' %}
+                                        <span class="badge badge-transfer">TRANSFER{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
                                     {% else %}
-                                    <span class="badge">{{ primer_vuelo.tipo|upper }}</span>
+                                        <span class="badge">{{ tipo|upper }}{% if items|list|length > 1 %} ×{{ items|list|length }}{% endif %}</span>
                                     {% endif %}
-                                {% endif %}
+                                {% endfor %}
                             </div>
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
-                        
+
+                        {# Computar título default basado en tipo #}
+                        {% if primer_vuelo.nombre_viaje %}
+                            {% set titulo_default = primer_vuelo.nombre_viaje %}
+                        {% elif primer_vuelo.tipo == 'vuelo' %}
+                            {% if grupo[-1].destino %}
+                                {% set titulo_default = 'Viaje a ' ~ grupo[-1].destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
+                            {% endif %}
+                        {% elif primer_vuelo.tipo == 'hotel' %}
+                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' %}
+                        {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                {% set titulo_default = (primer_vuelo.proveedor or '') ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' %}
+                            {% endif %}
+                        {% elif primer_vuelo.tipo == 'espectaculo' %}
+                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' %}
+                        {% elif primer_vuelo.tipo == 'restaurante' %}
+                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' %}
+                        {% elif primer_vuelo.tipo == 'actividad' %}
+                            {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' %}
+                        {% elif primer_vuelo.tipo == 'auto' %}
+                            {% set titulo_default = (primer_vuelo.proveedor or 'Rental') ~ (' - ' ~ primer_vuelo.origen if primer_vuelo.origen else '') %}
+                        {% elif primer_vuelo.tipo == 'tren' %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or 'Tren' %}
+                            {% endif %}
+                        {% elif primer_vuelo.tipo == 'transfer' %}
+                            {% if primer_vuelo.origen and primer_vuelo.destino %}
+                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
+                            {% else %}
+                                {% set titulo_default = primer_vuelo.descripcion or 'Transfer' %}
+                            {% endif %}
+                        {% else %}
+                            {% set titulo_default = primer_vuelo.descripcion or 'Reserva' %}
+                        {% endif %}
+
                         <div class="card-title-row">
                             <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
-                            <span class="card-title">
-                                {% if primer_vuelo.nombre_viaje %}
-                                    {{ primer_vuelo.nombre_viaje }}
-                                {% else %}
-                                    {% if primer_vuelo.tipo == 'vuelo' %}
-                                        {% if grupo[-1].destino %}
-                                            Viaje a {{ grupo[-1].destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or 'Vuelo' }}
-                                        {% endif %}
-                                    {% elif primer_vuelo.tipo == 'hotel' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' }}
-                                    {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
-                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                            {{ primer_vuelo.proveedor or '' }} {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' }}
-                                        {% endif %}
-                                    {% elif primer_vuelo.tipo == 'espectaculo' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' }}
-                                    {% elif primer_vuelo.tipo == 'restaurante' %}
-                                        {{ primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' }}
-                                    {% elif primer_vuelo.tipo == 'actividad' %}
-                                        {{ primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' }}
-                                    {% elif primer_vuelo.tipo == 'auto' %}
-                                        {{ primer_vuelo.proveedor or 'Rental' }}{% if primer_vuelo.origen %} - {{ primer_vuelo.origen }}{% endif %}
-                                    {% elif primer_vuelo.tipo == 'tren' %}
-                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or 'Tren' }}
-                                        {% endif %}
-                                    {% elif primer_vuelo.tipo == 'transfer' %}
-                                        {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                            {{ primer_vuelo.origen }} → {{ primer_vuelo.destino }}
-                                        {% else %}
-                                            {{ primer_vuelo.descripcion or 'Transfer' }}
-                                        {% endif %}
-                                    {% else %}
-                                        {{ primer_vuelo.descripcion or 'Reserva' }}
-                                    {% endif %}
-                                {% endif %}
-                            </span>
+                            <span class="card-title">{{ titulo_default }}</span>
                         </div>
                     </div>
                     
@@ -1643,8 +1646,10 @@
                                     <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>
                                     {% endif %}
                                 {% endif %}
-                                
+
                                 {# MVP11: Pasajeros en viajes pasados también #}
+                                {# Ocultar pasajeros para espectaculos (usan detalles_entradas en raw_data) #}
+                                {% if vuelo.tipo != 'espectaculo' %}
                                 {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
                                 <div class="passengers-section">
                                     <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
@@ -1709,6 +1714,7 @@
                                 </div>
                                 {% endif %}
                                 {% endif %}
+                                {% endif %} {# Cierre de if tipo != 'espectaculo' #}
                             </div>
                             {% endfor %}
                             

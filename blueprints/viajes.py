@@ -33,6 +33,11 @@ def deduplicar_vuelos_en_grupo(vuelos):
     # Crear clave única para cada vuelo
     def vuelo_key(v):
         fecha = v.fecha_salida.date() if v.fecha_salida else None
+
+        # Solo deduplicar vuelos - otros tipos siempre son únicos
+        if v.tipo != 'vuelo':
+            return (v.id,)  # Clave única por item - no deduplicar
+
         return (v.numero_vuelo, fecha, v.origen, v.destino)
     
     # Agrupar por clave
