@@ -61,6 +61,66 @@ WHITELIST_DOMAINS = [
     'sabre.com', 'amadeus.com', 'travelport.com',
     'checkmytrip.com', 'tripit.com', 'tripcase.com',
     'flightaware.com', 'flightstats.com',
+
+    # ===========================================
+    # NUEVOS TIPOS (14-EXT)
+    # ===========================================
+
+    # Cruceros y Ferries
+    'buquebus.com', 'buquebus.com.ar',
+    'msccruceros.com', 'msc.com', 'msccruises.com',
+    'royalcaribbean.com', 'rccl.com',
+    'carnival.com', 'ncl.com',
+    'costacruises.com', 'princess.com',
+    'hollandamerica.com', 'cunard.com',
+    'directferries.com', 'ferryscanner.com',
+    'aferry.com', 'ferries.com',
+
+    # Rental de Autos
+    'hertz.com', 'avis.com', 'enterprise.com',
+    'budget.com', 'nationalcar.com', 'alamo.com',
+    'sixt.com', 'europcar.com', 'dollar.com', 'thrifty.com',
+    'localiza.com', 'movida.com.br',
+    'rentcars.com', 'rentalcars.com', 'autoeurope.com',
+
+    # Restaurantes
+    'opentable.com', 'thefork.com', 'tenedor.com', 'lafourchette.com',
+    'resy.com', 'yelp.com', 'restorando.com',
+    'covermanager.com', 'dimmi.com.au',
+
+    # Espectáculos y Entradas
+    'ticketmaster.com', 'ticketmaster.com.ar', 'ticketmaster.com.mx',
+    'eventbrite.com', 'eventbrite.com.ar',
+    'allaccess.com.ar', 'ticketek.com.ar', 'tuentrada.com',
+    'stubhub.com', 'vividseats.com', 'seatgeek.com',
+    'dice.fm', 'songkick.com', 'bandsintown.com',
+    'teleticket.com.pe', 'puntoticket.com',
+
+    # Teatros (principales)
+    'fenice.it', 'teatrocolon.org.ar', 'metopera.org',
+    'royaloperahouse.org', 'operadeparis.fr',
+
+    # Actividades y Tours
+    'civitatis.com', 'getyourguide.com', 'viator.com',
+    'klook.com', 'tiqets.com', 'musement.com',
+    'withlocals.com', 'toursbylocals.com',
+
+    # Hoteles adicionales
+    'direct-book.com',
+    'trivago.com', 'hotelbeds.com',
+    'bestwestern.com', 'radissonhotels.com',
+    'choicehotels.com', 'fourseasons.com',
+    'ritzcarlton.com', 'starwoodhotels.com',
+    'lhw.com', 'slh.com', 'preferredhotels.com',
+    'melia.com', 'nh-hotels.com', 'barcelo.com',
+
+    # Trenes adicionales
+    'trenitalia.com', 'italotreno.it',
+    'sncf.com', 'oui.sncf', 'ouigo.com',
+    'bahn.de', 'deutschebahn.com',
+    'thetrainline.com', 'raileurope.com',
+    'ave.com', 'iryo.eu',
+    'flixbus.com', 'blablacar.com',
 ]
 
 MAX_EMAILS_PER_SCAN = 5
