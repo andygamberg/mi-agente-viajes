@@ -71,7 +71,7 @@ def conectar_microsoft():
         import traceback
         traceback.print_exc()
         flash(f'Error iniciando conexión: {str(e)}', 'error')
-        return redirect(url_for('viajes.preferencias'))
+        return redirect(url_for('viajes.perfil'))
 
 
 @microsoft_oauth_bp.route('/microsoft-callback')
@@ -82,13 +82,13 @@ def microsoft_callback():
         error = request.args.get('error')
         error_description = request.args.get('error_description', '')
         flash(f'Error de autorización: {error_description or error}', 'error')
-        return redirect(url_for('viajes.preferencias'))
+        return redirect(url_for('viajes.perfil'))
 
     try:
         code = request.args.get('code')
         if not code:
             flash('No se recibió código de autorización', 'error')
-            return redirect(url_for('viajes.preferencias'))
+            return redirect(url_for('viajes.perfil'))
 
         # Token exchange
         token_response = http_requests.post(
@@ -106,7 +106,7 @@ def microsoft_callback():
         if token_response.status_code != 200:
             error_data = token_response.json()
             flash(f'Error obteniendo token: {error_data.get("error_description", "Unknown")}', 'error')
-            return redirect(url_for('viajes.preferencias'))
+            return redirect(url_for('viajes.perfil'))
 
         token_data = token_response.json()
         access_token = token_data.get('access_token')
@@ -114,7 +114,7 @@ def microsoft_callback():
 
         if not access_token:
             flash('No se recibió access token', 'error')
-            return redirect(url_for('viajes.preferencias'))
+            return redirect(url_for('viajes.perfil'))
 
         # Obtener info del usuario con Graph API
         user_info_response = http_requests.get(
@@ -124,7 +124,7 @@ def microsoft_callback():
 
         if user_info_response.status_code != 200:
             flash('No se pudo obtener información de la cuenta', 'error')
-            return redirect(url_for('viajes.preferencias'))
+            return redirect(url_for('viajes.perfil'))
 
         user_info = user_info_response.json()
         microsoft_email = user_info.get('mail') or user_info.get('userPrincipalName')
