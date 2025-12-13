@@ -8,6 +8,9 @@ from flask_login import login_required, current_user
 from datetime import datetime
 import os
 import requests as http_requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 from models import db, EmailConnection
 
@@ -105,31 +108,38 @@ def microsoft_callback():
 
         if token_response.status_code != 200:
             error_data = token_response.json()
+            logger.error(f"MS OAuth token error: status={token_response.status_code}, response={error_data}")
             flash(f'Error obteniendo token: {error_data.get("error_description", "Unknown")}', 'error')
             return redirect(url_for('viajes.perfil'))
 
         token_data = token_response.json()
         access_token = token_data.get('access_token')
         refresh_token = token_data.get('refresh_token')
+        logger.info(f"MS OAuth token received: has_access={bool(access_token)}, has_refresh={bool(refresh_token)}")
 
         if not access_token:
+            logger.error("MS OAuth: No access token in response")
             flash('No se recibió access token', 'error')
             return redirect(url_for('viajes.perfil'))
 
         # Obtener info del usuario con Graph API
+        logger.info("MS OAuth: Calling Graph API /me endpoint")
         user_info_response = http_requests.get(
             'https://graph.microsoft.com/v1.0/me',
             headers={'Authorization': f'Bearer {access_token}'}
         )
 
         if user_info_response.status_code != 200:
+            logger.error(f"MS Graph API error: status={user_info_response.status_code}, response={user_info_response.text}")
             flash('No se pudo obtener información de la cuenta', 'error')
             return redirect(url_for('viajes.perfil'))
 
         user_info = user_info_response.json()
+        logger.info(f"MS Graph API response: {user_info}")
         microsoft_email = user_info.get('mail') or user_info.get('userPrincipalName')
 
         if not microsoft_email:
+            logger.error(f"MS OAuth: No email in user_info: {user_info}")
             flash('No se pudo obtener el email de la cuenta', 'error')
             return redirect(url_for('viajes.perfil'))
 
