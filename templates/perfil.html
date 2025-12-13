@@ -902,6 +902,21 @@ input::placeholder {
                     </span>
                 </div>
 
+                {% elif item.connected_via %}
+                <!-- ALIAS CORPORATIVO: Conectado vía otra cuenta del mismo dominio -->
+                <div class="detection-status connected">
+                    <span class="toggle-btn on disabled" style="pointer-events: none;">
+                        <span class="toggle-circle"></span>
+                        <span class="toggle-label">ON</span>
+                    </span>
+                    <span class="provider-status">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                            <path d="M20 6L9 17L4 12"/>
+                        </svg>
+                        Conectado vía {{ item.connected_via }}
+                    </span>
+                </div>
+
                 {% elif item.provider_info.provider == 'gmail' %}
                 <!-- GMAIL SIN CONECTAR: Botón conectar -->
                 <div class="detection-status available">
@@ -930,21 +945,6 @@ input::placeholder {
                             <span class="provider-letter">M</span> Microsoft
                         </a>
                     </div>
-                </div>
-
-                {% elif item.connected_via %}
-                <!-- ALIAS CORPORATIVO: Conectado vía otra cuenta del mismo dominio -->
-                <div class="detection-status connected">
-                    <span class="toggle-btn on disabled" style="pointer-events: none;">
-                        <span class="toggle-circle"></span>
-                        <span class="toggle-label">ON</span>
-                    </span>
-                    <span class="provider-status">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                            <path d="M20 6L9 17L4 12"/>
-                        </svg>
-                        Conectado vía {{ item.connected_via }}
-                    </span>
                 </div>
 
                 {% else %}
