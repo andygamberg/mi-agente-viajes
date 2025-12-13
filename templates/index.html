@@ -1523,7 +1523,7 @@
                             
                         </div>
 
-                        {% if es_multi %}
+                        {% if grupo|length > 1 %}
                         <div class="card-footer">
                             <form method="POST" action="{{ url_for('viajes.desagrupar_grupo') }}" onclick="event.stopPropagation();">
                                 <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
@@ -1840,7 +1840,7 @@
 
                         </div>
 
-                        {% if es_multi %}
+                        {% if grupo|length > 1 %}
                         <div class="card-footer">
                             <form method="POST" action="{{ url_for('viajes.desagrupar_grupo') }}" onclick="event.stopPropagation();">
                                 <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
