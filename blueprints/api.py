@@ -112,6 +112,25 @@ def api_auto_process():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@api_bp.route('/api/guardar-nombre-pax', methods=['POST'])
+@login_required
+def guardar_nombre_pax():
+    """Guarda nombre y apellido del pasajero para detección automática"""
+    try:
+        data = request.get_json()
+        nombre_pax = data.get('nombre_pax', '').strip()
+        apellido_pax = data.get('apellido_pax', '').strip()
+
+        current_user.nombre_pax = nombre_pax
+        current_user.apellido_pax = apellido_pax
+        db.session.commit()
+
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # ============================================
 # CRON ENDPOINTS
 # ============================================

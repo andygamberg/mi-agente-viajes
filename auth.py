@@ -75,10 +75,10 @@ def register():
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
-        
+
         login_user(user)
         flash(f'¡Cuenta creada! Bienvenido {nombre}', 'success')
-        return redirect(url_for('viajes.index'))
+        return redirect(url_for('viajes.bienvenida'))
     
     return render_template('register.html')
 

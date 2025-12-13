@@ -143,11 +143,18 @@ def index():
     # Badge de perfil incompleto (mostrar si nombre_pax vacío)
     profile_incomplete = not current_user.nombre_pax
     
-    return render_template('index.html', 
-                           proximos=proximos, 
+    return render_template('index.html',
+                           proximos=proximos,
                            pasados=pasados,
                            show_onboarding=show_onboarding,
                            profile_incomplete=profile_incomplete)
+
+
+@viajes_bp.route('/bienvenida')
+@login_required
+def bienvenida():
+    """Pantalla de bienvenida post-registro"""
+    return render_template('bienvenida.html')
 
 
 @viajes_bp.route('/agregar', methods=['GET', 'POST'])
