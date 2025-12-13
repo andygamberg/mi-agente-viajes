@@ -184,7 +184,7 @@ def gmail_callback():
 @gmail_oauth_bp.route('/desconectar-gmail/<int:connection_id>', methods=['POST'])
 @login_required
 def desconectar_gmail_by_id(connection_id):
-    """Desconecta una cuenta Gmail específica"""
+    """Desconecta OAuth de Gmail (usado por toggle) - el email queda en la lista"""
     try:
         connection = EmailConnection.query.filter_by(
             id=connection_id,
@@ -207,10 +207,50 @@ def desconectar_gmail_by_id(connection_id):
         except:
             pass
 
-        # Eliminar conexión
+        # Solo eliminar conexión OAuth
+        db.session.delete(connection)
+        db.session.commit()
+
+        flash(f'Gmail desconectado: {email}', 'success')
+        return redirect(url_for('viajes.perfil'))
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        flash(f'Error desconectando: {str(e)}', 'error')
+        return redirect(url_for('viajes.perfil'))
+
+
+@gmail_oauth_bp.route('/quitar-email-gmail/<int:connection_id>', methods=['POST'])
+@login_required
+def quitar_email_gmail(connection_id):
+    """Elimina email completo (usado por botón Quitar) - desconecta OAuth y quita de lista"""
+    try:
+        connection = EmailConnection.query.filter_by(
+            id=connection_id,
+            user_id=current_user.id
+        ).first()
+
+        if not connection:
+            flash('Conexión no encontrada', 'error')
+            return redirect(url_for('viajes.perfil'))
+
+        email = connection.email
+
+        try:
+            if connection.access_token:
+                http_requests.post(
+                    'https://oauth2.googleapis.com/revoke',
+                    params={'token': connection.access_token},
+                    headers={'content-type': 'application/x-www-form-urlencoded'}
+                )
+        except:
+            pass
+
+        # Eliminar conexión OAuth
         db.session.delete(connection)
 
-        # También eliminar UserEmail si existe para ese email
+        # También eliminar UserEmail si existe
         from models import UserEmail
         user_email = UserEmail.query.filter_by(
             user_id=current_user.id,

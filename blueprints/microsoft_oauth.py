@@ -195,7 +195,7 @@ def microsoft_callback():
 @microsoft_oauth_bp.route('/desconectar-microsoft/<int:connection_id>', methods=['POST'])
 @login_required
 def desconectar_microsoft_by_id(connection_id):
-    """Desconecta una cuenta Microsoft específica"""
+    """Desconecta OAuth de Microsoft (usado por toggle) - el email queda en la lista"""
     try:
         connection = EmailConnection.query.filter_by(
             id=connection_id,
@@ -219,10 +219,51 @@ def desconectar_microsoft_by_id(connection_id):
         except:
             pass
 
-        # Eliminar conexión
+        # Solo eliminar conexión OAuth
+        db.session.delete(connection)
+        db.session.commit()
+
+        flash(f'Microsoft desconectado: {email}', 'success')
+        return redirect(url_for('viajes.perfil'))
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        flash(f'Error desconectando: {str(e)}', 'error')
+        return redirect(url_for('viajes.perfil'))
+
+
+@microsoft_oauth_bp.route('/quitar-email-microsoft/<int:connection_id>', methods=['POST'])
+@login_required
+def quitar_email_microsoft(connection_id):
+    """Elimina email completo (usado por botón Quitar) - desconecta OAuth y quita de lista"""
+    try:
+        connection = EmailConnection.query.filter_by(
+            id=connection_id,
+            user_id=current_user.id
+        ).first()
+
+        if not connection:
+            flash('Conexión no encontrada', 'error')
+            return redirect(url_for('viajes.perfil'))
+
+        email = connection.email
+
+        # Intentar revocar token
+        try:
+            if connection.access_token:
+                http_requests.post(
+                    'https://login.microsoftonline.com/common/oauth2/v2.0/logout',
+                    params={'post_logout_redirect_uri': get_redirect_uri()},
+                    headers={'Authorization': f'Bearer {connection.access_token}'}
+                )
+        except:
+            pass
+
+        # Eliminar conexión OAuth
         db.session.delete(connection)
 
-        # También eliminar UserEmail si existe para ese email
+        # También eliminar UserEmail si existe
         from models import UserEmail
         user_email = UserEmail.query.filter_by(
             user_id=current_user.id,

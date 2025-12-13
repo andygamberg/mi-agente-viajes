@@ -28,6 +28,11 @@ WHITELIST_DOMAINS = [
     'avianca.com', 'copa.com', 'aeromexico.com',
     'jetsmart.com', 'flybondi.com', 'skyairline.com',
     'gol.com.br', 'azul.com.br',
+    # Aerolíneas adicionales
+    'norwegian.com', 'ryanair.com', 'easyjet.com',
+    'volaris.com', 'viva.aero', 'wingo.com',
+    'jetblue.com', 'alaskaair.com', 'spirit.com', 'frontier.com',
+    'turkishairlines.com', 'saudia.com',
     # OTAs y agencias
     'despegar.com', 'decolar.com',
     'booking.com', 'expedia.com', 'kayak.com',
@@ -37,9 +42,21 @@ WHITELIST_DOMAINS = [
     'orbitz.com', 'travelocity.com',
     'cheaptickets.com', 'hotwire.com',
     'momondo.com', 'kiwi.com',
+    # Agencias Argentina/Latam
+    'asatej.com.ar', 'tije.com.ar', 'juliatours.com.ar',
+    'ola.com.ar',
+    # Trenes/otros transportes
+    'renfe.com', 'eurostar.com', 'amtrak.com',
+    'busbud.com', 'omio.com', 'rome2rio.com',
     # Hoteles
     'hilton.com', 'marriott.com', 'ihg.com',
     'hyatt.com', 'accor.com', 'wyndham.com',
+    # Más OTAs y hoteles
+    'hotels.com', 'agoda.com', 'hostelworld.com',
+    'vrbo.com', 'airbnb.com',
+    # Corporate travel
+    'concur.com', 'egencia.com', 'navan.com',
+    'travelperk.com', 'brex.com',
     # Otros
     'sabre.com', 'amadeus.com', 'travelport.com',
     'checkmytrip.com', 'tripit.com', 'tripcase.com',

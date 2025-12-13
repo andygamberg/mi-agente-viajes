@@ -889,11 +889,11 @@
                         {% if not item.is_principal %}
                         <div class="email-action">
                             {% if item.gmail_connection %}
-                            <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
+                            <form method="POST" action="{{ url_for('gmail_oauth.quitar_email_gmail', connection_id=item.gmail_connection.id) }}" style="display:inline;">
                                 <button type="submit" class="btn-text-danger">Quitar</button>
                             </form>
                             {% elif item.microsoft_connection %}
-                            <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
+                            <form method="POST" action="{{ url_for('microsoft_oauth.quitar_email_microsoft', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
                                 <button type="submit" class="btn-text-danger">Quitar</button>
                             </form>
                             {% elif item.user_email_id %}
