@@ -1522,9 +1522,8 @@
                             {% endfor %}
                             
                         </div>
-                        
-                        {% set codigos_unicos = grupo|map(attribute='codigo_reserva')|unique|list %}
-                        {% if es_multi and codigos_unicos|length > 1 %}
+
+                        {% if es_multi %}
                         <div class="card-footer">
                             <form method="POST" action="{{ url_for('viajes.desagrupar_grupo') }}" onclick="event.stopPropagation();">
                                 <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
@@ -1838,8 +1837,17 @@
                                 {% endif %} {# Cierre de if tipo != 'espectaculo' #}
                             </div>
                             {% endfor %}
-                            
+
                         </div>
+
+                        {% if es_multi %}
+                        <div class="card-footer">
+                            <form method="POST" action="{{ url_for('viajes.desagrupar_grupo') }}" onclick="event.stopPropagation();">
+                                <input type="hidden" name="grupo_id" value="{{ grupo_id }}">
+                                <button type="submit" class="btn-ungroup" onclick="event.stopPropagation(); return confirm('¿Separar estos vuelos?')">Desagrupar</button>
+                            </form>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
