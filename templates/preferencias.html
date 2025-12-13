@@ -1,528 +1,412 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preferencias - Mis Viajes</title>
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends "base.html" %}
 
-        :root {
-            --bg: #F5F5F7;
-            --bg-card: #FFFFFF;
-            --text: #1D1D1F;
-            --text-secondary: #6E6E73;
-            --text-muted: #86868B;
-            --accent: #007AFF;
-            --accent-hover: #0056CC;
-            --success: #34C759;
-            --danger: #FF3B30;
-            --border: #D2D2D7;
-            --border-light: #E8E8ED;
-            --radius: 12px;
-            --transition: all 0.2s ease;
-        }
+{% block title %}Preferencias - Mis Viajes{% endblock %}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding: 24px;
-            min-height: 100vh;
-        }
+{% block styles %}
+.page-header {
+    margin-bottom: 32px;
+}
 
-        .container {
-            max-width: 680px;
-            margin: 0 auto;
-        }
+.page-header h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
 
-        .back-link {
-            display: inline-block;
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 15px;
-            margin-bottom: 24px;
-        }
+.alert {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
 
-        .back-link:hover {
-            text-decoration: underline;
-        }
+.alert-success {
+    background: #E8F9ED;
+    color: #1A7F37;
+    border: 1px solid #A7E3BB;
+}
 
-        .page-header {
-            margin-bottom: 32px;
-        }
+.alert-error {
+    background: #FEF2F2;
+    color: var(--danger);
+    border: 1px solid #FECACA;
+}
 
-        .page-header h1 {
-            font-size: 34px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
+.alert-info {
+    background: #EFF6FF;
+    color: var(--accent);
+    border: 1px solid #BFDBFE;
+}
 
-        .alert {
-            padding: 14px 18px;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
+.card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
 
-        .alert-success {
-            background: #E8F9ED;
-            color: #1A7F37;
-            border: 1px solid #A7E3BB;
-        }
+.card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
 
-        .alert-error {
-            background: #FEF2F2;
-            color: var(--danger);
-            border: 1px solid #FECACA;
-        }
+.card-description {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
 
-        .alert-info {
-            background: #EFF6FF;
-            color: var(--accent);
-            border: 1px solid #BFDBFE;
-        }
+.btn-danger {
+    background: transparent;
+    color: var(--danger);
+    font-size: 13px;
+    padding: 6px 12px;
+}
 
-        .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
+.btn-danger:hover {
+    background: #FEF2F2;
+}
 
-        .card-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-        }
+.btn-small {
+    padding: 8px 14px;
+    font-size: 13px;
+}
 
-        .card-description {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
+/* Senders section */
+.sender-list {
+    list-style: none;
+}
 
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 20px;
-            font-size: 15px;
-            font-weight: 500;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: inherit;
-            text-decoration: none;
-            background: var(--accent);
-            color: white;
-        }
+.sender-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
 
-        .btn:hover {
-            background: var(--accent-hover);
-        }
+.sender-item:last-child {
+    margin-bottom: 0;
+}
 
-        .btn-secondary {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
+.sender-item .sender-email {
+    font-size: 14px;
+    font-weight: 500;
+}
 
-        .btn-secondary:hover {
-            background: var(--border-light);
-        }
+.sender-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
 
-        .btn-danger {
-            background: transparent;
-            color: var(--danger);
-            font-size: 13px;
-            padding: 6px 12px;
-        }
+.sender-form input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-family: inherit;
+    transition: var(--transition);
+}
 
-        .btn-danger:hover {
-            background: #FEF2F2;
-        }
+.sender-form input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
 
-        .btn-small {
-            padding: 8px 14px;
-            font-size: 13px;
-        }
+.sender-form input::placeholder {
+    color: var(--text-muted);
+}
 
-        .empty-state {
-            text-align: center;
-            padding: 32px 24px;
-            color: var(--text-secondary);
-        }
+.hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
 
-        .empty-state-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 16px;
-            color: var(--text-muted);
-        }
+/* Preferences */
+.preference-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+}
 
-        .empty-state p {
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
+.preference-item:last-child {
+    margin-bottom: 0;
+}
 
-        .card-footer {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-light);
-        }
+.preference-item.master {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+}
 
-        /* Senders section */
-        .sender-list {
-            list-style: none;
-        }
+.preference-item.sub-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+}
 
-        .sender-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            background: var(--bg);
-            border-radius: 8px;
-            margin-bottom: 6px;
-        }
+.preference-info {
+    flex: 1;
+    padding-right: 16px;
+}
 
-        .sender-item:last-child {
-            margin-bottom: 0;
-        }
+.preference-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
 
-        /* FIX: Usar tipografía normal en lugar de monospace */
-        .sender-item .sender-email {
-            font-size: 14px;
-            font-weight: 500;
-        }
+.preference-description {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
 
-        .sender-form {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
+.sub-preferences {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: var(--radius);
+}
 
-        .sender-form input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-family: inherit;
-            transition: var(--transition);
-        }
+.sub-preferences-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
 
-        .sender-form input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-        }
+.sub-preferences .preference-item {
+    margin-bottom: 6px;
+    padding: 10px 12px;
+}
 
-        .sender-form input::placeholder {
-            color: var(--text-muted);
-        }
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    flex-shrink: 0;
+}
 
-        .hint {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
 
-        /* Preferences */
-        .preference-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: var(--bg);
-            border-radius: var(--radius);
-            margin-bottom: 8px;
-        }
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #E5E5EA;
+    transition: var(--transition);
+    border-radius: 26px;
+}
 
-        .preference-item:last-child {
-            margin-bottom: 0;
-        }
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: var(--transition);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
 
-        .preference-item.master {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-        }
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--success);
+}
 
-        .preference-item.sub-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-        }
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
 
-        .preference-info {
-            flex: 1;
-            padding-right: 16px;
-        }
+@media (max-width: 480px) {
+    .page-header h1 {
+        font-size: 28px;
+    }
 
-        .preference-label {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
+    .card {
+        padding: 20px;
+    }
 
-        .preference-description {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
+    .preference-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
 
-        .sub-preferences {
-            margin-top: 12px;
-            padding: 12px;
-            background: var(--bg);
-            border-radius: var(--radius);
-        }
+    .preference-info {
+        padding-right: 0;
+    }
 
-        .sub-preferences-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
+    .sender-form {
+        flex-direction: column;
+    }
 
-        .sub-preferences .preference-item {
-            margin-bottom: 6px;
-            padding: 10px 12px;
-        }
+    .sender-form button {
+        width: 100%;
+    }
+}
+{% endblock %}
 
-        /* Toggle switch */
-        .toggle-switch {
-            position: relative;
-            width: 46px;
-            height: 26px;
-            flex-shrink: 0;
-        }
+{% block content %}
+<div class="page-header">
+    <h1>Preferencias</h1>
+</div>
 
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #E5E5EA;
-            transition: var(--transition);
-            border-radius: 26px;
-        }
+<!-- Remitentes de confianza - Card separada, solo si hay Gmail conectado -->
+{% if gmail_connections %}
+<div class="card">
+    <div class="card-title">Remitentes de confianza</div>
+    <p class="card-description">
+        Detectamos aerolíneas y agencias automáticamente.
+        Agregá otros remitentes (ej: tu agente de viajes) para que también se procesen.
+    </p>
 
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: var(--transition);
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--success);
-        }
-
-        .toggle-switch input:checked + .toggle-slider:before {
-            transform: translateX(20px);
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 16px;
-            }
-
-            .page-header h1 {
-                font-size: 28px;
-            }
-
-            .card {
-                padding: 20px;
-            }
-
-            .preference-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .preference-info {
-                padding-right: 0;
-            }
-
-            .sender-form {
-                flex-direction: column;
-            }
-
-            .sender-form button {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="{{ url_for('viajes.index') }}" class="back-link">← Volver</a>
-        
-        <div class="page-header">
-            <h1>Preferencias</h1>
-        </div>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <!-- Remitentes de confianza - Card separada, solo si hay Gmail conectado -->
-        {% if gmail_connections %}
-        <div class="card">
-            <div class="card-title">Remitentes de confianza</div>
-            <p class="card-description">
-                Detectamos aerolíneas y agencias automáticamente. 
-                Agregá otros remitentes (ej: tu agente de viajes) para que también se procesen.
-            </p>
-
-            {% set custom_senders = current_user.get_custom_senders() %}
-            {% if custom_senders %}
-            <ul class="sender-list">
-                {% for sender in custom_senders %}
-                <li class="sender-item">
-                    <span class="sender-email">{{ sender }}</span>
-                    <form method="POST" action="{{ url_for('viajes.remove_sender', sender=sender) }}" style="margin: 0;">
-                        <button type="submit" class="btn btn-danger">Quitar</button>
-                    </form>
-                </li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-
-            <form method="POST" action="{{ url_for('viajes.add_sender') }}" class="sender-form">
-                <input type="text" name="sender" placeholder="email@ejemplo.com o @dominio.com" required>
-                <button type="submit" class="btn btn-secondary btn-small">Agregar</button>
+    {% set custom_senders = current_user.get_custom_senders() %}
+    {% if custom_senders %}
+    <ul class="sender-list">
+        {% for sender in custom_senders %}
+        <li class="sender-item">
+            <span class="sender-email">{{ sender }}</span>
+            <form method="POST" action="{{ url_for('viajes.remove_sender', sender=sender) }}" style="margin: 0;">
+                <button type="submit" class="btn btn-danger">Quitar</button>
             </form>
-            <p class="hint">Usá @dominio.com para incluir cualquier email de ese dominio</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('viajes.add_sender') }}" class="sender-form">
+        <input type="text" name="sender" placeholder="email@ejemplo.com o @dominio.com" required>
+        <button type="submit" class="btn btn-secondary btn-small">Agregar</button>
+    </form>
+    <p class="hint">Usá @dominio.com para incluir cualquier email de ese dominio</p>
+</div>
+{% endif %}
+
+<!-- Notification Preferences -->
+<form method="POST" action="{{ url_for('viajes.update_preferences') }}">
+    <div class="card">
+        <div class="card-title">Notificaciones</div>
+
+        <div class="preference-item master">
+            <div class="preference-info">
+                <div class="preference-label">Alertas por email</div>
+                <div class="preference-description">Cambios de horario, cancelaciones y puertas</div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" name="notif_email_master" id="masterToggle"
+                       onchange="toggleSubPreferences(this)"
+                       {% if current_user.notif_email_master %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
         </div>
-        {% endif %}
-        
-        <!-- Notification Preferences -->
-        <form method="POST" action="{{ url_for('viajes.update_preferences') }}">
-            <div class="card">
-                <div class="card-title">Notificaciones</div>
-                
-                <div class="preference-item master">
-                    <div class="preference-info">
-                        <div class="preference-label">Alertas por email</div>
-                        <div class="preference-description">Cambios de horario, cancelaciones y puertas</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" name="notif_email_master" id="masterToggle"
-                               onchange="toggleSubPreferences(this)"
-                               {% if current_user.notif_email_master %}checked{% endif %}>
-                        <span class="toggle-slider"></span>
-                    </label>
+
+        <div class="sub-preferences" id="subPreferences">
+            <div class="sub-preferences-label">Tipos de alertas:</div>
+
+            <div class="preference-item sub-item">
+                <div class="preference-info">
+                    <div class="preference-label">Demoras</div>
                 </div>
-                
-                <div class="sub-preferences" id="subPreferences">
-                    <div class="sub-preferences-label">Tipos de alertas:</div>
-                    
-                    <div class="preference-item sub-item">
-                        <div class="preference-info">
-                            <div class="preference-label">Demoras</div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="notif_delay"
-                                   {% if current_user.notif_delay %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    
-                    <div class="preference-item sub-item">
-                        <div class="preference-info">
-                            <div class="preference-label">Cancelaciones</div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="notif_cancelacion"
-                                   {% if current_user.notif_cancelacion %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    
-                    <div class="preference-item sub-item">
-                        <div class="preference-info">
-                            <div class="preference-label">Cambios de puerta</div>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" name="notif_gate"
-                                   {% if current_user.notif_gate %}checked{% endif %}>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="notif_delay"
+                           {% if current_user.notif_delay %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
 
-            <div class="card">
-                <div class="card-title">Visualización</div>
-
-                <div class="preference-item">
-                    <div class="preference-info">
-                        <div class="preference-label">Combinar vuelos compartidos</div>
-                        <div class="preference-description">Unificar vuelos idénticos de distintas reservas</div>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" name="combinar_vuelos"
-                               {% if current_user.combinar_vuelos %}checked{% endif %}>
-                        <span class="toggle-slider"></span>
-                    </label>
+            <div class="preference-item sub-item">
+                <div class="preference-info">
+                    <div class="preference-label">Cancelaciones</div>
                 </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="notif_cancelacion"
+                           {% if current_user.notif_cancelacion %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
             </div>
 
-            <button type="submit" class="btn">Guardar cambios</button>
-        </form>
+            <div class="preference-item sub-item">
+                <div class="preference-info">
+                    <div class="preference-label">Cambios de puerta</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="notif_gate"
+                           {% if current_user.notif_gate %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
     </div>
 
-    <script>
-        function toggleSubPreferences(masterToggle) {
-            const subPreferences = document.getElementById('subPreferences');
-            if (!masterToggle.checked) {
-                subPreferences.style.opacity = '0.5';
-                subPreferences.style.pointerEvents = 'none';
-            } else {
-                subPreferences.style.opacity = '1';
-                subPreferences.style.pointerEvents = 'auto';
-            }
-        }
+    <div class="card">
+        <div class="card-title">Visualización</div>
 
-        window.addEventListener('DOMContentLoaded', function() {
-            const masterToggle = document.getElementById('masterToggle');
-            if (masterToggle) {
-                toggleSubPreferences(masterToggle);
-            }
-        });
-    </script>
-</body>
-</html>
+        <div class="preference-item">
+            <div class="preference-info">
+                <div class="preference-label">Combinar vuelos compartidos</div>
+                <div class="preference-description">Unificar vuelos idénticos de distintas reservas</div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" name="combinar_vuelos"
+                       {% if current_user.combinar_vuelos %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <button type="submit" class="btn">Guardar cambios</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+function toggleSubPreferences(masterToggle) {
+    const subPreferences = document.getElementById('subPreferences');
+    if (!masterToggle.checked) {
+        subPreferences.style.opacity = '0.5';
+        subPreferences.style.pointerEvents = 'none';
+    } else {
+        subPreferences.style.opacity = '1';
+        subPreferences.style.pointerEvents = 'auto';
+    }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    const masterToggle = document.getElementById('masterToggle');
+    if (masterToggle) {
+        toggleSubPreferences(masterToggle);
+    }
+});
+{% endblock %}
