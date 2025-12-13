@@ -364,7 +364,13 @@ def carga_rapida():
                     precio = reserva_data.get('precio_total')
                     pasajeros = reserva_data.get('pasajeros', [])
                     if pasajeros:
-                        pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+                        # Validar si es int (cantidad) o lista (nombres)
+                        if isinstance(pasajeros, int):
+                            pasajeros_json = json.dumps([{"cantidad": pasajeros}])
+                        elif isinstance(pasajeros, list):
+                            pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+                        else:
+                            pasajeros_json = None
 
                 elif tipo == 'auto':
                     fecha_salida_str = reserva_data.get('fecha_retiro')
@@ -463,7 +469,13 @@ def carga_rapida():
                     proveedor = reserva_data.get('operador')
                     pasajeros = reserva_data.get('pasajeros', [])
                     if pasajeros:
-                        pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+                        # Validar si es int (cantidad) o lista (nombres)
+                        if isinstance(pasajeros, int):
+                            pasajeros_json = json.dumps([{"cantidad": pasajeros}])
+                        elif isinstance(pasajeros, list):
+                            pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+                        else:
+                            pasajeros_json = None
 
                 elif tipo == 'transfer':
                     fecha_str = reserva_data.get('fecha')
@@ -499,7 +511,7 @@ def carga_rapida():
                     pasajeros=pasajeros_json,
                     terminal=reserva_data.get('terminal') if tipo == 'vuelo' else None,
                     puerta=reserva_data.get('puerta') if tipo == 'vuelo' else None,
-                    asiento=reserva_data.get('pasajeros', [{}])[0].get('asiento', '') if tipo == 'vuelo' and reserva_data.get('pasajeros') else None,
+                    asiento=reserva_data.get('pasajeros', [{}])[0].get('asiento', '') if tipo == 'vuelo' and isinstance(reserva_data.get('pasajeros'), list) and reserva_data.get('pasajeros') else None,
                     equipaje_facturado=reserva_data.get('equipaje_facturado') if tipo == 'vuelo' else None,
                     equipaje_mano=reserva_data.get('equipaje_mano') if tipo == 'vuelo' else None,
                     grupo_viaje=grupo_id,
@@ -663,7 +675,7 @@ def guardar_vuelos():
                     codigo_reserva=vuelo_data.get('codigo_reserva', ''),
                     terminal=vuelo_data.get('terminal', '') if tipo == 'vuelo' else None,
                     puerta=vuelo_data.get('puerta', '') if tipo == 'vuelo' else None,
-                    asiento=vuelo_data.get('pasajeros', [{}])[0].get('asiento', '') if tipo == 'vuelo' and vuelo_data.get('pasajeros') else None,
+                    asiento=vuelo_data.get('pasajeros', [{}])[0].get('asiento', '') if tipo == 'vuelo' and isinstance(vuelo_data.get('pasajeros'), list) and vuelo_data.get('pasajeros') else None,
                     pasajeros=pasajeros_json,
                     equipaje_facturado=vuelo_data.get('equipaje_facturado', '') if tipo == 'vuelo' else None,
                     equipaje_mano=vuelo_data.get('equipaje_mano', '') if tipo == 'vuelo' else None,

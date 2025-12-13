@@ -1238,7 +1238,7 @@
                         </div>
 
                         {# Computar título default basado en tipo #}
-                        {% if primer_vuelo.nombre_viaje %}
+                        {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
                             {% set titulo_default = primer_vuelo.nombre_viaje %}
                         {% elif primer_vuelo.tipo == 'vuelo' %}
                             {# Buscar el último vuelo del grupo para obtener destino final #}
@@ -1642,7 +1642,7 @@
                         </div>
 
                         {# Computar título default basado en tipo #}
-                        {% if primer_vuelo.nombre_viaje %}
+                        {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
                             {% set titulo_default = primer_vuelo.nombre_viaje %}
                         {% elif primer_vuelo.tipo == 'vuelo' %}
                             {# Buscar el último vuelo del grupo para obtener destino final #}
