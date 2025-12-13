@@ -1,1100 +1,1007 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil - Mis Viajes</title>
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
-    <style>
-        :root {
-            --bg: #F5F5F7;
-            --bg-card: #FFFFFF;
-            --text: #1D1D1F;
-            --text-secondary: #86868B;
-            --text-muted: #AEAEB2;
-            --accent: #0071E3;
-            --accent-hover: #0077ED;
-            --border: #D2D2D7;
-            --border-light: #E8E8ED;
-            --danger: #DC2626;
-            --success: #16A34A;
-            --radius: 12px;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 24px;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        .container {
-            max-width: 540px;
-            margin: 0 auto;
-        }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 24px;
-        }
-        
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        
-        .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 28px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        
-        .card-header {
-            margin-bottom: 24px;
-        }
-        
-        .card-header h1 {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .card-header p {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-        
-        .alert {
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        .alert-success {
-            background: #F0FDF4;
-            color: var(--success);
-            border: 1px solid #BBF7D0;
-        }
-        
-        .alert-error {
-            background: #FEF2F2;
-            color: var(--danger);
-            border: 1px solid #FECACA;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: var(--text);
-        }
-        
-        .hint {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 6px;
-        }
-        
-        input[type="text"],
-        input[type="email"] {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
-        }
-        
-        input:disabled {
-            background: var(--bg);
-            color: var(--text-secondary);
-        }
-        
-        input::placeholder {
-            color: var(--text-muted);
-        }
-        
-        .section-box {
-            background: #F0F7FF;
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-        
-        .section-box-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1a5490;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .section-box-title svg {
-            width: 16px;
-            height: 16px;
-        }
-        
-        .section-box p {
-            font-size: 13px;
-            color: #1a5490;
-            line-height: 1.5;
-        }
-        
-        .example-box {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            font-size: 13px;
-        }
-        
-        .example-box .label {
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        
-        .example-box code {
-            display: block;
-            font-family: 'SF Mono', Monaco, monospace;
-            color: var(--text);
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 20px;
-            font-size: 15px;
-            font-weight: 500;
-            border: none;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--accent-hover);
-        }
-        
-        .btn-secondary {
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--border-light);
-        }
-        
-        .btn-danger {
-            background: #FEF2F2;
-            color: var(--danger);
-            font-size: 13px;
-            padding: 8px 14px;
-        }
-        
-        .btn-danger:hover {
-            background: #FECACA;
-        }
-        
-        /* Emails Section */
-        .card-title {
-            font-size: 17px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .email-list {
-            list-style: none;
-            margin: 16px 0;
-        }
-        
-        .email-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--bg);
-            border-radius: 10px;
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-        
-        .email-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .badge {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--accent);
-            background: #EEF2FF;
-            padding: 4px 10px;
-            border-radius: 6px;
-        }
-        
-        .add-form {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .add-form input {
-            flex: 1;
-        }
-        
-        /* MVP9: Calendar Section */
-        .calendar-link-box {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 16px 0;
-            overflow-x: auto;
-        }
-        
-        .calendar-link-box code {
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 12px;
-            color: var(--text-secondary);
-            word-break: break-all;
-        }
-        
-        .calendar-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-        }
-        
-        .calendar-buttons .btn {
-            flex: 1;
-            text-align: center;
-        }
-        
-        .regenerate-section {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-light);
-        }
-        
-        .regenerate-section p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-        
-        /* MVP11: Preferencias Section */
-        .preferences-section {
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-light);
-        }
-        
-        .preferences-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text);
-        }
-        
-        .preference-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: var(--bg);
-            border-radius: var(--radius);
-            margin-bottom: 12px;
-        }
-        
-        .preference-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .preference-info {
-            flex: 1;
-            padding-right: 16px;
-        }
-        
-        .preference-label {
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        
-        .preference-description {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-        
-        /* Toggle switch */
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--border);
-            transition: 0.3s;
-            border-radius: 28px;
-        }
-        
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        
-        .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--success);
-        }
-        
-        .toggle-switch input:checked + .toggle-slider:before {
-            transform: translateX(22px);
-        }
-        
-        /* Saved indicator */
-        .save-indicator {
-            display: none;
-            font-size: 12px;
-            color: var(--success);
-            margin-left: 8px;
-        }
-        
-        .save-indicator.visible {
-            display: inline;
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 16px;
-            }
-            
-            .card {
-                padding: 20px;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .add-form {
-                flex-direction: column;
-            }
-            
-            .calendar-buttons {
-                flex-direction: column;
-            }
-            
-            .preference-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            
-            .preference-info {
-                padding-right: 0;
-            }
-        }
+{% extends "base.html" %}
 
-        /* MVP14-UX: Unified Emails */
-        .emails-unified-list {
-            margin: 16px 0;
-        }
+{% block title %}Mi Perfil - Mis Viajes{% endblock %}
 
-        .email-unified-item {
-            background: var(--bg);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
-        }
+{% block styles %}
+.container {
+    max-width: 540px;
+}
 
-        .email-unified-item:last-child {
-            margin-bottom: 0;
-        }
+.card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
 
-        .email-unified-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+.card-header {
+    margin-bottom: 24px;
+}
 
-        .email-unified-icon {
-            width: 36px;
-            height: 36px;
-            background: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            color: var(--text-secondary);
-        }
+.card-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
 
-        .email-unified-icon.gmail {
-            background: #FEF2F2;
-        }
+.card-header p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
 
-        .email-unified-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-        }
+.alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
 
-        .email-unified-address {
-            font-size: 15px;
-            font-weight: 500;
-        }
+.alert-success {
+    background: #F0FDF4;
+    color: var(--success);
+    border: 1px solid #BBF7D0;
+}
 
-        .email-unified-status {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 10px;
-            padding-left: 48px;
-            font-size: 13px;
-        }
+.alert-error {
+    background: #FEF2F2;
+    color: var(--danger);
+    border: 1px solid #FECACA;
+}
 
-        .status-connected {
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+.form-group {
+    margin-bottom: 20px;
+}
 
-        .status-manual {
-            color: var(--text-secondary);
-        }
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
 
-        .btn-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-size: 13px;
-        }
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text);
+}
 
-        .btn-link:hover {
-            text-decoration: underline;
-        }
+.hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+}
 
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all 0.2s;
+    font-family: inherit;
+}
 
-        .email-unified-actions {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-light);
-        }
+input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+}
 
-        /* MVP14-UX: Email list */
-        .unified-email-list {
-            margin: 20px 0;
-        }
+input:disabled {
+    background: var(--bg);
+    color: var(--text-secondary);
+}
 
-        .unified-email-item {
-            background: var(--bg);
-            border-radius: var(--radius);
-            padding: 16px;
-            margin-bottom: 12px;
-        }
+input::placeholder {
+    color: var(--text-muted);
+}
 
-        .email-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+.section-box {
+    background: #F0F7FF;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 20px;
+}
 
-        .email-address {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text);
-        }
+.section-box-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a5490;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
 
-        .badge-principal {
-            background: var(--accent);
-            color: white;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.section-box-title svg {
+    width: 16px;
+    height: 16px;
+}
 
-        .email-action {
-            margin-left: auto;
-        }
+.section-box p {
+    font-size: 13px;
+    color: #1a5490;
+    line-height: 1.5;
+}
 
-        .btn-text-danger {
-            background: none;
-            border: none;
-            color: var(--danger);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-family: inherit;
-        }
+.example-box {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 13px;
+}
 
-        .btn-text-danger:hover {
-            background: #FEE2E2;
-        }
+.example-box .label {
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
 
-        .email-detection {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid var(--border-light);
-        }
+.example-box code {
+    display: block;
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+}
 
-        .detection-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            min-width: 130px;
-        }
+.btn-danger {
+    background: #FEF2F2;
+    color: var(--danger);
+    font-size: 13px;
+    padding: 8px 14px;
+}
 
-        .detection-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+.btn-danger:hover {
+    background: #FECACA;
+}
 
-        .toggle-pill {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
+/* Emails Section */
+.card-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
 
-        .toggle-pill.on {
-            background: var(--success);
-            color: white;
-        }
+.email-list {
+    list-style: none;
+    margin: 16px 0;
+}
 
-        .toggle-pill.off {
-            background: var(--border);
-            color: var(--text-secondary);
-        }
+.email-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
 
-        .provider-status {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: var(--success);
-            font-size: 13px;
-            font-weight: 500;
-        }
+.email-item:last-child {
+    margin-bottom: 0;
+}
 
-        .btn-provider {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            border: 1px solid var(--border);
-            background: white;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
+.badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: #EEF2FF;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
 
-        .btn-provider:hover {
-            border-color: var(--text-secondary);
-        }
+.add-form {
+    display: flex;
+    gap: 12px;
+}
 
-        .btn-provider.gmail:hover {
-            border-color: #EA4335;
-            color: #EA4335;
-        }
+.add-form input {
+    flex: 1;
+}
 
-        .btn-provider.microsoft:hover {
-            border-color: #00A4EF;
-            color: #00A4EF;
-        }
+/* MVP9: Calendar Section */
+.calendar-link-box {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 16px 0;
+    overflow-x: auto;
+}
 
-        .btn-provider.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+.calendar-link-box code {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    word-break: break-all;
+}
 
-        .provider-letter {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 12px;
-            border-radius: 4px;
-            color: white;
-        }
+.calendar-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
 
-        .gmail .provider-letter { background: #EA4335; }
-        .microsoft .provider-letter { background: #00A4EF; }
+.calendar-buttons .btn {
+    flex: 1;
+    text-align: center;
+}
 
-        .coming-soon {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-style: italic;
-        }
+.regenerate-section {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
 
-        .unavailable-text {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
+.regenerate-section p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
 
-        .email-tip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-            padding: 10px 12px;
-            background: #F0F9FF;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #0369A1;
-        }
+/* MVP11: Preferencias Section */
+.preferences-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+}
 
-        .email-tip code {
-            background: rgba(0,0,0,0.08);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 11px;
-        }
+.preferences-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text);
+}
 
-        .email-footer {
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-light);
-        }
+.preference-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+}
 
-        .add-email-form {
-            display: flex;
-            gap: 10px;
-        }
+.preference-item:last-child {
+    margin-bottom: 0;
+}
 
-        .add-email-form input {
-            flex: 1;
-            min-width: 180px;
-        }
+.preference-info {
+    flex: 1;
+    padding-right: 16px;
+}
 
-        @media (max-width: 500px) {
-            .email-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-            .email-action { margin-left: 0; }
-            .add-email-form { flex-direction: column; }
-        }
+.preference-label {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
 
-        /* Toggle button funcional */
-        .toggle-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px 4px 4px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 600;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
+.preference-description {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
 
-        .toggle-btn.on {
-            background: var(--success);
-            color: white;
-        }
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    flex-shrink: 0;
+}
 
-        .toggle-btn.on:hover {
-            background: #22A557;
-        }
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
 
-        .toggle-btn.off {
-            background: #E5E7EB;
-            color: #9CA3AF;
-        }
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border);
+    transition: 0.3s;
+    border-radius: 28px;
+}
 
-        .toggle-btn.disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
 
-        .toggle-circle {
-            width: 16px;
-            height: 16px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--success);
+}
 
-        .toggle-label {
-            letter-spacing: 0.5px;
-        }
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
 
-        .detection-status.unavailable {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+/* Saved indicator */
+.save-indicator {
+    display: none;
+    font-size: 12px;
+    color: var(--success);
+    margin-left: 8px;
+}
 
-        .provider-status.muted {
-            color: var(--text-muted);
-            font-size: 13px;
-        }
+.save-indicator.visible {
+    display: inline;
+}
 
-        .fallback-tip {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            padding: 8px 12px;
-            background: var(--bg);
-            border-radius: 8px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
+@media (max-width: 480px) {
+    .card {
+        padding: 20px;
+    }
 
-        .fallback-tip code {
-            font-family: 'SF Mono', Monaco, monospace;
-            font-size: 12px;
-            background: var(--bg-card);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
 
-        .icon-sm {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <a href="{{ url_for('viajes.index') }}" class="back-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            Volver
-        </a>
-        
-        <div class="card">
-            <div class="card-header">
-                <h1>Mi Perfil</h1>
-                <p>Configurá tu cuenta</p>
-            </div>
-            
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            <form method="POST" action="{{ url_for('viajes.update_profile') }}">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" value="{{ current_user.email }}" disabled>
-                </div>
-                
-                <div class="form-group">
-                    <label>Nombre</label>
-                    <input type="text" name="nombre" value="{{ current_user.nombre }}" required placeholder="Tu nombre">
-                </div>
-                
-                <div class="section-box">
-                    <div class="section-box-title">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 16v-4M12 8h.01"/>
-                        </svg>
-                        ¿Para qué sirve esto?
-                    </div>
-                    <p>Cuando alguien reenvía una reserva donde vos sos pasajero, el sistema te asigna el viaje automáticamente.</p>
-                    <div class="example-box">
-                        <div class="label">Ejemplo: si en tus pasajes aparecés como</div>
-                        <code>PÉREZ/MARÍA LAURA</code>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Nombre(s) en pasajes</label>
-                        <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="MARÍA LAURA">
-                        <p class="hint">Como aparece después de la /</p>
-                    </div>
-                    <div class="form-group">
-                        <label>Apellido en pasajes</label>
-                        <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="PÉREZ">
-                        <p class="hint">Como aparece antes de la /</p>
-                    </div>
-                </div>
+    .add-form {
+        flex-direction: column;
+    }
 
-                <button type="submit" class="btn btn-primary" style="margin-top: 24px;">Guardar cambios</button>
-                <a href="{{ url_for('viajes.preferencias') }}" class="btn btn-secondary" style="margin-top: 12px; display: block; text-align: center;">Preferencias y notificaciones</a>
-            </form>
+    .calendar-buttons {
+        flex-direction: column;
+    }
+
+    .preference-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .preference-info {
+        padding-right: 0;
+    }
+}
+
+/* MVP14-UX: Unified Emails */
+.emails-unified-list {
+    margin: 16px 0;
+}
+
+.email-unified-item {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.email-unified-item:last-child {
+    margin-bottom: 0;
+}
+
+.email-unified-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.email-unified-icon {
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: var(--text-secondary);
+}
+
+.email-unified-icon.gmail {
+    background: #FEF2F2;
+}
+
+.email-unified-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.email-unified-address {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.email-unified-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    padding-left: 48px;
+    font-size: 13px;
+}
+
+.status-connected {
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-manual {
+    color: var(--text-secondary);
+}
+
+.btn-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.email-unified-actions {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+/* MVP14-UX: Email list */
+.unified-email-list {
+    margin: 20px 0;
+}
+
+.unified-email-item {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.email-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.email-address {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.badge-principal {
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.email-action {
+    margin-left: auto;
+}
+
+.btn-text-danger {
+    background: none;
+    border: none;
+    color: var(--danger);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.btn-text-danger:hover {
+    background: #FEE2E2;
+}
+
+.email-detection {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-light);
+}
+
+.detection-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    min-width: 130px;
+}
+
+.detection-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.toggle-pill {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.toggle-pill.on {
+    background: var(--success);
+    color: white;
+}
+
+.toggle-pill.off {
+    background: var(--border);
+    color: var(--text-secondary);
+}
+
+.provider-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--success);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn-provider {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-provider:hover {
+    border-color: var(--text-secondary);
+}
+
+.btn-provider.gmail:hover {
+    border-color: #EA4335;
+    color: #EA4335;
+}
+
+.btn-provider.microsoft:hover {
+    border-color: #00A4EF;
+    color: #00A4EF;
+}
+
+.btn-provider.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.provider-letter {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    border-radius: 4px;
+    color: white;
+}
+
+.gmail .provider-letter { background: #EA4335; }
+.microsoft .provider-letter { background: #00A4EF; }
+
+.coming-soon {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.unavailable-text {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.email-tip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #F0F9FF;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #0369A1;
+}
+
+.email-tip code {
+    background: rgba(0,0,0,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 11px;
+}
+
+.email-footer {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+.add-email-form {
+    display: flex;
+    gap: 10px;
+}
+
+.add-email-form input {
+    flex: 1;
+    min-width: 180px;
+}
+
+@media (max-width: 500px) {
+    .email-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .email-action { margin-left: 0; }
+    .add-email-form { flex-direction: column; }
+}
+
+/* Toggle button funcional */
+.toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px 4px 4px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.toggle-btn.on {
+    background: var(--success);
+    color: white;
+}
+
+.toggle-btn.on:hover {
+    background: #22A557;
+}
+
+.toggle-btn.off {
+    background: #E5E7EB;
+    color: #9CA3AF;
+}
+
+.toggle-btn.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.toggle-circle {
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.toggle-label {
+    letter-spacing: 0.5px;
+}
+
+.detection-status.unavailable {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.provider-status.muted {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.fallback-tip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.fallback-tip code {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 12px;
+    background: var(--bg-card);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.icon-sm {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1>Mi Perfil</h1>
+        <p>Configurá tu cuenta</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('viajes.update_profile') }}">
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" value="{{ current_user.email }}" disabled>
         </div>
-        
-        <!-- MVP14-UX: Mis emails -->
-        <div class="card">
-            <h2 class="card-title">Mis emails</h2>
-            <p class="hint">Conectá tus cuentas para detectar viajes automáticamente.</p>
 
-            <div class="unified-email-list">
-                {% for item in unified_emails %}
-                <div class="unified-email-item">
-                    <!-- Row 1: Email + Badge + Quitar -->
-                    <div class="email-header">
-                        <span class="email-address">{{ item.email }}</span>
-                        {% if item.is_principal %}
-                        <span class="badge-principal">Principal</span>
-                        {% endif %}
-                        {% if not item.is_principal %}
-                        <div class="email-action">
-                            {% if item.gmail_connection %}
-                            <form method="POST" action="{{ url_for('gmail_oauth.quitar_email_gmail', connection_id=item.gmail_connection.id) }}" style="display:inline;">
-                                <button type="submit" class="btn-text-danger">Quitar</button>
-                            </form>
-                            {% elif item.microsoft_connection %}
-                            <form method="POST" action="{{ url_for('microsoft_oauth.quitar_email_microsoft', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
-                                <button type="submit" class="btn-text-danger">Quitar</button>
-                            </form>
-                            {% elif item.user_email_id %}
-                            <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display:inline;">
-                                <button type="submit" class="btn-text-danger">Quitar</button>
-                            </form>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                    </div>
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" name="nombre" value="{{ current_user.nombre }}" required placeholder="Tu nombre">
+        </div>
 
-                    <!-- Row 2: Detección automática -->
-                    <div class="email-detection">
-                        <span class="detection-label">Detección automática</span>
+        <div class="section-box">
+            <div class="section-box-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                ¿Para qué sirve esto?
+            </div>
+            <p>Cuando alguien reenvía una reserva donde vos sos pasajero, el sistema te asigna el viaje automáticamente.</p>
+            <div class="example-box">
+                <div class="label">Ejemplo: si en tus pasajes aparecés como</div>
+                <code>PÉREZ/MARÍA LAURA</code>
+            </div>
+        </div>
 
-                        {% if item.gmail_connection %}
-                        <!-- GMAIL CONECTADO: Toggle ON clickeable -->
-                        <div class="detection-status connected">
-                            <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
-                                <button type="submit" class="toggle-btn on" title="Click para desconectar">
-                                    <span class="toggle-circle"></span>
-                                    <span class="toggle-label">ON</span>
-                                </button>
-                            </form>
-                            <span class="provider-status">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                    <path d="M20 6L9 17L4 12"/>
-                                </svg>
-                                Gmail conectado
-                            </span>
-                        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nombre(s) en pasajes</label>
+                <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="MARÍA LAURA">
+                <p class="hint">Como aparece después de la /</p>
+            </div>
+            <div class="form-group">
+                <label>Apellido en pasajes</label>
+                <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="PÉREZ">
+                <p class="hint">Como aparece antes de la /</p>
+            </div>
+        </div>
 
-                        {% elif item.microsoft_connection %}
-                        <!-- MICROSOFT CONECTADO: Toggle ON clickeable -->
-                        <div class="detection-status connected">
-                            <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
-                                <button type="submit" class="toggle-btn on" title="Click para desconectar">
-                                    <span class="toggle-circle"></span>
-                                    <span class="toggle-label">ON</span>
-                                </button>
-                            </form>
-                            <span class="provider-status">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                    <path d="M20 6L9 17L4 12"/>
-                                </svg>
-                                Microsoft conectado
-                            </span>
-                        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 24px;">Guardar cambios</button>
+        <a href="{{ url_for('viajes.preferencias') }}" class="btn btn-secondary" style="margin-top: 12px; display: block; text-align: center;">Preferencias y notificaciones</a>
+    </form>
+</div>
 
-                        {% elif item.provider_info.provider == 'gmail' %}
-                        <!-- GMAIL SIN CONECTAR: Botón conectar -->
-                        <div class="detection-status available">
-                            <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-provider gmail">
-                                <span class="provider-letter">G</span> Conectar Gmail
-                            </a>
-                        </div>
+<!-- MVP14-UX: Mis emails -->
+<div class="card">
+    <h2 class="card-title">Mis emails</h2>
+    <p class="hint">Conectá tus cuentas para detectar viajes automáticamente.</p>
 
-                        {% elif item.provider_info.provider == 'microsoft' %}
-                        <!-- MICROSOFT SIN CONECTAR: Botón conectar -->
-                        <div class="detection-status available">
-                            <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn-provider microsoft">
-                                <span class="provider-letter">M</span> Conectar Outlook
-                            </a>
-                        </div>
-
-                        {% elif item.connected_via %}
-                        <!-- ALIAS CORPORATIVO: Conectado vía otra cuenta del mismo dominio -->
-                        <div class="detection-status connected">
-                            <span class="toggle-btn on disabled" style="pointer-events: none;">
-                                <span class="toggle-circle"></span>
-                                <span class="toggle-label">ON</span>
-                            </span>
-                            <span class="provider-status">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                    <path d="M20 6L9 17L4 12"/>
-                                </svg>
-                                Conectado vía {{ item.connected_via }}
-                            </span>
-                        </div>
-
-                        {% else %}
-                        <!-- PROVEEDOR NO SOPORTADO -->
-                        <div class="detection-status unavailable">
-                            <span class="toggle-btn disabled" title="Proveedor no soportado">
-                                <span class="toggle-circle"></span>
-                            </span>
-                            <span class="provider-status muted">No disponible</span>
-                        </div>
-                        <div class="fallback-tip">
-                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
-                            </svg>
-                            Reenviá confirmaciones a <code>misviajes@gamberg.com.ar</code>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Row 3: Tip de reenvío (solo si no está conectado) -->
-                    {% if not item.gmail_connection and not item.microsoft_connection and not item.connected_via %}
-                    <div class="email-tip">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 16v-4M12 8h.01"/>
-                        </svg>
-                        <span>Reenviá confirmaciones a <code>misviajes@gamberg.com.ar</code></span>
-                    </div>
+    <div class="unified-email-list">
+        {% for item in unified_emails %}
+        <div class="unified-email-item">
+            <!-- Row 1: Email + Badge + Quitar -->
+            <div class="email-header">
+                <span class="email-address">{{ item.email }}</span>
+                {% if item.is_principal %}
+                <span class="badge-principal">Principal</span>
+                {% endif %}
+                {% if not item.is_principal %}
+                <div class="email-action">
+                    {% if item.gmail_connection %}
+                    <form method="POST" action="{{ url_for('gmail_oauth.quitar_email_gmail', connection_id=item.gmail_connection.id) }}" style="display:inline;">
+                        <button type="submit" class="btn-text-danger">Quitar</button>
+                    </form>
+                    {% elif item.microsoft_connection %}
+                    <form method="POST" action="{{ url_for('microsoft_oauth.quitar_email_microsoft', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
+                        <button type="submit" class="btn-text-danger">Quitar</button>
+                    </form>
+                    {% elif item.user_email_id %}
+                    <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display:inline;">
+                        <button type="submit" class="btn-text-danger">Quitar</button>
+                    </form>
                     {% endif %}
                 </div>
-                {% endfor %}
+                {% endif %}
             </div>
 
-            <!-- Footer: Solo agregar email -->
-            <div class="email-footer">
-                <form method="POST" action="{{ url_for('viajes.add_email') }}" class="add-email-form">
-                    <input type="email" name="email" placeholder="otro@email.com" required>
-                    <button type="submit" class="btn btn-secondary">Agregar email</button>
-                </form>
-            </div>
-        </div>
-        
-        <!-- MVP9: Sección de Calendario -->
-        <div class="card">
-            <h2 class="card-title">Calendario</h2>
-            <p class="hint">Suscribite para ver tus viajes en el calendario.</p>
-            
-            <div class="section-box" style="margin-top: 16px;">
-                <div class="section-box-title">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                    Tu link personal
+            <!-- Row 2: Detección automática -->
+            <div class="email-detection">
+                <span class="detection-label">Detección automática</span>
+
+                {% if item.gmail_connection %}
+                <!-- GMAIL CONECTADO: Toggle ON clickeable -->
+                <div class="detection-status connected">
+                    <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
+                        <button type="submit" class="toggle-btn on" title="Click para desconectar">
+                            <span class="toggle-circle"></span>
+                            <span class="toggle-label">ON</span>
+                        </button>
+                    </form>
+                    <span class="provider-status">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                            <path d="M20 6L9 17L4 12"/>
+                        </svg>
+                        Gmail conectado
+                    </span>
                 </div>
-                <p style="font-size: 12px;">Este link es privado y solo muestra tus viajes.</p>
+
+                {% elif item.microsoft_connection %}
+                <!-- MICROSOFT CONECTADO: Toggle ON clickeable -->
+                <div class="detection-status connected">
+                    <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
+                        <button type="submit" class="toggle-btn on" title="Click para desconectar">
+                            <span class="toggle-circle"></span>
+                            <span class="toggle-label">ON</span>
+                        </button>
+                    </form>
+                    <span class="provider-status">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                            <path d="M20 6L9 17L4 12"/>
+                        </svg>
+                        Microsoft conectado
+                    </span>
+                </div>
+
+                {% elif item.provider_info.provider == 'gmail' %}
+                <!-- GMAIL SIN CONECTAR: Botón conectar -->
+                <div class="detection-status available">
+                    <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-provider gmail">
+                        <span class="provider-letter">G</span> Conectar Gmail
+                    </a>
+                </div>
+
+                {% elif item.provider_info.provider == 'microsoft' %}
+                <!-- MICROSOFT SIN CONECTAR: Botón conectar -->
+                <div class="detection-status available">
+                    <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn-provider microsoft">
+                        <span class="provider-letter">M</span> Conectar Outlook
+                    </a>
+                </div>
+
+                {% elif item.connected_via %}
+                <!-- ALIAS CORPORATIVO: Conectado vía otra cuenta del mismo dominio -->
+                <div class="detection-status connected">
+                    <span class="toggle-btn on disabled" style="pointer-events: none;">
+                        <span class="toggle-circle"></span>
+                        <span class="toggle-label">ON</span>
+                    </span>
+                    <span class="provider-status">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                            <path d="M20 6L9 17L4 12"/>
+                        </svg>
+                        Conectado vía {{ item.connected_via }}
+                    </span>
+                </div>
+
+                {% else %}
+                <!-- PROVEEDOR NO SOPORTADO -->
+                <div class="detection-status unavailable">
+                    <span class="toggle-btn disabled" title="Proveedor no soportado">
+                        <span class="toggle-circle"></span>
+                    </span>
+                    <span class="provider-status muted">No disponible</span>
+                </div>
+                <div class="fallback-tip">
+                    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
+                    </svg>
+                    Reenviá confirmaciones a <code>misviajes@gamberg.com.ar</code>
+                </div>
+                {% endif %}
             </div>
-            
-            <div class="calendar-link-box">
-                <code>webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}</code>
+
+            <!-- Row 3: Tip de reenvío (solo si no está conectado) -->
+            {% if not item.gmail_connection and not item.microsoft_connection and not item.connected_via %}
+            <div class="email-tip">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                <span>Reenviá confirmaciones a <code>misviajes@gamberg.com.ar</code></span>
             </div>
-            
-            <div class="calendar-buttons">
-                <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" 
-                   class="btn btn-primary">
-                    Apple Calendar
-                </a>
-                <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" 
-                   class="btn btn-secondary">
-                    Google Calendar
-                </a>
-            </div>
-            
-            <div class="regenerate-section">
-                <p>¿Compartiste tu link por error? Podés regenerarlo.</p>
-                <form method="POST" action="{{ url_for('calendario.regenerate_calendar_token') }}">
-                    <button type="submit" class="btn btn-danger" 
-                            onclick="return confirm('¿Regenerar token? Deberás volver a suscribirte al calendario.')">
-                        Regenerar link
-                    </button>
-                </form>
-            </div>
+            {% endif %}
         </div>
+        {% endfor %}
     </div>
-</body>
-</html>
+
+    <!-- Footer: Solo agregar email -->
+    <div class="email-footer">
+        <form method="POST" action="{{ url_for('viajes.add_email') }}" class="add-email-form">
+            <input type="email" name="email" placeholder="otro@email.com" required>
+            <button type="submit" class="btn btn-secondary">Agregar email</button>
+        </form>
+    </div>
+</div>
+
+<!-- MVP9: Sección de Calendario -->
+<div class="card">
+    <h2 class="card-title">Calendario</h2>
+    <p class="hint">Suscribite para ver tus viajes en el calendario.</p>
+
+    <div class="section-box" style="margin-top: 16px;">
+        <div class="section-box-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Tu link personal
+        </div>
+        <p style="font-size: 12px;">Este link es privado y solo muestra tus viajes.</p>
+    </div>
+
+    <div class="calendar-link-box">
+        <code>webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}</code>
+    </div>
+
+    <div class="calendar-buttons">
+        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}"
+           class="btn btn-primary">
+            Apple Calendar
+        </a>
+        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}"
+           class="btn btn-secondary">
+            Google Calendar
+        </a>
+    </div>
+
+    <div class="regenerate-section">
+        <p>¿Compartiste tu link por error? Podés regenerarlo.</p>
+        <form method="POST" action="{{ url_for('calendario.regenerate_calendar_token') }}">
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('¿Regenerar token? Deberás volver a suscribirte al calendario.')">
+                Regenerar link
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
