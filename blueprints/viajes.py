@@ -680,15 +680,22 @@ def guardar_vuelos():
             
             index += 1
         
-        # Asignar nombre automático
+        # Asignar nombre automático (solo si no existe uno custom)
         vuelos_del_grupo = Viaje.query.filter_by(grupo_viaje=grupo_id).all()
         if vuelos_del_grupo:
-            vuelos_ordenados = sorted(vuelos_del_grupo, key=lambda x: x.fecha_salida)
-            ciudad_principal = calcular_ciudad_principal(vuelos_ordenados)
-            ciudad_nombre = get_ciudad_nombre(ciudad_principal)
-            nombre_auto = f"Viaje a {ciudad_nombre}"
+            # Buscar si algún viaje ya tiene nombre_viaje editado manualmente
+            nombre_existente = next((v.nombre_viaje for v in vuelos_del_grupo if v.nombre_viaje), None)
+
+            if not nombre_existente:
+                # No hay nombre custom, generar uno automático
+                vuelos_ordenados = sorted(vuelos_del_grupo, key=lambda x: x.fecha_salida)
+                ciudad_principal = calcular_ciudad_principal(vuelos_ordenados)
+                ciudad_nombre = get_ciudad_nombre(ciudad_principal)
+                nombre_existente = f"Viaje a {ciudad_nombre}"
+
+            # Aplicar el nombre (custom o auto) a todos los viajes del grupo
             for v in vuelos_del_grupo:
-                v.nombre_viaje = nombre_auto
+                v.nombre_viaje = nombre_existente
         
         db.session.commit()
         return redirect(url_for('viajes.index'))
@@ -721,13 +728,20 @@ def agrupar_manual():
             todos_vuelos.extend(viajes)
     
     if todos_vuelos:
-        vuelos_ordenados = sorted(todos_vuelos, key=lambda x: x.fecha_salida)
-        ciudad_principal = calcular_ciudad_principal(vuelos_ordenados)
-        ciudad_nombre = get_ciudad_nombre(ciudad_principal)
-        nombre_auto = f"Viaje a {ciudad_nombre}"
+        # Buscar si alguno de los viajes que se están agrupando tiene nombre_viaje custom
+        nombre_existente = next((v.nombre_viaje for v in todos_vuelos if v.nombre_viaje), None)
+
+        if not nombre_existente:
+            # No hay nombre custom, generar uno automático
+            vuelos_ordenados = sorted(todos_vuelos, key=lambda x: x.fecha_salida)
+            ciudad_principal = calcular_ciudad_principal(vuelos_ordenados)
+            ciudad_nombre = get_ciudad_nombre(ciudad_principal)
+            nombre_existente = f"Viaje a {ciudad_nombre}"
+
+        # Aplicar grupo y nombre (custom o auto) a todos los viajes
         for v in todos_vuelos:
             v.grupo_viaje = nuevo_grupo
-            v.nombre_viaje = nombre_auto
+            v.nombre_viaje = nombre_existente
     
     db.session.commit()
     session['auto_update_calendar'] = nuevo_grupo
