@@ -63,7 +63,7 @@ WHITELIST_DOMAINS = [
     'flightaware.com', 'flightstats.com',
 
     # ===========================================
-    # NUEVOS TIPOS (14-EXT)
+    # NUEVOS TIPOS (14-EXT) - Diciembre 2025
     # ===========================================
 
     # Cruceros y Ferries
@@ -74,7 +74,7 @@ WHITELIST_DOMAINS = [
     'costacruises.com', 'princess.com',
     'hollandamerica.com', 'cunard.com',
     'directferries.com', 'ferryscanner.com',
-    'aferry.com', 'ferries.com',
+    'aferry.com', 'colonia-express.com',
 
     # Rental de Autos
     'hertz.com', 'avis.com', 'enterprise.com',
@@ -83,22 +83,30 @@ WHITELIST_DOMAINS = [
     'localiza.com', 'movida.com.br',
     'rentcars.com', 'rentalcars.com', 'autoeurope.com',
 
-    # Restaurantes
+    # Restaurantes - Plataformas
     'opentable.com', 'thefork.com', 'tenedor.com', 'lafourchette.com',
-    'resy.com', 'yelp.com', 'restorando.com',
+    'resy.com', 'yelp.com', 'restorando.com.ar', 'restorando.com',
+    'meitre.com', 'mesa247.com.ar',
     'covermanager.com', 'dimmi.com.au',
 
-    # Espectáculos y Entradas
+    # Espectáculos Argentina
+    'allaccess.com.ar', 'ticketek.com.ar', 'tuentrada.com',
+    'passline.com', 'livepass.com.ar',
+    'entradasba.buenosaires.gob.ar',
+    'plateanet.com', 'entradauno.com',
+
+    # Espectáculos Internacional
     'ticketmaster.com', 'ticketmaster.com.ar', 'ticketmaster.com.mx',
     'eventbrite.com', 'eventbrite.com.ar',
-    'allaccess.com.ar', 'ticketek.com.ar', 'tuentrada.com',
     'stubhub.com', 'vividseats.com', 'seatgeek.com',
     'dice.fm', 'songkick.com', 'bandsintown.com',
     'teleticket.com.pe', 'puntoticket.com',
 
-    # Teatros (principales)
-    'fenice.it', 'teatrocolon.org.ar', 'metopera.org',
-    'royaloperahouse.org', 'operadeparis.fr',
+    # Teatros y Óperas
+    'teatrocolon.org.ar', 'complejoteatral.gob.ar',
+    'fenice.it', 'teatrolafenice.it',
+    'metopera.org', 'royaloperahouse.org', 'operadeparis.fr',
+    'scala.it', 'wiener-staatsoper.at',
 
     # Actividades y Tours
     'civitatis.com', 'getyourguide.com', 'viator.com',
@@ -113,6 +121,7 @@ WHITELIST_DOMAINS = [
     'ritzcarlton.com', 'starwoodhotels.com',
     'lhw.com', 'slh.com', 'preferredhotels.com',
     'melia.com', 'nh-hotels.com', 'barcelo.com',
+    'pestana.com', 'minorhotels.com',
 
     # Trenes adicionales
     'trenitalia.com', 'italotreno.it',
@@ -120,7 +129,10 @@ WHITELIST_DOMAINS = [
     'bahn.de', 'deutschebahn.com',
     'thetrainline.com', 'raileurope.com',
     'ave.com', 'iryo.eu',
+
+    # Buses
     'flixbus.com', 'blablacar.com',
+    'plataforma10.com.ar', 'centraldeviajes.com.ar',
 ]
 
 MAX_EMAILS_PER_SCAN = 5
