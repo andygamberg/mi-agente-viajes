@@ -640,6 +640,61 @@ Ver `DESIGN_SYSTEM.md` para el catálogo completo de iconos y cómo usarlos.
 
 ---
 
+## 💬 Formato de Comunicación Claude.ai ↔ Andy
+
+### Separación de bloques
+
+Cuando Claude.ai prepara comandos o prompts, SIEMPRE separar en bloques independientes para fácil copy-paste:
+
+**Estructura correcta:**
+```
+## Para tu terminal
+
+**Comando 1 - [descripción]:**
+```bash
+[bloque de código]
+```
+
+**Comando 2 - [descripción]:**
+```bash
+[bloque de código]
+```
+
+---
+
+## Prompt para Claude Code
+
+```
+[bloque de código separado]
+```
+```
+
+**Estructura incorrecta:**
+- ❌ Mezclar comandos de terminal con prompts de Claude Code en el mismo bloque
+- ❌ Poner múltiples comandos en un solo bloque sin separación
+- ❌ Incluir texto explicativo dentro del bloque de código
+
+### Roles y responsabilidades
+
+| Acción | Quién ejecuta | Herramienta |
+|--------|---------------|-------------|
+| Diagnóstico producción (logs, BD, endpoints) | Andy | Terminal local + gcloud |
+| Cambios de código | Claude Code | VS Code con extensión |
+| Arquitectura y decisiones | Claude.ai | Chat en claude.ai |
+| Deploy y git | Claude Code | Terminal en VS Code |
+
+### Regla de oro
+
+**Claude.ai NUNCA intenta ejecutar comandos de infraestructura** (gcloud, SQL, curl a producción).
+
+Solo prepara los comandos para que Andy los ejecute y analiza los resultados.
+
+**Ejemplos:**
+- ✅ Claude.ai: "Ejecutá este comando en tu terminal: `gcloud logging read ...`"
+- ❌ Claude.ai: Intentar ejecutar `gcloud logging read` directamente
+
+---
+
 ## 🔄 Historial de Cambios
 
 | Fecha | Cambio |
@@ -662,3 +717,5 @@ Ver `DESIGN_SYSTEM.md` para el catálogo completo de iconos y cómo usarlos.
 | 14 Dic 2025 | MVP15: Onboarding post-registro + base.html |
 | 15 Dic 2025 | MVP15: Multi-Tipo de Reservas (9 tipos) |
 | 15 Dic 2025 | Creado APRENDIZAJES.md (living document) |
+| 15 Dic 2025 | Agregada sección "Primera Acción Obligatoria" |
+| 15 Dic 2025 | Agregada sección "Formato de Comunicación Claude.ai ↔ Andy" |
