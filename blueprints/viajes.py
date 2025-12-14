@@ -89,6 +89,7 @@ def deduplicar_vuelos_en_grupo(vuelos):
             # Agregar atributos temporales (no se guardan en BD)
             vuelo_principal._pasajeros_combinados = pasajeros_combinados
             vuelo_principal._codigos_reserva = codigos_reserva
+            vuelo_principal._reservas_combinadas = vuelos_iguales  # Para acceder a todas las reservas originales
             vuelo_principal._es_combinado = True
             resultado.append(vuelo_principal)
     
