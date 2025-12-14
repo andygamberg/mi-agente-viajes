@@ -20,7 +20,7 @@
                 <span class="detail">{{ d.aerolinea or '' }} {{ d.numero_vuelo or '' }}</span>
             {% endif %}
             {% if d.hora_salida %}
-                <span class="detail">Salida: {{ d.hora_salida }}</span>
+                <span class="detail">Salida: {{ d.hora_salida }}{% if d.terminal %} · Terminal {{ d.terminal }}{% endif %}{% if d.puerta %} · Puerta {{ d.puerta }}{% endif %}</span>
             {% endif %}
             {% if d.hora_llegada %}
                 <span class="detail">Llegada: {{ d.hora_llegada }}</span>
@@ -32,7 +32,7 @@
 
         {# Pasajeros combinados (de múltiples reservas) #}
         {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
-            <div class="passengers-by-reserva">
+            <div class="passengers-list">
                 {% set reservas = {} %}
                 {% for p in vuelo._pasajeros_combinados %}
                     {% set codigo = p.codigo_reserva or 'SIN_CODIGO' %}
@@ -45,32 +45,36 @@
                 {% for codigo, paxs in reservas.items() %}
                     <div class="reserva-group">
                         <div class="reserva-header">{{ codigo }}</div>
-                        <div class="reserva-passengers">
-                            {% for p in paxs %}
-                                <div class="passenger-row">
-                                    <span class="passenger-name">{{ p.nombre if p is mapping else p }}</span>
-                                    {% if p is mapping and p.asiento %}<span class="passenger-seat">{{ p.asiento }}</span>{% endif %}
-                                    {% if p is mapping and p.cabina %}<span class="passenger-cabina">{{ p.cabina }}</span>{% endif %}
+                        {% for p in paxs %}
+                            <div class="passenger-card">
+                                <div class="passenger-name">{{ p.nombre if p is mapping else p }}</div>
+                                <div class="passenger-meta">
+                                    {% if p is mapping and p.asiento %}<span class="meta-seat">{{ p.asiento }}</span>{% endif %}
+                                    {% if p is mapping and p.cabina %}<span class="meta-cabina">{{ p.cabina }}</span>{% endif %}
+                                    {% if p is mapping and p.viajero_frecuente %}<span class="meta-ffp">{{ p.viajero_frecuente }}</span>{% endif %}
                                 </div>
-                            {% endfor %}
-                        </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 {% endfor %}
             </div>
         {# Pasajeros normales (reserva única) #}
         {% elif d.pasajeros and d.pasajeros|length > 0 %}
-            <div class="segment-passengers">
+            <div class="passengers-list">
                 {% for p in d.pasajeros %}
-                    <div class="passenger-row">
-                        <span class="passenger-name">{{ p.nombre if p is mapping else p }}</span>
-                        {% if p is mapping and p.asiento %}<span class="passenger-seat">{{ p.asiento }}</span>{% endif %}
-                        {% if p is mapping and p.cabina %}<span class="passenger-cabina">{{ p.cabina }}</span>{% endif %}
+                    <div class="passenger-card">
+                        <div class="passenger-name">{{ p.nombre if p is mapping else p }}</div>
+                        <div class="passenger-meta">
+                            {% if p is mapping and p.asiento %}<span class="meta-seat">{{ p.asiento }}</span>{% endif %}
+                            {% if p is mapping and p.cabina %}<span class="meta-cabina">{{ p.cabina }}</span>{% endif %}
+                            {% if p is mapping and p.viajero_frecuente %}<span class="meta-ffp">{{ p.viajero_frecuente }}</span>{% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
 
-        {# Equipaje si existe - SIN EMOJIS #}
+        {# Equipaje si existe #}
         {% if d.equipaje_facturado or d.equipaje_mano %}
             <div class="segment-equipaje">
                 {% if d.equipaje_facturado %}
