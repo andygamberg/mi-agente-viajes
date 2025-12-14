@@ -304,29 +304,62 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
                 if user_id:
                     print(f'  ✅ Usuario asignado por nombre de pasajero')
     
+    # Detectar tipo y mapear campos
+    tipo = vuelo_data.get('tipo', 'vuelo')
+    proveedor = None
+    ubicacion = None
+    precio = vuelo_data.get('precio_total')
+
+    if tipo == 'vuelo':
+        proveedor = vuelo_data.get('aerolinea')
+    elif tipo == 'hotel':
+        proveedor = vuelo_data.get('nombre_propiedad')
+        ubicacion = vuelo_data.get('direccion')
+    elif tipo in ['crucero', 'barco']:
+        proveedor = vuelo_data.get('compania') or vuelo_data.get('embarcacion')
+    elif tipo == 'auto':
+        proveedor = vuelo_data.get('empresa')
+    elif tipo == 'restaurante':
+        proveedor = vuelo_data.get('nombre')
+        ubicacion = vuelo_data.get('direccion')
+    elif tipo == 'espectaculo':
+        proveedor = vuelo_data.get('evento')
+        ubicacion = vuelo_data.get('venue')
+    elif tipo == 'actividad':
+        proveedor = vuelo_data.get('proveedor') or vuelo_data.get('nombre')
+        ubicacion = vuelo_data.get('punto_encuentro')
+    elif tipo == 'tren':
+        proveedor = vuelo_data.get('operador')
+    elif tipo == 'transfer':
+        proveedor = vuelo_data.get('empresa')
+
     viaje = Viaje(
         user_id=user_id,
-        tipo='vuelo',
-        descripcion=f"{vuelo_data.get('origen')} → {vuelo_data.get('destino')}",
-        origen=vuelo_data.get('origen'),
-        destino=vuelo_data.get('destino'),
+        tipo=tipo,
+        descripcion=vuelo_data.get('descripcion', ''),
+        origen=vuelo_data.get('origen', ''),
+        destino=vuelo_data.get('destino', ''),
         fecha_salida=fecha_salida,
         fecha_llegada=fecha_llegada,
         hora_salida=hora_salida,
         hora_llegada=hora_llegada,
-        aerolinea=vuelo_data.get('aerolinea'),
-        numero_vuelo=vuelo_data.get('numero_vuelo'),
-        codigo_reserva=vuelo_data.get('codigo_reserva'),
-        asiento=vuelo_data.get('asiento'),
-        pasajeros=json.dumps(vuelo_data.get('pasajeros')) if vuelo_data.get('pasajeros') else None,
+        aerolinea=vuelo_data.get('aerolinea', '') if tipo == 'vuelo' else None,
+        numero_vuelo=vuelo_data.get('numero_vuelo', '') if tipo == 'vuelo' else None,
+        codigo_reserva=vuelo_data.get('codigo_reserva', ''),
+        pasajeros=json.dumps(vuelo_data.get('pasajeros', [])) if vuelo_data.get('pasajeros') else None,
         grupo_viaje=grupo_id,
-        nombre_viaje=nombre_viaje
+        nombre_viaje=nombre_viaje,
+        # Nuevos campos multi-tipo
+        proveedor=proveedor,
+        ubicacion=ubicacion,
+        precio=precio,
+        raw_data=json.dumps(vuelo_data, ensure_ascii=False)
     )
-    
+
     db.session.add(viaje)
     db.session.commit()
-    
-    print(f'  ✅ Vuelo guardado (ID: {viaje.id})')
+
+    print(f'  ✅ {tipo.capitalize()} guardado (ID: {viaje.id})')
 
 def update_flight(viaje, vuelo_data):
     """Actualiza vuelo existente (incluyendo cambios de fecha/hora)"""
