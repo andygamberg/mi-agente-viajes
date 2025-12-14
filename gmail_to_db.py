@@ -263,10 +263,28 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
     """Crea nuevo vuelo en BD"""
     from datetime import datetime
     
-    # Parsear fecha_salida
+    # Normalizar fechas según tipo de reserva
+    tipo = vuelo_data.get('tipo', 'vuelo')
+
+    # Obtener fecha de inicio (puede tener diferentes nombres según el tipo)
     fecha_salida = None
-    fecha_salida_str = vuelo_data.get('fecha_salida')
-    hora_salida = vuelo_data.get('hora_salida', '')
+    fecha_salida_str = None
+    hora_salida = ''
+
+    if tipo in ['crucero', 'barco']:
+        fecha_salida_str = vuelo_data.get('fecha_embarque')
+        hora_salida = vuelo_data.get('hora_embarque', '')
+    elif tipo == 'hotel':
+        fecha_salida_str = vuelo_data.get('fecha_checkin')
+        hora_salida = vuelo_data.get('hora_checkin', '')
+    elif tipo in ['restaurante', 'espectaculo', 'actividad']:
+        fecha_salida_str = vuelo_data.get('fecha')
+        hora_salida = vuelo_data.get('hora', '')
+    else:  # vuelo, tren, transfer, auto
+        fecha_salida_str = vuelo_data.get('fecha_salida')
+        hora_salida = vuelo_data.get('hora_salida', '')
+
+    # Parsear fecha_salida
     if fecha_salida_str:
         try:
             if hora_salida:
@@ -274,12 +292,30 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
             else:
                 fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
         except:
-            fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
-    
-    # Parsear fecha_llegada
+            try:
+                fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
+            except:
+                pass
+
+    # Obtener fecha de fin (puede tener diferentes nombres según el tipo)
     fecha_llegada = None
-    fecha_llegada_str = vuelo_data.get('fecha_llegada')
-    hora_llegada = vuelo_data.get('hora_llegada', '')
+    fecha_llegada_str = None
+    hora_llegada = ''
+
+    if tipo in ['crucero', 'barco']:
+        fecha_llegada_str = vuelo_data.get('fecha_desembarque')
+        hora_llegada = vuelo_data.get('hora_desembarque', '')
+    elif tipo == 'hotel':
+        fecha_llegada_str = vuelo_data.get('fecha_checkout')
+        hora_llegada = vuelo_data.get('hora_checkout', '')
+    elif tipo == 'auto':
+        fecha_llegada_str = vuelo_data.get('fecha_devolucion')
+        hora_llegada = vuelo_data.get('hora_devolucion', '')
+    else:  # vuelo, tren, transfer, restaurante, espectaculo, actividad
+        fecha_llegada_str = vuelo_data.get('fecha_llegada')
+        hora_llegada = vuelo_data.get('hora_llegada', '')
+
+    # Parsear fecha_llegada
     if fecha_llegada_str:
         try:
             if hora_llegada:
@@ -287,8 +323,16 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
             else:
                 fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
         except:
-            pass
+            try:
+                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
+            except:
+                pass
     
+    # Validación: fecha_salida es obligatoria (NOT NULL en BD)
+    if not fecha_salida:
+        print(f'  ⚠️ Saltando {tipo} sin fecha válida: {vuelo_data.get("descripcion", "sin descripción")}')
+        return
+
     # Buscar usuario por email remitente
     user_id = None
     if from_email:
@@ -379,9 +423,27 @@ def update_flight(viaje, vuelo_data):
     """Actualiza reserva existente (multi-tipo: vuelos, hoteles, etc.)"""
     from datetime import datetime as dt
 
+    # Normalizar fechas según tipo de reserva
+    tipo = vuelo_data.get('tipo', 'vuelo')
+
+    # Obtener fecha de inicio (puede tener diferentes nombres según el tipo)
+    fecha_salida_str = None
+    hora_salida = ''
+
+    if tipo in ['crucero', 'barco']:
+        fecha_salida_str = vuelo_data.get('fecha_embarque')
+        hora_salida = vuelo_data.get('hora_embarque', '')
+    elif tipo == 'hotel':
+        fecha_salida_str = vuelo_data.get('fecha_checkin')
+        hora_salida = vuelo_data.get('hora_checkin', '')
+    elif tipo in ['restaurante', 'espectaculo', 'actividad']:
+        fecha_salida_str = vuelo_data.get('fecha')
+        hora_salida = vuelo_data.get('hora', '')
+    else:  # vuelo, tren, transfer, auto
+        fecha_salida_str = vuelo_data.get('fecha_salida')
+        hora_salida = vuelo_data.get('hora_salida', '')
+
     # Actualizar fecha_salida si cambió
-    fecha_salida_str = vuelo_data.get('fecha_salida')
-    hora_salida = vuelo_data.get('hora_salida', '')
     if fecha_salida_str:
         try:
             if hora_salida:
@@ -390,11 +452,30 @@ def update_flight(viaje, vuelo_data):
                 nueva_fecha = dt.strptime(fecha_salida_str, '%Y-%m-%d')
             viaje.fecha_salida = nueva_fecha
         except:
-            pass
+            try:
+                nueva_fecha = dt.strptime(fecha_salida_str, '%Y-%m-%d')
+                viaje.fecha_salida = nueva_fecha
+            except:
+                pass
+
+    # Obtener fecha de fin (puede tener diferentes nombres según el tipo)
+    fecha_llegada_str = None
+    hora_llegada = ''
+
+    if tipo in ['crucero', 'barco']:
+        fecha_llegada_str = vuelo_data.get('fecha_desembarque')
+        hora_llegada = vuelo_data.get('hora_desembarque', '')
+    elif tipo == 'hotel':
+        fecha_llegada_str = vuelo_data.get('fecha_checkout')
+        hora_llegada = vuelo_data.get('hora_checkout', '')
+    elif tipo == 'auto':
+        fecha_llegada_str = vuelo_data.get('fecha_devolucion')
+        hora_llegada = vuelo_data.get('hora_devolucion', '')
+    else:  # vuelo, tren, transfer, restaurante, espectaculo, actividad
+        fecha_llegada_str = vuelo_data.get('fecha_llegada')
+        hora_llegada = vuelo_data.get('hora_llegada', '')
 
     # Actualizar fecha_llegada si cambió
-    fecha_llegada_str = vuelo_data.get('fecha_llegada')
-    hora_llegada = vuelo_data.get('hora_llegada', '')
     if fecha_llegada_str:
         try:
             if hora_llegada:
@@ -403,13 +484,17 @@ def update_flight(viaje, vuelo_data):
                 nueva_fecha = dt.strptime(fecha_llegada_str, '%Y-%m-%d')
             viaje.fecha_llegada = nueva_fecha
         except:
-            pass
+            try:
+                nueva_fecha = dt.strptime(fecha_llegada_str, '%Y-%m-%d')
+                viaje.fecha_llegada = nueva_fecha
+            except:
+                pass
 
     # Actualizar horarios
-    if vuelo_data.get('hora_salida'):
-        viaje.hora_salida = vuelo_data.get('hora_salida')
-    if vuelo_data.get('hora_llegada'):
-        viaje.hora_llegada = vuelo_data.get('hora_llegada')
+    if hora_salida:
+        viaje.hora_salida = hora_salida
+    if hora_llegada:
+        viaje.hora_llegada = hora_llegada
 
     # Actualizar campos específicos de vuelos (si aplica)
     if vuelo_data.get('asiento'):
