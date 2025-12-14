@@ -230,20 +230,34 @@ def process_emails():
         return {'emails': emails_procesados, 'creados': vuelos_creados, 'actualizados': vuelos_actualizados}
 
 def check_duplicate(vuelo_data):
-    """Chequea si el vuelo ya existe en BD (por PNR + vuelo + ruta)"""
-    if not vuelo_data.get('numero_vuelo'):
-        return None
-    
-    # Buscar por código reserva + número vuelo + origen + destino
-    # (sin fecha, para detectar cambios de horario)
-    existe = Viaje.query.filter_by(
-        codigo_reserva=vuelo_data.get('codigo_reserva'),
-        numero_vuelo=vuelo_data.get('numero_vuelo'),
-        origen=vuelo_data.get('origen'),
-        destino=vuelo_data.get('destino')
-    ).first()
-    
-    return existe
+    """
+    Chequea si la reserva ya existe en BD.
+
+    Estrategia multi-tipo:
+    1. Si tiene codigo_reserva: buscar por código (funciona para todos los tipos)
+    2. Si es vuelo y tiene numero_vuelo: buscar por vuelo + ruta
+    3. Sino: no hacer deduplicación (return None)
+    """
+    codigo = vuelo_data.get('codigo_reserva')
+    tipo = vuelo_data.get('tipo', 'vuelo')
+
+    # Estrategia 1: Buscar por código de reserva (funciona para todos los tipos)
+    if codigo:
+        existe = Viaje.query.filter_by(codigo_reserva=codigo).first()
+        if existe:
+            return existe
+
+    # Estrategia 2: Para vuelos, buscar por número de vuelo + ruta
+    if tipo == 'vuelo' and vuelo_data.get('numero_vuelo'):
+        existe = Viaje.query.filter_by(
+            numero_vuelo=vuelo_data.get('numero_vuelo'),
+            origen=vuelo_data.get('origen'),
+            destino=vuelo_data.get('destino')
+        ).first()
+        return existe
+
+    # Estrategia 3: Para otros tipos sin código, no deduplicar
+    return None
 
 def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None):
     """Crea nuevo vuelo en BD"""
@@ -362,9 +376,9 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
     print(f'  ✅ {tipo.capitalize()} guardado (ID: {viaje.id})')
 
 def update_flight(viaje, vuelo_data):
-    """Actualiza vuelo existente (incluyendo cambios de fecha/hora)"""
+    """Actualiza reserva existente (multi-tipo: vuelos, hoteles, etc.)"""
     from datetime import datetime as dt
-    
+
     # Actualizar fecha_salida si cambió
     fecha_salida_str = vuelo_data.get('fecha_salida')
     hora_salida = vuelo_data.get('hora_salida', '')
@@ -377,7 +391,7 @@ def update_flight(viaje, vuelo_data):
             viaje.fecha_salida = nueva_fecha
         except:
             pass
-    
+
     # Actualizar fecha_llegada si cambió
     fecha_llegada_str = vuelo_data.get('fecha_llegada')
     hora_llegada = vuelo_data.get('hora_llegada', '')
@@ -390,23 +404,70 @@ def update_flight(viaje, vuelo_data):
             viaje.fecha_llegada = nueva_fecha
         except:
             pass
-    
-    # Actualizar otros campos
+
+    # Actualizar horarios
     if vuelo_data.get('hora_salida'):
         viaje.hora_salida = vuelo_data.get('hora_salida')
     if vuelo_data.get('hora_llegada'):
         viaje.hora_llegada = vuelo_data.get('hora_llegada')
+
+    # Actualizar campos específicos de vuelos (si aplica)
     if vuelo_data.get('asiento'):
         viaje.asiento = vuelo_data.get('asiento')
     if vuelo_data.get('terminal'):
         viaje.terminal = vuelo_data.get('terminal')
     if vuelo_data.get('puerta'):
         viaje.puerta = vuelo_data.get('puerta')
-    
+
+    # Actualizar campos multi-tipo
+    tipo = vuelo_data.get('tipo', 'vuelo')
+    if tipo == 'vuelo':
+        if vuelo_data.get('aerolinea'):
+            viaje.proveedor = vuelo_data.get('aerolinea')
+    elif tipo == 'hotel':
+        if vuelo_data.get('nombre_propiedad'):
+            viaje.proveedor = vuelo_data.get('nombre_propiedad')
+        if vuelo_data.get('direccion'):
+            viaje.ubicacion = vuelo_data.get('direccion')
+    elif tipo in ['crucero', 'barco']:
+        if vuelo_data.get('compania') or vuelo_data.get('embarcacion'):
+            viaje.proveedor = vuelo_data.get('compania') or vuelo_data.get('embarcacion')
+    elif tipo == 'auto':
+        if vuelo_data.get('empresa'):
+            viaje.proveedor = vuelo_data.get('empresa')
+    elif tipo == 'restaurante':
+        if vuelo_data.get('nombre'):
+            viaje.proveedor = vuelo_data.get('nombre')
+        if vuelo_data.get('direccion'):
+            viaje.ubicacion = vuelo_data.get('direccion')
+    elif tipo == 'espectaculo':
+        if vuelo_data.get('evento'):
+            viaje.proveedor = vuelo_data.get('evento')
+        if vuelo_data.get('venue'):
+            viaje.ubicacion = vuelo_data.get('venue')
+    elif tipo == 'actividad':
+        if vuelo_data.get('proveedor') or vuelo_data.get('nombre'):
+            viaje.proveedor = vuelo_data.get('proveedor') or vuelo_data.get('nombre')
+        if vuelo_data.get('punto_encuentro'):
+            viaje.ubicacion = vuelo_data.get('punto_encuentro')
+    elif tipo == 'tren':
+        if vuelo_data.get('operador'):
+            viaje.proveedor = vuelo_data.get('operador')
+    elif tipo == 'transfer':
+        if vuelo_data.get('empresa'):
+            viaje.proveedor = vuelo_data.get('empresa')
+
+    # Actualizar precio si existe
+    if vuelo_data.get('precio_total'):
+        viaje.precio = vuelo_data.get('precio_total')
+
+    # Actualizar raw_data siempre
+    viaje.raw_data = json.dumps(vuelo_data, ensure_ascii=False)
+
     viaje.actualizado = datetime.now()
     db.session.commit()
-    
-    print(f'  ✅ Vuelo actualizado (ID: {viaje.id})')
+
+    print(f'  ✅ {tipo.capitalize()} actualizado (ID: {viaje.id})')
 
 if __name__ == '__main__':
     process_emails()
