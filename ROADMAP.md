@@ -178,25 +178,27 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
-| **14-EXT** | Claude detecta hoteles, restaurantes, citas (no solo vuelos) | - |
-| **MVP-REF** | Refactor BD: Viaje → Evento + extensiones | 14-EXT |
+| **BUG** | Gmail OAuth expirado - Webhook no funciona | - |
+| **BUG** | Matching pasajeros solo funciona en vuelos (extender a multi-tipo) | - |
+| **MVP16** | Carga manual multi-tipo (UI para agregar hoteles, restaurantes, etc.) | - |
 
 ### Prioridad Media
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
+| **UX** | Eliminar reserva individual sin desagrupar | - |
+| **UX** | Reorganizar acciones y menú hamburguesa | - |
+| **BUG** | Moorings/charter: mejorar extracción de info | - |
 | **14i/14j** | Guías in-app para Apple Mail y Outlook app | 14-UX |
 | **MVP13b** | Envío de notificaciones (email cuando FR24 detecta cambio) | - |
-| **MVP15** | Compartir viajes (tab "Compartidos", invitar por email) | MVP-REF |
-| **MVP-HOTEL** | Soporte completo para hoteles | MVP-REF |
 
 ### Prioridad Baja
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
+| **MVP-SHARE** | Compartir viajes (jerarquía: todo → viaje → reserva → segmento) | - |
 | **MVP16** | Backoffice admin (usuarios, stats) | - |
-| **MVP-REST** | Soporte para restaurantes | MVP-REF |
-| **MVP-CITA** | Soporte para citas médicas | MVP-REF |
+| **MVP-REF** | Refactor BD: Viaje → Evento + extensiones (si es necesario) | - |
 
 ---
 

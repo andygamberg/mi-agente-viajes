@@ -378,6 +378,133 @@ else:
 
 ---
 
+---
+
+## 🐛 Sesión 21 - Bugs Adicionales (15 Dic 2025)
+
+### Bug: 'int' object is not iterable
+
+**CONTEXTO:** Emails de veleros/charters (Moorings, Belize)
+
+**CAUSA:** Claude devuelve `pasajeros: 8` (int) para veleros/charters
+El código intentaba iterar como lista: `for p in pasajeros`
+
+**FIX:** Validar `isinstance(pasajeros, int)` antes de iterar
+
+```python
+if pasajeros:
+    if isinstance(pasajeros, int):
+        pasajeros_json = json.dumps([{"cantidad": pasajeros}])
+    elif isinstance(pasajeros, list):
+        pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+```
+
+**UBICACIÓN:** `blueprints/viajes.py` línea 367-373, `blueprints/gmail_webhook.py` línea 365+
+
+### Bug: Gmail OAuth expirado
+
+**SÍNTOMA:** `RefreshError: invalid_client: The OAuth client was not found`
+
+**CAUSA:** Credenciales OAuth de Gmail caducaron o fueron revocadas
+
+**IMPACTO:** Push notifications de Gmail **NO funcionan**. Webhook recibe notificaciones pero no puede procesar emails.
+
+**FIX:** Reconectar Gmail desde la app
+1. Ir a app → Perfil → Emails
+2. Desconectar Gmail
+3. Reconectar Gmail
+4. Verificar webhook funciona
+
+### Bug: Expediciones sin fecha
+
+**SÍNTOMA:** `NotNullViolation: null value in column "fecha_salida"`
+
+**CAUSA:** Emails de expediciones (Antártida) no tienen fecha específica. Claude devolvía objeto sin fecha.
+
+**FIX 1:** Prompt de Claude mejorado
+```
+IMPORTANTE - VALIDACIÓN:
+- Si no podés extraer una fecha válida → NO incluyas el objeto en el array
+- NUNCA devolver objetos con fecha_salida: null
+```
+
+**FIX 2:** Validación pre-guardado en webhook y carga_rapida
+```python
+fecha_str = v.get('fecha_salida') or v.get('fecha_embarque') or v.get('fecha') or ...
+if not fecha_str:
+    print(f"⚠️ Reserva sin fecha, ignorando")
+    continue
+```
+
+### Bug: codigo_reserva demasiado largo
+
+**SÍNTOMA:** `StringDataRightTruncation: value too long for type character varying(50)`
+
+**CAUSA:** Códigos de expediciones muy largos: `Antarctica_Photo_Expedition_with_AntonioS.Chamorro_2026` (60 chars)
+
+**FIX 1:** Aumentar límite en BD
+```sql
+ALTER TABLE viaje ALTER COLUMN codigo_reserva TYPE VARCHAR(255);
+```
+
+**FIX 2:** Truncar en código si es muy largo
+```python
+if len(codigo) > 250:
+    codigo = codigo[:250]
+```
+
+---
+
+## 📚 Metodología - Debugging Multi-Capa
+
+**Proceso para bugs de extracción/guardado:**
+
+1. **Identificar síntoma exacto**
+   - Error de BD? → Ver constraint violado
+   - No aparece en UI? → Ver qué hay en BD
+
+2. **Verificar qué devuelve Claude**
+   - Revisar logs: `📝 JSON RECIBIDO DE CLAUDE:`
+   - Verificar estructura del objeto
+
+3. **Verificar qué se guarda en BD**
+   - Ver logs SQL: `INSERT INTO viaje ...`
+   - Ver parámetros enviados
+
+4. **Verificar qué muestra el template**
+   - Leer código Jinja2
+   - Ver qué variables están disponibles
+
+5. **Buscar la capa donde falla**
+   - Claude → Guardado → Template
+   - Identificar transformaciones entre capas
+
+**Ejemplos reales:**
+- **La Fenice 4 registros:** Falla en capa Claude (prompt)
+- **Título "None":** Falla en capa Template (filtros)
+- **Expedición sin fecha:** Falla en capa Guardado (validación)
+
+---
+
+## 🧪 Testing con Datos Reales
+
+**Lección:** PDFs reales revelan edge cases que casos de prueba no cubren
+
+**Casos edge encontrados:**
+- **La Fenice:** 4 entradas del mismo evento → necesita consolidación
+- **Buquebus:** Ferry con vehículos → necesita hora específica
+- **Moorings:** Charter con pasajeros como int → necesita validación de tipos
+- **Antártida:** Expedición sin fecha confirmada → necesita rechazo graceful
+
+**Pattern:** Siempre que se agrega un tipo nuevo:
+1. Probar con PDF/email real
+2. Ver qué devuelve Claude
+3. Ver qué se guarda
+4. Ver qué se muestra
+5. Iterar hasta que funcione
+
+---
+
 ## 🔄 Historial de Cambios
 
 | Fecha | Aprendizaje |
@@ -387,6 +514,8 @@ else:
 | 15 Dic 2025 | Bugs: Desagrupar oculto, título "None", persistencia nombre |
 | 15 Dic 2025 | MVP15: Multi-tipo completado |
 | 15 Dic 2025 | Privacidad: Precio oculto en UI |
+| 15 Dic 2025 | Bugs adicionales: int pasajeros, Gmail OAuth, expediciones, codigo_reserva largo |
+| 15 Dic 2025 | Metodología: Debugging multi-capa, Testing con datos reales |
 
 ---
 
