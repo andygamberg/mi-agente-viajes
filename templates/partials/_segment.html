@@ -2,18 +2,18 @@
   Partial para renderizar un segmento de reserva.
   Usa datos JSONB con fallback a columnas legacy.
 
-  Recibe: viaje (objeto Viaje)
+  Recibe: vuelo (objeto Viaje)
 #}
-{% set d = viaje.datos or {} %}
-{% set tipo = viaje.tipo or 'vuelo' %}
+{% set d = vuelo.datos or {} %}
+{% set tipo = vuelo.tipo or 'vuelo' %}
 
 <div class="segment-content">
     {# ========== VUELO ========== #}
     {% if tipo == 'vuelo' %}
         <div class="segment-route">
-            <span class="route-point">{{ d.origen or viaje.origen or '?' }}</span>
+            <span class="route-point">{{ d.origen or vuelo.origen or '?' }}</span>
             <span class="route-arrow">→</span>
-            <span class="route-point">{{ d.destino or viaje.destino or '?' }}</span>
+            <span class="route-point">{{ d.destino or vuelo.destino or '?' }}</span>
         </div>
         <div class="segment-details">
             {% if d.aerolinea or d.numero_vuelo %}
@@ -41,11 +41,11 @@
     {% elif tipo == 'hotel' %}
         <div class="segment-main">
             <span class="detail-label">Hotel:</span>
-            <span class="detail-value">{{ d.nombre_propiedad or viaje.proveedor or 'Hotel' }}</span>
+            <span class="detail-value">{{ d.nombre_propiedad or vuelo.proveedor or 'Hotel' }}</span>
         </div>
-        {% if d.direccion or viaje.ubicacion %}
+        {% if d.direccion or vuelo.ubicacion %}
             <div class="segment-details">
-                <span class="detail">{{ d.direccion or viaje.ubicacion }}</span>
+                <span class="detail">{{ d.direccion or vuelo.ubicacion }}</span>
             </div>
         {% endif %}
         <div class="segment-dates">
@@ -60,9 +60,9 @@
     {# ========== CRUCERO / FERRY ========== #}
     {% elif tipo in ['crucero', 'barco'] %}
         <div class="segment-route">
-            <span class="route-point">{{ d.puerto_embarque or viaje.origen or '?' }}</span>
+            <span class="route-point">{{ d.puerto_embarque or vuelo.origen or '?' }}</span>
             <span class="route-arrow">→</span>
-            <span class="route-point">{{ d.puerto_desembarque or viaje.destino or '?' }}</span>
+            <span class="route-point">{{ d.puerto_desembarque or vuelo.destino or '?' }}</span>
         </div>
         <div class="segment-details">
             {% if d.hora_embarque %}
@@ -103,9 +103,9 @@
     {# ========== AUTO ========== #}
     {% elif tipo == 'auto' %}
         <div class="segment-route">
-            <span class="route-point">{{ d.lugar_retiro or viaje.origen or '?' }}</span>
+            <span class="route-point">{{ d.lugar_retiro or vuelo.origen or '?' }}</span>
             <span class="route-arrow">→</span>
-            <span class="route-point">{{ d.lugar_devolucion or viaje.destino or '?' }}</span>
+            <span class="route-point">{{ d.lugar_devolucion or vuelo.destino or '?' }}</span>
         </div>
         <div class="segment-details">
             {% if d.empresa %}
@@ -122,11 +122,11 @@
     {# ========== RESTAURANTE ========== #}
     {% elif tipo == 'restaurante' %}
         <div class="segment-main">
-            <span class="detail-value">{{ d.nombre or viaje.proveedor or 'Restaurante' }}</span>
+            <span class="detail-value">{{ d.nombre or vuelo.proveedor or 'Restaurante' }}</span>
         </div>
         <div class="segment-details">
-            {% if d.direccion or viaje.ubicacion %}
-                <span class="detail">{{ d.direccion or viaje.ubicacion }}</span>
+            {% if d.direccion or vuelo.ubicacion %}
+                <span class="detail">{{ d.direccion or vuelo.ubicacion }}</span>
             {% endif %}
             {% if d.hora %}
                 <span class="detail">Hora: {{ d.hora }}</span>
@@ -139,11 +139,11 @@
     {# ========== ESPECTÁCULO ========== #}
     {% elif tipo == 'espectaculo' %}
         <div class="segment-main">
-            <span class="detail-value">{{ d.evento or viaje.descripcion or 'Espectáculo' }}</span>
+            <span class="detail-value">{{ d.evento or vuelo.descripcion or 'Espectáculo' }}</span>
         </div>
         <div class="segment-details">
-            {% if d.venue or viaje.ubicacion %}
-                <span class="detail">{{ d.venue or viaje.ubicacion }}</span>
+            {% if d.venue or vuelo.ubicacion %}
+                <span class="detail">{{ d.venue or vuelo.ubicacion }}</span>
             {% endif %}
             {% if d.hora %}
                 <span class="detail">Hora: {{ d.hora }}</span>
@@ -170,7 +170,7 @@
     {# ========== ACTIVIDAD ========== #}
     {% elif tipo == 'actividad' %}
         <div class="segment-main">
-            <span class="detail-value">{{ d.nombre or viaje.descripcion or 'Actividad' }}</span>
+            <span class="detail-value">{{ d.nombre or vuelo.descripcion or 'Actividad' }}</span>
         </div>
         <div class="segment-details">
             {% if d.punto_encuentro %}
@@ -187,9 +187,9 @@
     {# ========== TREN ========== #}
     {% elif tipo == 'tren' %}
         <div class="segment-route">
-            <span class="route-point">{{ d.origen or viaje.origen or '?' }}</span>
+            <span class="route-point">{{ d.origen or vuelo.origen or '?' }}</span>
             <span class="route-arrow">→</span>
-            <span class="route-point">{{ d.destino or viaje.destino or '?' }}</span>
+            <span class="route-point">{{ d.destino or vuelo.destino or '?' }}</span>
         </div>
         <div class="segment-details">
             {% if d.operador %}
@@ -206,9 +206,9 @@
     {# ========== TRANSFER ========== #}
     {% elif tipo == 'transfer' %}
         <div class="segment-route">
-            <span class="route-point">{{ d.origen or viaje.origen or '?' }}</span>
+            <span class="route-point">{{ d.origen or vuelo.origen or '?' }}</span>
             <span class="route-arrow">→</span>
-            <span class="route-point">{{ d.destino or viaje.destino or '?' }}</span>
+            <span class="route-point">{{ d.destino or vuelo.destino or '?' }}</span>
         </div>
         <div class="segment-details">
             {% if d.empresa %}
@@ -222,13 +222,13 @@
     {# ========== DEFAULT ========== #}
     {% else %}
         <div class="segment-main">
-            <span class="detail-value">{{ d.descripcion or viaje.descripcion or 'Reserva' }}</span>
+            <span class="detail-value">{{ d.descripcion or vuelo.descripcion or 'Reserva' }}</span>
         </div>
-        {% if viaje.origen and viaje.destino %}
+        {% if vuelo.origen and vuelo.destino %}
             <div class="segment-route">
-                <span class="route-point">{{ viaje.origen }}</span>
+                <span class="route-point">{{ vuelo.origen }}</span>
                 <span class="route-arrow">→</span>
-                <span class="route-point">{{ viaje.destino }}</span>
+                <span class="route-point">{{ vuelo.destino }}</span>
             </div>
         {% endif %}
     {% endif %}
