@@ -13,6 +13,8 @@ from utils.iata import get_ciudad_nombre
 from utils.claude import extraer_info_con_claude
 from utils.helpers import calcular_ciudad_principal, normalize_name, get_viajes_for_user
 from utils.save_reservation import save_reservation
+from utils.schema_helpers import get_dato, get_titulo_card, get_subtitulo_card
+from config.schemas import RESERVATION_SCHEMAS, get_schema
 
 viajes_bp = Blueprint('viajes', __name__)
 
@@ -149,11 +151,16 @@ def index():
     # Badge de perfil incompleto (mostrar si nombre_pax vacío)
     profile_incomplete = not current_user.nombre_pax
     
+    # Pasar helpers al template
     return render_template('index.html',
                            proximos=proximos,
                            pasados=pasados,
                            show_onboarding=show_onboarding,
-                           profile_incomplete=profile_incomplete)
+                           profile_incomplete=profile_incomplete,
+                           get_dato=get_dato,
+                           get_titulo_card=get_titulo_card,
+                           get_subtitulo_card=get_subtitulo_card,
+                           get_schema=get_schema)
 
 
 @viajes_bp.route('/bienvenida')

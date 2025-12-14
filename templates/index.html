@@ -1237,51 +1237,11 @@
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
 
-                        {# Computar título default basado en tipo #}
+                        {# Computar título usando helper #}
                         {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
                             {% set titulo_default = primer_vuelo.nombre_viaje %}
-                        {% elif primer_vuelo.tipo == 'vuelo' %}
-                            {# Buscar el último vuelo del grupo para obtener destino final #}
-                            {% set ultimo_vuelo = grupo|selectattr('tipo', 'equalto', 'vuelo')|list|last %}
-                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim and ultimo_vuelo.destino != 'None' %}
-                                {% set titulo_default = 'Viaje a ' ~ ultimo_vuelo.destino %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
-                            {% endif %}
-                        {% elif primer_vuelo.tipo == 'hotel' %}
-                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' %}
-                        {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                {% if primer_vuelo.proveedor %}
-                                    {% set titulo_default = primer_vuelo.proveedor ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                                {% else %}
-                                    {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                                {% endif %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' %}
-                            {% endif %}
-                        {% elif primer_vuelo.tipo == 'espectaculo' %}
-                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' %}
-                        {% elif primer_vuelo.tipo == 'restaurante' %}
-                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' %}
-                        {% elif primer_vuelo.tipo == 'actividad' %}
-                            {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' %}
-                        {% elif primer_vuelo.tipo == 'auto' %}
-                            {% set titulo_default = (primer_vuelo.proveedor or 'Rental') ~ (' - ' ~ primer_vuelo.origen if primer_vuelo.origen else '') %}
-                        {% elif primer_vuelo.tipo == 'tren' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
-                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Tren' %}
-                            {% endif %}
-                        {% elif primer_vuelo.tipo == 'transfer' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
-                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Transfer' %}
-                            {% endif %}
                         {% else %}
-                            {% set titulo_default = primer_vuelo.descripcion or 'Reserva' %}
+                            {% set titulo_default = get_titulo_card(primer_vuelo) %}
                         {% endif %}
 
                         <div class="card-title-row">
@@ -1637,51 +1597,11 @@
                             <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
                         </div>
 
-                        {# Computar título default basado en tipo #}
+                        {# Computar título usando helper #}
                         {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
                             {% set titulo_default = primer_vuelo.nombre_viaje %}
-                        {% elif primer_vuelo.tipo == 'vuelo' %}
-                            {# Buscar el último vuelo del grupo para obtener destino final #}
-                            {% set ultimo_vuelo = grupo|selectattr('tipo', 'equalto', 'vuelo')|list|last %}
-                            {% if ultimo_vuelo and ultimo_vuelo.destino and ultimo_vuelo.destino|trim and ultimo_vuelo.destino != 'None' %}
-                                {% set titulo_default = 'Viaje a ' ~ ultimo_vuelo.destino %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or 'Vuelo' %}
-                            {% endif %}
-                        {% elif primer_vuelo.tipo == 'hotel' %}
-                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Hotel' %}
-                        {% elif primer_vuelo.tipo == 'barco' or primer_vuelo.tipo == 'crucero' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino %}
-                                {% if primer_vuelo.proveedor %}
-                                    {% set titulo_default = primer_vuelo.proveedor ~ ' ' ~ primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                                {% else %}
-                                    {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                                {% endif %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Navegación' %}
-                            {% endif %}
-                        {% elif primer_vuelo.tipo == 'espectaculo' %}
-                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Espectáculo' %}
-                        {% elif primer_vuelo.tipo == 'restaurante' %}
-                            {% set titulo_default = primer_vuelo.proveedor or primer_vuelo.descripcion or 'Restaurante' %}
-                        {% elif primer_vuelo.tipo == 'actividad' %}
-                            {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Actividad' %}
-                        {% elif primer_vuelo.tipo == 'auto' %}
-                            {% set titulo_default = (primer_vuelo.proveedor or 'Rental') ~ (' - ' ~ primer_vuelo.origen if primer_vuelo.origen else '') %}
-                        {% elif primer_vuelo.tipo == 'tren' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
-                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Tren' %}
-                            {% endif %}
-                        {% elif primer_vuelo.tipo == 'transfer' %}
-                            {% if primer_vuelo.origen and primer_vuelo.destino and primer_vuelo.origen|trim and primer_vuelo.destino|trim %}
-                                {% set titulo_default = primer_vuelo.origen ~ ' → ' ~ primer_vuelo.destino %}
-                            {% else %}
-                                {% set titulo_default = primer_vuelo.descripcion or primer_vuelo.proveedor or 'Transfer' %}
-                            {% endif %}
                         {% else %}
-                            {% set titulo_default = primer_vuelo.descripcion or 'Reserva' %}
+                            {% set titulo_default = get_titulo_card(primer_vuelo) %}
                         {% endif %}
 
                         <div class="card-title-row">
