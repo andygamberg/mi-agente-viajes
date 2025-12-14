@@ -15,6 +15,9 @@ COPY . .
 # Agregar /app al PYTHONPATH
 ENV PYTHONPATH=/app
 
+# Desactivar buffering de Python para ver logs en tiempo real
+ENV PYTHONUNBUFFERED=1
+
 EXPOSE 8080
 
-CMD ["python", "-c", "import sys; sys.path.insert(0, '/app'); from app import app; from gunicorn.app.wsgiapp import run; sys.argv = ['gunicorn', '--bind', '0.0.0.0:8080', '--workers', '1', '--threads', '8', 'app:app']; run()"]
+CMD ["python", "-c", "import sys; sys.path.insert(0, '/app'); from app import app; from gunicorn.app.wsgiapp import run; sys.argv = ['gunicorn', '--bind', '0.0.0.0:8080', '--workers', '1', '--threads', '8', '--access-logfile', '-', '--error-logfile', '-', '--log-level', 'info', 'app:app']; run()"]
