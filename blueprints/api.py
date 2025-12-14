@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 from models import db, Viaje, User
 from utils.claude import extraer_info_con_claude
+from utils.save_reservation import save_reservation
 
 api_bp = Blueprint('api', __name__)
 
@@ -43,18 +44,15 @@ def api_process_email_text():
         
         vuelos_creados = 0
         for vuelo_data in vuelos:
-            viaje = Viaje(
-                tipo="vuelo",
-                descripcion=f"{vuelo_data.get('origen')} -> {vuelo_data.get('destino')}",
-                origen=vuelo_data.get("origen"),
-                destino=vuelo_data.get("destino"),
-                fecha_salida=vuelo_data.get("fecha_salida"),
-                hora_salida=vuelo_data.get("hora_salida"),
-                aerolinea=vuelo_data.get("aerolinea"),
-                numero_vuelo=vuelo_data.get("numero_vuelo")
-            )
-            db.session.add(viaje)
-            vuelos_creados += 1
+            try:
+                viaje = save_reservation(
+                    user_id=None,  # API sin usuario
+                    datos_dict=vuelo_data
+                )
+                vuelos_creados += 1
+            except ValueError as e:
+                print(f"⚠️ {e}")
+                continue
         
         db.session.commit()
         return {"success": True, "vuelos_creados": vuelos_creados}, 200
@@ -92,56 +90,15 @@ def api_auto_process():
         
         vuelos_creados = 0
         for v in vuelos:
-            tipo = v.get('tipo', 'vuelo')
-
-            # Extraer campos comunes
-            proveedor = None
-            ubicacion = None
-            precio = v.get('precio_total')
-
-            # Mapear campos específicos por tipo
-            if tipo == 'vuelo':
-                proveedor = v.get('aerolinea')
-            elif tipo == 'hotel':
-                proveedor = v.get('nombre_propiedad')
-                ubicacion = v.get('direccion')
-            elif tipo == 'crucero':
-                proveedor = v.get('compania') or v.get('embarcacion')
-            elif tipo == 'auto':
-                proveedor = v.get('empresa')
-            elif tipo == 'restaurante':
-                proveedor = v.get('nombre')
-                ubicacion = v.get('direccion')
-            elif tipo == 'espectaculo':
-                proveedor = v.get('evento')
-                ubicacion = v.get('venue')
-            elif tipo == 'actividad':
-                proveedor = v.get('proveedor') or v.get('nombre')
-                ubicacion = v.get('punto_encuentro')
-            elif tipo == 'tren':
-                proveedor = v.get('operador')
-            elif tipo == 'transfer':
-                proveedor = v.get('empresa')
-
-            viaje = Viaje(
-                tipo=tipo,
-                descripcion=v.get('descripcion', f"{v.get('origen','')} → {v.get('destino','')}"),
-                origen=v.get('origen'),
-                destino=v.get('destino'),
-                fecha_salida=v.get('fecha_salida'),
-                hora_salida=v.get('hora_salida'),
-                aerolinea=v.get('aerolinea') if tipo == 'vuelo' else None,
-                numero_vuelo=v.get('numero_vuelo') if tipo == 'vuelo' else None,
-                codigo_reserva=v.get('codigo_reserva'),
-                pasajeros=json.dumps(v.get('pasajeros', [])) if v.get('pasajeros') else None,
-                # Nuevos campos multi-tipo
-                proveedor=proveedor,
-                ubicacion=ubicacion,
-                precio=precio,
-                raw_data=json.dumps(v, ensure_ascii=False)
-            )
-            db.session.add(viaje)
-            vuelos_creados += 1
+            try:
+                viaje = save_reservation(
+                    user_id=None,  # API sin usuario
+                    datos_dict=v
+                )
+                vuelos_creados += 1
+            except ValueError as e:
+                print(f"⚠️ {e}")
+                continue
         
         db.session.commit()
         return jsonify({'success': True, 'vuelos_creados': vuelos_creados}), 200

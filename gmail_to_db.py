@@ -11,6 +11,7 @@ from app import app
 from utils import extraer_info_con_claude, get_ciudad_nombre
 from models import db, Viaje, User, UserEmail
 from datetime import datetime
+from utils.save_reservation import save_reservation, update_reservation
 
 
 def normalize_name(name):
@@ -260,79 +261,7 @@ def check_duplicate(vuelo_data):
     return None
 
 def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None):
-    """Crea nuevo vuelo en BD"""
-    from datetime import datetime
-    
-    # Normalizar fechas según tipo de reserva
-    tipo = vuelo_data.get('tipo', 'vuelo')
-
-    # Obtener fecha de inicio (puede tener diferentes nombres según el tipo)
-    fecha_salida = None
-    fecha_salida_str = None
-    hora_salida = ''
-
-    if tipo in ['crucero', 'barco']:
-        fecha_salida_str = vuelo_data.get('fecha_embarque')
-        hora_salida = vuelo_data.get('hora_embarque', '')
-    elif tipo == 'hotel':
-        fecha_salida_str = vuelo_data.get('fecha_checkin')
-        hora_salida = vuelo_data.get('hora_checkin', '')
-    elif tipo in ['restaurante', 'espectaculo', 'actividad']:
-        fecha_salida_str = vuelo_data.get('fecha')
-        hora_salida = vuelo_data.get('hora', '')
-    else:  # vuelo, tren, transfer, auto
-        fecha_salida_str = vuelo_data.get('fecha_salida')
-        hora_salida = vuelo_data.get('hora_salida', '')
-
-    # Parsear fecha_salida
-    if fecha_salida_str:
-        try:
-            if hora_salida:
-                fecha_salida = datetime.strptime(f"{fecha_salida_str} {hora_salida}", '%Y-%m-%d %H:%M')
-            else:
-                fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
-        except:
-            try:
-                fecha_salida = datetime.strptime(fecha_salida_str, '%Y-%m-%d')
-            except:
-                pass
-
-    # Obtener fecha de fin (puede tener diferentes nombres según el tipo)
-    fecha_llegada = None
-    fecha_llegada_str = None
-    hora_llegada = ''
-
-    if tipo in ['crucero', 'barco']:
-        fecha_llegada_str = vuelo_data.get('fecha_desembarque')
-        hora_llegada = vuelo_data.get('hora_desembarque', '')
-    elif tipo == 'hotel':
-        fecha_llegada_str = vuelo_data.get('fecha_checkout')
-        hora_llegada = vuelo_data.get('hora_checkout', '')
-    elif tipo == 'auto':
-        fecha_llegada_str = vuelo_data.get('fecha_devolucion')
-        hora_llegada = vuelo_data.get('hora_devolucion', '')
-    else:  # vuelo, tren, transfer, restaurante, espectaculo, actividad
-        fecha_llegada_str = vuelo_data.get('fecha_llegada')
-        hora_llegada = vuelo_data.get('hora_llegada', '')
-
-    # Parsear fecha_llegada
-    if fecha_llegada_str:
-        try:
-            if hora_llegada:
-                fecha_llegada = datetime.strptime(f"{fecha_llegada_str} {hora_llegada}", '%Y-%m-%d %H:%M')
-            else:
-                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
-        except:
-            try:
-                fecha_llegada = datetime.strptime(fecha_llegada_str, '%Y-%m-%d')
-            except:
-                pass
-    
-    # Validación: fecha_salida es obligatoria (NOT NULL en BD)
-    if not fecha_salida:
-        print(f'  ⚠️ Saltando {tipo} sin fecha válida: {vuelo_data.get("descripcion", "sin descripción")}')
-        return
-
+    """Crea nueva reserva usando función unificada"""
     # Buscar usuario por email remitente
     user_id = None
     if from_email:
@@ -341,7 +270,7 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
         email_match = re.search(r'<(.+?)>', from_email)
         clean_email = email_match.group(1) if email_match else from_email
         clean_email = clean_email.strip().lower()
-        
+
         # Buscar por email principal
         user = User.query.filter_by(email=clean_email).first()
         if user:
@@ -361,297 +290,24 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
                 user_id = find_user_by_passenger(pasajeros)
                 if user_id:
                     print(f'  ✅ Usuario asignado por nombre de pasajero')
-    
-    # Mapear campos según tipo (REPLICAR lógica de carga_rapida que funciona)
-    tipo = vuelo_data.get('tipo', 'vuelo')
-    proveedor = None
-    ubicacion = None
-    precio = vuelo_data.get('precio_total')
-    origen = None
-    destino = None
-    pasajeros_json = None
 
-    if tipo == 'vuelo':
-        proveedor = vuelo_data.get('aerolinea')
-        origen = vuelo_data.get('origen')
-        destino = vuelo_data.get('destino')
-        pasajeros = vuelo_data.get('pasajeros', [])
-        if pasajeros:
-            pasajeros_json = json.dumps(pasajeros)
-
-    elif tipo == 'hotel':
-        proveedor = vuelo_data.get('nombre_propiedad')
-        ubicacion = vuelo_data.get('direccion')
-        precio = vuelo_data.get('precio_total')
-        huespedes = vuelo_data.get('huespedes', [])
-        if huespedes:
-            pasajeros_json = json.dumps([{"nombre": h} for h in huespedes])
-
-    elif tipo in ['crucero', 'barco']:
-        origen = vuelo_data.get('puerto_embarque')
-        destino = vuelo_data.get('puerto_desembarque')
-        proveedor = vuelo_data.get('compania') or vuelo_data.get('embarcacion')
-        precio = vuelo_data.get('precio_total')
-        pasajeros = vuelo_data.get('pasajeros', [])
-        if pasajeros:
-            # Validar si es int (cantidad) o lista (nombres)
-            if isinstance(pasajeros, int):
-                pasajeros_json = json.dumps([{"cantidad": pasajeros}])
-            elif isinstance(pasajeros, list):
-                pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
-
-    elif tipo == 'auto':
-        proveedor = vuelo_data.get('empresa')
-        origen = vuelo_data.get('lugar_retiro')
-        destino = vuelo_data.get('lugar_devolucion')
-        precio = vuelo_data.get('precio_total')
-
-    elif tipo == 'restaurante':
-        proveedor = vuelo_data.get('nombre')
-        ubicacion = vuelo_data.get('direccion')
-        precio = vuelo_data.get('precio_total')
-
-    elif tipo == 'espectaculo':
-        proveedor = vuelo_data.get('evento')
-        ubicacion = vuelo_data.get('venue')
-        precio = vuelo_data.get('precio_total')
-        entradas = vuelo_data.get('entradas', [])
-        if entradas:
-            pasajeros_json = json.dumps([{"asiento": e.get('asiento', ''), "seccion": e.get('seccion', '')} for e in entradas])
-
-    elif tipo == 'actividad':
-        proveedor = vuelo_data.get('proveedor') or vuelo_data.get('nombre')
-        ubicacion = vuelo_data.get('punto_encuentro')
-        precio = vuelo_data.get('precio_total')
-        participantes = vuelo_data.get('participantes', [])
-        if participantes:
-            pasajeros_json = json.dumps([{"nombre": p} for p in participantes])
-
-    elif tipo == 'tren':
-        proveedor = vuelo_data.get('operador')
-        origen = vuelo_data.get('origen')
-        destino = vuelo_data.get('destino')
-        pasajeros = vuelo_data.get('pasajeros', [])
-        if pasajeros:
-            pasajeros_json = json.dumps(pasajeros)
-
-    elif tipo == 'transfer':
-        proveedor = vuelo_data.get('empresa')
-        origen = vuelo_data.get('origen')
-        destino = vuelo_data.get('destino')
-
-    viaje = Viaje(
-        user_id=user_id,
-        tipo=tipo,
-        descripcion=vuelo_data.get('descripcion', ''),
-        origen=origen or '',
-        destino=destino or '',
-        fecha_salida=fecha_salida,
-        fecha_llegada=fecha_llegada,
-        hora_salida=hora_salida,
-        hora_llegada=hora_llegada,
-        aerolinea=vuelo_data.get('aerolinea', '') if tipo == 'vuelo' else None,
-        numero_vuelo=vuelo_data.get('numero_vuelo', '') if tipo == 'vuelo' else None,
-        codigo_reserva=vuelo_data.get('codigo_reserva', ''),
-        pasajeros=pasajeros_json,
-        grupo_viaje=grupo_id,
-        nombre_viaje=nombre_viaje,
-        # Nuevos campos multi-tipo
-        proveedor=proveedor,
-        ubicacion=ubicacion,
-        precio=precio,
-        raw_data=json.dumps(vuelo_data, ensure_ascii=False)
-    )
-
-    db.session.add(viaje)
-    db.session.commit()
-
-    print(f'  ✅ {tipo.capitalize()} guardado (ID: {viaje.id})')
+    try:
+        viaje = save_reservation(
+            user_id=user_id,
+            datos_dict=vuelo_data,
+            grupo_id=grupo_id,
+            nombre_viaje=nombre_viaje
+        )
+        db.session.commit()
+        print(f'  ✅ {vuelo_data.get("tipo", "vuelo").capitalize()} guardado (ID: {viaje.id})')
+    except ValueError as e:
+        print(f'  ⚠️ {e}')
 
 def update_flight(viaje, vuelo_data):
-    """Actualiza reserva existente (multi-tipo: vuelos, hoteles, etc.)"""
-    from datetime import datetime as dt
-
-    # Normalizar fechas según tipo de reserva
-    tipo = vuelo_data.get('tipo', 'vuelo')
-
-    # Obtener fecha de inicio (puede tener diferentes nombres según el tipo)
-    fecha_salida_str = None
-    hora_salida = ''
-
-    if tipo in ['crucero', 'barco']:
-        fecha_salida_str = vuelo_data.get('fecha_embarque')
-        hora_salida = vuelo_data.get('hora_embarque', '')
-    elif tipo == 'hotel':
-        fecha_salida_str = vuelo_data.get('fecha_checkin')
-        hora_salida = vuelo_data.get('hora_checkin', '')
-    elif tipo in ['restaurante', 'espectaculo', 'actividad']:
-        fecha_salida_str = vuelo_data.get('fecha')
-        hora_salida = vuelo_data.get('hora', '')
-    else:  # vuelo, tren, transfer, auto
-        fecha_salida_str = vuelo_data.get('fecha_salida')
-        hora_salida = vuelo_data.get('hora_salida', '')
-
-    # Actualizar fecha_salida si cambió
-    if fecha_salida_str:
-        try:
-            if hora_salida:
-                nueva_fecha = dt.strptime(f"{fecha_salida_str} {hora_salida}", '%Y-%m-%d %H:%M')
-            else:
-                nueva_fecha = dt.strptime(fecha_salida_str, '%Y-%m-%d')
-            viaje.fecha_salida = nueva_fecha
-        except:
-            try:
-                nueva_fecha = dt.strptime(fecha_salida_str, '%Y-%m-%d')
-                viaje.fecha_salida = nueva_fecha
-            except:
-                pass
-
-    # Obtener fecha de fin (puede tener diferentes nombres según el tipo)
-    fecha_llegada_str = None
-    hora_llegada = ''
-
-    if tipo in ['crucero', 'barco']:
-        fecha_llegada_str = vuelo_data.get('fecha_desembarque')
-        hora_llegada = vuelo_data.get('hora_desembarque', '')
-    elif tipo == 'hotel':
-        fecha_llegada_str = vuelo_data.get('fecha_checkout')
-        hora_llegada = vuelo_data.get('hora_checkout', '')
-    elif tipo == 'auto':
-        fecha_llegada_str = vuelo_data.get('fecha_devolucion')
-        hora_llegada = vuelo_data.get('hora_devolucion', '')
-    else:  # vuelo, tren, transfer, restaurante, espectaculo, actividad
-        fecha_llegada_str = vuelo_data.get('fecha_llegada')
-        hora_llegada = vuelo_data.get('hora_llegada', '')
-
-    # Actualizar fecha_llegada si cambió
-    if fecha_llegada_str:
-        try:
-            if hora_llegada:
-                nueva_fecha = dt.strptime(f"{fecha_llegada_str} {hora_llegada}", '%Y-%m-%d %H:%M')
-            else:
-                nueva_fecha = dt.strptime(fecha_llegada_str, '%Y-%m-%d')
-            viaje.fecha_llegada = nueva_fecha
-        except:
-            try:
-                nueva_fecha = dt.strptime(fecha_llegada_str, '%Y-%m-%d')
-                viaje.fecha_llegada = nueva_fecha
-            except:
-                pass
-
-    # Actualizar horarios
-    if hora_salida:
-        viaje.hora_salida = hora_salida
-    if hora_llegada:
-        viaje.hora_llegada = hora_llegada
-
-    # Actualizar campos específicos de vuelos (si aplica)
-    if vuelo_data.get('asiento'):
-        viaje.asiento = vuelo_data.get('asiento')
-    if vuelo_data.get('terminal'):
-        viaje.terminal = vuelo_data.get('terminal')
-    if vuelo_data.get('puerta'):
-        viaje.puerta = vuelo_data.get('puerta')
-
-    # Actualizar campos multi-tipo (REPLICAR lógica de carga_rapida)
-    tipo = vuelo_data.get('tipo', 'vuelo')
-
-    if tipo == 'vuelo':
-        if vuelo_data.get('aerolinea'):
-            viaje.proveedor = vuelo_data.get('aerolinea')
-        if vuelo_data.get('origen'):
-            viaje.origen = vuelo_data.get('origen')
-        if vuelo_data.get('destino'):
-            viaje.destino = vuelo_data.get('destino')
-        pasajeros = vuelo_data.get('pasajeros', [])
-        if pasajeros:
-            viaje.pasajeros = json.dumps(pasajeros)
-
-    elif tipo == 'hotel':
-        if vuelo_data.get('nombre_propiedad'):
-            viaje.proveedor = vuelo_data.get('nombre_propiedad')
-        if vuelo_data.get('direccion'):
-            viaje.ubicacion = vuelo_data.get('direccion')
-        huespedes = vuelo_data.get('huespedes', [])
-        if huespedes:
-            viaje.pasajeros = json.dumps([{"nombre": h} for h in huespedes])
-
-    elif tipo in ['crucero', 'barco']:
-        if vuelo_data.get('puerto_embarque'):
-            viaje.origen = vuelo_data.get('puerto_embarque')
-        if vuelo_data.get('puerto_desembarque'):
-            viaje.destino = vuelo_data.get('puerto_desembarque')
-        if vuelo_data.get('compania') or vuelo_data.get('embarcacion'):
-            viaje.proveedor = vuelo_data.get('compania') or vuelo_data.get('embarcacion')
-        pasajeros = vuelo_data.get('pasajeros', [])
-        if pasajeros:
-            if isinstance(pasajeros, int):
-                viaje.pasajeros = json.dumps([{"cantidad": pasajeros}])
-            elif isinstance(pasajeros, list):
-                viaje.pasajeros = json.dumps([{"nombre": p} for p in pasajeros])
-
-    elif tipo == 'auto':
-        if vuelo_data.get('empresa'):
-            viaje.proveedor = vuelo_data.get('empresa')
-        if vuelo_data.get('lugar_retiro'):
-            viaje.origen = vuelo_data.get('lugar_retiro')
-        if vuelo_data.get('lugar_devolucion'):
-            viaje.destino = vuelo_data.get('lugar_devolucion')
-
-    elif tipo == 'restaurante':
-        if vuelo_data.get('nombre'):
-            viaje.proveedor = vuelo_data.get('nombre')
-        if vuelo_data.get('direccion'):
-            viaje.ubicacion = vuelo_data.get('direccion')
-
-    elif tipo == 'espectaculo':
-        if vuelo_data.get('evento'):
-            viaje.proveedor = vuelo_data.get('evento')
-        if vuelo_data.get('venue'):
-            viaje.ubicacion = vuelo_data.get('venue')
-        entradas = vuelo_data.get('entradas', [])
-        if entradas:
-            viaje.pasajeros = json.dumps([{"asiento": e.get('asiento', ''), "seccion": e.get('seccion', '')} for e in entradas])
-
-    elif tipo == 'actividad':
-        if vuelo_data.get('proveedor') or vuelo_data.get('nombre'):
-            viaje.proveedor = vuelo_data.get('proveedor') or vuelo_data.get('nombre')
-        if vuelo_data.get('punto_encuentro'):
-            viaje.ubicacion = vuelo_data.get('punto_encuentro')
-        participantes = vuelo_data.get('participantes', [])
-        if participantes:
-            viaje.pasajeros = json.dumps([{"nombre": p} for p in participantes])
-
-    elif tipo == 'tren':
-        if vuelo_data.get('operador'):
-            viaje.proveedor = vuelo_data.get('operador')
-        if vuelo_data.get('origen'):
-            viaje.origen = vuelo_data.get('origen')
-        if vuelo_data.get('destino'):
-            viaje.destino = vuelo_data.get('destino')
-        pasajeros = vuelo_data.get('pasajeros', [])
-        if pasajeros:
-            viaje.pasajeros = json.dumps(pasajeros)
-
-    elif tipo == 'transfer':
-        if vuelo_data.get('empresa'):
-            viaje.proveedor = vuelo_data.get('empresa')
-        if vuelo_data.get('origen'):
-            viaje.origen = vuelo_data.get('origen')
-        if vuelo_data.get('destino'):
-            viaje.destino = vuelo_data.get('destino')
-
-    # Actualizar precio si existe
-    if vuelo_data.get('precio_total'):
-        viaje.precio = vuelo_data.get('precio_total')
-
-    # Actualizar raw_data siempre
-    viaje.raw_data = json.dumps(vuelo_data, ensure_ascii=False)
-
-    viaje.actualizado = datetime.now()
+    """Actualiza reserva existente usando función unificada"""
+    update_reservation(viaje, vuelo_data)
     db.session.commit()
-
-    print(f'  ✅ {tipo.capitalize()} actualizado (ID: {viaje.id})')
+    print(f'  ✅ {vuelo_data.get("tipo", "vuelo").capitalize()} actualizado (ID: {viaje.id})')
 
 if __name__ == '__main__':
     process_emails()

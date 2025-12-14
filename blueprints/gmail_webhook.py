@@ -13,7 +13,7 @@ from googleapiclient.discovery import build
 
 from models import db, EmailConnection, Viaje
 from utils.gmail_scanner import (
-    is_whitelisted_sender, 
+    is_whitelisted_sender,
     extract_body,
     extract_pdf_attachments,
     extract_text_from_pdf,
@@ -21,6 +21,7 @@ from utils.gmail_scanner import (
     check_duplicate_by_content
 )
 from utils.claude import extraer_info_con_claude
+from utils.save_reservation import save_reservation
 
 gmail_webhook_bp = Blueprint('gmail_webhook', __name__)
 PUBSUB_TOPIC = 'projects/mi-agente-viajes/topics/gmail-notifications'
@@ -197,80 +198,24 @@ def process_new_emails(connection, history_id):
                     grupo = str(uuid.uuid4())[:8]
 
                     for v in vuelos:
-                        # Validar datos mínimos antes de crear viaje
-                        fecha_str = v.get('fecha_salida') or v.get('fecha_embarque') or v.get('fecha') or v.get('fecha_checkin') or v.get('fecha_retiro')
-
-                        if not fecha_str:
-                            print(f"⚠️ Reserva sin fecha, ignorando: {v.get('descripcion', 'Sin descripción')}")
-                            continue
-
                         # Truncar codigo_reserva si es muy largo
                         codigo = v.get('codigo_reserva', '')
-                        if len(codigo) > 250:
+                        if codigo and len(codigo) > 250:
                             print(f"⚠️ Código reserva muy largo ({len(codigo)} chars), truncando: {codigo[:50]}...")
                             v['codigo_reserva'] = codigo[:250]
 
-                        hora = v.get('hora_salida', '')
-                        
                         try:
-                            if hora:
-                                fecha = datetime.strptime(f"{fecha_str} {hora}", '%Y-%m-%d %H:%M')
-                            else:
-                                fecha = datetime.strptime(fecha_str, '%Y-%m-%d')
-                        except:
+                            viaje = save_reservation(
+                                user_id=connection.user_id,
+                                datos_dict=v,
+                                grupo_id=grupo,
+                                nombre_viaje=None
+                            )
+                            viajes_creados += 1
+                            print(f"✅ Viaje creado: {v.get('origen', '')} → {v.get('destino', '')}")
+                        except ValueError as e:
+                            print(f"⚠️ {e}")
                             continue
-
-                        # Detectar tipo y mapear campos
-                        tipo = v.get('tipo', 'vuelo')
-                        proveedor = None
-                        ubicacion = None
-                        precio = v.get('precio_total')
-
-                        if tipo == 'vuelo':
-                            proveedor = v.get('aerolinea')
-                        elif tipo == 'hotel':
-                            proveedor = v.get('nombre_propiedad')
-                            ubicacion = v.get('direccion')
-                        elif tipo == 'crucero':
-                            proveedor = v.get('compania') or v.get('embarcacion')
-                        elif tipo == 'auto':
-                            proveedor = v.get('empresa')
-                        elif tipo == 'restaurante':
-                            proveedor = v.get('nombre')
-                            ubicacion = v.get('direccion')
-                        elif tipo == 'espectaculo':
-                            proveedor = v.get('evento')
-                            ubicacion = v.get('venue')
-                        elif tipo == 'actividad':
-                            proveedor = v.get('proveedor') or v.get('nombre')
-                            ubicacion = v.get('punto_encuentro')
-                        elif tipo == 'tren':
-                            proveedor = v.get('operador')
-                        elif tipo == 'transfer':
-                            proveedor = v.get('empresa')
-
-                        viaje = Viaje(
-                            user_id=connection.user_id,
-                            tipo=tipo,
-                            descripcion=v.get('descripcion', ''),
-                            origen=v.get('origen', ''),
-                            destino=v.get('destino', ''),
-                            fecha_salida=fecha,
-                            hora_salida=hora,
-                            aerolinea=v.get('aerolinea', '') if tipo == 'vuelo' else None,
-                            numero_vuelo=v.get('numero_vuelo', '') if tipo == 'vuelo' else None,
-                            codigo_reserva=v.get('codigo_reserva', ''),
-                            pasajeros=json.dumps(v.get('pasajeros', [])) if v.get('pasajeros') else None,
-                            grupo_viaje=grupo,
-                            # Nuevos campos multi-tipo
-                            proveedor=proveedor,
-                            ubicacion=ubicacion,
-                            precio=precio,
-                            raw_data=json.dumps(v, ensure_ascii=False)
-                        )
-                        db.session.add(viaje)
-                        viajes_creados += 1
-                        print(f"✅ Viaje creado: {v.get('origen')} → {v.get('destino')}")
                     
                     db.session.commit()
                     
