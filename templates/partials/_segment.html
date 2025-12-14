@@ -30,8 +30,8 @@
             {% endif %}
         </div>
 
-        {# Pasajeros combinados (de múltiples reservas) - usar groupby #}
-        {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
+        {# Pasajeros combinados (de múltiples reservas) #}
+        {% if vuelo._es_combinado and vuelo._pasajeros_combinados and vuelo._pasajeros_combinados|length > 0 %}
             <div class="passengers-list">
                 {% for codigo, paxs in vuelo._pasajeros_combinados|groupby('codigo_reserva') %}
                     <div class="reserva-group">
@@ -49,17 +49,21 @@
                     </div>
                 {% endfor %}
             </div>
-        {# Pasajeros normales (reserva única) #}
+        {# Pasajeros normales (reserva única) - desde datos JSONB #}
         {% elif d.pasajeros and d.pasajeros|length > 0 %}
             <div class="passengers-list">
                 {% for p in d.pasajeros %}
                     <div class="passenger-card">
-                        <div class="passenger-name">{{ p.nombre if p is mapping else p }}</div>
-                        <div class="passenger-meta">
-                            {% if p is mapping and p.asiento %}<span class="meta-badge">{{ p.asiento }}</span>{% endif %}
-                            {% if p is mapping and p.cabina %}<span class="meta-badge">{{ p.cabina }}</span>{% endif %}
-                            {% if p is mapping and p.viajero_frecuente %}<span class="meta-badge">{{ p.viajero_frecuente }}</span>{% endif %}
-                        </div>
+                        {% if p is mapping %}
+                            <div class="passenger-name">{{ p.nombre }}</div>
+                            <div class="passenger-meta">
+                                {% if p.asiento %}<span class="meta-badge">{{ p.asiento }}</span>{% endif %}
+                                {% if p.cabina %}<span class="meta-badge">{{ p.cabina }}</span>{% endif %}
+                                {% if p.viajero_frecuente %}<span class="meta-badge">{{ p.viajero_frecuente }}</span>{% endif %}
+                            </div>
+                        {% else %}
+                            <div class="passenger-name">{{ p }}</div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
@@ -117,21 +121,32 @@
         {# Vehículos #}
         {% if d.vehiculo or d.vehiculos %}
             <div class="segment-vehicles">
-                <span class="detail-label">Vehículo:</span>
+                <span class="vehicle-label">Vehículo:</span>
                 {% if d.vehiculo %}
-                    <span class="vehicle-badge">{{ d.vehiculo }}</span>
+                    <span class="meta-badge">{{ d.vehiculo }}</span>
                 {% elif d.vehiculos %}
                     {% for v in d.vehiculos %}
-                        <span class="vehicle-badge">{{ v.patente if v is mapping else v }}</span>
+                        <span class="meta-badge">{{ v.patente if v is mapping else v }}</span>
                     {% endfor %}
                 {% endif %}
             </div>
         {% endif %}
-        {# Pasajeros #}
+        {# Pasajeros - uno por línea en caja blanca #}
         {% if d.pasajeros and d.pasajeros|length > 0 %}
-            <div class="segment-passengers">
+            <div class="passengers-list">
                 {% for p in d.pasajeros %}
-                    <span class="passenger-badge">{{ p.nombre if p is mapping else p }}</span>
+                    <div class="passenger-card">
+                        {% if p is mapping %}
+                            <div class="passenger-name">{{ p.nombre }}</div>
+                            {% if p.ticket %}
+                                <div class="passenger-meta">
+                                    <span class="meta-badge">{{ p.ticket }}</span>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="passenger-name">{{ p }}</div>
+                        {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
