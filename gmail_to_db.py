@@ -362,41 +362,90 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
                 if user_id:
                     print(f'  ✅ Usuario asignado por nombre de pasajero')
     
-    # Detectar tipo y mapear campos
+    # Mapear campos según tipo (REPLICAR lógica de carga_rapida que funciona)
     tipo = vuelo_data.get('tipo', 'vuelo')
     proveedor = None
     ubicacion = None
     precio = vuelo_data.get('precio_total')
+    origen = None
+    destino = None
+    pasajeros_json = None
 
     if tipo == 'vuelo':
         proveedor = vuelo_data.get('aerolinea')
+        origen = vuelo_data.get('origen')
+        destino = vuelo_data.get('destino')
+        pasajeros = vuelo_data.get('pasajeros', [])
+        if pasajeros:
+            pasajeros_json = json.dumps(pasajeros)
+
     elif tipo == 'hotel':
         proveedor = vuelo_data.get('nombre_propiedad')
         ubicacion = vuelo_data.get('direccion')
+        precio = vuelo_data.get('precio_total')
+        huespedes = vuelo_data.get('huespedes', [])
+        if huespedes:
+            pasajeros_json = json.dumps([{"nombre": h} for h in huespedes])
+
     elif tipo in ['crucero', 'barco']:
+        origen = vuelo_data.get('puerto_embarque')
+        destino = vuelo_data.get('puerto_desembarque')
         proveedor = vuelo_data.get('compania') or vuelo_data.get('embarcacion')
+        precio = vuelo_data.get('precio_total')
+        pasajeros = vuelo_data.get('pasajeros', [])
+        if pasajeros:
+            # Validar si es int (cantidad) o lista (nombres)
+            if isinstance(pasajeros, int):
+                pasajeros_json = json.dumps([{"cantidad": pasajeros}])
+            elif isinstance(pasajeros, list):
+                pasajeros_json = json.dumps([{"nombre": p} for p in pasajeros])
+
     elif tipo == 'auto':
         proveedor = vuelo_data.get('empresa')
+        origen = vuelo_data.get('lugar_retiro')
+        destino = vuelo_data.get('lugar_devolucion')
+        precio = vuelo_data.get('precio_total')
+
     elif tipo == 'restaurante':
         proveedor = vuelo_data.get('nombre')
         ubicacion = vuelo_data.get('direccion')
+        precio = vuelo_data.get('precio_total')
+
     elif tipo == 'espectaculo':
         proveedor = vuelo_data.get('evento')
         ubicacion = vuelo_data.get('venue')
+        precio = vuelo_data.get('precio_total')
+        entradas = vuelo_data.get('entradas', [])
+        if entradas:
+            pasajeros_json = json.dumps([{"asiento": e.get('asiento', ''), "seccion": e.get('seccion', '')} for e in entradas])
+
     elif tipo == 'actividad':
         proveedor = vuelo_data.get('proveedor') or vuelo_data.get('nombre')
         ubicacion = vuelo_data.get('punto_encuentro')
+        precio = vuelo_data.get('precio_total')
+        participantes = vuelo_data.get('participantes', [])
+        if participantes:
+            pasajeros_json = json.dumps([{"nombre": p} for p in participantes])
+
     elif tipo == 'tren':
         proveedor = vuelo_data.get('operador')
+        origen = vuelo_data.get('origen')
+        destino = vuelo_data.get('destino')
+        pasajeros = vuelo_data.get('pasajeros', [])
+        if pasajeros:
+            pasajeros_json = json.dumps(pasajeros)
+
     elif tipo == 'transfer':
         proveedor = vuelo_data.get('empresa')
+        origen = vuelo_data.get('origen')
+        destino = vuelo_data.get('destino')
 
     viaje = Viaje(
         user_id=user_id,
         tipo=tipo,
         descripcion=vuelo_data.get('descripcion', ''),
-        origen=vuelo_data.get('origen', ''),
-        destino=vuelo_data.get('destino', ''),
+        origen=origen or '',
+        destino=destino or '',
         fecha_salida=fecha_salida,
         fecha_llegada=fecha_llegada,
         hora_salida=hora_salida,
@@ -404,7 +453,7 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
         aerolinea=vuelo_data.get('aerolinea', '') if tipo == 'vuelo' else None,
         numero_vuelo=vuelo_data.get('numero_vuelo', '') if tipo == 'vuelo' else None,
         codigo_reserva=vuelo_data.get('codigo_reserva', ''),
-        pasajeros=json.dumps(vuelo_data.get('pasajeros', [])) if vuelo_data.get('pasajeros') else None,
+        pasajeros=pasajeros_json,
         grupo_viaje=grupo_id,
         nombre_viaje=nombre_viaje,
         # Nuevos campos multi-tipo
@@ -504,43 +553,93 @@ def update_flight(viaje, vuelo_data):
     if vuelo_data.get('puerta'):
         viaje.puerta = vuelo_data.get('puerta')
 
-    # Actualizar campos multi-tipo
+    # Actualizar campos multi-tipo (REPLICAR lógica de carga_rapida)
     tipo = vuelo_data.get('tipo', 'vuelo')
+
     if tipo == 'vuelo':
         if vuelo_data.get('aerolinea'):
             viaje.proveedor = vuelo_data.get('aerolinea')
+        if vuelo_data.get('origen'):
+            viaje.origen = vuelo_data.get('origen')
+        if vuelo_data.get('destino'):
+            viaje.destino = vuelo_data.get('destino')
+        pasajeros = vuelo_data.get('pasajeros', [])
+        if pasajeros:
+            viaje.pasajeros = json.dumps(pasajeros)
+
     elif tipo == 'hotel':
         if vuelo_data.get('nombre_propiedad'):
             viaje.proveedor = vuelo_data.get('nombre_propiedad')
         if vuelo_data.get('direccion'):
             viaje.ubicacion = vuelo_data.get('direccion')
+        huespedes = vuelo_data.get('huespedes', [])
+        if huespedes:
+            viaje.pasajeros = json.dumps([{"nombre": h} for h in huespedes])
+
     elif tipo in ['crucero', 'barco']:
+        if vuelo_data.get('puerto_embarque'):
+            viaje.origen = vuelo_data.get('puerto_embarque')
+        if vuelo_data.get('puerto_desembarque'):
+            viaje.destino = vuelo_data.get('puerto_desembarque')
         if vuelo_data.get('compania') or vuelo_data.get('embarcacion'):
             viaje.proveedor = vuelo_data.get('compania') or vuelo_data.get('embarcacion')
+        pasajeros = vuelo_data.get('pasajeros', [])
+        if pasajeros:
+            if isinstance(pasajeros, int):
+                viaje.pasajeros = json.dumps([{"cantidad": pasajeros}])
+            elif isinstance(pasajeros, list):
+                viaje.pasajeros = json.dumps([{"nombre": p} for p in pasajeros])
+
     elif tipo == 'auto':
         if vuelo_data.get('empresa'):
             viaje.proveedor = vuelo_data.get('empresa')
+        if vuelo_data.get('lugar_retiro'):
+            viaje.origen = vuelo_data.get('lugar_retiro')
+        if vuelo_data.get('lugar_devolucion'):
+            viaje.destino = vuelo_data.get('lugar_devolucion')
+
     elif tipo == 'restaurante':
         if vuelo_data.get('nombre'):
             viaje.proveedor = vuelo_data.get('nombre')
         if vuelo_data.get('direccion'):
             viaje.ubicacion = vuelo_data.get('direccion')
+
     elif tipo == 'espectaculo':
         if vuelo_data.get('evento'):
             viaje.proveedor = vuelo_data.get('evento')
         if vuelo_data.get('venue'):
             viaje.ubicacion = vuelo_data.get('venue')
+        entradas = vuelo_data.get('entradas', [])
+        if entradas:
+            viaje.pasajeros = json.dumps([{"asiento": e.get('asiento', ''), "seccion": e.get('seccion', '')} for e in entradas])
+
     elif tipo == 'actividad':
         if vuelo_data.get('proveedor') or vuelo_data.get('nombre'):
             viaje.proveedor = vuelo_data.get('proveedor') or vuelo_data.get('nombre')
         if vuelo_data.get('punto_encuentro'):
             viaje.ubicacion = vuelo_data.get('punto_encuentro')
+        participantes = vuelo_data.get('participantes', [])
+        if participantes:
+            viaje.pasajeros = json.dumps([{"nombre": p} for p in participantes])
+
     elif tipo == 'tren':
         if vuelo_data.get('operador'):
             viaje.proveedor = vuelo_data.get('operador')
+        if vuelo_data.get('origen'):
+            viaje.origen = vuelo_data.get('origen')
+        if vuelo_data.get('destino'):
+            viaje.destino = vuelo_data.get('destino')
+        pasajeros = vuelo_data.get('pasajeros', [])
+        if pasajeros:
+            viaje.pasajeros = json.dumps(pasajeros)
+
     elif tipo == 'transfer':
         if vuelo_data.get('empresa'):
             viaje.proveedor = vuelo_data.get('empresa')
+        if vuelo_data.get('origen'):
+            viaje.origen = vuelo_data.get('origen')
+        if vuelo_data.get('destino'):
+            viaje.destino = vuelo_data.get('destino')
 
     # Actualizar precio si existe
     if vuelo_data.get('precio_total'):
