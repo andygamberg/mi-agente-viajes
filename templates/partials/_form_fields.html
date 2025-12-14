@@ -10,13 +10,10 @@
 {% set datos = datos or {} %}
 
 {% for campo in schema.campos %}
+    {# Ocultar campo precio (card: False) #}
+    {% if campo.get('card') != False %}
     {# Obtener valor existente si está en modo edición #}
     {% set valor = datos.get(campo.key, '') if datos else '' %}
-
-    {# Ocultar campo precio (card: False) #}
-    {% if campo.get('card') == False %}
-        {% continue %}
-    {% endif %}
 
     <div class="form-group" data-field="{{ campo.key }}">
         <label for="field_{{ campo.key }}">
@@ -100,6 +97,7 @@
             </div>
         {% endif %}
     </div>
+    {% endif %}
 {% endfor %}
 
 <style>
