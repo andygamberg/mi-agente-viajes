@@ -695,6 +695,55 @@ Solo prepara los comandos para que Andy los ejecute y analiza los resultados.
 
 ---
 
+## 📋 Formato de Comunicación Claude.ai ↔ Andy
+
+### Separación de bloques
+
+Cuando Claude.ai prepara comandos o prompts, SIEMPRE separar en secciones independientes para fácil copy-paste:
+
+**Estructura correcta:**
+```
+Para tu terminal
+
+Comando 1 - [descripción]:
+```bash
+[comando]
+```
+
+Comando 2 - [descripción]:
+```bash
+[comando]
+```
+
+---
+
+Prompt para Claude Code
+```
+[prompt completo]
+```
+```
+
+**Estructura incorrecta:**
+- Mezclar comandos de terminal con prompts de Claude Code en el mismo bloque
+- Poner múltiples comandos en un solo bloque sin separación
+- Incluir texto explicativo dentro del bloque de código
+
+### Roles y herramientas
+
+| Acción | Quién ejecuta | Herramienta |
+|--------|---------------|-------------|
+| Diagnóstico producción (logs, BD, endpoints) | Andy vía terminal o Claude Code | gcloud, SQL |
+| Arquitectura y decisiones de producto | Claude.ai (Opus 4.5) | Chat en claude.ai |
+| Cambios de código y deploy | Claude Code (Sonnet 4) | VS Code con extensión |
+
+### Regla de oro
+
+Claude.ai **nunca** intenta ejecutar comandos de infraestructura (gcloud, SQL, curl a producción). Solo:
+1. Prepara los comandos para que Andy los ejecute en su terminal, o
+2. Prepara prompt completo para Claude Code que SÍ tiene acceso
+
+---
+
 ## 🔄 Historial de Cambios
 
 | Fecha | Cambio |
@@ -719,3 +768,5 @@ Solo prepara los comandos para que Andy los ejecute y analiza los resultados.
 | 15 Dic 2025 | Creado APRENDIZAJES.md (living document) |
 | 15 Dic 2025 | Agregada sección "Primera Acción Obligatoria" |
 | 15 Dic 2025 | Agregada sección "Formato de Comunicación Claude.ai ↔ Andy" |
+| 15 Dic 2025 | Sesión 22: Fix multi-tipo gmail_to_db.py, decisión edición > extracción |
+| 15 Dic 2025 | Expandida sección Formato de Comunicación con roles y regla de oro |

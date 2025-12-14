@@ -39,6 +39,7 @@
 | 15 | Onboarding post-registro | 14 Dic 2025 | Pantalla bienvenida con OAuth + nombre pax |
 | 15-UX | Template inheritance (base.html) | 14 Dic 2025 | Menú global, reducción código duplicado |
 | **15** | **Multi-Tipo de Reservas** | **15 Dic 2025** | **9 tipos: vuelos, hoteles, barcos, shows, restaurantes, actividades, autos, trenes, transfers** |
+| BUG-FIX-MULTITYPE | Multi-tipo en Sistema 1 (misviajes@) | 15 Dic 2025 | gmail_to_db.py ahora soporta 9 tipos, replica lógica de carga_rapida() |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -178,9 +179,10 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
+| **MVP-EDIT** | Edición completa de reservas (todos los campos por tipo, no solo nombre de viaje) | - |
+| **MVP16** | Carga manual multi-tipo (UI con campos dinámicos según tipo) | - |
+| **BUG-PASSENGER-MATCH** | Matching pasajeros solo funciona en vuelos - extender a 9 tipos | - |
 | **BUG** | Gmail OAuth expirado - Webhook no funciona | - |
-| **BUG** | Matching pasajeros solo funciona en vuelos (extender a multi-tipo) | - |
-| **MVP16** | Carga manual multi-tipo (UI para agregar hoteles, restaurantes, etc.) | - |
 
 ### Prioridad Media
 
@@ -255,6 +257,8 @@ Evento (tabla base)
 | 11 Dic 2025 | Arquitectura híbrida para eventos | Evento base + extensiones por tipo (vuelo, hotel, etc.) |
 | 11 Dic 2025 | Estrategia email por tiers | OAuth (Gmail/MS), reglas automáticas, guías, reenvío manual |
 | 11 Dic 2025 | Microsoft Graph para corporativo | Una API cubre Exchange 365 y Outlook.com personal |
+| 15 Dic 2025 | Edición > Extracción perfecta | Perseguir 100% extracción automática es infinito. Mejor: extracción "good enough" + edición por usuario. MVP-EDIT resuelve todos los edge cases de una vez. |
+| 15 Dic 2025 | gmail_to_db.py replica carga_rapida() | Dos flujos que hacen lo mismo (guardar reserva) deben usar misma lógica de mapeo de campos |
 
 ---
 

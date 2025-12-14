@@ -468,9 +468,17 @@ Próximos eventos
 
 ### Alta Prioridad
 
-| Tarea | Descripción | Esfuerzo |
-|-------|-------------|----------|
-| Stats por email | trips_detected, last_activity | 1h |
+> **📌 Decisión Sesión 22:** Priorizar MVP-EDIT sobre perfeccionar extracción automática. La edición por usuario resuelve todos los edge cases de una vez. Extracción "good enough" + edición = mejor UX que perseguir 100% automático.
+
+| Componente | Mejora | Tipo | Esfuerzo |
+|------------|--------|------|----------|
+| **MVP-EDIT** | Edición completa de reservas - formulario pre-llenado con todos los campos según tipo | Feature | 4-6h |
+| **MVP16** | Formulario carga manual multi-tipo - campos dinámicos según tipo seleccionado | Feature | 4-6h |
+| Card Crucero/Ferry | Mostrar patentes de vehículos | UI | 1h |
+| Card Crucero/Ferry | Mostrar hora de llegada (dato ya está en BD) | UI | 30min |
+| Card Espectáculo | Mostrar hora del evento | UI | 30min |
+| Card Espectáculo | Mostrar detalles de entradas (cantidad, asientos, sección) | UI | 1-2h |
+| Stats por email | trips_detected, last_activity | UI | 1h |
 
 ### Media Prioridad
 

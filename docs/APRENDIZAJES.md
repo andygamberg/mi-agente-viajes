@@ -261,6 +261,60 @@ Verificar endpoints críticos antes de considerar deploy exitoso.
 
 ---
 
+## 🔄 Sesión 22 - Fixes y Decisiones (15 Dic 2025)
+
+### Fix: Sistema 1 (misviajes@) multi-tipo
+
+**PROBLEMA:** Reenvío de emails a misviajes@gamberg.com.ar solo procesaba vuelos. BQB, Moorings, Antártida se ignoraban o guardaban con campos incorrectos.
+
+**SÍNTOMAS:**
+- BQB mostraba código de reserva como nombre de pasajero
+- Origen/destino no aparecían en ferries/cruceros
+- Faltaban horas de llegada
+- Antártida: "Hijo de Andres Gamberg" en vez de "MARTIN GAMBERG"
+
+**CAUSA RAÍZ:** `gmail_to_db.py` tenía:
+1. `tipo='vuelo'` hardcodeado (línea 309)
+2. Mapeo de campos genérico, diferente a `carga_rapida()`
+3. Pasajeros recibía código de reserva en vez de lista de nombres
+
+**SOLUCIÓN:** Replicar lógica exacta de `blueprints/viajes.py` `carga_rapida()` en `gmail_to_db.py`:
+- Mapeo específico por tipo (crucero→puerto_embarque, hotel→huespedes, etc.)
+- Formateo correcto de pasajeros como lista de dicts con nombres
+- Normalización de campos de fecha por tipo
+
+**COMMITS:** 2cf2099, 34dd070, 7910879, 63b5292, 48504e1, d3e62bc
+
+**LECCIÓN:** Cuando dos flujos hacen lo mismo (guardar reserva), deben usar la misma lógica. No reinventar el mapeo.
+
+### Decisión de producto: Edición > Extracción perfecta
+
+**CONTEXTO:** Después de múltiples fixes, seguían apareciendo edge cases:
+- Moorings: pasajero vacío (Claude no extrajo nombre)
+- Antártida: "Hijo de Andres Gamberg" en vez de "MARTIN GAMBERG" (Claude infirió mal)
+- BQB: vehículos/patentes no se muestran
+- Nadine Sierra: faltan hora y detalles de entradas
+
+**DECISIÓN:** En vez de perseguir extracción 100% perfecta (infinitos edge cases), implementar MVP-EDIT de edición completa de reservas.
+
+**BENEFICIOS:**
+- Claude hace 80% del trabajo de extracción
+- Usuario corrige/completa el 20% restante
+- Un solo MVP resuelve todos los edge cases futuros
+- Menos código de extracción = menos bugs
+
+### Workflow agéntico - Lecciones
+
+**ERROR COMETIDO:** Claude.ai intentó ejecutar comandos gcloud/SQL en su entorno (no tiene acceso).
+
+**CORRECCIÓN IMPLEMENTADA:**
+1. Claude.ai NO ejecuta comandos de infraestructura
+2. Para diagnóstico de producción → preparar prompt completo para Claude Code (que SÍ tiene acceso)
+3. Buscar en repo/memoria ANTES de preguntar a Andy
+4. Separar siempre en bloques independientes: "Para tu terminal" vs "Prompt para Claude Code"
+
+---
+
 ## Checklist para Nuevos Proyectos
 
 ### Setup inicial
