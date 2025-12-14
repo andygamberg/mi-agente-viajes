@@ -170,7 +170,7 @@
             </div>
         {% endif %}
         {# Pasajeros - uno por línea en caja blanca #}
-        {% if d.pasajeros and d.pasajeros|length > 0 %}
+        {% if d.pasajeros and (d.pasajeros is iterable and d.pasajeros is not string) and d.pasajeros|length > 0 %}
             <div class="passengers-list">
                 {% for p in d.pasajeros %}
                     <div class="passenger-card">
