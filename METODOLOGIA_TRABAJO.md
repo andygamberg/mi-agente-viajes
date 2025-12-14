@@ -8,15 +8,70 @@
 
 ## 📋 Índice
 
-0. [Sistema Agéntico](#sistema-agéntico) ⭐ NUEVO
-1. [Setup del Entorno](#setup-del-entorno)
-2. [Flujo de Desarrollo](#flujo-de-desarrollo)
-3. [Estructura de Archivos para Deploy](#estructura-de-archivos-para-deploy)
-4. [Arquitectura del Proyecto](#arquitectura-del-proyecto)
-5. [Convenciones de Comunicación](#convenciones-de-comunicación)
-6. [Testing](#testing)
-7. [Gestión de Sesiones con Claude](#gestión-de-sesiones-con-claude)
-8. [Troubleshooting](#troubleshooting)
+0. [Primera Acción Obligatoria](#primera-acción-obligatoria) 🚨 CRÍTICO
+1. [Sistema Agéntico](#sistema-agéntico) ⭐ NUEVO
+2. [Setup del Entorno](#setup-del-entorno)
+3. [Flujo de Desarrollo](#flujo-de-desarrollo)
+4. [Estructura de Archivos para Deploy](#estructura-de-archivos-para-deploy)
+5. [Arquitectura del Proyecto](#arquitectura-del-proyecto)
+6. [Convenciones de Comunicación](#convenciones-de-comunicación)
+7. [Testing](#testing)
+8. [Gestión de Sesiones con Claude](#gestión-de-sesiones-con-claude)
+9. [Troubleshooting](#troubleshooting)
+
+---
+
+## 🚨 Primera Acción Obligatoria
+
+**ANTES DE HACER CUALQUIER COSA**, leer estos archivos del repo en orden:
+
+### Lectura Obligatoria (en orden)
+
+1. **ROADMAP.md** - Estado actual del proyecto y próximos pasos
+   - ✅ MVPs completados
+   - 📋 Próximos MVPs (prioridades)
+   - 🔴 Bugs conocidos pendientes
+
+2. **docs/APRENDIZAJES.md** - Bugs resueltos, patrones y decisiones
+   - 🐛 Bugs históricos y soluciones
+   - 🎨 Design System (íconos, layout, UX)
+   - 🔧 Técnicas y patterns (deduplicación, extracción, validación)
+   - 📊 Performance y optimización
+   - 🚨 Decisiones de producto
+
+3. **METODOLOGIA_TRABAJO.md** - Este archivo
+   - 🤖 Sistema agéntico (3 capas)
+   - 🔧 Setup y workflow
+   - 📝 Convenciones de código y commits
+
+4. **UX_UI_ROADMAP.md** (si existe) - Decisiones de experiencia de usuario
+   - Paleta de colores
+   - Tipografía
+   - Componentes UI
+
+5. **docs/WORKFLOW_AGENTICO.md** - Sistema de 3 capas detallado
+   - Roles: Andy (Humano) → Claude.ai (Arquitecto) → Claude Code (Ejecutor)
+   - Workflow de decisiones
+
+6. **DESIGN_SYSTEM.md** (si existe) - Sistema de diseño
+   - Paleta de colores
+   - Tipografía
+   - Iconos (Heroicons)
+   - Componentes
+
+### ⚠️ Importante
+
+**NO empezar a trabajar sin leer estos archivos.**
+
+La información está en el repo. Buscar antes de preguntar. Andy es la última opción.
+
+**Principio clave:** Claude debe buscar en:
+1. Project Knowledge (repo sincronizado)
+2. Conversaciones anteriores (conversation_search si está disponible)
+3. Documentación del proyecto (archivos arriba)
+4. Código fuente (Read, Grep, Glob)
+
+**Solo entonces** preguntar a Andy si algo no está documentado.
 
 ---
 
