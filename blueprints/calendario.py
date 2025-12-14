@@ -69,26 +69,26 @@ def calendar_feed(token):
         grupos[grupo_id].append(viaje)
     
     # Crear eventos
-    for grupo_id, vuelos in grupos.items():
-        # Ordenar vuelos por fecha
-        vuelos_ordenados = sorted(vuelos, key=lambda v: v.fecha_salida)
-        
-        # MVP11: Deduplicar si el usuario tiene la preferencia activa
+    for grupo_id, viajes in grupos.items():
+        # Ordenar viajes por fecha
+        viajes_ordenados = sorted(viajes, key=lambda v: v.fecha_salida)
+
+        # MVP11: Deduplicar si el usuario tiene la preferencia activa (solo para vuelos)
         combinar = getattr(user, 'combinar_vuelos', True)
         if combinar is None:
             combinar = True
-        
+
         if combinar:
-            vuelos_ordenados = deduplicar_vuelos_en_grupo(vuelos_ordenados)
-        
-        # Crear evento individual para cada vuelo
-        for vuelo in vuelos_ordenados:
-            event = _crear_evento_calendario(vuelo)
+            viajes_ordenados = deduplicar_vuelos_en_grupo(viajes_ordenados)
+
+        # Crear evento individual para cada reserva
+        for viaje in viajes_ordenados:
+            event = _crear_evento_calendario(viaje)
             cal.add_component(event)
-        
-        # MVP10: Crear evento all-day SOLO si el grupo tiene 2+ vuelos
-        if len(vuelos_ordenados) >= 2 and not grupo_id.startswith('solo_'):
-            event_allday = _crear_evento_allday(grupo_id, vuelos_ordenados)
+
+        # MVP10: Crear evento all-day SOLO si el grupo tiene 2+ items
+        if len(viajes_ordenados) >= 2 and not grupo_id.startswith('solo_'):
+            event_allday = _crear_evento_allday(grupo_id, viajes_ordenados)
             if event_allday:
                 cal.add_component(event_allday)
     
@@ -221,35 +221,35 @@ def _get_vuelos_by_grupo(grupo_id):
         return Viaje.query.filter_by(grupo_viaje=grupo_id).order_by(Viaje.fecha_salida, Viaje.hora_salida).all()
 
 
-def _crear_evento_allday(grupo_id, vuelos):
+def _crear_evento_allday(grupo_id, viajes):
     """
     MVP10: Crea un evento all-day que abarca todo el viaje
-    
+
     Args:
         grupo_id: ID del grupo de viaje
-        vuelos: Lista de vuelos ordenados por fecha
-    
+        viajes: Lista de reservas ordenadas por fecha
+
     Returns:
         Event iCal o None si no se puede crear
     """
-    if not vuelos:
+    if not viajes:
         return None
-    
-    primer_vuelo = vuelos[0]
-    ultimo_vuelo = vuelos[-1]
+
+    primer_viaje = viajes[0]
+    ultimo_viaje = viajes[-1]
     
     # Obtener nombre del viaje
-    nombre_viaje = primer_vuelo.nombre_viaje or f"Viaje a {ultimo_vuelo.destino}"
-    
-    # Fecha inicio: día del primer vuelo
-    fecha_inicio = primer_vuelo.fecha_salida.date()
-    
-    # Fecha fin: día de llegada del último vuelo + 1 (iCal all-day es exclusivo en el fin)
-    if ultimo_vuelo.fecha_llegada:
-        fecha_fin = ultimo_vuelo.fecha_llegada.date() + timedelta(days=1)
+    nombre_viaje = primer_viaje.nombre_viaje or f"Viaje a {ultimo_viaje.destino or 'destino'}"
+
+    # Fecha inicio: día del primer viaje
+    fecha_inicio = primer_viaje.fecha_salida.date()
+
+    # Fecha fin: día de llegada del último viaje + 1 (iCal all-day es exclusivo en el fin)
+    if ultimo_viaje.fecha_llegada:
+        fecha_fin = ultimo_viaje.fecha_llegada.date() + timedelta(days=1)
     else:
-        # Si no hay fecha_llegada, usar fecha_salida del último vuelo + 1
-        fecha_fin = ultimo_vuelo.fecha_salida.date() + timedelta(days=1)
+        # Si no hay fecha_llegada, usar fecha_salida del último + 1
+        fecha_fin = ultimo_viaje.fecha_salida.date() + timedelta(days=1)
     
     # Crear evento all-day
     event = Event()
@@ -294,43 +294,135 @@ def _formatear_nombre_pasajero(nombre_completo):
         return nombre_completo.title()
 
 
-def _crear_evento_calendario(vuelo, sequence=0, method=None):
+def _crear_evento_calendario(viaje, sequence=0, method=None):
     """
-    Crea un evento iCal para un vuelo
-    
-    MVP11: Si el vuelo está combinado (_es_combinado=True), 
-    agrupa pasajeros por reserva para mejor legibilidad
+    Crea un evento iCal para cualquier tipo de reserva
+
+    Soporta: vuelo, hotel, barco/crucero, espectaculo, restaurante, actividad, auto, tren, transfer
+    MVP11: Si es vuelo combinado (_es_combinado=True), agrupa pasajeros por reserva
     """
     tz = pytz.timezone('America/Argentina/Buenos_Aires')
-    
+
     event = Event()
-    
-    # Título limpio
-    titulo = f"{vuelo.numero_vuelo}: {vuelo.origen} → {vuelo.destino}"
+
+    # Determinar título y emoji según tipo
+    tipo = viaje.tipo or 'vuelo'
+
+    if tipo == 'vuelo':
+        emoji = '✈️'
+        titulo = f"{emoji} {viaje.numero_vuelo}: {viaje.origen} → {viaje.destino}"
+    elif tipo == 'hotel':
+        emoji = '🏨'
+        titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+    elif tipo in ['barco', 'crucero']:
+        emoji = '⛵'
+        if viaje.origen and viaje.destino:
+            titulo = f"{emoji} {viaje.proveedor} {viaje.origen} → {viaje.destino}"
+        else:
+            titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+    elif tipo == 'espectaculo':
+        emoji = '🎭'
+        titulo = f"{emoji} {viaje.proveedor}"
+        if viaje.descripcion and viaje.proveedor not in viaje.descripcion:
+            titulo += f" - {viaje.descripcion}"
+    elif tipo == 'restaurante':
+        emoji = '🍽️'
+        titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+    elif tipo == 'actividad':
+        emoji = '🎯'
+        titulo = f"{emoji} {viaje.descripcion or viaje.proveedor}"
+    elif tipo == 'auto':
+        emoji = '🚗'
+        titulo = f"{emoji} {viaje.proveedor or 'Rental'}"
+        if viaje.origen:
+            titulo += f" - {viaje.origen}"
+    elif tipo == 'tren':
+        emoji = '🚆'
+        if viaje.origen and viaje.destino:
+            titulo = f"{emoji} {viaje.proveedor or 'Tren'} {viaje.origen} → {viaje.destino}"
+        else:
+            titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+    elif tipo == 'transfer':
+        emoji = '🚕'
+        if viaje.origen and viaje.destino:
+            titulo = f"{emoji} {viaje.origen} → {viaje.destino}"
+        else:
+            titulo = f"{emoji} {viaje.descripcion or 'Transfer'}"
+    else:
+        emoji = '📅'
+        titulo = f"{emoji} {viaje.descripcion or viaje.proveedor or 'Reserva'}"
+
     event.add('summary', titulo)
-    
-    # Descripción completa
-    desc = [f"Vuelo {vuelo.numero_vuelo} - {vuelo.aerolinea}"]
-    
-    # MVP11: Si es vuelo combinado, mostrar múltiples códigos
-    if getattr(vuelo, '_es_combinado', False) and hasattr(vuelo, '_codigos_reserva'):
-        desc.append(f"\nCódigos: {', '.join(vuelo._codigos_reserva)}")
-    elif vuelo.codigo_reserva:
-        desc.append(f"\nCódigo: {vuelo.codigo_reserva}")
+
+    # Descripción completa - adaptada por tipo
+    desc = []
+
+    if tipo == 'vuelo':
+        desc.append(f"Vuelo {viaje.numero_vuelo} - {viaje.aerolinea}")
+    elif tipo == 'hotel':
+        desc.append(f"Hotel: {viaje.proveedor or viaje.descripcion}")
+        if viaje.precio:
+            desc.append(f"Precio: {viaje.precio}")
+    elif tipo in ['barco', 'crucero']:
+        desc.append(f"Crucero: {viaje.proveedor or viaje.descripcion}")
+        if viaje.precio:
+            desc.append(f"Precio: {viaje.precio}")
+    elif tipo == 'espectaculo':
+        desc.append(f"Evento: {viaje.proveedor}")
+        if viaje.ubicacion:
+            desc.append(f"Venue: {viaje.ubicacion}")
+        if viaje.precio:
+            desc.append(f"Precio: {viaje.precio}")
+    elif tipo == 'restaurante':
+        desc.append(f"Restaurante: {viaje.proveedor or viaje.descripcion}")
+        if viaje.ubicacion:
+            desc.append(f"Dirección: {viaje.ubicacion}")
+    elif tipo == 'actividad':
+        desc.append(f"Actividad: {viaje.descripcion or viaje.proveedor}")
+        if viaje.ubicacion:
+            desc.append(f"Punto de encuentro: {viaje.ubicacion}")
+        if viaje.precio:
+            desc.append(f"Precio: {viaje.precio}")
+    elif tipo == 'auto':
+        desc.append(f"Rental: {viaje.proveedor}")
+        if viaje.origen:
+            desc.append(f"Retiro: {viaje.origen}")
+        if viaje.destino:
+            desc.append(f"Devolución: {viaje.destino}")
+        if viaje.precio:
+            desc.append(f"Precio: {viaje.precio}")
+    elif tipo == 'tren':
+        desc.append(f"Tren: {viaje.proveedor or 'Tren'}")
+        if viaje.origen:
+            desc.append(f"Salida: Estación {viaje.origen}")
+        if viaje.destino:
+            desc.append(f"Llegada: Estación {viaje.destino}")
+    elif tipo == 'transfer':
+        desc.append(f"Transfer: {viaje.descripcion or 'Traslado'}")
+        if viaje.proveedor:
+            desc.append(f"Empresa: {viaje.proveedor}")
+    else:
+        desc.append(f"{viaje.descripcion or viaje.proveedor or 'Reserva'}")
+
+    # Código de reserva (todos los tipos)
+    if getattr(viaje, '_es_combinado', False) and hasattr(viaje, '_codigos_reserva'):
+        desc.append(f"\nCódigos: {', '.join(viaje._codigos_reserva)}")
+    elif viaje.codigo_reserva:
+        desc.append(f"\nCódigo: {viaje.codigo_reserva}")
     
     # MVP11: Pasajeros - usar combinados si disponible
     pasajeros_a_mostrar = []
-    if getattr(vuelo, '_es_combinado', False) and hasattr(vuelo, '_pasajeros_combinados'):
-        pasajeros_a_mostrar = vuelo._pasajeros_combinados
-    elif vuelo.pasajeros:
+    if getattr(viaje, '_es_combinado', False) and hasattr(viaje, '_pasajeros_combinados'):
+        pasajeros_a_mostrar = viaje._pasajeros_combinados
+    elif viaje.pasajeros:
         try:
-            pasajeros_a_mostrar = json.loads(vuelo.pasajeros)
+            pasajeros_a_mostrar = json.loads(viaje.pasajeros)
         except:
             pasajeros_a_mostrar = []
-    
+
     if pasajeros_a_mostrar:
         # MVP11: Agrupar por código de reserva si es combinado
-        es_combinado = getattr(vuelo, '_es_combinado', False)
+        es_combinado = getattr(viaje, '_es_combinado', False)
         
         if es_combinado and any(p.get('codigo_reserva') for p in pasajeros_a_mostrar):
             # Agrupar pasajeros por reserva
@@ -364,35 +456,109 @@ def _crear_evento_calendario(vuelo, sequence=0, method=None):
                     pax += f" ({p['cabina']})"
                 desc.append(pax)
     
-    # Horarios locales
-    desc.append(f"\nSalida: {vuelo.origen} a las {vuelo.hora_salida} (hora local)")
-    desc.append(f"Llegada: {vuelo.destino} a las {vuelo.hora_llegada} (hora local)")
-    
-    # Terminal
-    if vuelo.terminal:
-        if ' a ' in vuelo.terminal.lower():
-            parts = vuelo.terminal.split(' a ')
-            desc.append(f"Terminal salida: {parts[0].strip()}")
-            if len(parts) > 1:
-                desc.append(f"Terminal llegada: {parts[1].strip()}")
-        else:
-            desc.append(f"Terminal salida: {vuelo.terminal}")
-    
-    if vuelo.puerta:
-        desc.append(f"Puerta: {vuelo.puerta}")
-    
+    # Horarios y detalles específicos por tipo
+    if tipo == 'vuelo':
+        if viaje.hora_salida and viaje.hora_llegada:
+            desc.append(f"\nSalida: {viaje.origen} a las {viaje.hora_salida} (hora local)")
+            desc.append(f"Llegada: {viaje.destino} a las {viaje.hora_llegada} (hora local)")
+
+        if viaje.terminal:
+            if ' a ' in viaje.terminal.lower():
+                parts = viaje.terminal.split(' a ')
+                desc.append(f"Terminal salida: {parts[0].strip()}")
+                if len(parts) > 1:
+                    desc.append(f"Terminal llegada: {parts[1].strip()}")
+            else:
+                desc.append(f"Terminal salida: {viaje.terminal}")
+
+        if viaje.puerta:
+            desc.append(f"Puerta: {viaje.puerta}")
+    elif tipo == 'hotel':
+        if viaje.hora_salida:
+            desc.append(f"\nCheck-in: {viaje.hora_salida}")
+        if viaje.hora_llegada:
+            desc.append(f"Check-out: {viaje.hora_llegada}")
+    elif tipo in ['espectaculo', 'restaurante', 'actividad']:
+        if viaje.hora_salida:
+            desc.append(f"\nHora: {viaje.hora_salida}")
+    elif tipo in ['barco', 'crucero', 'tren', 'transfer']:
+        if viaje.hora_salida:
+            desc.append(f"\nSalida: {viaje.hora_salida}")
+        if viaje.hora_llegada:
+            desc.append(f"Llegada: {viaje.hora_llegada}")
+
     event.add('description', '\n'.join(desc))
-    
-    # Fechas
-    dtstart = datetime.combine(vuelo.fecha_salida, datetime.strptime(vuelo.hora_salida, '%H:%M').time())
-    dtend = datetime.combine(vuelo.fecha_llegada, datetime.strptime(vuelo.hora_llegada, '%H:%M').time())
-    
+
+    # Fechas y horas - calcular dtstart y dtend según tipo
+    if viaje.hora_salida:
+        try:
+            hora_inicio = datetime.strptime(viaje.hora_salida, '%H:%M').time()
+        except:
+            hora_inicio = datetime.strptime('09:00', '%H:%M').time()
+    else:
+        # Horas por defecto según tipo
+        if tipo == 'hotel':
+            hora_inicio = datetime.strptime('15:00', '%H:%M').time()
+        elif tipo == 'espectaculo':
+            hora_inicio = datetime.strptime('20:00', '%H:%M').time()
+        elif tipo == 'restaurante':
+            hora_inicio = datetime.strptime('20:00', '%H:%M').time()
+        else:
+            hora_inicio = datetime.strptime('09:00', '%H:%M').time()
+
+    dtstart = datetime.combine(viaje.fecha_salida, hora_inicio)
+
+    # Calcular dtend
+    if viaje.fecha_llegada and viaje.hora_llegada:
+        try:
+            hora_fin = datetime.strptime(viaje.hora_llegada, '%H:%M').time()
+            dtend = datetime.combine(viaje.fecha_llegada, hora_fin)
+        except:
+            dtend = dtstart + timedelta(hours=2)
+    elif viaje.fecha_llegada:
+        # Tiene fecha_llegada pero no hora
+        if tipo == 'hotel':
+            dtend = datetime.combine(viaje.fecha_llegada, datetime.strptime('11:00', '%H:%M').time())
+        else:
+            dtend = datetime.combine(viaje.fecha_llegada, hora_inicio)
+    else:
+        # No tiene fecha_llegada - estimar duración
+        if tipo == 'hotel':
+            dtend = dtstart + timedelta(days=1)
+        elif tipo == 'espectaculo':
+            dtend = dtstart + timedelta(hours=3)
+        elif tipo == 'restaurante':
+            dtend = dtstart + timedelta(hours=2)
+        elif tipo == 'actividad':
+            dtend = dtstart + timedelta(hours=4)
+        elif tipo == 'transfer':
+            dtend = dtstart + timedelta(hours=1)
+        elif tipo == 'auto':
+            dtend = dtstart + timedelta(days=7)
+        else:
+            dtend = dtstart + timedelta(hours=2)
+
     event.add('dtstart', tz.localize(dtstart))
     event.add('dtend', tz.localize(dtend))
-    event.add('location', f'{vuelo.origen} Airport')
-    
+
+    # Location según tipo
+    if tipo == 'vuelo':
+        location = f'{viaje.origen} Airport'
+    elif tipo in ['hotel', 'espectaculo', 'restaurante', 'actividad']:
+        location = viaje.ubicacion or viaje.proveedor or viaje.descripcion
+    elif tipo in ['barco', 'crucero']:
+        location = f'Puerto {viaje.origen}' if viaje.origen else (viaje.proveedor or 'Puerto')
+    elif tipo == 'tren':
+        location = f'Estación {viaje.origen}' if viaje.origen else 'Estación'
+    elif tipo in ['auto', 'transfer']:
+        location = viaje.origen or viaje.ubicacion or viaje.descripcion
+    else:
+        location = viaje.ubicacion or viaje.origen or viaje.descripcion
+
+    event.add('location', location or '')
+
     # UID único y estable
-    event.add('uid', f'vuelo-{vuelo.id}@miagenteviajes.local')
+    event.add('uid', f'{tipo}-{viaje.id}@miagenteviajes.local')
     event.add('dtstamp', datetime.now(pytz.UTC))
     event.add('sequence', sequence)
     
