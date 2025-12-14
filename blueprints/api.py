@@ -527,6 +527,32 @@ def assign_viajes(user_id):
         return {'success': False, 'error': str(e)}, 500
 
 
+@api_bp.route('/api/debug-viajes')
+def debug_viajes():
+    """Debug: Ver contenido de datos JSONB de los últimos 10 viajes"""
+    from models import Viaje
+    import json
+
+    viajes = Viaje.query.order_by(Viaje.fecha_salida.desc()).limit(10).all()
+
+    result = []
+    for v in viajes:
+        result.append({
+            'id': v.id,
+            'tipo': v.tipo,
+            'fecha_salida': str(v.fecha_salida) if v.fecha_salida else None,
+            'datos': v.datos,
+            'tiene_datos': v.datos is not None,
+            'columnas_legacy': {
+                'origen': v.origen,
+                'destino': v.destino,
+                'proveedor': v.proveedor,
+            }
+        })
+
+    return {'viajes': result}
+
+
 @api_bp.route('/admin/migrate-jsonb')
 def migrate_jsonb():
     """Endpoint temporal - ejecutar migración JSONB. ELIMINAR DESPUÉS DE USAR."""
