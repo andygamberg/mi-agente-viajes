@@ -16,6 +16,12 @@ from utils.helpers import get_viajes_for_user, deduplicar_vuelos_en_grupo
 calendario_bp = Blueprint('calendario', __name__)
 
 
+def get_dato(viaje, key, default=''):
+    """Extrae dato de JSONB con fallback a columna legacy"""
+    datos = viaje.datos or {}
+    return datos.get(key) or getattr(viaje, key, default) or default
+
+
 @calendario_bp.route('/calendar-feed')
 def calendar_feed_old():
     """
@@ -332,49 +338,65 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
     # Determinar título y emoji según tipo
     tipo = viaje.tipo or 'vuelo'
 
+    # Extraer datos de JSONB con fallback a legacy
+    origen = get_dato(viaje, 'origen')
+    destino = get_dato(viaje, 'destino')
+    numero_vuelo = get_dato(viaje, 'numero_vuelo')
+    proveedor = get_dato(viaje, 'proveedor')
+    descripcion = get_dato(viaje, 'descripcion')
+
     if tipo == 'vuelo':
         emoji = '✈️'
-        titulo = f"{emoji} {viaje.numero_vuelo}: {viaje.origen} → {viaje.destino}"
+        titulo = f"{emoji} {numero_vuelo}: {origen} → {destino}"
     elif tipo == 'hotel':
         emoji = '🏨'
-        titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+        nombre_hotel = get_dato(viaje, 'nombre_propiedad') or proveedor or descripcion
+        titulo = f"{emoji} {nombre_hotel}"
     elif tipo in ['barco', 'crucero']:
         emoji = '⛵'
-        if viaje.origen and viaje.destino:
-            titulo = f"{emoji} {viaje.proveedor} {viaje.origen} → {viaje.destino}"
+        puerto_embarque = get_dato(viaje, 'puerto_embarque') or origen
+        puerto_desembarque = get_dato(viaje, 'puerto_desembarque') or destino
+        if puerto_embarque and puerto_desembarque:
+            titulo = f"{emoji} {proveedor} {puerto_embarque} → {puerto_desembarque}"
         else:
-            titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+            titulo = f"{emoji} {proveedor or descripcion}"
     elif tipo == 'espectaculo':
         emoji = '🎭'
-        titulo = f"{emoji} {viaje.proveedor}"
-        if viaje.descripcion and viaje.proveedor not in viaje.descripcion:
-            titulo += f" - {viaje.descripcion}"
+        evento = get_dato(viaje, 'evento') or proveedor
+        titulo = f"{emoji} {evento}"
+        if descripcion and evento not in descripcion:
+            titulo += f" - {descripcion}"
     elif tipo == 'restaurante':
         emoji = '🍽️'
-        titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+        nombre_rest = get_dato(viaje, 'nombre') or proveedor or descripcion
+        titulo = f"{emoji} {nombre_rest}"
     elif tipo == 'actividad':
         emoji = '🎯'
-        titulo = f"{emoji} {viaje.descripcion or viaje.proveedor}"
+        nombre_act = get_dato(viaje, 'nombre') or descripcion or proveedor
+        titulo = f"{emoji} {nombre_act}"
     elif tipo == 'auto':
         emoji = '🚗'
-        titulo = f"{emoji} {viaje.proveedor or 'Rental'}"
-        if viaje.origen:
-            titulo += f" - {viaje.origen}"
+        empresa = get_dato(viaje, 'empresa') or proveedor or 'Rental'
+        titulo = f"{emoji} {empresa}"
+        lugar_retiro = get_dato(viaje, 'lugar_retiro') or origen
+        if lugar_retiro:
+            titulo += f" - {lugar_retiro}"
     elif tipo == 'tren':
         emoji = '🚆'
-        if viaje.origen and viaje.destino:
-            titulo = f"{emoji} {viaje.proveedor or 'Tren'} {viaje.origen} → {viaje.destino}"
+        operador = get_dato(viaje, 'operador') or proveedor or 'Tren'
+        if origen and destino:
+            titulo = f"{emoji} {operador} {origen} → {destino}"
         else:
-            titulo = f"{emoji} {viaje.proveedor or viaje.descripcion}"
+            titulo = f"{emoji} {operador or descripcion}"
     elif tipo == 'transfer':
         emoji = '🚕'
-        if viaje.origen and viaje.destino:
-            titulo = f"{emoji} {viaje.origen} → {viaje.destino}"
+        if origen and destino:
+            titulo = f"{emoji} {origen} → {destino}"
         else:
-            titulo = f"{emoji} {viaje.descripcion or 'Transfer'}"
+            titulo = f"{emoji} {descripcion or 'Transfer'}"
     else:
         emoji = '📅'
-        titulo = f"{emoji} {viaje.descripcion or viaje.proveedor or 'Reserva'}"
+        titulo = f"{emoji} {descripcion or proveedor or 'Reserva'}"
 
     event.add('summary', titulo)
 
@@ -382,69 +404,80 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
     desc = []
 
     if tipo == 'vuelo':
-        desc.append(f"Vuelo {viaje.numero_vuelo} - {viaje.aerolinea}")
+        aerolinea = get_dato(viaje, 'aerolinea')
+        desc.append(f"Vuelo {numero_vuelo} - {aerolinea}")
     elif tipo == 'hotel':
-        desc.append(f"Hotel: {viaje.proveedor or viaje.descripcion}")
+        desc.append(f"Hotel: {proveedor or descripcion}")
     elif tipo in ['barco', 'crucero']:
-        desc.append(f"Crucero: {viaje.proveedor or viaje.descripcion}")
+        desc.append(f"Crucero: {proveedor or descripcion}")
     elif tipo == 'espectaculo':
-        # Leer detalles de raw_data
-        raw = {}
-        if viaje.raw_data:
-            try:
-                raw = json.loads(viaje.raw_data)
-            except:
-                pass
+        # Leer detalles de datos JSONB
+        datos = viaje.datos or {}
+        evento_nombre = get_dato(viaje, 'evento') or proveedor
+        venue = get_dato(viaje, 'venue') or get_dato(viaje, 'ubicacion')
 
-        desc.append(f"Evento: {raw.get('evento', viaje.proveedor)}")
-        desc.append(f"Venue: {raw.get('venue', viaje.ubicacion)}")
+        desc.append(f"Evento: {evento_nombre}")
+        if venue:
+            desc.append(f"Venue: {venue}")
 
-        entradas_count = raw.get('entradas', 1)
+        entradas_count = datos.get('entradas', 1)
         desc.append(f"Entradas: {entradas_count}")
 
-        if raw.get('sector'):
-            desc.append(f"Sector: {raw.get('sector')}")
+        sector = datos.get('sector')
+        if sector:
+            desc.append(f"Sector: {sector}")
 
         # Mostrar detalles de cada entrada
-        detalles = raw.get('detalles_entradas', [])
-        if detalles:
+        detalles = datos.get('detalles_entradas', [])
+        if detalles and isinstance(detalles, list):
             desc.append("\nUbicaciones:")
             for d in detalles:
-                puesto = d.get('puesto', '')
-                ubicacion = d.get('ubicacion', '')
-                desc.append(f"  • Puesto {puesto}: {ubicacion}")
+                if isinstance(d, dict):
+                    fila = d.get('fila', '')
+                    asiento = d.get('asiento', '')
+                    desc.append(f"  • Fila {fila}: Asiento {asiento}")
     elif tipo == 'restaurante':
-        desc.append(f"Restaurante: {viaje.proveedor or viaje.descripcion}")
-        if viaje.ubicacion:
-            desc.append(f"Dirección: {viaje.ubicacion}")
+        nombre_rest = get_dato(viaje, 'nombre') or proveedor or descripcion
+        desc.append(f"Restaurante: {nombre_rest}")
+        direccion = get_dato(viaje, 'direccion') or get_dato(viaje, 'ubicacion')
+        if direccion:
+            desc.append(f"Dirección: {direccion}")
     elif tipo == 'actividad':
-        desc.append(f"Actividad: {viaje.descripcion or viaje.proveedor}")
-        if viaje.ubicacion:
-            desc.append(f"Punto de encuentro: {viaje.ubicacion}")
+        nombre_act = get_dato(viaje, 'nombre') or descripcion or proveedor
+        desc.append(f"Actividad: {nombre_act}")
+        punto_encuentro = get_dato(viaje, 'punto_encuentro') or get_dato(viaje, 'ubicacion')
+        if punto_encuentro:
+            desc.append(f"Punto de encuentro: {punto_encuentro}")
     elif tipo == 'auto':
-        desc.append(f"Rental: {viaje.proveedor}")
-        if viaje.origen:
-            desc.append(f"Retiro: {viaje.origen}")
-        if viaje.destino:
-            desc.append(f"Devolución: {viaje.destino}")
+        empresa = get_dato(viaje, 'empresa') or proveedor
+        desc.append(f"Rental: {empresa}")
+        lugar_retiro = get_dato(viaje, 'lugar_retiro') or origen
+        lugar_devolucion = get_dato(viaje, 'lugar_devolucion') or destino
+        if lugar_retiro:
+            desc.append(f"Retiro: {lugar_retiro}")
+        if lugar_devolucion:
+            desc.append(f"Devolución: {lugar_devolucion}")
     elif tipo == 'tren':
-        desc.append(f"Tren: {viaje.proveedor or 'Tren'}")
-        if viaje.origen:
-            desc.append(f"Salida: Estación {viaje.origen}")
-        if viaje.destino:
-            desc.append(f"Llegada: Estación {viaje.destino}")
+        operador = get_dato(viaje, 'operador') or proveedor or 'Tren'
+        desc.append(f"Tren: {operador}")
+        if origen:
+            desc.append(f"Salida: Estación {origen}")
+        if destino:
+            desc.append(f"Llegada: Estación {destino}")
     elif tipo == 'transfer':
-        desc.append(f"Transfer: {viaje.descripcion or 'Traslado'}")
-        if viaje.proveedor:
-            desc.append(f"Empresa: {viaje.proveedor}")
+        desc.append(f"Transfer: {descripcion or 'Traslado'}")
+        empresa = get_dato(viaje, 'empresa') or proveedor
+        if empresa:
+            desc.append(f"Empresa: {empresa}")
     else:
-        desc.append(f"{viaje.descripcion or viaje.proveedor or 'Reserva'}")
+        desc.append(f"{descripcion or proveedor or 'Reserva'}")
 
     # Código de reserva (todos los tipos)
+    codigo_reserva = get_dato(viaje, 'codigo_reserva')
     if getattr(viaje, '_es_combinado', False) and hasattr(viaje, '_codigos_reserva'):
         desc.append(f"\nCódigos: {', '.join(viaje._codigos_reserva)}")
-    elif viaje.codigo_reserva:
-        desc.append(f"\nCódigo: {viaje.codigo_reserva}")
+    elif codigo_reserva:
+        desc.append(f"\nCódigo: {codigo_reserva}")
     
     # MVP11: Pasajeros - usar combinados si disponible
     pasajeros_a_mostrar = []
