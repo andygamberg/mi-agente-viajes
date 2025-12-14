@@ -195,12 +195,22 @@ def process_new_emails(connection, history_id):
                         continue
                     
                     grupo = str(uuid.uuid4())[:8]
-                    
+
                     for v in vuelos:
-                        fecha_str = v.get('fecha_salida')
-                        hora = v.get('hora_salida', '')
+                        # Validar datos mínimos antes de crear viaje
+                        fecha_str = v.get('fecha_salida') or v.get('fecha_embarque') or v.get('fecha') or v.get('fecha_checkin') or v.get('fecha_retiro')
+
                         if not fecha_str:
+                            print(f"⚠️ Reserva sin fecha, ignorando: {v.get('descripcion', 'Sin descripción')}")
                             continue
+
+                        # Truncar codigo_reserva si es muy largo
+                        codigo = v.get('codigo_reserva', '')
+                        if len(codigo) > 250:
+                            print(f"⚠️ Código reserva muy largo ({len(codigo)} chars), truncando: {codigo[:50]}...")
+                            v['codigo_reserva'] = codigo[:250]
+
+                        hora = v.get('hora_salida', '')
                         
                         try:
                             if hora:

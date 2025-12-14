@@ -155,7 +155,7 @@ class Viaje(db.Model):
     hora_llegada = db.Column(db.String(10))
     aerolinea = db.Column(db.String(100))
     numero_vuelo = db.Column(db.String(50))
-    codigo_reserva = db.Column(db.String(50))
+    codigo_reserva = db.Column(db.String(255))  # Aumentado para expediciones/charters
     terminal = db.Column(db.String(50))
     puerta = db.Column(db.String(20))
     asiento = db.Column(db.String(20))

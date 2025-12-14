@@ -490,8 +490,14 @@ def carga_rapida():
                     destino = reserva_data.get('hasta')
                     proveedor = reserva_data.get('empresa')
 
+                # Truncar codigo_reserva si es muy largo
+                if codigo_reserva and len(codigo_reserva) > 250:
+                    print(f"⚠️ Código reserva muy largo ({len(codigo_reserva)} chars), truncando")
+                    codigo_reserva = codigo_reserva[:250]
+
                 # Verificar fecha mínima
                 if not fecha_salida:
+                    print(f"⚠️ Reserva sin fecha, ignorando: {descripcion}")
                     continue
 
                 # Crear viaje

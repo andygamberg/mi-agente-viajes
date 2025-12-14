@@ -54,6 +54,13 @@ IMPORTANTE:
 - Fechas en formato YYYY-MM-DD
 - Horas en formato HH:MM (24h)
 
+IMPORTANTE - VALIDACIÓN:
+- Si no podés extraer una fecha válida → NO incluyas el objeto en el array
+- Si es una expedición, crucero de aventura, o charter → tipo: "crucero" o "barco"
+- Si es un email informativo sin reserva confirmada → devolver []
+- NUNCA devolver objetos con fecha_salida: null, fecha_embarque: null, o fecha: null
+- Si no hay fecha, NO incluir el objeto
+
 IMPORTANTE - CONSOLIDACIÓN DE ENTRADAS:
 Para espectáculos/eventos con múltiples entradas/tickets del MISMO evento (misma fecha, mismo venue):
 - Crear UN SOLO objeto con el total de entradas
