@@ -452,7 +452,10 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
         pasajeros_a_mostrar = viaje._pasajeros_combinados
     elif viaje.pasajeros:
         try:
-            pasajeros_a_mostrar = json.loads(viaje.pasajeros)
+            parsed = json.loads(viaje.pasajeros)
+            # Validar que sea una lista de dicts (no un int como 8 para charters)
+            if isinstance(parsed, list) and all(isinstance(p, dict) for p in parsed):
+                pasajeros_a_mostrar = parsed
         except:
             pasajeros_a_mostrar = []
 
