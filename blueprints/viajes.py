@@ -318,6 +318,100 @@ def eliminar(id):
     return redirect(url_for('viajes.index'))
 
 
+@viajes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar(id):
+    """MVP-EDIT: Editar reserva existente"""
+    from config.schemas import get_all_tipos
+
+    viaje = Viaje.query.get_or_404(id)
+
+    # Verificar que el usuario puede editar este viaje
+    if viaje.user_id != current_user.id:
+        flash("No tenés permiso para editar esta reserva", "error")
+        return redirect(url_for('viajes.index'))
+
+    # Permitir cambiar tipo via query param (para preview de campos)
+    tipo_actual = request.args.get('tipo', viaje.tipo or 'vuelo')
+    schema = get_schema(tipo_actual)
+
+    if request.method == 'POST':
+        try:
+            # Construir datos desde form
+            nuevo_tipo = request.form.get('tipo', tipo_actual)
+            nuevos_datos = {}
+
+            schema_post = get_schema(nuevo_tipo)
+            for campo in schema_post['campos']:
+                key = campo['key']
+
+                if campo['type'] == 'list':
+                    # Parsear campos de lista (pasajeros, vehículos, etc.)
+                    items = []
+                    idx = 0
+                    while True:
+                        item = {}
+                        has_data = False
+                        for subfield in campo.get('item_fields', []):
+                            form_key = f"{key}[{idx}][{subfield}]"
+                            value = request.form.get(form_key, '').strip()
+                            if value:
+                                has_data = True
+                                item[subfield] = value
+                        if not has_data:
+                            break
+                        if item:
+                            items.append(item)
+                        idx += 1
+                    if items:
+                        nuevos_datos[key] = items
+                else:
+                    # Campo simple
+                    value = request.form.get(key, '').strip()
+                    if value:
+                        nuevos_datos[key] = value
+
+            # Actualizar viaje
+            viaje.tipo = nuevo_tipo
+            viaje.datos = nuevos_datos
+
+            # Actualizar campos legacy para compatibilidad
+            viaje.origen = nuevos_datos.get('origen', nuevos_datos.get('puerto_embarque', nuevos_datos.get('lugar_retiro', '')))
+            viaje.destino = nuevos_datos.get('destino', nuevos_datos.get('puerto_desembarque', nuevos_datos.get('lugar_devolucion', '')))
+            viaje.fecha_salida = None
+            fecha_str = nuevos_datos.get('fecha_salida', nuevos_datos.get('fecha_embarque', nuevos_datos.get('fecha_checkin', nuevos_datos.get('fecha', ''))))
+            if fecha_str:
+                try:
+                    viaje.fecha_salida = datetime.strptime(fecha_str, '%Y-%m-%d')
+                except:
+                    pass
+
+            viaje.aerolinea = nuevos_datos.get('aerolinea', nuevos_datos.get('compania', nuevos_datos.get('empresa', '')))
+            viaje.numero_vuelo = nuevos_datos.get('numero_vuelo', '')
+            viaje.codigo_reserva = nuevos_datos.get('codigo_reserva', '')
+
+            db.session.commit()
+            flash("✓ Reserva actualizada", "success")
+            return redirect(url_for('viajes.index'))
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            db.session.rollback()
+            flash(f"Error al guardar: {str(e)}", "error")
+
+    # GET: Preparar datos para template
+    datos = viaje.datos or {}
+    tipos_disponibles = get_all_tipos()
+
+    return render_template('editar.html',
+                         viaje=viaje,
+                         schema=schema,
+                         datos=datos,
+                         tipos_disponibles=tipos_disponibles,
+                         modo='editar')
+
+
 @viajes_bp.route('/guardar-vuelos', methods=['POST'])
 @login_required
 def guardar_vuelos():

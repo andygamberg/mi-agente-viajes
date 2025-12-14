@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Editar {{ schema.titulo }} - Mi Agente Viajes{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Estilos de formulario */
+.page-header {
+    margin-bottom: 32px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.form-section {
+    margin-bottom: 28px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+label .optional {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+}
+
+input::placeholder {
+    color: var(--text-muted);
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 44px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+}
+
+.form-actions .btn {
+    flex: 1;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .card { padding: 24px 20px; }
+    .form-actions { flex-direction: column; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Editar {{ schema.titulo }}</h1>
+    <p class="subtitle">Modificá los datos de tu reserva</p>
+</div>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-section">
+            <div class="section-title">Tipo de reserva</div>
+            <div class="form-group">
+                <label for="tipoSelect">Tipo</label>
+                <select name="tipo" id="tipoSelect" onchange="cambiarTipo(this.value)">
+                    {% for tipo_key, tipo_titulo in tipos_disponibles %}
+                    <option value="{{ tipo_key }}" {% if tipo_key == viaje.tipo %}selected{% endif %}>
+                        {{ tipo_titulo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-section" id="camposDinamicos">
+            <div class="section-title">Detalles</div>
+            {% include 'partials/_form_fields.html' %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a href="{{ url_for('viajes.index') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function cambiarTipo(nuevoTipo) {
+    // Redirigir a la misma página con nuevo tipo para recargar campos
+    // Preservar el ID de viaje
+    const viajeId = {{ viaje.id }};
+    window.location.href = `/editar/${viajeId}?tipo=${nuevoTipo}`;
+}
+</script>
+{% endblock %}

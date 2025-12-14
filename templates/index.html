@@ -755,7 +755,42 @@
 
         /* JSONB Partial Styles - _segment.html */
         .segment-content {
-            /* No additional styling needed - just a wrapper */
+            position: relative;
+        }
+
+        /* Botón editar flotante */
+        .btn-edit-segment {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .segment:hover .btn-edit-segment {
+            opacity: 1;
+        }
+
+        .btn-edit-segment:hover {
+            background: var(--bg);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-edit-segment svg {
+            width: 16px;
+            height: 16px;
         }
 
         .segment-route {
