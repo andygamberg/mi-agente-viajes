@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import JSONB
 import uuid
 
 db = SQLAlchemy()
@@ -175,6 +176,7 @@ class Viaje(db.Model):
     proveedor = db.Column(db.String(200))   # nombre del hotel/restaurante/empresa/aerolinea
     precio = db.Column(db.String(100))      # "USD 450", "€748", formato libre
     raw_data = db.Column(db.Text)           # JSON completo de Claude como backup
+    datos = db.Column(JSONB)                # JSON estructurado con toda la info del tipo (migración JSONB)
 
     # Campos para monitoreo FR24
     ultima_actualizacion_fr24 = db.Column(db.DateTime)
