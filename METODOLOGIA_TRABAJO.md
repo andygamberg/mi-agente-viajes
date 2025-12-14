@@ -196,12 +196,13 @@ gcloud run services update mi-agente-viajes --update-env-vars KEY=value --region
 | Planning, arquitectura, research | Ejecutar ediciones en archivos |
 | Ve todo el contexto del proyecto | Ve solo archivos locales |
 | Prepara instrucciones detalladas | Aplica cambios, muestra diff |
-| NO puede editar archivos | NO puede hacer git/deploy |
+| NO puede editar archivos | ✅ Puede hacer git/deploy (Meta 1) |
 
-**Reglas:**
-- Claude Code sidebar = solo editar código
-- Terminal directa = git, gcloud, comandos con auth
-- Nunca pedir a Claude Code que haga deploy
+**Reglas (Meta 1 - Actualizado):**
+- Claude Code puede ejecutar git add, commit, push
+- Claude Code puede ejecutar gcloud deploy
+- Claude Code puede ejecutar smoke tests
+- Andy solo aprueba decisiones de producto/UX
 
 ### Comandos frecuentes
 

@@ -1,7 +1,8 @@
 # 🤖 Workflow Agéntico - Mi Agente Viajes
 
-**Versión:** 1.0  
-**Fecha:** 12 Diciembre 2025
+**Versión:** 2.0 (Meta 1)
+**Fecha:** 15 Diciembre 2025
+**Cambio:** Claude Code ahora ejecuta git, deploy y smoke tests
 
 ---
 
@@ -11,7 +12,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                      ANDY (Humano)                          │
 │  • Visión de producto    • Prioridades    • Validación      │
-│  • Decisiones UX         • Git/Deploy     • Testing final   │
+│  • Decisiones UX         • Testing final  • Aprobación      │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -26,8 +27,8 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                 CLAUDE CODE (Ejecutor)                      │
 │  • Edición de archivos    • Implementación                  │
-│  • Verificaciones         • Refactors                       │
-│  • UN archivo a la vez    • Propone, no decide              │
+│  • Git + Deploy (Meta 1)  • Refactors                       │
+│  • Smoke tests            • Propone, no decide              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -79,12 +80,12 @@ Por favor revisá CLAUDE.md, METODOLOGIA_TRABAJO.md y ROADMAP.md.
 1. DEFINIR: Andy describe qué necesita
 2. PLANEAR: Claude.ai propone solución
 3. APROBAR: Andy valida enfoque
-4. EJECUTAR: Claude Code edita archivos (uno a uno)
-5. VERIFICAR: Andy revisa con git diff
-6. COMMIT: Andy ejecuta git add/commit/push
-7. DEPLOY: Andy ejecuta gcloud deploy
-8. TEST: Smoke tests
-9. SYNC: Actualizar Project Knowledge (🔄)
+4. EJECUTAR: Claude Code edita archivos
+5. COMMIT: Claude Code ejecuta git add/commit/push (Meta 1)
+6. DEPLOY: Claude Code ejecuta gcloud deploy (Meta 1)
+7. TEST: Claude Code ejecuta smoke tests
+8. REPORTAR: Claude Code informa resultados
+9. SYNC: Actualizar Project Knowledge si hubo cambios grandes (🔄)
 ```
 
 ### Cierre de Sesión
@@ -107,19 +108,18 @@ Antes de cerrar, verificar:
 | Editar archivos | Claude Code |
 | Ver contenido (cat, tail) | Claude Code |
 | Proponer soluciones | Claude Code |
-| Git operations | Andy |
-| Deploy | Andy |
+| Git operations | Claude Code ✅ (Meta 1) |
+| Deploy | Claude Code ✅ (Meta 1) |
+| Smoke tests | Claude Code ✅ (Meta 1) |
 | Decisiones de producto | Andy |
 
 ### NO HACER ❌
 
 | Acción | Por qué |
 |--------|---------|
-| Múltiples archivos a la vez | Causa "incompatible messages" |
-| Claude Code ejecuta git | No tiene permisos |
-| Claude Code ejecuta gcloud | No tiene permisos |
 | Regenerar archivos >200 líneas | Riesgo de truncamiento |
 | Saltar verificaciones | Causa errores en deploy |
+| Decidir producto sin Andy | Solo Andy aprueba features/UX |
 
 ---
 
