@@ -272,17 +272,41 @@ def _crear_evento_allday(grupo_id, viajes):
     return event
 
 
+def _es_evento_allday(viaje):
+    """
+    Determina si un evento debe ser all-day (sin hora específica)
+
+    - Hotels y autos: siempre all-day
+    - Cruceros/barcos: all-day solo si duran más de 24 horas (no ferries)
+    - Todo lo demás: hora específica
+    """
+    # Hoteles y autos siempre all-day
+    if viaje.tipo in ['hotel', 'auto']:
+        return True
+
+    # Crucero/barco: all-day si dura más de 24 horas
+    if viaje.tipo in ['crucero', 'barco']:
+        if viaje.fecha_llegada and viaje.fecha_salida:
+            duracion = viaje.fecha_llegada - viaje.fecha_salida
+            if duracion.total_seconds() > 24 * 3600:
+                return True
+        return False
+
+    # Todo lo demás tiene hora específica
+    return False
+
+
 def _formatear_nombre_pasajero(nombre_completo):
     """
     Convierte APELLIDO/NOMBRE1 NOMBRE2 a Nombre1 Apellido
-    
+
     Ejemplos:
         GAMBERG/ANDRES GUILLERMO -> Andrés Gamberg
         GERSZKOWICZ/VERONICA BEATRIZ -> Verónica Gerszkowicz
     """
     if not nombre_completo:
         return nombre_completo
-    
+
     if '/' in nombre_completo:
         parts = nombre_completo.split('/')
         apellido = parts[0].strip().title()
@@ -489,57 +513,73 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
 
     event.add('description', '\n'.join(desc))
 
-    # Fechas y horas - calcular dtstart y dtend según tipo
-    if viaje.hora_salida:
-        try:
-            hora_inicio = datetime.strptime(viaje.hora_salida, '%H:%M').time()
-        except:
-            hora_inicio = datetime.strptime('09:00', '%H:%M').time()
+    # Determinar si es evento all-day
+    es_allday = _es_evento_allday(viaje)
+
+    if es_allday:
+        # Eventos all-day: usar formato DATE (sin hora)
+        fecha_inicio = viaje.fecha_salida.date()
+
+        # Calcular fecha_fin
+        if viaje.fecha_llegada:
+            # DTEND es EXCLUSIVO: el día DESPUÉS del último día
+            fecha_fin = viaje.fecha_llegada.date() + timedelta(days=1)
+        else:
+            # Estimar duración
+            if tipo == 'hotel':
+                fecha_fin = fecha_inicio + timedelta(days=2)  # 1 noche = check-out al día siguiente
+            elif tipo == 'auto':
+                fecha_fin = fecha_inicio + timedelta(days=8)  # 7 días
+            else:
+                fecha_fin = fecha_inicio + timedelta(days=2)
+
+        # Para all-day events, NO usar tz.localize, solo fecha
+        event.add('dtstart', fecha_inicio)
+        event.add('dtend', fecha_fin)
+
     else:
-        # Horas por defecto según tipo
-        if tipo == 'hotel':
-            hora_inicio = datetime.strptime('15:00', '%H:%M').time()
-        elif tipo == 'espectaculo':
-            hora_inicio = datetime.strptime('20:00', '%H:%M').time()
-        elif tipo == 'restaurante':
-            hora_inicio = datetime.strptime('20:00', '%H:%M').time()
+        # Eventos con hora específica: usar formato DATETIME
+        if viaje.hora_salida:
+            try:
+                hora_inicio = datetime.strptime(viaje.hora_salida, '%H:%M').time()
+            except:
+                hora_inicio = datetime.strptime('09:00', '%H:%M').time()
         else:
-            hora_inicio = datetime.strptime('09:00', '%H:%M').time()
+            # Horas por defecto según tipo
+            if tipo == 'espectaculo':
+                hora_inicio = datetime.strptime('20:00', '%H:%M').time()
+            elif tipo == 'restaurante':
+                hora_inicio = datetime.strptime('20:00', '%H:%M').time()
+            else:
+                hora_inicio = datetime.strptime('09:00', '%H:%M').time()
 
-    dtstart = datetime.combine(viaje.fecha_salida, hora_inicio)
+        dtstart = datetime.combine(viaje.fecha_salida, hora_inicio)
 
-    # Calcular dtend
-    if viaje.fecha_llegada and viaje.hora_llegada:
-        try:
-            hora_fin = datetime.strptime(viaje.hora_llegada, '%H:%M').time()
-            dtend = datetime.combine(viaje.fecha_llegada, hora_fin)
-        except:
-            dtend = dtstart + timedelta(hours=2)
-    elif viaje.fecha_llegada:
-        # Tiene fecha_llegada pero no hora
-        if tipo == 'hotel':
-            dtend = datetime.combine(viaje.fecha_llegada, datetime.strptime('11:00', '%H:%M').time())
-        else:
+        # Calcular dtend
+        if viaje.fecha_llegada and viaje.hora_llegada:
+            try:
+                hora_fin = datetime.strptime(viaje.hora_llegada, '%H:%M').time()
+                dtend = datetime.combine(viaje.fecha_llegada, hora_fin)
+            except:
+                dtend = dtstart + timedelta(hours=2)
+        elif viaje.fecha_llegada:
+            # Tiene fecha_llegada pero no hora
             dtend = datetime.combine(viaje.fecha_llegada, hora_inicio)
-    else:
-        # No tiene fecha_llegada - estimar duración
-        if tipo == 'hotel':
-            dtend = dtstart + timedelta(days=1)
-        elif tipo == 'espectaculo':
-            dtend = dtstart + timedelta(hours=3)
-        elif tipo == 'restaurante':
-            dtend = dtstart + timedelta(hours=2)
-        elif tipo == 'actividad':
-            dtend = dtstart + timedelta(hours=4)
-        elif tipo == 'transfer':
-            dtend = dtstart + timedelta(hours=1)
-        elif tipo == 'auto':
-            dtend = dtstart + timedelta(days=7)
         else:
-            dtend = dtstart + timedelta(hours=2)
+            # No tiene fecha_llegada - estimar duración
+            if tipo == 'espectaculo':
+                dtend = dtstart + timedelta(hours=3)
+            elif tipo == 'restaurante':
+                dtend = dtstart + timedelta(hours=2)
+            elif tipo == 'actividad':
+                dtend = dtstart + timedelta(hours=4)
+            elif tipo == 'transfer':
+                dtend = dtstart + timedelta(hours=1)
+            else:
+                dtend = dtstart + timedelta(hours=2)
 
-    event.add('dtstart', tz.localize(dtstart))
-    event.add('dtend', tz.localize(dtend))
+        event.add('dtstart', tz.localize(dtstart))
+        event.add('dtend', tz.localize(dtend))
 
     # Location según tipo
     if tipo == 'vuelo':
