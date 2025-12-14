@@ -568,3 +568,76 @@ def assign_viajes(user_id):
         return {'success': True, 'viajes_asignados': count}, 200
     except Exception as e:
         return {'success': False, 'error': str(e)}, 500
+
+
+@api_bp.route('/admin/migrate-jsonb')
+def migrate_jsonb():
+    """Endpoint temporal - ejecutar migración JSONB. ELIMINAR DESPUÉS DE USAR."""
+    import json
+    from models import db, Viaje
+
+    try:
+        viajes = Viaje.query.all()
+        total = len(viajes)
+        migrados = 0
+        errores = 0
+
+        for viaje in viajes:
+            try:
+                if viaje.raw_data:
+                    datos = json.loads(viaje.raw_data)
+                else:
+                    datos = {
+                        'tipo': viaje.tipo or 'vuelo',
+                        'descripcion': viaje.descripcion,
+                        'origen': viaje.origen,
+                        'destino': viaje.destino,
+                        'codigo_reserva': viaje.codigo_reserva,
+                        'aerolinea': viaje.aerolinea,
+                        'numero_vuelo': viaje.numero_vuelo,
+                        'terminal': viaje.terminal,
+                        'puerta': viaje.puerta,
+                        'asiento': viaje.asiento,
+                        'proveedor': viaje.proveedor,
+                        'ubicacion': viaje.ubicacion,
+                        'precio': viaje.precio,
+                    }
+                    if viaje.fecha_salida:
+                        datos['fecha_salida'] = viaje.fecha_salida.strftime('%Y-%m-%d')
+                    if viaje.hora_salida:
+                        datos['hora_salida'] = viaje.hora_salida
+                    if viaje.fecha_llegada:
+                        datos['fecha_llegada'] = viaje.fecha_llegada.strftime('%Y-%m-%d')
+                    if viaje.hora_llegada:
+                        datos['hora_llegada'] = viaje.hora_llegada
+                    if viaje.pasajeros:
+                        try:
+                            datos['pasajeros'] = json.loads(viaje.pasajeros)
+                        except:
+                            pass
+
+                if 'tipo' not in datos:
+                    datos['tipo'] = viaje.tipo or 'vuelo'
+
+                viaje.datos = datos
+                migrados += 1
+
+            except Exception as e:
+                errores += 1
+
+        db.session.commit()
+
+        # Verificar
+        con_datos = Viaje.query.filter(Viaje.datos.isnot(None)).count()
+
+        return {
+            'success': True,
+            'total': total,
+            'migrados': migrados,
+            'errores': errores,
+            'verificacion_con_datos': con_datos
+        }
+
+    except Exception as e:
+        db.session.rollback()
+        return {'success': False, 'error': str(e)}, 500
