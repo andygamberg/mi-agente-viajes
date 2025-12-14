@@ -102,6 +102,44 @@
 
 <style>
 /* ===========================================
+   Form Fields - Tipografía legible
+   =========================================== */
+
+.form-group label {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.form-group .optional {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;  /* 16px mínimo para evitar zoom en iOS */
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text);
+    transition: border-color 0.15s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* ===========================================
    List Fields - Campos repetibles
    =========================================== */
 
@@ -121,7 +159,7 @@
     display: flex;
     gap: 8px;
     align-items: center;
-    padding: 8px;
+    padding: 14px 16px;
     background: var(--bg);
     border-radius: var(--radius);
     border: 1px solid var(--border-light);
@@ -131,7 +169,7 @@
     flex: 1;
     min-width: 0;
     padding: 10px 12px;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .btn-remove-item {
@@ -146,7 +184,7 @@
     color: var(--text-muted);
     border-radius: var(--radius);
     cursor: pointer;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1;
     transition: all 0.2s;
     padding: 0;

@@ -764,39 +764,76 @@
             position: relative;
         }
 
-        /* Botón editar flotante */
-        .btn-edit-segment {
+        /* Menú kebab de segmento */
+        .segment-actions {
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-card);
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            color: var(--text-muted);
-            text-decoration: none;
-            opacity: 0;
-            transition: all 0.2s;
+            top: 12px;
+            right: 12px;
             z-index: 10;
         }
 
-        .segment:hover .btn-edit-segment {
-            opacity: 1;
+        .btn-kebab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s;
         }
 
-        .btn-edit-segment:hover {
+        .btn-kebab:hover {
             background: var(--bg);
-            border-color: var(--accent);
-            color: var(--accent);
+            color: var(--text);
+            border-color: var(--border);
         }
 
-        .btn-edit-segment svg {
+        .btn-kebab .icon-sm {
             width: 16px;
             height: 16px;
+        }
+
+        .segment-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 160px;
+            overflow: hidden;
+        }
+
+        .segment-menu.open {
+            display: block;
+        }
+
+        .segment-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+
+        .segment-menu-item:hover {
+            background: var(--bg);
+        }
+
+        .segment-menu-item .icon-sm {
+            width: 16px;
+            height: 16px;
+            color: var(--text-secondary);
         }
 
         .segment-route {
@@ -1830,7 +1867,32 @@
             event.stopPropagation();
             card.classList.toggle('collapsed');
         }
-        
+
+        // Toggle menú de segmento
+        function toggleSegmentMenu(event, btn) {
+            event.stopPropagation();
+
+            // Cerrar otros menús abiertos
+            document.querySelectorAll('.segment-menu.open').forEach(menu => {
+                if (menu !== btn.nextElementSibling) {
+                    menu.classList.remove('open');
+                }
+            });
+
+            // Toggle este menú
+            const menu = btn.nextElementSibling;
+            menu.classList.toggle('open');
+        }
+
+        // Cerrar menú al hacer click fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.segment-actions')) {
+                document.querySelectorAll('.segment-menu.open').forEach(menu => {
+                    menu.classList.remove('open');
+                });
+            }
+        });
+
         function handleCardClick(event, grupoId) {
             if (groupMode) {
                 toggleSelection(grupoId, 'group');
