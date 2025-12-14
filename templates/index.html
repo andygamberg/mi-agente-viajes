@@ -1482,7 +1482,7 @@
                                 {% elif vuelo.pasajeros %}
                                 {# Pasajeros normales (sin combinar) #}
                                 {% set pasajeros_list = vuelo.pasajeros|fromjson %}
-                                {% if pasajeros_list %}
+                                {% if pasajeros_list is iterable and pasajeros_list is not string %}
                                 <div class="passengers-section">
                                     <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1796,7 +1796,7 @@
                                 </div>
                                 {% elif vuelo.pasajeros %}
                                 {% set pasajeros_list = vuelo.pasajeros|fromjson %}
-                                {% if pasajeros_list %}
+                                {% if pasajeros_list is iterable and pasajeros_list is not string %}
                                 <div class="passengers-section">
                                     <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
