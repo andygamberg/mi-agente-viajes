@@ -268,11 +268,21 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                     vuelos = extraer_info_con_claude(full_content)
 
                     if not vuelos:
+                        print(f"        ⚠️ Claude no extrajo ninguna reserva")
                         continue
+
+                    print(f"        ✅ Claude extrajo {len(vuelos)} reserva(s)")
+                    for idx, vuelo in enumerate(vuelos):
+                        tipo = vuelo.get('tipo', 'vuelo')
+                        if tipo == 'vuelo':
+                            print(f"          [{idx+1}] {vuelo.get('origen', '?')} → {vuelo.get('destino', '?')} | {vuelo.get('aerolinea', '?')} {vuelo.get('numero_vuelo', '?')} | {vuelo.get('fecha_salida', '?')} {vuelo.get('hora_salida', '?')} | Pasajeros: {len(vuelo.get('pasajeros', []))}")
+                        else:
+                            print(f"          [{idx+1}] {tipo}: {vuelo.get('descripcion', vuelo.get('nombre', vuelo.get('evento', '?')))}")
 
                     # Verificar duplicado por código
                     codigo = vuelos[0].get('codigo_reserva')
                     if codigo and check_duplicate(codigo, user_id):
+                        print(f"        ⏭️ Duplicado por código: {codigo}")
                         results['viajes_duplicados'] += 1
                         continue
 
@@ -285,46 +295,41 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                         primer_vuelo.get('origen'),
                         primer_vuelo.get('destino')
                     ):
+                        print(f"        ⏭️ Duplicado por contenido: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('origen')}→{primer_vuelo.get('destino')} {primer_vuelo.get('fecha_salida')}")
                         results['viajes_duplicados'] += 1
                         continue
 
-                    # Crear viajes
+                    # Crear viajes usando save_reservation()
+                    from utils.save_reservation import save_reservation
                     grupo = str(uuid.uuid4())[:8]
+
                     for v in vuelos:
-                        fecha_str = v.get('fecha_salida')
-                        hora = v.get('hora_salida', '')
-                        if not fecha_str:
-                            continue
-
                         try:
-                            if hora:
-                                fecha = datetime.strptime(f"{fecha_str} {hora}", '%Y-%m-%d %H:%M')
+                            # En backfill, solo procesar vuelos futuros
+                            fecha_str = v.get('fecha_salida') or v.get('fecha_checkin') or v.get('fecha_retiro') or v.get('fecha_embarque') or v.get('fecha')
+                            if is_first_scan and fecha_str:
+                                try:
+                                    fecha_check = datetime.strptime(fecha_str, '%Y-%m-%d')
+                                    if fecha_check.date() < datetime.utcnow().date():
+                                        print(f"        ⏭️ Saltando reserva pasada en backfill: {fecha_str}")
+                                        continue
+                                except:
+                                    pass
+
+                            viaje = save_reservation(
+                                user_id=user_id,
+                                datos_dict=v,
+                                grupo_id=grupo
+                            )
+                            results['viajes_creados'] += 1
+                            tipo = v.get('tipo', 'vuelo')
+                            if tipo == 'vuelo':
+                                print(f"        ✅ Vuelo creado: {v.get('origen')} → {v.get('destino')} ({v.get('numero_vuelo', 'sin #')})")
                             else:
-                                fecha = datetime.strptime(fecha_str, '%Y-%m-%d')
-                        except:
+                                print(f"        ✅ {tipo.capitalize()} creado: {v.get('descripcion', v.get('nombre', v.get('evento', '?')))}")
+                        except ValueError as e:
+                            print(f"        ⚠️ Error guardando reserva: {e}")
                             continue
-
-                        # En backfill, solo procesar vuelos futuros
-                        if is_first_scan and fecha.date() < datetime.utcnow().date():
-                            print(f"        ⏭️ Saltando vuelo pasado en backfill: {fecha_str}")
-                            continue
-
-                        viaje = Viaje(
-                            user_id=user_id,
-                            tipo='vuelo',
-                            descripcion='',
-                            origen=v.get('origen', ''),
-                            destino=v.get('destino', ''),
-                            fecha_salida=fecha,
-                            hora_salida=hora,
-                            aerolinea=v.get('aerolinea', ''),
-                            numero_vuelo=v.get('numero_vuelo', ''),
-                            codigo_reserva=codigo or '',
-                            pasajeros='[]',
-                            grupo_viaje=grupo
-                        )
-                        db.session.add(viaje)
-                        results['viajes_creados'] += 1
 
                     db.session.commit()
 

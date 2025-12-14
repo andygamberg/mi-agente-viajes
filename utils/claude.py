@@ -263,10 +263,10 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
         if '```' in texto:
             texto = texto.split('```')[1].replace('json','').strip()
 
-        logging.info("=" * 80)
-        logging.info("📝 JSON RECIBIDO DE CLAUDE:")
-        logging.info(texto)
-        logging.info("=" * 80)
+        print("=" * 80)
+        print("📝 JSON RECIBIDO DE CLAUDE:")
+        print(texto)
+        print("=" * 80)
         reservas = json.loads(texto)
 
         # Corregir años si es necesario (aplica a todos los tipos)
@@ -276,9 +276,10 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
                 if reserva.get(campo, '').startswith(('2020','2021','2022','2023','2024')):
                     reserva[campo] = reserva[campo].replace(reserva[campo][:4], str(target_year))
 
-        logging.info(f"✓ Extraídas {len(reservas)} reservas")
+        print(f"✓ Extraídas {len(reservas)} reservas")
         return reservas
 
     except Exception as e:
+        print(f"❌ Error en Claude: {e}")
         logging.error(f"Error: {e}")
         return None
