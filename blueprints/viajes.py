@@ -179,43 +179,71 @@ def bienvenida():
 @viajes_bp.route('/agregar', methods=['GET', 'POST'])
 @login_required
 def agregar():
+    """MVP16: Agregar reserva con schemas dinámicos"""
+    from config.schemas import get_schema, get_all_tipos
+
+    # Tipo por defecto o desde query param
+    tipo_actual = request.args.get('tipo', 'vuelo')
+    schema = get_schema(tipo_actual)
+    tipos_disponibles = get_all_tipos()
+
     if request.method == 'POST':
         try:
-            # Construir datos desde form
-            datos_form = {
-                'tipo': request.form.get('tipo', 'vuelo'),
-                'descripcion': request.form.get('descripcion', ''),
-                'origen': request.form.get('origen', ''),
-                'destino': request.form.get('destino', ''),
-                'fecha_salida': request.form.get('fecha_salida'),
-                'hora_salida': request.form.get('hora_salida', ''),
-                'fecha_llegada': request.form.get('fecha_llegada'),
-                'hora_llegada': request.form.get('hora_llegada', ''),
-                'aerolinea': request.form.get('aerolinea', ''),
-                'numero_vuelo': request.form.get('numero_vuelo', ''),
-                'codigo_reserva': request.form.get('codigo_reserva', ''),
-                'terminal': request.form.get('terminal', ''),
-                'puerta': request.form.get('puerta', ''),
-                'asiento': request.form.get('asiento', ''),
-                'notas': request.form.get('notas', ''),
-            }
+            nuevo_tipo = request.form.get('tipo', 'vuelo')
+            datos = {}
+
+            schema_post = get_schema(nuevo_tipo)
+            for campo in schema_post['campos']:
+                key = campo['key']
+
+                if campo['type'] == 'list':
+                    # Parsear campos de lista
+                    items = []
+                    idx = 0
+                    while True:
+                        item = {}
+                        has_data = False
+                        for subfield in campo.get('item_fields', []):
+                            form_key = f"{key}[{idx}][{subfield}]"
+                            value = request.form.get(form_key, '').strip()
+                            if value:
+                                has_data = True
+                                item[subfield] = value
+                        if not has_data:
+                            break
+                        if item:
+                            items.append(item)
+                        idx += 1
+                    if items:
+                        datos[key] = items
+                else:
+                    value = request.form.get(key, '').strip()
+                    if value:
+                        datos[key] = value
+
+            # Agregar tipo
+            datos['tipo'] = nuevo_tipo
 
             nuevo_viaje = save_reservation(
                 user_id=current_user.id,
-                datos_dict=datos_form
+                datos_dict=datos
             )
             db.session.commit()
+            flash("✓ Reserva agregada", "success")
             return redirect(url_for('viajes.index'))
 
         except ValueError as e:
             flash(f"Error: {e}", "error")
-            return render_template('agregar.html')
         except Exception as e:
             import traceback
             traceback.print_exc()
-            return f"Error: {str(e)}", 500
-    
-    return render_template('agregar.html')
+            flash(f"Error: {str(e)}", "error")
+
+    return render_template('agregar.html',
+                         schema=schema,
+                         datos={},
+                         tipos_disponibles=tipos_disponibles,
+                         modo='crear')
 
 
 @viajes_bp.route('/carga-rapida', methods=['GET', 'POST'])
