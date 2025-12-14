@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 14 Diciembre 2025
+**Última actualización:** 15 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -38,6 +38,7 @@
 | **14h** | **Microsoft OAuth** | **12 Dic 2025** | **Outlook, Hotmail, Exchange 365, corporativos** |
 | 15 | Onboarding post-registro | 14 Dic 2025 | Pantalla bienvenida con OAuth + nombre pax |
 | 15-UX | Template inheritance (base.html) | 14 Dic 2025 | Menú global, reducción código duplicado |
+| **15** | **Multi-Tipo de Reservas** | **15 Dic 2025** | **9 tipos: vuelos, hoteles, barcos, shows, restaurantes, actividades, autos, trenes, transfers** |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -255,7 +256,37 @@ Evento (tabla base)
 
 ---
 
-*Última actualización: 14 Dic 2025*
+*Última actualización: 15 Dic 2025*
+
+## ✅ MVP15: Multi-Tipo de Reservas (15 Dic 2025)
+
+### Backend
+- ✅ Whitelist expandida de 60 → 136 dominios (aerolíneas, hoteles, cruceros, actividades, autos, shows, restaurantes)
+- ✅ Nuevos campos en BD: `ubicacion`, `proveedor`, `precio`, `raw_data`
+- ✅ Guardado dinámico por tipo (9 tipos soportados)
+- ✅ Consolidación de múltiples entradas del mismo espectáculo en Claude prompt
+- ✅ Fix deduplicación: items no-vuelo usan `(v.id,)` como clave única
+
+### Frontend
+- ✅ Íconos SVG monocromo por tipo (design system Apple/B&O)
+- ✅ Layout condicional: transporte (origen→destino) vs lugares fijos (proveedor+ubicación)
+- ✅ Títulos inteligentes por tipo (hotel → ciudad hotel, barco → destino)
+- ✅ Persistencia de nombre editado en todas las funciones (carga_rapida, agrupar, desagrupar)
+- ✅ Fix botón Desagrupar: max-height aumentado a 8000px
+- ✅ Precio oculto en UI por privacidad
+
+### Calendario iCal
+- ✅ 9 tipos con emojis identificadores (✈️ 🏨 ⛵ 🎭 🍽️ 🎯 🚗 🚆 🚕)
+- ✅ Eventos all-day para hoteles, autos, cruceros largos (>24h)
+- ✅ Horarios reales desde raw_data (hora_embarque/hora_desembarque para ferries)
+- ✅ Detalles de entradas en espectáculos (detalles_entradas array)
+- ✅ Precio oculto en calendario por privacidad
+
+### Pendientes
+- [ ] MVP16: Carga Manual Multi-Tipo (UI para agregar hoteles, restaurantes, etc.)
+- [ ] Moorings/charter: mejorar extracción (caso específico)
+
+---
 
 ## ✅ Completados (14 Dic 2025)
 

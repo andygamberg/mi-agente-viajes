@@ -1,7 +1,7 @@
 # 🤖 Metodología de Trabajo AI-Assisted Development
 
 **Proyecto:** Mi Agente Viajes
-**Última actualización:** 12 Diciembre 2025
+**Última actualización:** 15 Diciembre 2025
 **Stack:** Flask + PostgreSQL + Google Cloud Run
 
 ---
@@ -516,6 +516,9 @@ gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthen
 | 11 | Deduplicación de vuelos compartidos | 10 Dic 2025 |
 | 12-14 | Onboarding, Notificaciones, Gmail | 10-11 Dic 2025 |
 | Meta 1 | Sistema agéntico | 12 Dic 2025 |
+| 14h | Microsoft OAuth | 12 Dic 2025 |
+| 15 | Onboarding post-registro + Template inheritance | 14 Dic 2025 |
+| **15** | **Multi-Tipo de Reservas (9 tipos)** | **15 Dic 2025** |
 
 ### URLs Importantes
 
@@ -560,7 +563,7 @@ Proyecto: Mi Agente Viajes
 Repo: github.com/andygamberg/mi-agente-viajes (conectado a Project Knowledge)
 Stack: Flask + PostgreSQL + Google Cloud Run
 URL: https://mi-agente-viajes-454542398872.us-east1.run.app
-Estado: MVP11 completado (10 Dic 2025)
+Estado: MVP15 completado (15 Dic 2025)
 Metodología: Ver METODOLOGIA_TRABAJO.md en el repo
 ```
 
@@ -600,3 +603,7 @@ Ver `DESIGN_SYSTEM.md` para el catálogo completo de iconos y cómo usarlos.
 | 11 Dic 2025 | Agregada estrategia para archivos largos (prompt a Claude Code) |
 | 11 Dic 2025 | Formalizado workflow: commit → sync → verificar → deploy |
 | 11 Dic 2025 | Obligatorio revisar docs clave en nuevas conversaciones |
+| 12 Dic 2025 | MVP14h: Microsoft OAuth completado |
+| 14 Dic 2025 | MVP15: Onboarding post-registro + base.html |
+| 15 Dic 2025 | MVP15: Multi-Tipo de Reservas (9 tipos) |
+| 15 Dic 2025 | Creado APRENDIZAJES.md (living document) |
