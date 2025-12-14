@@ -842,14 +842,20 @@ def desagrupar_grupo():
         # Crear nuevo grupo para cada reserva
         for codigo, vuelos_reserva in por_reserva.items():
             nuevo_grupo = str(uuid.uuid4())[:8]
-            vuelos_ordenados = sorted(vuelos_reserva, key=lambda x: x.fecha_salida)
-            ciudad_principal = calcular_ciudad_principal(vuelos_ordenados)
-            ciudad_nombre = get_ciudad_nombre(ciudad_principal)
-            nombre_auto = f"Viaje a {ciudad_nombre}"
-            
+
+            # Buscar si algún viaje del subgrupo tiene nombre_viaje custom
+            nombre_existente = next((v.nombre_viaje for v in vuelos_reserva if v.nombre_viaje), None)
+
+            if not nombre_existente:
+                # No hay nombre custom, generar uno automático
+                vuelos_ordenados = sorted(vuelos_reserva, key=lambda x: x.fecha_salida)
+                ciudad_principal = calcular_ciudad_principal(vuelos_ordenados)
+                ciudad_nombre = get_ciudad_nombre(ciudad_principal)
+                nombre_existente = f"Viaje a {ciudad_nombre}"
+
             for viaje in vuelos_reserva:
                 viaje.grupo_viaje = nuevo_grupo
-                viaje.nombre_viaje = nombre_auto
+                viaje.nombre_viaje = nombre_existente
         
         db.session.commit()
     
