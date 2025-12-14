@@ -752,7 +752,110 @@
             background: #F3E8FF;
             color: #7C3AED;
         }
-        
+
+        /* JSONB Partial Styles - _segment.html */
+        .segment-content {
+            /* No additional styling needed - just a wrapper */
+        }
+
+        .segment-route {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .route-point {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .segment-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .detail {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .segment-main {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .segment-dates {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .segment-passengers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .passenger-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border-light);
+        }
+
+        .segment-vehicles {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .vehicle-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #FEF3C7;
+            color: #92400E;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .segment-tickets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .ticket-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: #E8F4FF;
+            color: var(--accent);
+        }
+
         .card-footer {
             padding: 12px 20px;
             border-top: 1px solid var(--border-light);
@@ -1282,199 +1385,7 @@
                                 </div>
                                 {% endif %}
                                 
-                                {# Layout condicional según tipo #}
-                                {% if vuelo.tipo in ['vuelo', 'tren', 'crucero', 'transfer', 'auto'] %}
-                                    {# Tipos con transporte: mostrar origen → destino #}
-                                    <div class="route">
-                                        <div class="city">
-                                            <div class="city-code">{{ vuelo.origen }}</div>
-                                            {% if vuelo.hora_salida %}
-                                            <div class="city-time">{{ vuelo.hora_salida }}</div>
-                                            {% endif %}
-                                        </div>
-                                        <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                                        </svg>
-                                        <div class="city end">
-                                            <div class="city-code">{{ vuelo.destino }}</div>
-                                            {% if vuelo.hora_llegada %}
-                                            <div class="city-time">{{ vuelo.hora_llegada }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    {% if vuelo.aerolinea %}
-                                    <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
-                                    {% endif %}
-                                    {% if vuelo.numero_vuelo %}
-                                    <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
-                                    {% endif %}
-                                {% else %}
-                                    {# Tipos en ubicación fija: hotel, restaurante, espectaculo, actividad #}
-                                    {% if vuelo.proveedor %}
-                                    <div class="info-row"><strong>{{ vuelo.tipo|capitalize }}:</strong> {{ vuelo.proveedor }}</div>
-                                    {% endif %}
-                                    {% if vuelo.ubicacion %}
-                                    <div class="info-row"><strong>Ubicación:</strong> {{ vuelo.ubicacion }}</div>
-                                    {% endif %}
-                                    {% if vuelo.hora_salida %}
-                                    <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>
-                                    {% endif %}
-                                {% endif %}
-
-                                {# Detalles adicionales desde raw_data #}
-                                {% if vuelo.raw_data %}
-                                    {% set raw = vuelo.raw_data|fromjson %}
-                                {% else %}
-                                    {% set raw = {} %}
-                                {% endif %}
-
-                                {# BARCO/CRUCERO details #}
-                                {% if vuelo.tipo == 'crucero' or vuelo.tipo == 'barco' %}
-                                    {% if raw.hora_embarque or raw.clase %}
-                                    <div class="info-row">
-                                        {% if raw.hora_embarque %}<span><strong>Embarque:</strong> {{ raw.hora_embarque }}</span>{% endif %}
-                                        {% if raw.clase %}<span><strong>Clase:</strong> {{ raw.clase }}</span>{% endif %}
-                                    </div>
-                                    {% endif %}
-                                    {% if raw.vehiculos and raw.vehiculos|length > 0 %}
-                                    <div class="info-row"><strong>Vehículos:</strong> {{ raw.vehiculos|join(', ') }}</div>
-                                    {% endif %}
-                                    {% if raw.embarcacion %}
-                                    <div class="info-row"><strong>Embarcación:</strong> {{ raw.embarcacion }}</div>
-                                    {% endif %}
-                                {% endif %}
-
-                                {# SHOW details #}
-                                {% if vuelo.tipo == 'espectaculo' %}
-                                    {% if raw.hora or raw.sector %}
-                                    <div class="info-row">
-                                        {% if raw.hora %}<span><strong>Hora:</strong> {{ raw.hora }}</span>{% endif %}
-                                        {% if raw.sector %}<span><strong>Sector:</strong> {{ raw.sector }}</span>{% endif %}
-                                    </div>
-                                    {% endif %}
-                                    {% if raw.detalles_entradas and raw.detalles_entradas|length > 0 %}
-                                    <div class="entradas-detalle">
-                                        {% for entrada in raw.detalles_entradas %}
-                                        <div class="entrada-item">
-                                            Puesto {{ entrada.puesto }}: {{ entrada.ubicacion }} ({{ entrada.categoria }})
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                {% endif %}
-
-                                {# HOTEL details #}
-                                {% if vuelo.tipo == 'hotel' %}
-                                    {% if raw.noches or raw.habitacion %}
-                                    <div class="info-row">
-                                        {% if raw.noches %}<span><strong>Noches:</strong> {{ raw.noches }}</span>{% endif %}
-                                        {% if raw.habitacion %}<span><strong>Habitación:</strong> {{ raw.habitacion }}</span>{% endif %}
-                                    </div>
-                                    {% endif %}
-                                    {% if raw.hora_checkin or raw.hora_checkout %}
-                                    <div class="info-row">
-                                        {% if raw.hora_checkin %}<span><strong>Check-in:</strong> {{ raw.hora_checkin }}</span>{% endif %}
-                                        {% if raw.hora_checkout %}<span><strong>Check-out:</strong> {{ raw.hora_checkout }}</span>{% endif %}
-                                    </div>
-                                    {% endif %}
-                                    {% if raw.incluye_desayuno %}
-                                    <div class="info-row">✓ Desayuno incluido</div>
-                                    {% endif %}
-                                {% endif %}
-
-                                {# AUTO details #}
-                                {% if vuelo.tipo == 'auto' %}
-                                    {% if raw.modelo or raw.categoria %}
-                                    <div class="info-row">
-                                        {% if raw.modelo %}<span><strong>Vehículo:</strong> {{ raw.modelo }}</span>{% endif %}
-                                        {% if raw.categoria %}<span>({{ raw.categoria }})</span>{% endif %}
-                                    </div>
-                                    {% endif %}
-                                    {% if raw.hora_retiro or raw.hora_devolucion %}
-                                    <div class="info-row">
-                                        {% if raw.hora_retiro %}<span><strong>Retiro:</strong> {{ raw.hora_retiro }}</span>{% endif %}
-                                        {% if raw.hora_devolucion %}<span><strong>Devolución:</strong> {{ raw.hora_devolucion }}</span>{% endif %}
-                                    </div>
-                                    {% endif %}
-                                    {% if raw.incluye_seguro %}
-                                    <div class="info-row">✓ Seguro incluido</div>
-                                    {% endif %}
-                                    {% if raw.kilometraje %}
-                                    <div class="info-row"><strong>Km:</strong> {{ raw.kilometraje }}</div>
-                                    {% endif %}
-                                {% endif %}
-
-                                {# MVP11: Renderizado de pasajeros combinados vs normales #}
-                                {# Ocultar pasajeros para espectaculos (usan detalles_entradas en raw_data) #}
-                                {% if vuelo.tipo != 'espectaculo' %}
-                                {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
-                                {# Pasajeros combinados de múltiples reservas #}
-                                <div class="passengers-section">
-                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M9 18l6-6-6-6"/>
-                                        </svg>
-                                        Pasajeros ({{ vuelo._pasajeros_combinados|length }})
-                                    </button>
-                                    <div class="passengers-list">
-                                        {% for p in vuelo._pasajeros_combinados %}
-                                        <div class="passenger">
-                                            <div class="passenger-name">{{ p.nombre }}</div>
-                                            <div class="passenger-meta">
-                                                {% if p.codigo_reserva %}
-                                                <span class="meta-tag reservation">{{ p.codigo_reserva }}</span>
-                                                {% endif %}
-                                                {% if p.asiento %}
-                                                <span class="meta-tag seat">{{ p.asiento }}</span>
-                                                {% endif %}
-                                                {% if p.cabina %}
-                                                <span class="meta-tag">{{ p.cabina }}</span>
-                                                {% endif %}
-                                                {% if p.viajero_frecuente %}
-                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% elif vuelo.pasajeros %}
-                                {# Pasajeros normales (sin combinar) #}
-                                {% set pasajeros_list = vuelo.pasajeros|fromjson %}
-                                {% if pasajeros_list is iterable and pasajeros_list is not string %}
-                                <div class="passengers-section">
-                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M9 18l6-6-6-6"/>
-                                        </svg>
-                                        Pasajeros ({{ pasajeros_list|length }})
-                                    </button>
-                                    <div class="passengers-list">
-                                        {% for p in pasajeros_list %}
-                                        <div class="passenger">
-                                            <div class="passenger-name">{{ p.nombre }}</div>
-                                            <div class="passenger-meta">
-                                                {% if vuelo.codigo_reserva %}
-                                                <span class="meta-tag reservation">{{ vuelo.codigo_reserva }}</span>
-                                                {% endif %}
-                                                {% if p.asiento %}
-                                                <span class="meta-tag seat">{{ p.asiento }}</span>
-                                                {% endif %}
-                                                {% if p.cabina %}
-                                                <span class="meta-tag">{{ p.cabina }}</span>
-                                                {% endif %}
-                                                {% if p.viajero_frecuente %}
-                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-                                {% endif %}
-                                {% endif %} {# Cierre de if tipo != 'espectaculo' #}
+                                {% include 'partials/_segment.html' with context %}
                             </div>
                             {% endfor %}
                             
@@ -1641,114 +1552,7 @@
                                 </div>
                                 {% endif %}
                                 
-                                {# Layout condicional según tipo #}
-                                {% if vuelo.tipo in ['vuelo', 'tren', 'crucero', 'transfer', 'auto'] %}
-                                    {# Tipos con transporte: mostrar origen → destino #}
-                                    <div class="route">
-                                        <div class="city">
-                                            <div class="city-code">{{ vuelo.origen }}</div>
-                                            {% if vuelo.hora_salida %}
-                                            <div class="city-time">{{ vuelo.hora_salida }}</div>
-                                            {% endif %}
-                                        </div>
-                                        <svg class="route-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                                        </svg>
-                                        <div class="city end">
-                                            <div class="city-code">{{ vuelo.destino }}</div>
-                                            {% if vuelo.hora_llegada %}
-                                            <div class="city-time">{{ vuelo.hora_llegada }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    {% if vuelo.aerolinea %}
-                                    <div class="info-row"><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</div>
-                                    {% endif %}
-                                    {% if vuelo.numero_vuelo %}
-                                    <div class="info-row"><strong>Vuelo:</strong> {{ vuelo.numero_vuelo }}</div>
-                                    {% endif %}
-                                {% else %}
-                                    {# Tipos en ubicación fija: hotel, restaurante, espectaculo, actividad #}
-                                    {% if vuelo.proveedor %}
-                                    <div class="info-row"><strong>{{ vuelo.tipo|capitalize }}:</strong> {{ vuelo.proveedor }}</div>
-                                    {% endif %}
-                                    {% if vuelo.ubicacion %}
-                                    <div class="info-row"><strong>Ubicación:</strong> {{ vuelo.ubicacion }}</div>
-                                    {% endif %}
-                                    {% if vuelo.hora_salida %}
-                                    <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>
-                                    {% endif %}
-                                {% endif %}
-
-                                {# MVP11: Pasajeros en viajes pasados también #}
-                                {# Ocultar pasajeros para espectaculos (usan detalles_entradas en raw_data) #}
-                                {% if vuelo.tipo != 'espectaculo' %}
-                                {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
-                                <div class="passengers-section">
-                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M9 18l6-6-6-6"/>
-                                        </svg>
-                                        Pasajeros ({{ vuelo._pasajeros_combinados|length }})
-                                    </button>
-                                    <div class="passengers-list">
-                                        {% for p in vuelo._pasajeros_combinados %}
-                                        <div class="passenger">
-                                            <div class="passenger-name">{{ p.nombre }}</div>
-                                            <div class="passenger-meta">
-                                                {% if p.codigo_reserva %}
-                                                <span class="meta-tag reservation">{{ p.codigo_reserva }}</span>
-                                                {% endif %}
-                                                {% if p.asiento %}
-                                                <span class="meta-tag seat">{{ p.asiento }}</span>
-                                                {% endif %}
-                                                {% if p.cabina %}
-                                                <span class="meta-tag">{{ p.cabina }}</span>
-                                                {% endif %}
-                                                {% if p.viajero_frecuente %}
-                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% elif vuelo.pasajeros %}
-                                {% set pasajeros_list = vuelo.pasajeros|fromjson %}
-                                {% if pasajeros_list is iterable and pasajeros_list is not string %}
-                                <div class="passengers-section">
-                                    <button type="button" class="passengers-toggle" onclick="event.stopPropagation(); togglePassengers(this)">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M9 18l6-6-6-6"/>
-                                        </svg>
-                                        Pasajeros ({{ pasajeros_list|length }})
-                                    </button>
-                                    <div class="passengers-list">
-                                        {% for p in pasajeros_list %}
-                                        <div class="passenger">
-                                            <div class="passenger-name">{{ p.nombre }}</div>
-                                            <div class="passenger-meta">
-                                                {% if vuelo.codigo_reserva %}
-                                                <span class="meta-tag reservation">{{ vuelo.codigo_reserva }}</span>
-                                                {% endif %}
-                                                {% if p.asiento %}
-                                                <span class="meta-tag seat">{{ p.asiento }}</span>
-                                                {% endif %}
-                                                {% if p.cabina %}
-                                                <span class="meta-tag">{{ p.cabina }}</span>
-                                                {% endif %}
-                                                {% if p.viajero_frecuente %}
-                                                <span class="meta-tag ffp">{{ p.viajero_frecuente }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-                                {% endif %}
-                                {% endif %} {# Cierre de if tipo != 'espectaculo' #}
+                                {% include 'partials/_segment.html' with context %}
                             </div>
                             {% endfor %}
 
