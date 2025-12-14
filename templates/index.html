@@ -1357,9 +1357,6 @@
                                     {% if vuelo.ubicacion %}
                                     <div class="info-row"><strong>Ubicación:</strong> {{ vuelo.ubicacion }}</div>
                                     {% endif %}
-                                    {% if vuelo.precio %}
-                                    <div class="info-row"><strong>Precio:</strong> {{ vuelo.precio }}</div>
-                                    {% endif %}
                                     {% if vuelo.hora_salida %}
                                     <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>
                                     {% endif %}
@@ -1400,7 +1397,7 @@
                                     <div class="entradas-detalle">
                                         {% for entrada in raw.detalles_entradas %}
                                         <div class="entrada-item">
-                                            Puesto {{ entrada.puesto }}: {{ entrada.ubicacion }} ({{ entrada.categoria }}) - {{ entrada.precio }}
+                                            Puesto {{ entrada.puesto }}: {{ entrada.ubicacion }} ({{ entrada.categoria }})
                                         </div>
                                         {% endfor %}
                                     </div>
@@ -1758,9 +1755,6 @@
                                     {% endif %}
                                     {% if vuelo.ubicacion %}
                                     <div class="info-row"><strong>Ubicación:</strong> {{ vuelo.ubicacion }}</div>
-                                    {% endif %}
-                                    {% if vuelo.precio %}
-                                    <div class="info-row"><strong>Precio:</strong> {{ vuelo.precio }}</div>
                                     {% endif %}
                                     {% if vuelo.hora_salida %}
                                     <div class="info-row"><strong>Hora:</strong> {{ vuelo.hora_salida }}</div>

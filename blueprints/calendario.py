@@ -385,12 +385,8 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
         desc.append(f"Vuelo {viaje.numero_vuelo} - {viaje.aerolinea}")
     elif tipo == 'hotel':
         desc.append(f"Hotel: {viaje.proveedor or viaje.descripcion}")
-        if viaje.precio:
-            desc.append(f"Precio: {viaje.precio}")
     elif tipo in ['barco', 'crucero']:
         desc.append(f"Crucero: {viaje.proveedor or viaje.descripcion}")
-        if viaje.precio:
-            desc.append(f"Precio: {viaje.precio}")
     elif tipo == 'espectaculo':
         # Leer detalles de raw_data
         raw = {}
@@ -416,14 +412,7 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
             for d in detalles:
                 puesto = d.get('puesto', '')
                 ubicacion = d.get('ubicacion', '')
-                precio = d.get('precio', '')
-                desc.append(f"  • Puesto {puesto}: {ubicacion} - {precio}")
-
-        # Precio total
-        if raw.get('precio_total'):
-            desc.append(f"\nTotal: {raw.get('precio_total')}")
-        elif viaje.precio:
-            desc.append(f"\nPrecio: {viaje.precio}")
+                desc.append(f"  • Puesto {puesto}: {ubicacion}")
     elif tipo == 'restaurante':
         desc.append(f"Restaurante: {viaje.proveedor or viaje.descripcion}")
         if viaje.ubicacion:
@@ -432,16 +421,12 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
         desc.append(f"Actividad: {viaje.descripcion or viaje.proveedor}")
         if viaje.ubicacion:
             desc.append(f"Punto de encuentro: {viaje.ubicacion}")
-        if viaje.precio:
-            desc.append(f"Precio: {viaje.precio}")
     elif tipo == 'auto':
         desc.append(f"Rental: {viaje.proveedor}")
         if viaje.origen:
             desc.append(f"Retiro: {viaje.origen}")
         if viaje.destino:
             desc.append(f"Devolución: {viaje.destino}")
-        if viaje.precio:
-            desc.append(f"Precio: {viaje.precio}")
     elif tipo == 'tren':
         desc.append(f"Tren: {viaje.proveedor or 'Tren'}")
         if viaje.origen:
