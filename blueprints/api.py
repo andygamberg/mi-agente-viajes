@@ -225,7 +225,7 @@ def process_microsoft_emails_cron():
         from utils.microsoft_scanner import scan_and_create_viajes_microsoft
         from models import EmailConnection
 
-        logger.info("🔍 Microsoft scanner iniciado")
+        print("🔍 Microsoft scanner iniciado")
 
         # Obtener todos los usuarios con cuentas Microsoft activas
         connections = EmailConnection.query.filter_by(
@@ -233,13 +233,13 @@ def process_microsoft_emails_cron():
         ).all()
 
         if not connections:
-            logger.info("ℹ️ No hay cuentas Microsoft activas")
+            print("ℹ️ No hay cuentas Microsoft activas")
             return {'success': True, 'message': 'No hay cuentas Microsoft activas'}, 200
 
         # Agrupar por user_id para evitar procesar el mismo usuario múltiples veces
         user_ids = list(set([conn.user_id for conn in connections]))
 
-        logger.info(f"📧 Procesando {len(user_ids)} usuarios con cuentas Microsoft")
+        print(f"📧 Procesando {len(user_ids)} usuarios con cuentas Microsoft")
 
         total_results = {
             'usuarios_procesados': 0,
@@ -252,7 +252,7 @@ def process_microsoft_emails_cron():
 
         for user_id in user_ids:
             try:
-                logger.info(f"  👤 Usuario {user_id}...")
+                print(f"  👤 Usuario {user_id}...")
                 result = scan_and_create_viajes_microsoft(user_id, days_back=30)
 
                 total_results['usuarios_procesados'] += 1
@@ -262,7 +262,7 @@ def process_microsoft_emails_cron():
                 total_results['viajes_duplicados'] += result.get('viajes_duplicados', 0)
                 total_results['errors'].extend(result.get('errors', []))
 
-                logger.info(f"    ✅ {result.get('viajes_creados', 0)} viajes creados, {result.get('emails_procesados', 0)} procesados, {result.get('emails_encontrados', 0)} encontrados")
+                print(f"    ✅ {result.get('viajes_creados', 0)} viajes creados, {result.get('emails_procesados', 0)} procesados, {result.get('emails_encontrados', 0)} encontrados")
 
             except Exception as e:
                 error_msg = f"Error procesando usuario {user_id}: {str(e)}"
