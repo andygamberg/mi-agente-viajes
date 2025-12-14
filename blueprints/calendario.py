@@ -392,11 +392,38 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
         if viaje.precio:
             desc.append(f"Precio: {viaje.precio}")
     elif tipo == 'espectaculo':
-        desc.append(f"Evento: {viaje.proveedor}")
-        if viaje.ubicacion:
-            desc.append(f"Venue: {viaje.ubicacion}")
-        if viaje.precio:
-            desc.append(f"Precio: {viaje.precio}")
+        # Leer detalles de raw_data
+        raw = {}
+        if viaje.raw_data:
+            try:
+                raw = json.loads(viaje.raw_data)
+            except:
+                pass
+
+        desc.append(f"Evento: {raw.get('evento', viaje.proveedor)}")
+        desc.append(f"Venue: {raw.get('venue', viaje.ubicacion)}")
+
+        entradas_count = raw.get('entradas', 1)
+        desc.append(f"Entradas: {entradas_count}")
+
+        if raw.get('sector'):
+            desc.append(f"Sector: {raw.get('sector')}")
+
+        # Mostrar detalles de cada entrada
+        detalles = raw.get('detalles_entradas', [])
+        if detalles:
+            desc.append("\nUbicaciones:")
+            for d in detalles:
+                puesto = d.get('puesto', '')
+                ubicacion = d.get('ubicacion', '')
+                precio = d.get('precio', '')
+                desc.append(f"  • Puesto {puesto}: {ubicacion} - {precio}")
+
+        # Precio total
+        if raw.get('precio_total'):
+            desc.append(f"\nTotal: {raw.get('precio_total')}")
+        elif viaje.precio:
+            desc.append(f"\nPrecio: {viaje.precio}")
     elif tipo == 'restaurante':
         desc.append(f"Restaurante: {viaje.proveedor or viaje.descripcion}")
         if viaje.ubicacion:
@@ -539,44 +566,75 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
 
     else:
         # Eventos con hora específica: usar formato DATETIME
-        if viaje.hora_salida:
+
+        # Para barco/crucero (ferries), intentar leer hora de raw_data
+        if tipo in ['barco', 'crucero']:
+            raw = {}
+            if viaje.raw_data:
+                try:
+                    raw = json.loads(viaje.raw_data)
+                except:
+                    pass
+
+            hora_embarque = raw.get('hora_embarque') or raw.get('hora_salida') or viaje.hora_salida or '09:00'
+            hora_desembarque = raw.get('hora_desembarque') or raw.get('hora_llegada') or viaje.hora_llegada or '12:00'
+
             try:
-                hora_inicio = datetime.strptime(viaje.hora_salida, '%H:%M').time()
+                hora_inicio = datetime.strptime(hora_embarque, '%H:%M').time()
             except:
                 hora_inicio = datetime.strptime('09:00', '%H:%M').time()
-        else:
-            # Horas por defecto según tipo
-            if tipo == 'espectaculo':
-                hora_inicio = datetime.strptime('20:00', '%H:%M').time()
-            elif tipo == 'restaurante':
-                hora_inicio = datetime.strptime('20:00', '%H:%M').time()
-            else:
-                hora_inicio = datetime.strptime('09:00', '%H:%M').time()
 
-        dtstart = datetime.combine(viaje.fecha_salida, hora_inicio)
-
-        # Calcular dtend
-        if viaje.fecha_llegada and viaje.hora_llegada:
             try:
-                hora_fin = datetime.strptime(viaje.hora_llegada, '%H:%M').time()
+                hora_fin = datetime.strptime(hora_desembarque, '%H:%M').time()
+            except:
+                hora_fin = datetime.strptime('12:00', '%H:%M').time()
+
+            dtstart = datetime.combine(viaje.fecha_salida, hora_inicio)
+            if viaje.fecha_llegada:
                 dtend = datetime.combine(viaje.fecha_llegada, hora_fin)
-            except:
-                dtend = dtstart + timedelta(hours=2)
-        elif viaje.fecha_llegada:
-            # Tiene fecha_llegada pero no hora
-            dtend = datetime.combine(viaje.fecha_llegada, hora_inicio)
-        else:
-            # No tiene fecha_llegada - estimar duración
-            if tipo == 'espectaculo':
-                dtend = dtstart + timedelta(hours=3)
-            elif tipo == 'restaurante':
-                dtend = dtstart + timedelta(hours=2)
-            elif tipo == 'actividad':
-                dtend = dtstart + timedelta(hours=4)
-            elif tipo == 'transfer':
-                dtend = dtstart + timedelta(hours=1)
             else:
-                dtend = dtstart + timedelta(hours=2)
+                dtend = datetime.combine(viaje.fecha_salida, hora_fin)
+
+        else:
+            # Otros tipos: usar hora_salida/hora_llegada normales
+            if viaje.hora_salida:
+                try:
+                    hora_inicio = datetime.strptime(viaje.hora_salida, '%H:%M').time()
+                except:
+                    hora_inicio = datetime.strptime('09:00', '%H:%M').time()
+            else:
+                # Horas por defecto según tipo
+                if tipo == 'espectaculo':
+                    hora_inicio = datetime.strptime('20:00', '%H:%M').time()
+                elif tipo == 'restaurante':
+                    hora_inicio = datetime.strptime('20:00', '%H:%M').time()
+                else:
+                    hora_inicio = datetime.strptime('09:00', '%H:%M').time()
+
+            dtstart = datetime.combine(viaje.fecha_salida, hora_inicio)
+
+            # Calcular dtend
+            if viaje.fecha_llegada and viaje.hora_llegada:
+                try:
+                    hora_fin = datetime.strptime(viaje.hora_llegada, '%H:%M').time()
+                    dtend = datetime.combine(viaje.fecha_llegada, hora_fin)
+                except:
+                    dtend = dtstart + timedelta(hours=2)
+            elif viaje.fecha_llegada:
+                # Tiene fecha_llegada pero no hora
+                dtend = datetime.combine(viaje.fecha_llegada, hora_inicio)
+            else:
+                # No tiene fecha_llegada - estimar duración
+                if tipo == 'espectaculo':
+                    dtend = dtstart + timedelta(hours=3)
+                elif tipo == 'restaurante':
+                    dtend = dtstart + timedelta(hours=2)
+                elif tipo == 'actividad':
+                    dtend = dtstart + timedelta(hours=4)
+                elif tipo == 'transfer':
+                    dtend = dtstart + timedelta(hours=1)
+                else:
+                    dtend = dtstart + timedelta(hours=2)
 
         event.add('dtstart', tz.localize(dtstart))
         event.add('dtend', tz.localize(dtend))
