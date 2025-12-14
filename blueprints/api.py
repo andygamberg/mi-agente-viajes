@@ -269,7 +269,7 @@ def process_microsoft_emails_cron():
                 logger.error(f"    ❌ {error_msg}")
                 total_results['errors'].append(error_msg)
 
-        logger.info(f"✅ Microsoft scanner completado: {total_results}")
+        print(f"✅ Microsoft scanner completado: {total_results}")
         return {'success': True, 'result': total_results}, 200
 
     except Exception as e:

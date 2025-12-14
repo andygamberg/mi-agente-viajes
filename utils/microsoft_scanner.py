@@ -196,7 +196,7 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
     from utils.claude import extraer_info_con_claude
     import uuid
 
-    logger.info(f"    🔍 Microsoft scanner: user_id={user_id}, days_back={days_back}")
+    print(f"    🔍 Microsoft scanner: user_id={user_id}, days_back={days_back}")
 
     results = {
         'emails_encontrados': 0,
@@ -211,11 +211,11 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
     ).all()
 
     if not connections:
-        logger.warning(f"    ⚠️ No hay cuentas Microsoft conectadas para user {user_id}")
+        print(f"    ⚠️ No hay cuentas Microsoft conectadas para user {user_id}")
         results['errors'].append('No hay cuentas Microsoft conectadas')
         return results
 
-    logger.info(f"    📧 Encontradas {len(connections)} conexiones Microsoft")
+    print(f"    📧 Encontradas {len(connections)} conexiones Microsoft")
 
     for conn in connections:
         try:
@@ -224,18 +224,18 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
             scan_days = 180 if is_first_scan else days_back
 
             if is_first_scan:
-                logger.info(f"      🆕 Primera conexión detectada: {conn.email} - Backfill de {scan_days} días")
+                print(f"      🆕 Primera conexión detectada: {conn.email} - Backfill de {scan_days} días")
             else:
-                logger.info(f"      📬 Procesando cuenta: {conn.email} - Últimos {scan_days} días")
+                print(f"      📬 Procesando cuenta: {conn.email} - Últimos {scan_days} días")
 
             creds = get_microsoft_credentials(user_id, email=conn.email)
             if not creds:
-                logger.warning(f"      ⚠️ No se pudieron obtener credenciales para {conn.email}")
+                print(f"      ⚠️ No se pudieron obtener credenciales para {conn.email}")
                 continue
 
             access_token = creds['access_token']
             messages = search_travel_emails_microsoft(access_token, scan_days)
-            logger.info(f"      📥 {len(messages)} emails encontrados en {conn.email}")
+            print(f"      📥 {len(messages)} emails encontrados en {conn.email}")
 
             # Filtrar por remitentes whitelistados
             filtered_messages = []
@@ -246,12 +246,12 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
 
                 if is_whitelisted_sender(from_email, user_id):
                     filtered_messages.append(msg)
-                    logger.info(f"      ✅ Whitelisted: {from_name} <{from_email}> - {subject[:50]}")
+                    print(f"      ✅ Whitelisted: {from_name} <{from_email}> - {subject[:50]}")
                 else:
-                    logger.info(f"      ⏭️ Remitente no whitelisted: {from_name} <{from_email}>")
+                    print(f"      ⏭️ Remitente no whitelisted: {from_name} <{from_email}>")
 
             results['emails_encontrados'] += len(filtered_messages)
-            logger.info(f"      🎯 {len(filtered_messages)} emails whitelistados para procesar")
+            print(f"      🎯 {len(filtered_messages)} emails whitelistados para procesar")
 
             emails_processed_count = 0
 
@@ -306,7 +306,7 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
 
                         # En backfill, solo procesar vuelos futuros
                         if is_first_scan and fecha.date() < datetime.utcnow().date():
-                            logger.info(f"        ⏭️ Saltando vuelo pasado en backfill: {fecha_str}")
+                            print(f"        ⏭️ Saltando vuelo pasado en backfill: {fecha_str}")
                             continue
 
                         viaje = Viaje(
@@ -336,7 +336,7 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
             conn.last_scan = datetime.utcnow()
             conn.emails_processed = (conn.emails_processed or 0) + emails_processed_count
             db.session.commit()
-            logger.info(f"      ✅ Conexión actualizada: last_scan={conn.last_scan}, total_emails={conn.emails_processed}")
+            print(f"      ✅ Conexión actualizada: last_scan={conn.last_scan}, total_emails={conn.emails_processed}")
 
         except Exception as e:
             results['errors'].append(f"Error con {conn.email}: {str(e)}")
