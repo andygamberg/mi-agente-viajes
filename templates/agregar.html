@@ -149,7 +149,7 @@ textarea {
 </div>
 
 <div class="tip-box">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/>
         <path d="M12 16v-4M12 8h.01"/>
     </svg>
@@ -164,7 +164,7 @@ textarea {
                 <label>Tipo</label>
                 <select name="tipo" id="tipoSelect" onchange="cambiarTipo(this.value)">
                     {% for tipo_key, tipo_titulo in tipos_disponibles %}
-                    <option value="{{ tipo_key }}" {% if tipo_key == (schema.key or 'vuelo') %}selected{% endif %}>
+                    <option value="{{ tipo_key }}" {% if tipo_key == tipo_actual %}selected{% endif %}>
                         {{ tipo_titulo }}
                     </option>
                     {% endfor %}

@@ -243,6 +243,7 @@ def agregar():
                          schema=schema,
                          datos={},
                          tipos_disponibles=tipos_disponibles,
+                         tipo_actual=tipo_actual,
                          modo='crear')
 
 
