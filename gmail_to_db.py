@@ -47,13 +47,20 @@ def find_user_by_passenger(pasajeros):
     """
     if not pasajeros:
         return None
-    
+
+    # Verificar que pasajeros sea una lista antes de iterar
+    if not isinstance(pasajeros, list):
+        return None
+
     # Obtener todos los usuarios con apellido configurado
     users = User.query.filter(User.apellido_pax.isnot(None)).all()
     if not users:
         return None
-    
+
     for pax in pasajeros:
+        # Verificar que cada pasajero sea un dict
+        if not isinstance(pax, dict):
+            continue
         nombre_pax = pax.get('nombre', '').upper()
         if not nombre_pax:
             continue
