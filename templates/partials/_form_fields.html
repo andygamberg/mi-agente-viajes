@@ -1,0 +1,259 @@
+{#
+  Partial para renderizar campos de formulario dinámicamente desde schemas.
+
+  Recibe:
+  - schema: dict con campos del tipo (de RESERVATION_SCHEMAS)
+  - datos: dict opcional con valores existentes (para edición, viene de viaje.datos JSONB)
+  - modo: 'crear' o 'editar' (default: 'crear')
+#}
+{% set modo = modo or 'crear' %}
+{% set datos = datos or {} %}
+
+{% for campo in schema.campos %}
+    {# Obtener valor existente si está en modo edición #}
+    {% set valor = datos.get(campo.key, '') if datos else '' %}
+
+    {# Ocultar campo precio (card: False) #}
+    {% if campo.get('card') == False %}
+        {% continue %}
+    {% endif %}
+
+    <div class="form-group" data-field="{{ campo.key }}">
+        <label for="field_{{ campo.key }}">
+            {{ campo.label }}
+            {% if not campo.get('required') %}<span class="optional">(opcional)</span>{% endif %}
+        </label>
+
+        {% if campo.type == 'text' %}
+            <input type="text"
+                   id="field_{{ campo.key }}"
+                   name="{{ campo.key }}"
+                   value="{{ valor }}"
+                   {% if campo.get('required') %}required{% endif %}>
+
+        {% elif campo.type == 'date' %}
+            <input type="date"
+                   id="field_{{ campo.key }}"
+                   name="{{ campo.key }}"
+                   value="{{ valor }}"
+                   {% if campo.get('required') %}required{% endif %}>
+
+        {% elif campo.type == 'time' %}
+            <input type="time"
+                   id="field_{{ campo.key }}"
+                   name="{{ campo.key }}"
+                   value="{{ valor }}">
+
+        {% elif campo.type == 'number' %}
+            <input type="number"
+                   id="field_{{ campo.key }}"
+                   name="{{ campo.key }}"
+                   value="{{ valor }}"
+                   min="0">
+
+        {% elif campo.type == 'textarea' %}
+            <textarea id="field_{{ campo.key }}"
+                      name="{{ campo.key }}"
+                      rows="3">{{ valor }}</textarea>
+
+        {% elif campo.type == 'list' %}
+            {# Campos repetibles - renderizar items existentes + botón agregar #}
+            <div class="list-field"
+                 data-list="{{ campo.key }}"
+                 data-item-fields="{{ campo.item_fields | tojson | escape }}">
+
+                {# Container para items existentes #}
+                <div class="list-items-container">
+                    {% set items = valor if valor else [] %}
+                    {% if items and items|length > 0 %}
+                        {% for item in items %}
+                        <div class="list-item" data-index="{{ loop.index0 }}">
+                            {% for subfield in campo.item_fields %}
+                            <input type="text"
+                                   name="{{ campo.key }}[{{ loop.index0 }}][{{ subfield }}]"
+                                   placeholder="{{ subfield | capitalize }}"
+                                   value="{{ item.get(subfield, '') if item is mapping else (item if loop.index0 == 0 else '') }}">
+                            {% endfor %}
+                            <button type="button" class="btn-remove-item" onclick="removeListItem(this)" aria-label="Eliminar">×</button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                {# Template para nuevos items (hidden, clonado por JS) #}
+                <template class="list-item-template">
+                    <div class="list-item">
+                        {% for subfield in campo.item_fields %}
+                        <input type="text"
+                               name="{{ campo.key }}[INDEX][{{ subfield }}]"
+                               placeholder="{{ subfield | capitalize }}">
+                        {% endfor %}
+                        <button type="button" class="btn-remove-item" onclick="removeListItem(this)" aria-label="Eliminar">×</button>
+                    </div>
+                </template>
+
+                <button type="button"
+                        class="btn-add-item"
+                        onclick="addListItem('{{ campo.key }}')">
+                    + Agregar {{ campo.label | lower }}
+                </button>
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}
+
+<style>
+/* ===========================================
+   List Fields - Campos repetibles
+   =========================================== */
+
+.list-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.list-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.list-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+}
+
+.list-item input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.btn-remove-item {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.btn-remove-item:hover {
+    background: #fee;
+    border-color: #fcc;
+    color: #c00;
+}
+
+.btn-add-item {
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-add-item:hover {
+    background: var(--border-light);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Template oculto */
+template {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .list-item {
+        flex-wrap: wrap;
+    }
+
+    .list-item input {
+        width: 100%;
+    }
+
+    .btn-remove-item {
+        width: 100%;
+        margin-top: 4px;
+    }
+}
+</style>
+
+<script>
+/**
+ * Agrega un nuevo item a una lista repetible
+ * @param {string} fieldName - Nombre del campo lista (ej: 'pasajeros')
+ */
+function addListItem(fieldName) {
+    const listField = document.querySelector(`[data-list="${fieldName}"]`);
+    if (!listField) return;
+
+    const template = listField.querySelector('.list-item-template');
+    const container = listField.querySelector('.list-items-container');
+
+    // Clonar template
+    const newItem = template.content.cloneNode(true);
+
+    // Calcular nuevo índice
+    const existingItems = container.querySelectorAll('.list-item');
+    const newIndex = existingItems.length;
+
+    // Reemplazar INDEX con el índice real
+    newItem.querySelectorAll('input').forEach(input => {
+        input.name = input.name.replace('INDEX', newIndex);
+    });
+
+    // Agregar al container
+    container.appendChild(newItem);
+}
+
+/**
+ * Elimina un item de la lista
+ * @param {HTMLElement} btn - Botón de eliminar clickeado
+ */
+function removeListItem(btn) {
+    const listItem = btn.closest('.list-item');
+    if (!listItem) return;
+
+    const container = listItem.closest('.list-items-container');
+
+    // Eliminar el item
+    listItem.remove();
+
+    // Reindexar items restantes
+    const fieldName = container.closest('.list-field').dataset.list;
+    const items = container.querySelectorAll('.list-item');
+
+    items.forEach((item, index) => {
+        item.dataset.index = index;
+        item.querySelectorAll('input').forEach(input => {
+            // Extraer nombre del campo (última parte entre corchetes)
+            const match = input.name.match(/\[([^\]]+)\]$/);
+            const subfieldName = match ? match[1] : '';
+            input.name = `${fieldName}[${index}][${subfieldName}]`;
+        });
+    });
+}
+</script>
