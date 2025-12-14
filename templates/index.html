@@ -816,53 +816,18 @@
             margin-top: 12px;
         }
 
-        .passenger-badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: var(--bg-card);
-            color: var(--text);
-            border: 1px solid var(--border-light);
-        }
+        /* ===========================================
+           DESIGN SYSTEM - Segmentos Monocromático
+           Paleta: #1d1d1f, #6e6e73, #86868b, #d2d2d7, #f5f5f7, #fff
+           =========================================== */
 
-        .segment-vehicles {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .vehicle-badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: #FEF3C7;
-            color: #92400E;
-            font-family: 'SF Mono', Monaco, monospace;
-        }
-
-        .segment-tickets {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 12px;
-        }
-
-        .ticket-badge {
-            font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: #E8F4FF;
-            color: var(--accent);
-        }
-
-        /* Lista de pasajeros - consistente para combinados y no combinados */
+        /* Lista de pasajeros */
         .passengers-list {
             margin-top: 0.75rem;
         }
 
         .reserva-group {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
         .reserva-group:last-child {
@@ -871,15 +836,15 @@
 
         .reserva-header {
             font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-family: 'SF Mono', Monaco, monospace;
-            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: #86868b;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            margin-bottom: 0.5rem;
         }
 
         .passenger-card {
-            background: white;
-            border: 1px solid var(--border);
+            background: #ffffff;
+            border: 1px solid #d2d2d7;
             border-radius: 8px;
             padding: 0.5rem 0.75rem;
             margin-bottom: 0.5rem;
@@ -892,7 +857,7 @@
         .passenger-name {
             font-size: 13px;
             font-weight: 500;
-            color: var(--text);
+            color: #1d1d1f;
             margin-bottom: 0.25rem;
         }
 
@@ -902,44 +867,71 @@
             flex-wrap: wrap;
         }
 
-        .meta-seat {
+        /* Badge único monocromático - sin colores de acento */
+        .meta-badge {
             font-size: 12px;
             padding: 2px 8px;
-            background: #E8F4FF;
-            color: var(--accent);
-            border-radius: 4px;
-            font-weight: 500;
-        }
-
-        .meta-cabina {
-            font-size: 11px;
-            padding: 2px 8px;
-            background: var(--bg);
-            color: var(--text-secondary);
+            background: #f5f5f7;
+            color: #1d1d1f;
             border-radius: 4px;
         }
 
-        .meta-ffp {
-            font-size: 11px;
-            padding: 2px 8px;
-            background: #F3E8FF;
-            color: #7C3AED;
-            border-radius: 4px;
-            font-family: 'SF Mono', Monaco, monospace;
-        }
-
-        .segment-equipaje {
+        /* Footer de segmento (equipaje) */
+        .segment-footer {
             margin-top: 0.75rem;
             padding-top: 0.5rem;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid #d2d2d7;
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
         }
 
-        .segment-equipaje .detail {
+        .segment-footer .detail {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: #86868b;
+        }
+
+        /* Eliminar estilos de colores anteriores */
+        .meta-seat, .meta-cabina, .meta-ffp, .cabina-badge {
+            /* Reemplazados por .meta-badge monocromático */
+        }
+
+        .vehicle-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border-radius: 4px;
+        }
+
+        .ticket-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border-radius: 4px;
+        }
+
+        .passenger-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border-radius: 4px;
+        }
+
+        .segment-vehicles {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .segment-tickets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
         }
 
         .card-footer {

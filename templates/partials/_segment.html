@@ -30,28 +30,19 @@
             {% endif %}
         </div>
 
-        {# Pasajeros combinados (de múltiples reservas) #}
+        {# Pasajeros combinados (de múltiples reservas) - usar groupby #}
         {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
             <div class="passengers-list">
-                {% set reservas = {} %}
-                {% for p in vuelo._pasajeros_combinados %}
-                    {% set codigo = p.codigo_reserva or 'SIN_CODIGO' %}
-                    {% if codigo not in reservas %}
-                        {% set _ = reservas.update({codigo: []}) %}
-                    {% endif %}
-                    {% set _ = reservas[codigo].append(p) %}
-                {% endfor %}
-
-                {% for codigo, paxs in reservas.items() %}
+                {% for codigo, paxs in vuelo._pasajeros_combinados|groupby('codigo_reserva') %}
                     <div class="reserva-group">
                         <div class="reserva-header">{{ codigo }}</div>
                         {% for p in paxs %}
                             <div class="passenger-card">
-                                <div class="passenger-name">{{ p.nombre if p is mapping else p }}</div>
+                                <div class="passenger-name">{{ p.nombre }}</div>
                                 <div class="passenger-meta">
-                                    {% if p is mapping and p.asiento %}<span class="meta-seat">{{ p.asiento }}</span>{% endif %}
-                                    {% if p is mapping and p.cabina %}<span class="meta-cabina">{{ p.cabina }}</span>{% endif %}
-                                    {% if p is mapping and p.viajero_frecuente %}<span class="meta-ffp">{{ p.viajero_frecuente }}</span>{% endif %}
+                                    {% if p.asiento %}<span class="meta-badge">{{ p.asiento }}</span>{% endif %}
+                                    {% if p.cabina %}<span class="meta-badge">{{ p.cabina }}</span>{% endif %}
+                                    {% if p.viajero_frecuente %}<span class="meta-badge">{{ p.viajero_frecuente }}</span>{% endif %}
                                 </div>
                             </div>
                         {% endfor %}
@@ -65,24 +56,20 @@
                     <div class="passenger-card">
                         <div class="passenger-name">{{ p.nombre if p is mapping else p }}</div>
                         <div class="passenger-meta">
-                            {% if p is mapping and p.asiento %}<span class="meta-seat">{{ p.asiento }}</span>{% endif %}
-                            {% if p is mapping and p.cabina %}<span class="meta-cabina">{{ p.cabina }}</span>{% endif %}
-                            {% if p is mapping and p.viajero_frecuente %}<span class="meta-ffp">{{ p.viajero_frecuente }}</span>{% endif %}
+                            {% if p is mapping and p.asiento %}<span class="meta-badge">{{ p.asiento }}</span>{% endif %}
+                            {% if p is mapping and p.cabina %}<span class="meta-badge">{{ p.cabina }}</span>{% endif %}
+                            {% if p is mapping and p.viajero_frecuente %}<span class="meta-badge">{{ p.viajero_frecuente }}</span>{% endif %}
                         </div>
                     </div>
                 {% endfor %}
             </div>
         {% endif %}
 
-        {# Equipaje si existe #}
+        {# Equipaje #}
         {% if d.equipaje_facturado or d.equipaje_mano %}
-            <div class="segment-equipaje">
-                {% if d.equipaje_facturado %}
-                    <span class="detail">Bodega: {{ d.equipaje_facturado }}</span>
-                {% endif %}
-                {% if d.equipaje_mano %}
-                    <span class="detail">Cabina: {{ d.equipaje_mano }}</span>
-                {% endif %}
+            <div class="segment-footer">
+                {% if d.equipaje_facturado %}<span class="detail">Bodega: {{ d.equipaje_facturado }}</span>{% endif %}
+                {% if d.equipaje_mano %}<span class="detail">Cabina: {{ d.equipaje_mano }}</span>{% endif %}
             </div>
         {% endif %}
 
