@@ -344,13 +344,20 @@ def get_gmail_credentials(user_id, gmail_email=None, connection_id=None):
     if credentials.expired and credentials.refresh_token:
         try:
             from google.auth.transport.requests import Request
+            print(f"🔄 Refrescando token expirado para {connection.email}...")
             credentials.refresh(Request())
             connection.access_token = credentials.token
             connection.token_expiry = credentials.expiry
             connection.updated_at = datetime.utcnow()
+            connection.last_error = None  # Limpiar error anterior
             db.session.commit()
+            print(f"✅ Token refrescado exitosamente para {connection.email}")
         except Exception as e:
-            connection.last_error = str(e)
+            error_msg = f"Error refrescando token: {str(e)}"
+            print(f"❌ {error_msg} para {connection.email}")
+            import traceback
+            traceback.print_exc()
+            connection.last_error = error_msg
             connection.is_active = False
             db.session.commit()
             return None

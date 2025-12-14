@@ -322,6 +322,7 @@ def get_microsoft_credentials(user_id, email=None, connection_id=None):
     if connection.token_expiry and connection.token_expiry < datetime.utcnow():
         if connection.refresh_token:
             try:
+                print(f"🔄 Refrescando token Microsoft expirado para {connection.email}...")
                 token_response = http_requests.post(
                     'https://login.microsoftonline.com/common/oauth2/v2.0/token',
                     data={
@@ -339,14 +340,22 @@ def get_microsoft_credentials(user_id, email=None, connection_id=None):
                     if token_data.get('refresh_token'):
                         connection.refresh_token = token_data.get('refresh_token')
                     connection.updated_at = datetime.utcnow()
+                    connection.last_error = None  # Limpiar error anterior
                     db.session.commit()
+                    print(f"✅ Token Microsoft refrescado exitosamente para {connection.email}")
                 else:
-                    connection.last_error = 'Token refresh failed'
+                    error_msg = f'Token refresh failed: HTTP {token_response.status_code}'
+                    print(f"❌ {error_msg} para {connection.email}")
+                    connection.last_error = error_msg
                     connection.is_active = False
                     db.session.commit()
                     return None
             except Exception as e:
-                connection.last_error = str(e)
+                error_msg = f"Error refrescando token Microsoft: {str(e)}"
+                print(f"❌ {error_msg} para {connection.email}")
+                import traceback
+                traceback.print_exc()
+                connection.last_error = error_msg
                 connection.is_active = False
                 db.session.commit()
                 return None
