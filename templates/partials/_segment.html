@@ -25,15 +25,49 @@
             {% if d.hora_llegada %}
                 <span class="detail">Llegada: {{ d.hora_llegada }}</span>
             {% endif %}
-            {% if d.codigo_reserva %}
+            {% if d.codigo_reserva and not vuelo._es_combinado %}
                 <span class="detail">Reserva: {{ d.codigo_reserva }}</span>
             {% endif %}
         </div>
-        {% if d.pasajeros and d.pasajeros|length > 0 %}
+
+        {# Pasajeros combinados (de múltiples reservas) #}
+        {% if vuelo._es_combinado and vuelo._pasajeros_combinados %}
+            <div class="segment-passengers-combined">
+                {% set current_reserva = namespace(value='') %}
+                {% for p in vuelo._pasajeros_combinados %}
+                    {% if p.codigo_reserva and p.codigo_reserva != current_reserva.value %}
+                        {% set current_reserva.value = p.codigo_reserva %}
+                        <div class="reserva-divider">{{ p.codigo_reserva }}</div>
+                    {% endif %}
+                    <span class="passenger-badge">
+                        {{ p.nombre if p is mapping else p }}
+                        {%- if p is mapping and p.asiento %} ({{ p.asiento }}){% endif %}
+                        {%- if p is mapping and p.cabina %} <span class="cabina-badge">{{ p.cabina }}</span>{% endif %}
+                    </span>
+                {% endfor %}
+            </div>
+        {# Pasajeros normales (reserva única) #}
+        {% elif d.pasajeros and d.pasajeros|length > 0 %}
             <div class="segment-passengers">
                 {% for p in d.pasajeros %}
-                    <span class="passenger-badge">{{ p.nombre if p is mapping else p }}{% if p is mapping and p.asiento %} ({{ p.asiento }}){% endif %}</span>
+                    <span class="passenger-badge">
+                        {{ p.nombre if p is mapping else p }}
+                        {%- if p is mapping and p.asiento %} ({{ p.asiento }}){% endif %}
+                        {%- if p is mapping and p.cabina %} <span class="cabina-badge">{{ p.cabina }}</span>{% endif %}
+                    </span>
                 {% endfor %}
+            </div>
+        {% endif %}
+
+        {# Equipaje si existe #}
+        {% if d.equipaje_facturado or d.equipaje_mano %}
+            <div class="segment-equipaje">
+                {% if d.equipaje_facturado %}
+                    <span class="detail">🧳 {{ d.equipaje_facturado }}</span>
+                {% endif %}
+                {% if d.equipaje_mano %}
+                    <span class="detail">👜 {{ d.equipaje_mano }}</span>
+                {% endif %}
             </div>
         {% endif %}
 
