@@ -86,10 +86,15 @@ def deduplicar_vuelos_en_grupo(vuelos):
                     p['codigo_reserva'] = codigo
                     pasajeros_combinados.append(p)
             
+            # Ordenar alfabéticamente para consistencia visual (card y menú)
+            codigos_reserva_ordenados = sorted(codigos_reserva)
+            reservas_ordenadas = sorted(vuelos_iguales, key=lambda r: r.codigo_reserva or '')
+            pasajeros_ordenados = sorted(pasajeros_combinados, key=lambda p: p.get('codigo_reserva', ''))
+
             # Agregar atributos temporales (no se guardan en BD)
-            vuelo_principal._pasajeros_combinados = pasajeros_combinados
-            vuelo_principal._codigos_reserva = codigos_reserva
-            vuelo_principal._reservas_combinadas = vuelos_iguales  # Para acceder a todas las reservas originales
+            vuelo_principal._pasajeros_combinados = pasajeros_ordenados
+            vuelo_principal._codigos_reserva = codigos_reserva_ordenados
+            vuelo_principal._reservas_combinadas = reservas_ordenadas  # Para acceder a todas las reservas originales
             vuelo_principal._es_combinado = True
             resultado.append(vuelo_principal)
     
