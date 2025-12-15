@@ -61,7 +61,7 @@
 
                 {# Container para items existentes #}
                 <div class="list-items-container">
-                    {% set items = valor if valor else [] %}
+                    {% set items = valor if (valor and valor is iterable and valor is not string and valor is not number) else [] %}
                     {% if items and items|length > 0 %}
                         {% for item in items %}
                         <div class="list-item" data-index="{{ loop.index0 }}">
