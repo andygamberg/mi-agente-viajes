@@ -430,6 +430,53 @@ Por favor revisá METODOLOGIA, ROADMAP y DESIGN_SYSTEM antes de empezar.
 
 ---
 
+## 📋 Documentación del Proyecto
+
+### Estructura de Docs
+
+| Documento | Propósito | Cuándo Actualizar |
+|-----------|-----------|-------------------|
+| `ROADMAP.md` | MVPs, prioridades, decisiones | Al completar/agregar MVP |
+| `docs/APRENDIZAJES.md` | Bugs resueltos, patterns, técnicas | Al resolver bug o aprender pattern |
+| `docs/CASOS_DE_USO.md` | Matriz de casos de uso con status | Al implementar feature o encontrar bug |
+| `docs/QA_CHECKLIST.md` | Procedimientos de testing | Al agregar nuevo tipo de test |
+| `METODOLOGIA_TRABAJO.md` | Workflow y convenciones | Al cambiar proceso o herramienta |
+| `DESIGN_SYSTEM.md` | Paleta, tipografía, componentes | Al agregar color/componente/patrón |
+
+### Flujo de Actualización
+
+```
+Feature implementada → Smoke tests pasan
+↓
+Actualizar docs/CASOS_DE_USO.md (marcar ✅)
+↓
+Si aprendiste algo → docs/APRENDIZAJES.md
+↓
+Si completaste MVP → ROADMAP.md
+↓
+Commit docs: git add docs/ ROADMAP.md && git commit -m "docs: actualizar post-[feature]"
+```
+
+### Checklist Inicio de Sesión
+
+Antes de empezar a trabajar:
+- [ ] Leer `ROADMAP.md` - ¿Qué se completó? ¿Qué sigue?
+- [ ] Leer `docs/APRENDIZAJES.md` - ¿Qué bugs evitar? ¿Qué patterns usar?
+- [ ] Leer `docs/CASOS_DE_USO.md` - ¿Qué funciona? ¿Qué bugs conocidos?
+- [ ] Leer `METODOLOGIA_TRABAJO.md` - Workflow actual
+
+### Checklist Cierre de Sesión
+
+Antes de cerrar sesión:
+- [ ] Actualizar `docs/CASOS_DE_USO.md` con status de features
+- [ ] Actualizar `docs/APRENDIZAJES.md` si hubo bugs/learnings
+- [ ] Actualizar `ROADMAP.md` si se completó MVP o hay nueva prioridad
+- [ ] Smoke tests: `./smoke_tests.sh` → 10/10
+- [ ] Commit documentación
+- [ ] Push a GitHub
+
+---
+
 ## 📝 Estrategia para Archivos Largos
 
 ### El problema
