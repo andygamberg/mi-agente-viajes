@@ -40,6 +40,8 @@
 | 15-UX | Template inheritance (base.html) | 14 Dic 2025 | Menú global, reducción código duplicado |
 | **15** | **Multi-Tipo de Reservas** | **15 Dic 2025** | **9 tipos: vuelos, hoteles, barcos, shows, restaurantes, actividades, autos, trenes, transfers** |
 | BUG-FIX-MULTITYPE | Multi-tipo en Sistema 1 (misviajes@) | 15 Dic 2025 | gmail_to_db.py ahora soporta 9 tipos, replica lógica de carga_rapida() |
+| **MVP-EDIT** | **Edición completa de reservas** | **14 Dic 2025** | **Form dinámico desde schemas, menú kebab, vuelos combinados, todos los tipos** |
+| **MVP16** | **Carga manual multi-tipo** | **14 Dic 2025** | **/agregar refactorizado con schemas dinámicos, selector tipo, 9 tipos soportados** |
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -179,10 +181,10 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
-| **MVP-EDIT** | Edición completa de reservas (todos los campos por tipo, no solo nombre de viaje) | - |
-| **MVP16** | Carga manual multi-tipo (UI con campos dinámicos según tipo) | - |
-| **BUG-PASSENGER-MATCH** | Matching pasajeros solo funciona en vuelos - extender a 9 tipos | - |
-| **BUG** | Gmail OAuth expirado - Webhook no funciona | - |
+| **BUG-PASSENGER-MATCH** | Matching pasajeros extender a 9 tipos (no solo vuelos) | - |
+| **UX-DELETE** | Eliminar segmento individual sin desagrupar | - |
+| **MVP-SHARE** | Compartir viajes (jerarquía: todo → viaje → segmento) | BUG-PASSENGER-MATCH |
+| **DATA-MIGRATION** | Normalizar campos legacy (pasajeros, entradas como int → array) | - |
 
 ### Prioridad Media
 
@@ -257,6 +259,9 @@ Evento (tabla base)
 | 11 Dic 2025 | Arquitectura híbrida para eventos | Evento base + extensiones por tipo (vuelo, hotel, etc.) |
 | 11 Dic 2025 | Estrategia email por tiers | OAuth (Gmail/MS), reglas automáticas, guías, reenvío manual |
 | 11 Dic 2025 | Microsoft Graph para corporativo | Una API cubre Exchange 365 y Outlook.com personal |
+| 14 Dic 2025 | Menú kebab para acciones | Escalable para Eliminar/Compartir, mobile-friendly, mejor UX |
+| 14 Dic 2025 | save_reservation() unificado | Gmail y Microsoft scanner usan misma función, evita duplicación |
+| 14 Dic 2025 | Logging con print() en Cloud Run | Gunicorn requiere PYTHONUNBUFFERED + --access-logfile - para visibilidad |
 | 15 Dic 2025 | Edición > Extracción perfecta | Perseguir 100% extracción automática es infinito. Mejor: extracción "good enough" + edición por usuario. MVP-EDIT resuelve todos los edge cases de una vez. |
 | 15 Dic 2025 | gmail_to_db.py replica carga_rapida() | Dos flujos que hacen lo mismo (guardar reserva) deben usar misma lógica de mapeo de campos |
 

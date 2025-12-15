@@ -315,6 +315,110 @@ Verificar endpoints críticos antes de considerar deploy exitoso.
 
 ---
 
+## 🔄 Sesión 24 - MVP-EDIT y Fixes (14 Dic 2025)
+
+### Jinja2 no soporta {% continue %} ni {% break %}
+**PROBLEMA:** Error 500 con estas instrucciones dentro de loops/condicionales
+
+**SOLUCIÓN:** Usar `{% if %}...{% endif %}` anidados en lugar de break/continue
+
+**APLICABLE A:** Cualquier proyecto Flask/Jinja2
+
+**EJEMPLO:**
+```jinja2
+{# ❌ NO funciona #}
+{% for item in items %}
+    {% if condition %}
+        {% break %}
+    {% endif %}
+{% endfor %}
+
+{# ✅ Funciona #}
+{% for item in items %}
+    {% if condition %}
+        {# Mostrar algo #}
+    {% endif %}
+{% endfor %}
+```
+
+### Cloud Run no captura logging.info()
+**PROBLEMA:** Logs de aplicación no visibles en Cloud Logging, solo HTTP requests
+
+**SOLUCIÓN:**
+1. Usar `print()` en lugar de `logging.info()`
+2. Agregar `ENV PYTHONUNBUFFERED=1` en Dockerfile
+3. Agregar `--access-logfile -` y `--error-logfile -` a gunicorn
+4. Agregar `--log-level info` a gunicorn
+
+**APLICABLE A:** Proyectos Python/Gunicorn en Cloud Run
+
+**EJEMPLO:**
+```dockerfile
+ENV PYTHONUNBUFFERED=1
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info", "app:app"]
+```
+
+### Validar tipo antes de iterar en templates
+**PROBLEMA:** Error "object of type 'int' has no len()" cuando datos legacy tienen formato inconsistente (ej: `pasajeros: 4` en vez de `pasajeros: [{...}]`)
+
+**SOLUCIÓN:** Validar que es iterable, no string, y no number antes de usar `|length` o iterar
+
+**APLICABLE A:** Templates que manejan datos de BD con formatos mixtos/legacy
+
+**EJEMPLO:**
+```jinja2
+{# ❌ Falla si pasajeros es int #}
+{% if d.pasajeros and d.pasajeros|length > 0 %}
+    {% for p in d.pasajeros %}
+        {{ p.nombre }}
+    {% endfor %}
+{% endif %}
+
+{# ✅ Maneja int, string, array #}
+{% if d.pasajeros and (d.pasajeros is iterable and d.pasajeros is not string and d.pasajeros is not number) and d.pasajeros|length > 0 %}
+    {% for p in d.pasajeros %}
+        {{ p.nombre }}
+    {% endfor %}
+{% endif %}
+```
+
+### Flujos duplicados deben usar misma función
+**PROBLEMA:** `microsoft_scanner.py` guardaba `pasajeros='[]'` hardcodeado, ignorando datos de Claude. `gmail_to_db.py` usaba `save_reservation()` correctamente.
+
+**SOLUCIÓN:** Ambos scanners (Gmail y Microsoft) deben usar `save_reservation()` para guardar reservas
+
+**APLICABLE A:** Sistemas con múltiples puntos de entrada que hacen la misma operación
+
+**BENEFICIOS:**
+- Una sola función de mapeo → menos duplicación
+- Bugs se fixean en un solo lugar
+- Cambios de schema se propagan automáticamente
+- Más fácil de mantener
+
+**LECCIÓN:** Cuando dos flujos hacen lo mismo, abstraer en función compartida desde el principio.
+
+### Microsoft scanner logging detallado
+**PROBLEMA:** No se podía diagnosticar qué extraía Claude ni por qué se marcaban duplicados
+
+**SOLUCIÓN:** Agregar logging detallado en cada paso:
+```python
+print(f"✅ Claude extrajo {len(vuelos)} reserva(s)")
+for idx, vuelo in enumerate(vuelos):
+    print(f"  [{idx+1}] {vuelo.get('origen')} → {vuelo.get('destino')} | Pasajeros: {len(vuelo.get('pasajeros', []))}")
+
+if codigo and check_duplicate(codigo, user_id):
+    print(f"⏭️ Duplicado por código: {codigo}")
+```
+
+**APLICABLE A:** Cualquier sistema de procesamiento asíncrono (crons, workers, webhooks)
+
+**BENEFICIOS:**
+- Debugging más rápido
+- Visibilidad de qué está pasando en producción
+- Usuarios pueden reportar problemas específicos con contexto
+
+---
+
 ## Checklist para Nuevos Proyectos
 
 ### Setup inicial
