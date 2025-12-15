@@ -23,6 +23,39 @@ def normalize_name(name):
     return ' '.join(ascii_only.upper().split())
 
 
+def extraer_personas_de_datos(viaje):
+    """
+    BUG-PASSENGER-MATCH: Extrae lista de personas del campo datos JSONB.
+
+    Busca en los campos:
+    - pasajeros (crucero, tren)
+    - huespedes (hotel)
+    - participantes (actividad)
+
+    Retorna lista de dicts con formato: [{"nombre": "APELLIDO/NOMBRE"}]
+    """
+    if not viaje.datos:
+        return []
+
+    datos = viaje.datos if isinstance(viaje.datos, dict) else {}
+    personas = []
+
+    # Campos que contienen personas según el tipo
+    for campo in ['pasajeros', 'huespedes', 'participantes']:
+        valor = datos.get(campo, [])
+        if isinstance(valor, list):
+            for item in valor:
+                if isinstance(item, dict):
+                    nombre = item.get('nombre', '')
+                    if nombre:
+                        personas.append({'nombre': nombre})
+                elif isinstance(item, str):
+                    # Lista de strings: ["Andres Gamberg", "Veronica Gerszkowicz"]
+                    personas.append({'nombre': item})
+
+    return personas
+
+
 def get_viajes_for_user(user, Viaje, User):
     """
     MVP7: Obtiene viajes donde el usuario:
@@ -42,29 +75,36 @@ def get_viajes_for_user(user, Viaje, User):
     if user.apellido_pax:
         user_apellido = normalize_name(user.apellido_pax)
         user_nombres = normalize_name(user.nombre_pax).split() if user.nombre_pax else []
-        
-        # Buscar en todos los viajes que tengan pasajeros
-        todos_viajes = Viaje.query.filter(Viaje.pasajeros.isnot(None)).all()
-        
+
+        # BUG-PASSENGER-MATCH: Buscar en TODOS los viajes (no solo los que tienen pasajeros legacy)
+        todos_viajes = Viaje.query.all()
+
         for viaje in todos_viajes:
             if viaje.id in viajes_ids:
                 continue  # Ya lo tenemos
-            
+
             try:
+                # 1. Buscar en columna legacy pasajeros (compatibilidad)
                 pasajeros = json.loads(viaje.pasajeros) if viaje.pasajeros else []
+
+                # 2. TAMBIÉN buscar en datos JSONB (huespedes, participantes, etc.)
+                personas_datos = extraer_personas_de_datos(viaje)
+                pasajeros.extend(personas_datos)
+
+                # 3. Verificar match con cualquier persona encontrada
                 for pax in pasajeros:
                     nombre_pax = pax.get('nombre', '').upper()
-                    
-                    # Parsear formato APELLIDO/NOMBRES
+
+                    # Parsear formato APELLIDO/NOMBRES o "Nombre Apellido"
                     if '/' in nombre_pax:
                         parts = nombre_pax.split('/')
                         apellido_reserva = normalize_name(parts[0])
                         nombres_reserva = normalize_name(parts[1]).split() if len(parts) > 1 else []
                     else:
                         words = nombre_pax.split()
-                        apellido_reserva = normalize_name(words[0]) if words else ''
-                        nombres_reserva = [normalize_name(w) for w in words[1:]]
-                    
+                        apellido_reserva = normalize_name(words[-1]) if words else ''  # Último palabra = apellido
+                        nombres_reserva = [normalize_name(w) for w in words[:-1]]
+
                     # Match: apellido exacto + algún nombre coincide
                     if apellido_reserva == user_apellido:
                         if not user_nombres:
