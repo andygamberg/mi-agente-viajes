@@ -30,9 +30,9 @@
 |----|------|-------|-------------------|--------|
 | V1 | Owner ve su reserva | Owner | Aparece en "Mis Viajes" | ✅ |
 | V2 | Pasajero ve vuelo donde está | Pasajero | Aparece en su app | ✅ |
-| V3 | Pasajero ve hotel donde es huésped | Pasajero | Aparece en su app | ❌ BUG-PASSENGER-MATCH |
-| V4 | Pasajero ve crucero donde está | Pasajero | Aparece en su app | ❌ BUG-PASSENGER-MATCH |
-| V5 | Pasajero ve actividad donde participa | Pasajero | Aparece en su app | ❌ BUG-PASSENGER-MATCH |
+| V3 | Pasajero ve hotel donde es huésped | Pasajero | Aparece en su app | ✅ |
+| V4 | Pasajero ve crucero donde está | Pasajero | Aparece en su app | ✅ |
+| V5 | Pasajero ve actividad donde participa | Pasajero | Aparece en su app | ✅ |
 | V6 | Actualización de reserva se propaga | Sistema | Todos los que ven la reserva ven el cambio | ✅ |
 
 ---
@@ -125,3 +125,4 @@
 | Fecha | Cambio |
 |-------|--------|
 | 14 Dic 2025 | Documento creado - Sesión 24 |
+| 15 Dic 2025 | BUG-PASSENGER-MATCH resuelto (V3-V5) - Sesión 24 |

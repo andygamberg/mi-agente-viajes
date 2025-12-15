@@ -181,9 +181,9 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
-| **BUG-PASSENGER-MATCH** | Matching pasajeros extender a 9 tipos (no solo vuelos) | - |
+| ~~**BUG-PASSENGER-MATCH**~~ | ~~Matching pasajeros extender a 9 tipos (no solo vuelos)~~ | ✅ **15 Dic 2025** |
 | **UX-DELETE** | Eliminar segmento individual sin desagrupar | - |
-| **MVP-SHARE** | Compartir viajes (jerarquía: todo → viaje → segmento) | BUG-PASSENGER-MATCH |
+| **MVP-SHARE** | Compartir viajes (jerarquía: todo → viaje → segmento) | - |
 | **DATA-MIGRATION** | Normalizar campos legacy (pasajeros, entradas como int → array) | - |
 
 ### Prioridad Media
@@ -264,6 +264,7 @@ Evento (tabla base)
 | 14 Dic 2025 | Logging con print() en Cloud Run | Gunicorn requiere PYTHONUNBUFFERED + --access-logfile - para visibilidad |
 | 15 Dic 2025 | Edición > Extracción perfecta | Perseguir 100% extracción automática es infinito. Mejor: extracción "good enough" + edición por usuario. MVP-EDIT resuelve todos los edge cases de una vez. |
 | 15 Dic 2025 | gmail_to_db.py replica carga_rapida() | Dos flujos que hacen lo mismo (guardar reserva) deben usar misma lógica de mapeo de campos |
+| 15 Dic 2025 | Passenger matching extendido a datos JSONB | BUG-PASSENGER-MATCH: get_viajes_for_user() ahora busca en pasajeros/huespedes/participantes dentro del campo datos, no solo en columna legacy. Soporta formato dict y string. |
 
 ---
 
