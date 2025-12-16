@@ -169,8 +169,28 @@
                 {% endif %}
             </div>
         {% endif %}
-        {# Pasajeros - uno por línea en caja blanca #}
-        {% if d.pasajeros and (d.pasajeros is iterable and d.pasajeros is not string) and d.pasajeros|length > 0 %}
+
+        {# Pasajeros combinados (de múltiples reservas) #}
+        {% if vuelo._es_combinado and vuelo._pasajeros_combinados and vuelo._pasajeros_combinados|length > 0 %}
+            <div class="passengers-list">
+                {% for codigo, paxs in vuelo._pasajeros_combinados|groupby('codigo_reserva') %}
+                    <div class="reserva-group">
+                        <div class="reserva-header">{{ codigo }}</div>
+                        {% for p in paxs %}
+                            <div class="passenger-card">
+                                <div class="passenger-name">{{ p.nombre }}</div>
+                                {% if p.ticket %}
+                                    <div class="passenger-meta">
+                                        <span class="meta-badge">{{ p.ticket }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {# Pasajeros normales (reserva única) #}
+        {% elif d.pasajeros and (d.pasajeros is iterable and d.pasajeros is not string) and d.pasajeros|length > 0 %}
             <div class="passengers-list">
                 {% for p in d.pasajeros %}
                     <div class="passenger-card">
@@ -314,8 +334,27 @@
             {% endif %}
         </div>
 
-        {# Pasajeros de bus #}
-        {% if d.pasajeros and (d.pasajeros is iterable and d.pasajeros is not string and d.pasajeros is not number) and d.pasajeros|length > 0 %}
+        {# Pasajeros combinados (de múltiples reservas) #}
+        {% if vuelo._es_combinado and vuelo._pasajeros_combinados and vuelo._pasajeros_combinados|length > 0 %}
+            <div class="passengers-list">
+                {% for codigo, paxs in vuelo._pasajeros_combinados|groupby('codigo_reserva') %}
+                    <div class="reserva-group">
+                        <div class="reserva-header">{{ codigo }}</div>
+                        {% for p in paxs %}
+                            <div class="passenger-card">
+                                <div class="passenger-name">{{ p.nombre }}</div>
+                                {% if p.asiento %}
+                                    <div class="passenger-meta">
+                                        <span class="meta-badge">{{ p.asiento }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {# Pasajeros normales (reserva única) #}
+        {% elif d.pasajeros and (d.pasajeros is iterable and d.pasajeros is not string and d.pasajeros is not number) and d.pasajeros|length > 0 %}
             <div class="passengers-list">
                 {% for p in d.pasajeros %}
                     <div class="passenger-card">
