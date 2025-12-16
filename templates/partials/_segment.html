@@ -156,8 +156,22 @@
                 <span class="detail">Embarcación: {{ d.embarcacion }}</span>
             {% endif %}
         </div>
-        {# Vehículos #}
-        {% if d.vehiculo or d.vehiculos %}
+        {# Vehículos combinados (de múltiples reservas) #}
+        {% if vuelo._es_combinado and vuelo._vehiculos_combinados and vuelo._vehiculos_combinados|length > 0 %}
+            <div class="segment-vehicles-combined">
+                {% for codigo, vehs in vuelo._vehiculos_combinados|groupby('codigo_reserva') %}
+                    <div class="reserva-group">
+                        <div class="reserva-header">{{ codigo }}</div>
+                        <div class="vehicles-row">
+                            {% for v in vehs %}
+                                <span class="meta-badge">{{ v.patente if v is mapping else v }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {# Vehículos normales (reserva única) #}
+        {% elif d.vehiculo or d.vehiculos %}
             <div class="segment-vehicles">
                 <span class="vehicle-label">Vehículo:</span>
                 {% if d.vehiculo %}

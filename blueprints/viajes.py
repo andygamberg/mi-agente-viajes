@@ -177,13 +177,42 @@ def deduplicar_vuelos_en_grupo(vuelos):
                             'codigo_reserva': codigo
                         })
 
+            # Combinar vehículos (para ferries/cruceros)
+            vehiculos_combinados = []
+            for item in items_iguales:
+                datos_item = item.datos or {}
+
+                # Verificar campo 'vehiculos' (array)
+                vehiculos = datos_item.get('vehiculos', [])
+                if isinstance(vehiculos, list):
+                    for v in vehiculos:
+                        if isinstance(v, dict):
+                            v_copy = v.copy()
+                            v_copy['codigo_reserva'] = item.codigo_reserva or 'N/A'
+                            vehiculos_combinados.append(v_copy)
+                        elif isinstance(v, str):
+                            vehiculos_combinados.append({
+                                'patente': v,
+                                'codigo_reserva': item.codigo_reserva or 'N/A'
+                            })
+
+                # También verificar campo 'vehiculo' (singular)
+                vehiculo = datos_item.get('vehiculo')
+                if vehiculo and isinstance(vehiculo, str):
+                    vehiculos_combinados.append({
+                        'patente': vehiculo,
+                        'codigo_reserva': item.codigo_reserva or 'N/A'
+                    })
+
             # Ordenar para consistencia
             codigos_ordenados = sorted(codigos_reserva)
             reservas_ordenadas = sorted(items_iguales, key=lambda r: r.codigo_reserva or '')
             personas_ordenadas = sorted(personas_combinadas, key=lambda p: p.get('codigo_reserva', ''))
+            vehiculos_ordenados = sorted(vehiculos_combinados, key=lambda v: v.get('codigo_reserva', ''))
 
             # Agregar atributos temporales
             item_principal._pasajeros_combinados = personas_ordenadas
+            item_principal._vehiculos_combinados = vehiculos_ordenados
             item_principal._codigos_reserva = codigos_ordenados
             item_principal._reservas_combinadas = reservas_ordenadas
             item_principal._es_combinado = True
