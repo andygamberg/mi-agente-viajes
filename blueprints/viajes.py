@@ -25,98 +25,171 @@ viajes_bp = Blueprint('viajes', __name__)
 
 def deduplicar_vuelos_en_grupo(vuelos):
     """
-    MVP11: Combina vuelos idénticos (mismo numero_vuelo + fecha + ruta)
-    
-    Retorna lista de vuelos donde los duplicados tienen pasajeros combinados.
+    Combina reservas idénticas de cualquier tipo que tengan diferentes pasajeros/huéspedes.
+
+    Retorna lista donde los duplicados tienen pasajeros combinados.
     No modifica la BD - solo agrega atributos temporales para renderizado.
     """
     if not vuelos or len(vuelos) <= 1:
         return vuelos
-    
-    # Crear clave única para cada vuelo
-    def vuelo_key(v):
-        fecha = v.fecha_salida.date() if v.fecha_salida else None
 
-        # Deduplicar vuelos, buses, trenes y ferries cortos
-        if v.tipo == 'vuelo':
-            return (v.numero_vuelo, fecha, v.origen, v.destino)
-        elif v.tipo in ('bus', 'tren'):
-            # Buses y trenes: misma empresa + ruta + fecha
-            datos = v.datos or {}
-            empresa = datos.get('empresa') or datos.get('operador') or ''
-            return (v.tipo, empresa, fecha, v.origen, v.destino)
-        elif v.tipo == 'crucero':
-            # Ferries cortos (< 24h) sí deduplicar, cruceros largos no
+    def get_datetime_salida(v):
+        """Combina fecha_salida con hora para ordenamiento preciso"""
+        from datetime import datetime, time
+
+        if not v.fecha_salida:
+            return datetime.max
+
+        datos = v.datos or {}
+        hora_str = (datos.get('hora_salida') or datos.get('hora_embarque') or
+                   datos.get('hora') or datos.get('hora_checkin') or
+                   datos.get('hora_retiro'))
+
+        if hora_str:
+            try:
+                parts = str(hora_str).replace('h', ':').split(':')
+                hora = int(parts[0])
+                minuto = int(parts[1]) if len(parts) > 1 else 0
+                return datetime.combine(v.fecha_salida.date(), time(hora, minuto))
+            except:
+                pass
+
+        return v.fecha_salida
+
+    def get_dedup_key(v):
+        """Genera clave de deduplicación según el tipo"""
+        fecha = v.fecha_salida.date() if v.fecha_salida else None
+        datos = v.datos or {}
+        tipo = v.tipo or 'vuelo'
+
+        if tipo == 'vuelo':
+            return (tipo, v.numero_vuelo, fecha, v.origen, v.destino)
+
+        elif tipo == 'bus':
+            empresa = datos.get('empresa', '')
+            return (tipo, empresa, fecha, v.origen, v.destino)
+
+        elif tipo == 'tren':
+            operador = datos.get('operador', '')
+            return (tipo, operador, fecha, v.origen, v.destino)
+
+        elif tipo == 'crucero':
+            # Ferries cortos (<24h) sí deduplicar, cruceros largos no
             if v.fecha_salida and v.fecha_llegada:
                 duracion = v.fecha_llegada - v.fecha_salida
                 if duracion.total_seconds() < 24 * 3600:
-                    # Ferry corto - deduplicar por embarcación + ruta + fecha
-                    datos = v.datos or {}
-                    embarcacion = datos.get('embarcacion') or ''
+                    embarcacion = datos.get('embarcacion', '')
                     return ('ferry', embarcacion, fecha, v.origen, v.destino)
-            # Crucero largo - no deduplicar
-            return (v.id,)
+            return (v.id,)  # Crucero largo - no deduplicar
+
+        elif tipo == 'hotel':
+            nombre = datos.get('nombre_propiedad', '')
+            return (tipo, nombre, fecha)
+
+        elif tipo == 'auto':
+            empresa = datos.get('empresa', '')
+            lugar = datos.get('lugar_retiro', '')
+            return (tipo, empresa, lugar, fecha)
+
+        elif tipo == 'restaurante':
+            nombre = datos.get('nombre', '')
+            return (tipo, nombre, fecha)
+
+        elif tipo == 'espectaculo':
+            evento = datos.get('evento', '')
+            return (tipo, evento, fecha)
+
+        elif tipo == 'actividad':
+            nombre = datos.get('nombre', '')
+            return (tipo, nombre, fecha)
+
+        elif tipo == 'transfer':
+            empresa = datos.get('empresa', '')
+            return (tipo, empresa, fecha, v.origen, v.destino)
+
         else:
-            # Otros tipos - no deduplicar
-            return (v.id,)
-    
+            return (v.id,)  # Tipo desconocido - no deduplicar
+
+    def get_personas(v):
+        """Extrae lista de personas de cualquier tipo de reserva"""
+        datos = v.datos or {}
+
+        # Campos que contienen personas según el tipo
+        for campo in ['pasajeros', 'huespedes', 'participantes', 'comensales']:
+            valor = datos.get(campo)
+            if valor:
+                if isinstance(valor, list):
+                    return valor
+                elif isinstance(valor, int):
+                    # comensales puede ser int
+                    return []
+
+        # Fallback a columna legacy
+        if v.pasajeros:
+            try:
+                return json.loads(v.pasajeros) if v.pasajeros else []
+            except:
+                pass
+
+        return []
+
     # Agrupar por clave
-    grupos_vuelos = {}
-    orden_original = []  # Para mantener orden por fecha
-    
+    grupos = {}
+    orden_original = []
+
     for vuelo in vuelos:
-        key = vuelo_key(vuelo)
-        if key not in grupos_vuelos:
-            grupos_vuelos[key] = []
+        key = get_dedup_key(vuelo)
+        if key not in grupos:
+            grupos[key] = []
             orden_original.append(key)
-        grupos_vuelos[key].append(vuelo)
-    
+        grupos[key].append(vuelo)
+
     # Procesar cada grupo
     resultado = []
     for key in orden_original:
-        vuelos_iguales = grupos_vuelos[key]
-        
-        if len(vuelos_iguales) == 1:
-            # No hay duplicado - marcar como no combinado
-            vuelo = vuelos_iguales[0]
-            vuelo._es_combinado = False
-            resultado.append(vuelo)
+        items_iguales = grupos[key]
+
+        if len(items_iguales) == 1:
+            item = items_iguales[0]
+            item._es_combinado = False
+            resultado.append(item)
         else:
-            # Combinar pasajeros de todos los vuelos iguales
-            vuelo_principal = vuelos_iguales[0]
-            pasajeros_combinados = []
+            # Combinar personas de todos los items iguales
+            item_principal = items_iguales[0]
+            personas_combinadas = []
             codigos_reserva = []
-            
-            for v in vuelos_iguales:
-                codigo = v.codigo_reserva or 'N/A'
+
+            for item in items_iguales:
+                codigo = item.codigo_reserva or 'N/A'
                 if codigo not in codigos_reserva:
                     codigos_reserva.append(codigo)
-                
-                # Parsear pasajeros
-                try:
-                    pax_list = json.loads(v.pasajeros) if v.pasajeros else []
-                except:
-                    pax_list = []
-                
-                # Agregar código de reserva a cada pasajero
-                for p in pax_list:
-                    p['codigo_reserva'] = codigo
-                    pasajeros_combinados.append(p)
-            
-            # Ordenar alfabéticamente para consistencia visual (card y menú)
-            codigos_reserva_ordenados = sorted(codigos_reserva)
-            reservas_ordenadas = sorted(vuelos_iguales, key=lambda r: r.codigo_reserva or '')
-            pasajeros_ordenados = sorted(pasajeros_combinados, key=lambda p: p.get('codigo_reserva', ''))
 
-            # Agregar atributos temporales (no se guardan en BD)
-            vuelo_principal._pasajeros_combinados = pasajeros_ordenados
-            vuelo_principal._codigos_reserva = codigos_reserva_ordenados
-            vuelo_principal._reservas_combinadas = reservas_ordenadas  # Para acceder a todas las reservas originales
-            vuelo_principal._es_combinado = True
-            resultado.append(vuelo_principal)
-    
-    # Ordenar por fecha
-    resultado.sort(key=lambda v: v.fecha_salida)
+                personas = get_personas(item)
+                for p in personas:
+                    if isinstance(p, dict):
+                        p_copy = p.copy()
+                        p_copy['codigo_reserva'] = codigo
+                        personas_combinadas.append(p_copy)
+                    elif isinstance(p, str):
+                        personas_combinadas.append({
+                            'nombre': p,
+                            'codigo_reserva': codigo
+                        })
+
+            # Ordenar para consistencia
+            codigos_ordenados = sorted(codigos_reserva)
+            reservas_ordenadas = sorted(items_iguales, key=lambda r: r.codigo_reserva or '')
+            personas_ordenadas = sorted(personas_combinadas, key=lambda p: p.get('codigo_reserva', ''))
+
+            # Agregar atributos temporales
+            item_principal._pasajeros_combinados = personas_ordenadas
+            item_principal._codigos_reserva = codigos_ordenados
+            item_principal._reservas_combinadas = reservas_ordenadas
+            item_principal._es_combinado = True
+            resultado.append(item_principal)
+
+    # Ordenar por fecha+hora
+    resultado.sort(key=get_datetime_salida)
     return resultado
 
 
