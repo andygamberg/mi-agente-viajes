@@ -834,6 +834,48 @@
             color: var(--text-secondary);
         }
 
+        .segment-menu-group {
+            border-bottom: 1px solid var(--border-light);
+            padding: 8px 0;
+        }
+
+        .segment-menu-group:last-child {
+            border-bottom: none;
+        }
+
+        .segment-menu-group-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 16px 8px;
+        }
+
+        .segment-menu-delete {
+            color: #dc2626;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+
+        .segment-menu-delete:hover {
+            background: #fef2f2;
+        }
+
+        .segment-menu-disabled {
+            color: #9ca3af;
+            cursor: not-allowed;
+            font-style: italic;
+            opacity: 0.6;
+        }
+
+        .segment-menu-disabled:hover {
+            background: transparent;
+        }
+
         .segment-route {
             display: flex;
             align-items: center;
@@ -1585,28 +1627,66 @@
                                         </button>
                                         <div class="segment-menu" onclick="event.stopPropagation()">
                                             {% if vuelo._es_combinado and vuelo._codigos_reserva and vuelo._reservas_combinadas %}
-                                                {# Múltiples reservas: iterar por códigos para mantener orden correcto #}
+                                                {# Reservas combinadas - mostrar opciones por cada una #}
                                                 {% for codigo in vuelo._codigos_reserva %}
-                                                    {# Buscar la reserva con este código #}
                                                     {% for reserva in vuelo._reservas_combinadas %}
                                                         {% if (reserva.codigo_reserva or 'N/A') == codigo %}
-                                                <a href="{{ url_for('viajes.editar', id=reserva.id) }}" class="segment-menu-item">
-                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                                                        <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
-                                                    </svg>
-                                                    Editar {{ codigo if codigo != 'N/A' else 'reserva ' ~ loop.index }}
-                                                </a>
+                                                <div class="segment-menu-group">
+                                                    <div class="segment-menu-group-title">{{ codigo if codigo != 'N/A' else 'Reserva ' ~ loop.index }}</div>
+                                                    {% if puede_modificar_segmento(reserva) %}
+                                                        <a href="{{ url_for('viajes.editar', id=reserva.id) }}" class="segment-menu-item">
+                                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
+                                                            </svg>
+                                                            Editar
+                                                        </a>
+                                                        <button class="segment-menu-item segment-menu-delete" data-id="{{ reserva.id }}" data-tipo="segmento">
+                                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+                                                            </svg>
+                                                            Eliminar
+                                                        </button>
+                                                    {% else %}
+                                                        <span class="segment-menu-item segment-menu-disabled" title="Las reservas importadas automáticamente no se pueden modificar individualmente">
+                                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                <path d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+                                                            </svg>
+                                                            Bloqueado
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% endfor %}
                                             {% else %}
-                                                {# Reserva única: opción simple #}
-                                                <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
-                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                                                        <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
-                                                    </svg>
-                                                    Editar reserva
-                                                </a>
+                                                {# Reserva única #}
+                                                {% if puede_modificar_segmento(vuelo) %}
+                                                    <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
+                                                        </svg>
+                                                        Editar reserva
+                                                    </a>
+                                                    <button class="segment-menu-item segment-menu-delete" data-id="{{ vuelo.id }}" data-tipo="segmento">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+                                                        </svg>
+                                                        Eliminar segmento
+                                                    </button>
+                                                {% else %}
+                                                    <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                        </svg>
+                                                        Ver detalles
+                                                    </a>
+                                                    <span class="segment-menu-item segment-menu-disabled" title="Reserva importada automáticamente">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+                                                        </svg>
+                                                        No editable
+                                                    </span>
+                                                {% endif %}
                                             {% endif %}
                                         </div>
                                     </div>
@@ -1789,28 +1869,66 @@
                                         </button>
                                         <div class="segment-menu" onclick="event.stopPropagation()">
                                             {% if vuelo._es_combinado and vuelo._codigos_reserva and vuelo._reservas_combinadas %}
-                                                {# Múltiples reservas: iterar por códigos para mantener orden correcto #}
+                                                {# Reservas combinadas - mostrar opciones por cada una #}
                                                 {% for codigo in vuelo._codigos_reserva %}
-                                                    {# Buscar la reserva con este código #}
                                                     {% for reserva in vuelo._reservas_combinadas %}
                                                         {% if (reserva.codigo_reserva or 'N/A') == codigo %}
-                                                <a href="{{ url_for('viajes.editar', id=reserva.id) }}" class="segment-menu-item">
-                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                                                        <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
-                                                    </svg>
-                                                    Editar {{ codigo if codigo != 'N/A' else 'reserva ' ~ loop.index }}
-                                                </a>
+                                                <div class="segment-menu-group">
+                                                    <div class="segment-menu-group-title">{{ codigo if codigo != 'N/A' else 'Reserva ' ~ loop.index }}</div>
+                                                    {% if puede_modificar_segmento(reserva) %}
+                                                        <a href="{{ url_for('viajes.editar', id=reserva.id) }}" class="segment-menu-item">
+                                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
+                                                            </svg>
+                                                            Editar
+                                                        </a>
+                                                        <button class="segment-menu-item segment-menu-delete" data-id="{{ reserva.id }}" data-tipo="segmento">
+                                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+                                                            </svg>
+                                                            Eliminar
+                                                        </button>
+                                                    {% else %}
+                                                        <span class="segment-menu-item segment-menu-disabled" title="Las reservas importadas automáticamente no se pueden modificar individualmente">
+                                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                                <path d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+                                                            </svg>
+                                                            Bloqueado
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% endfor %}
                                             {% else %}
-                                                {# Reserva única: opción simple #}
-                                                <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
-                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-                                                        <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
-                                                    </svg>
-                                                    Editar reserva
-                                                </a>
+                                                {# Reserva única #}
+                                                {% if puede_modificar_segmento(vuelo) %}
+                                                    <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
+                                                        </svg>
+                                                        Editar reserva
+                                                    </a>
+                                                    <button class="segment-menu-item segment-menu-delete" data-id="{{ vuelo.id }}" data-tipo="segmento">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+                                                        </svg>
+                                                        Eliminar segmento
+                                                    </button>
+                                                {% else %}
+                                                    <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                        </svg>
+                                                        Ver detalles
+                                                    </a>
+                                                    <span class="segment-menu-item segment-menu-disabled" title="Reserva importada automáticamente">
+                                                        <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                            <path d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/>
+                                                        </svg>
+                                                        No editable
+                                                    </span>
+                                                {% endif %}
                                             {% endif %}
                                         </div>
                                     </div>
@@ -1989,6 +2107,25 @@
                 document.querySelectorAll('.segment-menu.open').forEach(menu => {
                     menu.classList.remove('open');
                 });
+            }
+        });
+
+        // Eliminar segmento individual con confirmación
+        document.addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('.segment-menu-delete[data-tipo="segmento"]');
+            if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const id = deleteBtn.dataset.id;
+
+                if (confirm('¿Eliminar este segmento? Esta acción no se puede deshacer.')) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/eliminar-segmento/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
             }
         });
 

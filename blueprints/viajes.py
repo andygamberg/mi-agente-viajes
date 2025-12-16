@@ -475,6 +475,40 @@ def eliminar(id):
     return redirect(url_for('viajes.index'))
 
 
+@viajes_bp.route('/eliminar-segmento/<int:id>', methods=['POST'])
+@login_required
+def eliminar_segmento(id):
+    """Elimina un segmento individual (solo si tiene permiso)"""
+    from utils.permissions import puede_modificar_segmento
+
+    viaje = Viaje.query.get_or_404(id)
+
+    # Verificar ownership
+    if viaje.user_id != current_user.id:
+        flash('No tenés permiso para eliminar esta reserva', 'error')
+        return redirect(url_for('viajes.index'))
+
+    # Verificar permiso de modificación
+    if not puede_modificar_segmento(viaje):
+        flash('Las reservas importadas automáticamente no se pueden eliminar individualmente. Podés eliminar el viaje completo.', 'warning')
+        return redirect(url_for('viajes.index'))
+
+    # Guardar info para mensaje
+    tipo = viaje.tipo or 'vuelo'
+    datos = viaje.datos or {}
+    if tipo == 'vuelo':
+        descripcion = f"{datos.get('aerolinea', '')} {datos.get('numero_vuelo', '')} ({viaje.origen} → {viaje.destino})".strip()
+    else:
+        descripcion = viaje.descripcion or f"{viaje.origen} → {viaje.destino}"
+
+    # Eliminar
+    db.session.delete(viaje)
+    db.session.commit()
+
+    flash(f'Segmento "{descripcion}" eliminado', 'success')
+    return redirect(url_for('viajes.index'))
+
+
 @viajes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editar(id):
@@ -493,6 +527,12 @@ def editar(id):
     schema = get_schema(tipo_actual)
 
     if request.method == 'POST':
+        # Verificar permiso de modificación
+        from utils.permissions import puede_modificar_segmento
+        if not puede_modificar_segmento(viaje):
+            flash('Las reservas importadas automáticamente no se pueden modificar. Los cambios vendrán por email.', 'warning')
+            return redirect(url_for('viajes.index'))
+
         try:
             # Construir datos desde form
             nuevo_tipo = request.form.get('tipo', tipo_actual)

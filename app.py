@@ -80,12 +80,14 @@ app.register_blueprint(microsoft_oauth_bp)  # MVP14h
 # Registrar helpers de schema en Jinja globals
 from utils.schema_helpers import get_dato, get_titulo_card, get_subtitulo_card
 from config.schemas import RESERVATION_SCHEMAS, get_schema
+from utils.permissions import puede_modificar_segmento
 
 app.jinja_env.globals['get_dato'] = get_dato
 app.jinja_env.globals['get_titulo_card'] = get_titulo_card
 app.jinja_env.globals['get_subtitulo_card'] = get_subtitulo_card
 app.jinja_env.globals['get_schema'] = get_schema
 app.jinja_env.globals['RESERVATION_SCHEMAS'] = RESERVATION_SCHEMAS
+app.jinja_env.globals['puede_modificar_segmento'] = puede_modificar_segmento
 
 # ============================================
 # MAIN
