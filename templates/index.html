@@ -2112,17 +2112,20 @@
 
         // Eliminar segmento individual con confirmación
         document.addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('.segment-menu-delete[data-tipo="segmento"]');
-            if (deleteBtn) {
+            // Buscar el botón de eliminar en la cadena de ancestros
+            const deleteBtn = e.target.closest('.segment-menu-delete');
+
+            if (deleteBtn && deleteBtn.dataset.tipo === 'segmento') {
                 e.preventDefault();
                 e.stopPropagation();
 
                 const id = deleteBtn.dataset.id;
+                console.log('Eliminar segmento ID:', id);  // Debug
 
                 if (confirm('¿Eliminar este segmento? Esta acción no se puede deshacer.')) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/eliminar-segmento/${id}`;
+                    form.action = '/eliminar-segmento/' + id;
                     document.body.appendChild(form);
                     form.submit();
                 }

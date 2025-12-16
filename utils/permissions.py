@@ -27,12 +27,13 @@ def puede_modificar_segmento(viaje):
     if viaje.source == 'pdf_upload' and not viaje.codigo_reserva:
         return True
 
-    # Retrocompatibilidad: registros sin source
-    if viaje.source is None:
-        # Sin código = asumir manual
+    # Retrocompatibilidad: registros sin source (NULL o string vacío)
+    if viaje.source is None or viaje.source == '':
+        # Sin código de reserva = asumir manual (permisivo)
         if not viaje.codigo_reserva:
             return True
-        # Con código = asumir automático (restrictivo)
+        # Con código de reserva = asumir importado automáticamente (restrictivo)
         return False
 
+    # Cualquier otro source (gmail, microsoft, email_forward) = no modificable
     return False
