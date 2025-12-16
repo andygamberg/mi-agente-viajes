@@ -136,6 +136,24 @@ RESERVATION_SCHEMAS = {
             {'key': 'precio', 'label': 'Precio', 'type': 'text', 'card': False},
         ]
     },
+    'bus': {
+        'titulo': 'Bus',
+        'icono': 'truck',  # Heroicons no tiene bus, truck es lo más cercano
+        'campos': [
+            {'key': 'empresa', 'label': 'Empresa', 'type': 'text', 'card': True},
+            {'key': 'servicio', 'label': 'Servicio/Clase', 'type': 'text'},
+            {'key': 'origen', 'label': 'Terminal origen', 'type': 'text', 'card': True},
+            {'key': 'destino', 'label': 'Terminal destino', 'type': 'text', 'card': True},
+            {'key': 'fecha_salida', 'label': 'Fecha salida', 'type': 'date', 'required': True},
+            {'key': 'hora_salida', 'label': 'Hora salida', 'type': 'time', 'card': True},
+            {'key': 'fecha_llegada', 'label': 'Fecha llegada', 'type': 'date'},
+            {'key': 'hora_llegada', 'label': 'Hora llegada', 'type': 'time'},
+            {'key': 'asiento', 'label': 'Asiento', 'type': 'text'},
+            {'key': 'pasajeros', 'label': 'Pasajeros', 'type': 'list', 'item_fields': ['nombre', 'asiento']},
+            {'key': 'codigo_reserva', 'label': 'Código reserva', 'type': 'text', 'card': True},
+            {'key': 'precio', 'label': 'Precio', 'type': 'text', 'card': False},
+        ]
+    },
     'transfer': {
         'titulo': 'Transfer',
         'icono': 'arrow-path',

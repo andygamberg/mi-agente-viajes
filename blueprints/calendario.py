@@ -388,6 +388,13 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
             titulo = f"{emoji} {operador} {origen} → {destino}"
         else:
             titulo = f"{emoji} {operador or descripcion}"
+    elif tipo == 'bus':
+        emoji = '🚌'
+        empresa = get_dato(viaje, 'empresa') or proveedor or 'Bus'
+        if origen and destino:
+            titulo = f"{emoji} {empresa} {origen} → {destino}"
+        else:
+            titulo = f"{emoji} {empresa or descripcion}"
     elif tipo == 'transfer':
         emoji = '🚕'
         if origen and destino:
@@ -464,6 +471,13 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
             desc.append(f"Salida: Estación {origen}")
         if destino:
             desc.append(f"Llegada: Estación {destino}")
+    elif tipo == 'bus':
+        empresa = get_dato(viaje, 'empresa') or proveedor or 'Bus'
+        desc.append(f"Bus: {empresa}")
+        if origen:
+            desc.append(f"Salida: Terminal {origen}")
+        if destino:
+            desc.append(f"Llegada: Terminal {destino}")
     elif tipo == 'transfer':
         desc.append(f"Transfer: {descripcion or 'Traslado'}")
         empresa = get_dato(viaje, 'empresa') or proveedor
@@ -669,6 +683,8 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
         location = f'Puerto {viaje.origen}' if viaje.origen else (viaje.proveedor or 'Puerto')
     elif tipo == 'tren':
         location = f'Estación {viaje.origen}' if viaje.origen else 'Estación'
+    elif tipo == 'bus':
+        location = f'Terminal {viaje.origen}' if viaje.origen else 'Terminal'
     elif tipo in ['auto', 'transfer']:
         location = viaje.origen or viaje.ubicacion or viaje.descripcion
     else:

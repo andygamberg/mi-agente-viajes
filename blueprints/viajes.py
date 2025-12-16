@@ -37,11 +37,28 @@ def deduplicar_vuelos_en_grupo(vuelos):
     def vuelo_key(v):
         fecha = v.fecha_salida.date() if v.fecha_salida else None
 
-        # Solo deduplicar vuelos - otros tipos siempre son únicos
-        if v.tipo != 'vuelo':
-            return (v.id,)  # Clave única por item - no deduplicar
-
-        return (v.numero_vuelo, fecha, v.origen, v.destino)
+        # Deduplicar vuelos, buses, trenes y ferries cortos
+        if v.tipo == 'vuelo':
+            return (v.numero_vuelo, fecha, v.origen, v.destino)
+        elif v.tipo in ('bus', 'tren'):
+            # Buses y trenes: misma empresa + ruta + fecha
+            datos = v.datos or {}
+            empresa = datos.get('empresa') or datos.get('operador') or ''
+            return (v.tipo, empresa, fecha, v.origen, v.destino)
+        elif v.tipo == 'crucero':
+            # Ferries cortos (< 24h) sí deduplicar, cruceros largos no
+            if v.fecha_salida and v.fecha_llegada:
+                duracion = v.fecha_llegada - v.fecha_salida
+                if duracion.total_seconds() < 24 * 3600:
+                    # Ferry corto - deduplicar por embarcación + ruta + fecha
+                    datos = v.datos or {}
+                    embarcacion = datos.get('embarcacion') or ''
+                    return ('ferry', embarcacion, fecha, v.origen, v.destino)
+            # Crucero largo - no deduplicar
+            return (v.id,)
+        else:
+            # Otros tipos - no deduplicar
+            return (v.id,)
     
     # Agrupar por clave
     grupos_vuelos = {}

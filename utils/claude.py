@@ -53,6 +53,8 @@ IMPORTANTE:
 - Códigos IATA para aeropuertos en MAYÚSCULAS
 - Fechas en formato YYYY-MM-DD
 - Horas en formato HH:MM (24h)
+- Si el email/PDF contiene múltiples tramos de transporte (ej: ferry + bus), extraer CADA tramo como objeto separado con su tipo correspondiente
+- Los tramos de bus/ómnibus deben usar tipo: "bus"
 
 IMPORTANTE - VALIDACIÓN:
 - Si no podés extraer una fecha válida → NO incluyas el objeto en el array
@@ -217,6 +219,22 @@ PARA TRENES:
   "asientos": ["Coach 5 Seat 42"],
   "pasajeros": ["Andres Gamberg"],
   "codigo_reserva": "EUR456"
+}}]
+
+PARA BUSES:
+[{{
+  "tipo": "bus",
+  "descripcion": "Buquebus Bus - Montevideo a Punta del Este",
+  "empresa": "Buquebus",
+  "servicio": "Ejecutivo",
+  "origen": "Montevideo",
+  "destino": "Punta del Este",
+  "fecha_salida": "2025-12-27",
+  "hora_salida": "10:15",
+  "fecha_llegada": "2025-12-27",
+  "hora_llegada": "12:45",
+  "pasajeros": [{{"nombre": "MARTIN GAMBERG"}}, {{"nombre": "LARA TANUS SALOME"}}],
+  "codigo_reserva": "B2501493584"
 }}]
 
 PARA ESPECTÁCULOS:

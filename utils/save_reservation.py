@@ -31,6 +31,7 @@ def extraer_fecha_inicio(datos, tipo):
         'actividad': 'fecha',
         'transfer': 'fecha',
         'tren': 'fecha_salida',
+        'bus': 'fecha_salida',
         'vuelo': 'fecha_salida',
     }
     campo = campos.get(tipo, 'fecha_salida')
@@ -44,6 +45,7 @@ def extraer_fecha_fin(datos, tipo):
         'crucero': 'fecha_desembarque',
         'auto': 'fecha_devolucion',
         'tren': 'fecha_llegada',
+        'bus': 'fecha_llegada',
         'vuelo': 'fecha_llegada',
     }
     campo = campos.get(tipo, 'fecha_llegada')
