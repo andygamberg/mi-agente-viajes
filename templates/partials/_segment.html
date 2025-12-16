@@ -292,6 +292,42 @@
             {% endif %}
         </div>
 
+    {# ========== BUS ========== #}
+    {% elif tipo == 'bus' %}
+        <div class="segment-route">
+            <span class="route-point">{{ d.origen or vuelo.origen or '?' }}</span>
+            <span class="route-arrow">→</span>
+            <span class="route-point">{{ d.destino or vuelo.destino or '?' }}</span>
+        </div>
+        <div class="segment-details">
+            {% if d.empresa %}
+                <span class="detail">{{ d.empresa }}</span>
+            {% endif %}
+            {% if d.hora_salida %}
+                <span class="detail">Salida: {{ d.hora_salida }}</span>
+            {% endif %}
+            {% if d.hora_llegada %}
+                <span class="detail">Llegada: {{ d.hora_llegada }}</span>
+            {% endif %}
+            {% if d.codigo_reserva %}
+                <span class="detail">Reserva: {{ d.codigo_reserva }}</span>
+            {% endif %}
+        </div>
+
+        {# Pasajeros de bus #}
+        {% if d.pasajeros and (d.pasajeros is iterable and d.pasajeros is not string and d.pasajeros is not number) and d.pasajeros|length > 0 %}
+            <div class="passengers-list">
+                {% for p in d.pasajeros %}
+                    <div class="passenger-card">
+                        <div class="passenger-name">{{ p.nombre if p is mapping else p }}</div>
+                        {% if p is mapping and p.asiento %}
+                            <div class="passenger-meta">Asiento: {{ p.asiento }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
     {# ========== TRANSFER ========== #}
     {% elif tipo == 'transfer' %}
         <div class="segment-route">

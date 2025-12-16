@@ -108,6 +108,16 @@ def get_titulo_card(viaje):
     elif tipo == 'tren':
         return datos.get('operador') or 'Tren'
 
+    elif tipo == 'bus':
+        empresa = datos.get('empresa', '')
+        origen = datos.get('origen', '')
+        destino = datos.get('destino', '')
+        if empresa and origen and destino:
+            return f"{empresa} {origen} → {destino}"
+        elif origen and destino:
+            return f"{origen} → {destino}"
+        return datos.get('descripcion') or 'Bus'
+
     elif tipo == 'transfer':
         return datos.get('empresa') or 'Transfer'
 
@@ -119,7 +129,7 @@ def get_subtitulo_card(viaje):
     datos = viaje.datos or {}
     tipo = viaje.tipo or 'vuelo'
 
-    if tipo in ['vuelo', 'tren', 'transfer']:
+    if tipo in ['vuelo', 'tren', 'transfer', 'bus']:
         origen = datos.get('origen', '')
         destino = datos.get('destino', '')
         if origen and destino:
