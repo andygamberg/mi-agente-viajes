@@ -74,12 +74,13 @@ def deduplicar_vuelos_en_grupo(vuelos):
             return (tipo, operador, fecha, v.origen, v.destino)
 
         elif tipo == 'crucero':
-            # Ferries cortos (<24h) sí deduplicar, cruceros largos no
+            # Ferries cortos (<24h) sí deduplicar por ruta+fecha+hora
             if v.fecha_salida and v.fecha_llegada:
                 duracion = v.fecha_llegada - v.fecha_salida
                 if duracion.total_seconds() < 24 * 3600:
-                    embarcacion = datos.get('embarcacion', '')
-                    return ('ferry', embarcacion, fecha, v.origen, v.destino)
+                    # Usar hora de embarque como parte de la clave (no embarcación que puede variar)
+                    hora = datos.get('hora_embarque', '')
+                    return ('ferry', fecha, hora, v.origen, v.destino)
             return (v.id,)  # Crucero largo - no deduplicar
 
         elif tipo == 'hotel':
