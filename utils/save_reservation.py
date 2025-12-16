@@ -50,7 +50,7 @@ def extraer_fecha_fin(datos, tipo):
     return parse_fecha(datos.get(campo) or datos.get('fecha_llegada'))
 
 
-def save_reservation(user_id, datos_dict, grupo_id=None, nombre_viaje=None):
+def save_reservation(user_id, datos_dict, grupo_id=None, nombre_viaje=None, source='manual'):
     """
     Guarda una reserva desde cualquier flujo.
 
@@ -59,6 +59,7 @@ def save_reservation(user_id, datos_dict, grupo_id=None, nombre_viaje=None):
         datos_dict: Dict con datos de la reserva (de Claude o de form)
         grupo_id: ID de grupo opcional
         nombre_viaje: Nombre del viaje opcional
+        source: Origen de la reserva ('manual', 'gmail', 'microsoft', 'email_forward', 'pdf_upload')
 
     Returns:
         Viaje creado
@@ -86,6 +87,7 @@ def save_reservation(user_id, datos_dict, grupo_id=None, nombre_viaje=None):
         grupo_viaje=grupo_id,
         nombre_viaje=nombre_viaje,
         datos=datos_dict,
+        source=source,
         # Columnas legacy para compatibilidad (transición)
         descripcion=datos_dict.get('descripcion', ''),
         origen=datos_dict.get('origen') or datos_dict.get('puerto_embarque') or datos_dict.get('lugar_retiro') or '',

@@ -303,7 +303,8 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
             user_id=user_id,
             datos_dict=vuelo_data,
             grupo_id=grupo_id,
-            nombre_viaje=nombre_viaje
+            nombre_viaje=nombre_viaje,
+            source='email_forward'
         )
         db.session.commit()
         print(f'  ✅ {vuelo_data.get("tipo", "vuelo").capitalize()} guardado (ID: {viaje.id})')

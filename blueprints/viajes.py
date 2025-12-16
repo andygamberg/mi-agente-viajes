@@ -226,7 +226,8 @@ def agregar():
 
             nuevo_viaje = save_reservation(
                 user_id=current_user.id,
-                datos_dict=datos
+                datos_dict=datos,
+                source='manual'
             )
             db.session.commit()
             flash("✓ Reserva agregada", "success")
@@ -306,7 +307,8 @@ def carga_rapida():
                         user_id=current_user.id,
                         datos_dict=reserva_data,
                         grupo_id=grupo_id,
-                        nombre_viaje=None
+                        nombre_viaje=None,
+                        source='pdf_upload'
                     )
                     vuelos_guardados += 1
                 except ValueError as e:

@@ -209,7 +209,8 @@ def process_new_emails(connection, history_id):
                                 user_id=connection.user_id,
                                 datos_dict=v,
                                 grupo_id=grupo,
-                                nombre_viaje=None
+                                nombre_viaje=None,
+                                source='gmail'
                             )
                             viajes_creados += 1
                             print(f"✅ Viaje creado: {v.get('origen', '')} → {v.get('destino', '')}")

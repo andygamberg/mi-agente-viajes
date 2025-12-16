@@ -319,7 +319,8 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                             viaje = save_reservation(
                                 user_id=user_id,
                                 datos_dict=v,
-                                grupo_id=grupo
+                                grupo_id=grupo,
+                                source='microsoft'
                             )
                             results['viajes_creados'] += 1
                             tipo = v.get('tipo', 'vuelo')

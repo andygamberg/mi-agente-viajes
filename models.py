@@ -178,6 +178,9 @@ class Viaje(db.Model):
     raw_data = db.Column(db.Text)           # JSON completo de Claude como backup
     datos = db.Column(JSONB)                # JSON estructurado con toda la info del tipo (migración JSONB)
 
+    # Control de permisos de edición/borrado
+    source = db.Column(db.String(20), default='manual')  # Valores: 'manual', 'gmail', 'microsoft', 'email_forward', 'pdf_upload'
+
     # Campos para monitoreo FR24
     ultima_actualizacion_fr24 = db.Column(db.DateTime)
     status_fr24 = db.Column(db.String(50))
