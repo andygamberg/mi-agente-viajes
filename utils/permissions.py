@@ -14,11 +14,21 @@ def puede_modificar_segmento(viaje):
         bool: True si puede modificarse individualmente
 
     Reglas:
+    - Solo VUELOS con PNR de fuentes automáticas están bloqueados
+    - Otros tipos (hotel, crucero, restaurante, etc.) siempre son editables
     - Reservas manuales: siempre modificables
     - PDFs sin PNR: modificables (vuelos privados, charters)
-    - Reservas automáticas con PNR: no modificables individualmente
-      (para mantener integridad del PNR completo)
     """
+    # Obtener tipo
+    tipo = viaje.tipo or 'vuelo'
+
+    # Solo vuelos tienen restricción de PNR
+    # Hoteles, cruceros, restaurantes, etc. siempre son editables
+    if tipo != 'vuelo':
+        return True
+
+    # --- A partir de aquí, solo aplica a vuelos ---
+
     # Obtener código de reserva de cualquier fuente (columna legacy o JSONB)
     codigo_reserva = viaje.codigo_reserva
     if not codigo_reserva and viaje.datos:
@@ -29,7 +39,7 @@ def puede_modificar_segmento(viaje):
     if viaje.source == 'manual':
         return True
 
-    # PDF sin código de reserva = probablemente vuelo privado
+    # PDF sin código de reserva = vuelo privado
     if viaje.source == 'pdf_upload' and not codigo_reserva:
         return True
 
@@ -41,5 +51,5 @@ def puede_modificar_segmento(viaje):
         # Con código de reserva = asumir importado automáticamente (restrictivo)
         return False
 
-    # Cualquier otro source (gmail, microsoft, email_forward) = no modificable
+    # Cualquier otro source automático con PNR = no modificable
     return False

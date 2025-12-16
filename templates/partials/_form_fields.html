@@ -5,9 +5,11 @@
   - schema: dict con campos del tipo (de RESERVATION_SCHEMAS)
   - datos: dict opcional con valores existentes (para edición, viene de viaje.datos JSONB)
   - modo: 'crear' o 'editar' (default: 'crear')
+  - puede_editar: bool (default: True) - si False, campos disabled
 #}
 {% set modo = modo or 'crear' %}
 {% set datos = datos or {} %}
+{% set puede_editar = puede_editar if puede_editar is defined else True %}
 
 {% for campo in schema.campos %}
     {# Ocultar campo precio (card: False) #}
@@ -26,32 +28,37 @@
                    id="field_{{ campo.key }}"
                    name="{{ campo.key }}"
                    value="{{ valor }}"
-                   {% if campo.get('required') %}required{% endif %}>
+                   {% if campo.get('required') %}required{% endif %}
+                   {% if not puede_editar %}disabled{% endif %}>
 
         {% elif campo.type == 'date' %}
             <input type="date"
                    id="field_{{ campo.key }}"
                    name="{{ campo.key }}"
                    value="{{ valor }}"
-                   {% if campo.get('required') %}required{% endif %}>
+                   {% if campo.get('required') %}required{% endif %}
+                   {% if not puede_editar %}disabled{% endif %}>
 
         {% elif campo.type == 'time' %}
             <input type="time"
                    id="field_{{ campo.key }}"
                    name="{{ campo.key }}"
-                   value="{{ valor }}">
+                   value="{{ valor }}"
+                   {% if not puede_editar %}disabled{% endif %}>
 
         {% elif campo.type == 'number' %}
             <input type="number"
                    id="field_{{ campo.key }}"
                    name="{{ campo.key }}"
                    value="{{ valor }}"
-                   min="0">
+                   min="0"
+                   {% if not puede_editar %}disabled{% endif %}>
 
         {% elif campo.type == 'textarea' %}
             <textarea id="field_{{ campo.key }}"
                       name="{{ campo.key }}"
-                      rows="3">{{ valor }}</textarea>
+                      rows="3"
+                      {% if not puede_editar %}disabled{% endif %}>{{ valor }}</textarea>
 
         {% elif campo.type == 'list' %}
             {# Campos repetibles - renderizar items existentes + botón agregar #}
@@ -69,9 +76,10 @@
                             <input type="text"
                                    name="{{ campo.key }}[{{ loop.index0 }}][{{ subfield }}]"
                                    placeholder="{{ subfield | capitalize }}"
-                                   value="{{ item.get(subfield, '') if item is mapping else (item if loop.index0 == 0 else '') }}">
+                                   value="{{ item.get(subfield, '') if item is mapping else (item if loop.index0 == 0 else '') }}"
+                                   {% if not puede_editar %}disabled{% endif %}>
                             {% endfor %}
-                            <button type="button" class="btn-remove-item" onclick="removeListItem(this)" aria-label="Eliminar">×</button>
+                            <button type="button" class="btn-remove-item" onclick="removeListItem(this)" aria-label="Eliminar" {% if not puede_editar %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>×</button>
                         </div>
                         {% endfor %}
                     {% endif %}
@@ -89,11 +97,13 @@
                     </div>
                 </template>
 
+                {% if puede_editar %}
                 <button type="button"
                         class="btn-add-item"
                         onclick="addListItem('{{ campo.key }}')">
                     + Agregar {{ campo.label | lower }}
                 </button>
+                {% endif %}
             </div>
         {% endif %}
     </div>

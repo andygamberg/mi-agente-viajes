@@ -522,14 +522,16 @@ def editar(id):
         flash("No tenés permiso para editar esta reserva", "error")
         return redirect(url_for('viajes.index'))
 
+    # Verificar permiso de modificación
+    from utils.permissions import puede_modificar_segmento
+    puede_editar = puede_modificar_segmento(viaje)
+
     # Permitir cambiar tipo via query param (para preview de campos)
     tipo_actual = request.args.get('tipo', viaje.tipo or 'vuelo')
     schema = get_schema(tipo_actual)
 
     if request.method == 'POST':
-        # Verificar permiso de modificación
-        from utils.permissions import puede_modificar_segmento
-        if not puede_modificar_segmento(viaje):
+        if not puede_editar:
             flash('Las reservas importadas automáticamente no se pueden modificar. Los cambios vendrán por email.', 'warning')
             return redirect(url_for('viajes.index'))
 
@@ -606,7 +608,8 @@ def editar(id):
                          schema=schema,
                          datos=datos,
                          tipos_disponibles=tipos_disponibles,
-                         modo='editar')
+                         modo='editar',
+                         puede_editar=puede_editar)
 
 
 @viajes_bp.route('/guardar-vuelos', methods=['POST'])
