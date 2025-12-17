@@ -27,7 +27,7 @@ RESERVATION_SCHEMAS = {
         'titulo': 'Hotel',
         'icono': 'building-office',
         'campos': [
-            {'key': 'nombre_propiedad', 'label': 'Hotel', 'type': 'text', 'card': True},
+            {'key': 'nombre_propiedad', 'label': 'Hotel', 'type': 'text', 'card': True, 'required': True},
             {'key': 'direccion', 'label': 'Dirección', 'type': 'text', 'card': True},
             {'key': 'fecha_checkin', 'label': 'Check-in', 'type': 'date', 'required': True},
             {'key': 'hora_checkin', 'label': 'Hora check-in', 'type': 'time'},
@@ -44,7 +44,7 @@ RESERVATION_SCHEMAS = {
         'titulo': 'Crucero / Ferry',
         'icono': 'lifebuoy',
         'campos': [
-            {'key': 'embarcacion', 'label': 'Embarcación', 'type': 'text', 'card': True},
+            {'key': 'embarcacion', 'label': 'Embarcación', 'type': 'text', 'card': True, 'required': True},
             {'key': 'compania', 'label': 'Compañía', 'type': 'text'},
             {'key': 'puerto_embarque', 'label': 'Puerto embarque', 'type': 'text', 'card': True},
             {'key': 'puerto_desembarque', 'label': 'Puerto desembarque', 'type': 'text', 'card': True},
@@ -80,7 +80,7 @@ RESERVATION_SCHEMAS = {
         'titulo': 'Restaurante',
         'icono': 'cake',
         'campos': [
-            {'key': 'nombre', 'label': 'Restaurante', 'type': 'text', 'card': True},
+            {'key': 'nombre', 'label': 'Restaurante', 'type': 'text', 'card': True, 'required': True},
             {'key': 'direccion', 'label': 'Dirección', 'type': 'text', 'card': True},
             {'key': 'fecha', 'label': 'Fecha', 'type': 'date', 'required': True},
             {'key': 'hora', 'label': 'Hora', 'type': 'time', 'card': True},
@@ -93,7 +93,7 @@ RESERVATION_SCHEMAS = {
         'titulo': 'Espectáculo',
         'icono': 'ticket',
         'campos': [
-            {'key': 'evento', 'label': 'Evento', 'type': 'text', 'card': True},
+            {'key': 'evento', 'label': 'Evento', 'type': 'text', 'card': True, 'required': True},
             {'key': 'venue', 'label': 'Lugar', 'type': 'text', 'card': True},
             {'key': 'fecha', 'label': 'Fecha', 'type': 'date', 'required': True},
             {'key': 'hora', 'label': 'Hora', 'type': 'time', 'card': True},
@@ -108,7 +108,7 @@ RESERVATION_SCHEMAS = {
         'titulo': 'Actividad / Tour',
         'icono': 'map-pin',
         'campos': [
-            {'key': 'nombre', 'label': 'Actividad', 'type': 'text', 'card': True},
+            {'key': 'nombre', 'label': 'Actividad', 'type': 'text', 'card': True, 'required': True},
             {'key': 'proveedor', 'label': 'Proveedor', 'type': 'text'},
             {'key': 'punto_encuentro', 'label': 'Punto de encuentro', 'type': 'text', 'card': True},
             {'key': 'fecha', 'label': 'Fecha', 'type': 'date', 'required': True},

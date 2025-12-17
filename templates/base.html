@@ -203,6 +203,18 @@
             letter-spacing: 0.5px;
         }
 
+        /* Auto-capitalización */
+        input[name="origen"],
+        input[name="destino"],
+        input[name="puerto_embarque"],
+        input[name="puerto_desembarque"],
+        input[name="lugar_retiro"],
+        input[name="lugar_devolucion"],
+        input[name="punto_encuentro"],
+        input[name*="[nombre]"] {
+            text-transform: capitalize;
+        }
+
         {% block styles %}{% endblock %}
     </style>
 </head>
