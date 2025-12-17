@@ -403,14 +403,38 @@ def carga_rapida():
                 flash("No pude extraer vuelos del documento", "error")
                 return render_template('carga_rapida.html')
             
-            # Verificar duplicados por código de reserva
+            # Verificar duplicados por código de reserva + fecha
             primer_vuelo = vuelos[0]
             codigo = primer_vuelo.get('codigo_reserva')
             if codigo:
-                duplicado = Viaje.query.filter_by(codigo_reserva=codigo).first()
-                if duplicado:
-                    flash(f'Este viaje ya existe (código {codigo})', 'error')
-                    return redirect(url_for('viajes.index'))
+                # Buscar viajes existentes con mismo código Y mismo usuario
+                existentes = Viaje.query.filter_by(
+                    codigo_reserva=codigo,
+                    user_id=current_user.id
+                ).all()
+
+                if existentes:
+                    # Obtener fecha del nuevo viaje
+                    fecha_nueva_str = primer_vuelo.get('fecha_salida') or primer_vuelo.get('fecha_embarque') or primer_vuelo.get('fecha_checkin') or primer_vuelo.get('fecha')
+                    if fecha_nueva_str:
+                        from datetime import timedelta
+                        try:
+                            fecha_nueva = datetime.strptime(fecha_nueva_str, '%Y-%m-%d')
+                            # Verificar si alguno está dentro de 90 días
+                            for existente in existentes:
+                                if existente.fecha_salida:
+                                    diferencia = abs((fecha_nueva - existente.fecha_salida).days)
+                                    if diferencia < 90:
+                                        flash(f'Este viaje ya existe (código {codigo})', 'error')
+                                        return redirect(url_for('viajes.index'))
+                        except:
+                            # Si no se puede parsear la fecha, verificar por código solamente
+                            flash(f'Este viaje ya existe (código {codigo})', 'error')
+                            return redirect(url_for('viajes.index'))
+                    else:
+                        # Sin fecha en el nuevo viaje, bloquear por código
+                        flash(f'Este viaje ya existe (código {codigo})', 'error')
+                        return redirect(url_for('viajes.index'))
             
             # Generar ID de grupo
             grupo_id = str(uuid.uuid4())[:8]
@@ -667,10 +691,34 @@ def guardar_vuelos():
         if primer_vuelo_data:
             codigo = primer_vuelo_data.get('codigo_reserva')
             if codigo:
-                duplicado = Viaje.query.filter_by(codigo_reserva=codigo).first()
-                if duplicado:
-                    flash(f'Este viaje ya existe (código {codigo})', 'error')
-                    return redirect(url_for('viajes.carga_rapida'))
+                # Buscar viajes existentes con mismo código Y mismo usuario
+                existentes = Viaje.query.filter_by(
+                    codigo_reserva=codigo,
+                    user_id=current_user.id
+                ).all()
+
+                if existentes:
+                    # Obtener fecha del nuevo viaje
+                    fecha_nueva_str = primer_vuelo_data.get('fecha_salida') or primer_vuelo_data.get('fecha_embarque') or primer_vuelo_data.get('fecha_checkin') or primer_vuelo_data.get('fecha')
+                    if fecha_nueva_str:
+                        from datetime import timedelta
+                        try:
+                            fecha_nueva = datetime.strptime(fecha_nueva_str, '%Y-%m-%d')
+                            # Verificar si alguno está dentro de 90 días
+                            for existente in existentes:
+                                if existente.fecha_salida:
+                                    diferencia = abs((fecha_nueva - existente.fecha_salida).days)
+                                    if diferencia < 90:
+                                        flash(f'Este viaje ya existe (código {codigo})', 'error')
+                                        return redirect(url_for('viajes.carga_rapida'))
+                        except:
+                            # Si no se puede parsear la fecha, verificar por código solamente
+                            flash(f'Este viaje ya existe (código {codigo})', 'error')
+                            return redirect(url_for('viajes.carga_rapida'))
+                    else:
+                        # Sin fecha en el nuevo viaje, bloquear por código
+                        flash(f'Este viaje ya existe (código {codigo})', 'error')
+                        return redirect(url_for('viajes.carga_rapida'))
         
         # Generar ID único para este grupo
         grupo_id = str(uuid.uuid4())[:8]
