@@ -242,6 +242,22 @@
     transform: translateX(20px);
 }
 
+.select-small {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.select-small:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
 @media (max-width: 480px) {
     .page-header h1 {
         font-size: 28px;
@@ -384,6 +400,18 @@
                        {% if current_user.combinar_vuelos %}checked{% endif %}>
                 <span class="toggle-slider"></span>
             </label>
+        </div>
+
+        <div class="preference-item">
+            <div class="preference-info">
+                <div class="preference-label">Formato de hora</div>
+                <div class="preference-description">Elegí cómo mostrar los horarios</div>
+            </div>
+            <select name="formato_hora" class="select-small">
+                <option value="" {% if not current_user.formato_hora %}selected{% endif %}>Automático</option>
+                <option value="24h" {% if current_user.formato_hora == '24h' %}selected{% endif %}>24 horas (14:30)</option>
+                <option value="12h" {% if current_user.formato_hora == '12h' %}selected{% endif %}>12 horas (2:30 PM)</option>
+            </select>
         </div>
     </div>
 

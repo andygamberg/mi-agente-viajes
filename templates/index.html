@@ -2274,20 +2274,43 @@
     </script>
 
     <script>
-    // Formatear fechas y horas según configuración del sistema
-    (function() {
-        const locale = undefined;
+        window.USER_HORA_PREF = {{ (current_user.formato_hora or '')|tojson|safe }};
+    </script>
 
-        // Formato solo hora (respeta 12h/24h del sistema)
+    <script>
+    (function() {
+        // Heurística: locales que usan 12h
+        function esLocale12h(lang) {
+            const paises12h = ['US', 'AU', 'PH', 'IN', 'PK', 'BD', 'MY', 'CO', 'EG'];
+            const partes = lang.split('-');
+            if (partes.length > 1) {
+                return paises12h.includes(partes[1].toUpperCase());
+            }
+            return lang === 'en'; // en sin país = asumir US
+        }
+
+        // Determinar hour12: preferencia usuario > heurística
+        const userPref = window.USER_HORA_PREF;
+        let hour12;
+        if (userPref === '12h') {
+            hour12 = true;
+        } else if (userPref === '24h') {
+            hour12 = false;
+        } else {
+            hour12 = esLocale12h(navigator.language || 'es');
+        }
+
+        // Formato solo hora
         document.querySelectorAll('.format-time').forEach(el => {
             const time = el.dataset.time;
             if (time && time.includes(':')) {
                 const [hours, minutes] = time.split(':');
                 const date = new Date();
                 date.setHours(parseInt(hours), parseInt(minutes));
-                el.textContent = date.toLocaleTimeString(locale, {
+                el.textContent = date.toLocaleTimeString(undefined, {
                     hour: '2-digit',
-                    minute: '2-digit'
+                    minute: '2-digit',
+                    hour12: hour12
                 });
             }
         });
@@ -2315,9 +2338,10 @@
                     if (timeStr) {
                         options.hour = '2-digit';
                         options.minute = '2-digit';
+                        options.hour12 = hour12;
                     }
 
-                    el.textContent = datetime.toLocaleString(locale, options);
+                    el.textContent = datetime.toLocaleString(undefined, options);
                 }
             }
         });

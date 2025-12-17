@@ -1188,6 +1188,10 @@ def update_preferences():
     # Preferencia de visualización
     current_user.combinar_vuelos = request.form.get('combinar_vuelos') == 'on'
 
+    # Formato de hora
+    formato_hora = request.form.get('formato_hora', '')
+    current_user.formato_hora = formato_hora if formato_hora in ['24h', '12h'] else None
+
     db.session.commit()
     flash('Preferencias actualizadas', 'success')
     return redirect(url_for('viajes.preferencias'))
