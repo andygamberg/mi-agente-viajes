@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 17 Diciembre 2025
+**Última actualización:** 18 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -142,70 +142,6 @@
 | Impacto BD viajes pasados | Evaluar impacto de vuelos históricos en performance | Media | Pendiente |
 | Migración a modelo Eventos | Refactor arquitectónico para soportar hoteles, autos, citas | Baja | Planificado |
 
----
-
-## 🏗️ Refactor Arquitectónico: Modelo de Eventos
-
-### Contexto
-
-La app comenzó como gestor de vuelos pero la visión es más amplia: viajes completos (vuelos + hoteles + autos), reservas (restaurantes, espectáculos), citas (médicas, profesionales). El modelo actual (`Viaje`) está limitado a vuelos.
-
-### Decisión de arquitectura (11 Dic 2025)
-
-**Opción elegida: Modelo Híbrido (Base + Extensiones)**
-
-Después de analizar UX y performance, elegimos arquitectura híbrida:
-
-```
-Evento (tabla base)
-├── Campos comunes: titulo, fecha_inicio, fecha_fin, lugar, codigo_reserva, trip_id
-├── tipo: vuelo | hotel | restaurante | auto | cita | actividad
-│
-├── DetalleVuelo (extensión 1:1)
-│   └── numero_vuelo, aerolinea, origen, destino, pasajeros, terminal...
-├── DetalleHotel (extensión 1:1)
-│   └── nombre_hotel, habitacion, check_in_hora, huespedes...
-├── DetalleRestaurante (extensión 1:1)
-│   └── num_personas, tipo_cocina, preferencias...
-└── DetalleCita (extensión 1:1)
-    └── profesional, especialidad, institucion...
-```
-
-### Por qué esta arquitectura
-
-| Criterio | Beneficio |
-|----------|-----------|
-| UX Timeline | Una query para listado cronológico mixto |
-| UX Detalle | Campos tipados con validación por tipo |
-| UX Agrupación | `trip_id` agrupa vuelo+hotel+restaurante en un "viaje" |
-| Performance | Índices en tabla base, JOINs solo al expandir detalle |
-| Extensibilidad | Nuevo tipo = nueva tabla extensión + componente UI |
-| Migración | Gradual, sin romper funcionalidad existente |
-
-### MVP-REF: Plan de migración
-
-| Fase | Descripción | Riesgo |
-|------|-------------|--------|
-| REF-1 | Crear tablas nuevas (Evento, DetalleVuelo) en paralelo | Bajo |
-| REF-2 | Script migración: Viaje → Evento + DetalleVuelo | Medio |
-| REF-3 | Actualizar blueprints para usar nuevo modelo | Medio |
-| REF-4 | Actualizar templates y calendar feed | Bajo |
-| REF-5 | Período de coexistencia, validar datos | Bajo |
-| REF-6 | Deprecar y eliminar tabla Viaje | Bajo |
-
-### Tipos de eventos planificados
-
-| Tipo | MVP | Campos específicos | Fuentes típicas |
-|------|-----|-------------------|-----------------|
-| Vuelo | ✅ Ya existe | numero_vuelo, aerolinea, origen, destino, pasajeros, terminal, puerta | Aerolíneas, Despegar, Almundo |
-| Hotel | Futuro | nombre_hotel, habitacion, check_in/out, huespedes, amenities | Booking, Airbnb, Hotels.com |
-| Auto | Futuro | empresa, modelo, pickup, dropoff, ubicaciones | Hertz, Avis, Localiza |
-| Restaurante | Futuro | num_personas, tipo_cocina, preferencias, ocasion | OpenTable, TheFork, email directo |
-| Espectáculo | Futuro | venue, asientos, sector | Ticketmaster, Eventbrite, AllAccess |
-| Cita médica | Futuro | profesional, especialidad, institucion, motivo | Swiss Medical, OSDE, consultorios |
-| Actividad | Futuro | proveedor, tipo_actividad, participantes | Civitatis, GetYourGuide, operadores |
-
----
 
 ## 📋 Próximos MVPs
 
@@ -229,6 +165,23 @@ Evento (tabla base)
 | **BUG** | Moorings/charter: mejorar extracción de info | - |
 | **14i/14j** | Guías in-app para Apple Mail y Outlook app | 14-UX |
 | **MVP13b** | Envío de notificaciones (email cuando FR24 detecta cambio) | - |
+
+## Sesión 27: Auditoría UX/UI (Próxima)
+
+### Quick Wins - Fase 1
+- [ ] Countdown en cards ("En 3 días")
+- [ ] Badge "Nueva" en reservas recientes (<24h)
+- [ ] Redirect inteligente post-guardado
+- [ ] Reorganizar menú hamburguesa
+
+### Onboarding Mejorado - Fase 2
+- [ ] Trip de demo pre-cargado
+- [ ] Checklist de setup visible
+- [ ] Progress bar de configuración
+
+### Guías Contextuales - Fase 3
+- [ ] 14i: Guía Apple Mail in-app
+- [ ] 14j: Guía Outlook app in-app
 
 ### Prioridad Baja
 

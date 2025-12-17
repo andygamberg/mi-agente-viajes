@@ -472,3 +472,36 @@ if codigo and check_duplicate(codigo, user_id):
 - [ ] Crear CLAUDE.md con instrucciones
 - [ ] Configurar .claude/settings.json con permisos
 - [ ] Probar ciclo completo: edit → commit → push → deploy
+
+---
+
+## Decisiones Arquitectónicas Descartadas
+
+### Modelo de Eventos con tablas de extensión (Dic 2025)
+
+**Propuesta original:** Crear tabla base Evento con tablas de extensión 1:1 (DetalleVuelo, DetalleHotel, etc.)
+
+**Por qué se descartó:** Se optó por JSONB en columna datos porque:
+- Más simple de implementar
+- No requiere JOINs
+- Flexibilidad para agregar campos sin migraciones
+- Claude ya retorna JSON estructurado
+
+**Decisión final:** Modelo híbrido con columnas legacy para índices + JSONB para datos completos.
+
+---
+
+## Sesión 26 (17 Dic 2025)
+
+### 31. Tipografía accesible con rem
+**Problema:** iOS/Android ignoraban preferencias de texto grande porque usábamos px fijos
+**Solución:** Migrar de px a rem con base 16px, agregar html { font-size: 100%; -webkit-text-size-adjust: 100%; }
+**Mínimo:** 0.75rem (12px) para legibilidad
+
+### 32. JavaScript no accede a preferencia 12h/24h del OS
+**Problema:** navigator.language solo devuelve idioma, no preferencia de formato hora
+**Solución:** Sistema híbrido: preferencia en BD (null/24h/12h) + heurística por locale + UI en Preferencias
+
+### 33. Flask-Migrate en Cloud Run no es automático
+**Problema:** Deploy NO ejecuta flask db upgrade automáticamente
+**Solución:** Verificar columnas nuevas existen post-deploy, usar Cloud Run Job o script manual
