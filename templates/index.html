@@ -391,18 +391,10 @@
         
         .card-header {
             display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 20px;
-            cursor: pointer;
-        }
-
-        .card-top {
-            display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
+            gap: 12px;
+            padding: 20px 20px 12px 20px;
+            cursor: pointer;
         }
 
         .badges-container {
@@ -590,8 +582,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 0 20px 20px 20px;
         }
-        
+
         .expand-icon {
             width: 16px;
             height: 16px;
@@ -1588,8 +1581,7 @@
                 
                 <div class="card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
-                        <div class="card-top">
-                            <div class="type-icons">
+                        <div class="type-icons">
                                 {% set tipos_vistos = [] %}
                                 {% for viaje in grupo %}
                                     {% if viaje.tipo not in tipos_vistos %}
@@ -1643,23 +1635,23 @@
                             {% if cambio_fr24 %}
                                 <span class="badge-status badge-changed">Cambió</span>
                             {% elif es_nueva %}
-                                <span class="badge-status badge-new">Nueva</span>
-                            {% endif %}
+                            <span class="badge-status badge-new">Nueva</span>
+                        {% endif %}
 
-                            <div class="card-date-wrapper">
+                        <div class="card-date-wrapper">
                             <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}"></span>
                             <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
                         </div>
-                        </div>
+                    </div>
 
-                        {# Computar título usando helper #}
-                        {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
-                            {% set titulo_default = primer_vuelo.nombre_viaje %}
-                        {% else %}
-                            {% set titulo_default = get_titulo_card(primer_vuelo) %}
-                        {% endif %}
+                    {# Computar título usando helper #}
+                    {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
+                        {% set titulo_default = primer_vuelo.nombre_viaje %}
+                    {% else %}
+                        {% set titulo_default = get_titulo_card(primer_vuelo) %}
+                    {% endif %}
 
-                        <div class="card-title-row">
+                    <div class="card-title-row">
                             <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
@@ -1849,8 +1841,7 @@
                 
                 <div class="card past collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
-                        <div class="card-top">
-                            <div class="type-icons">
+                        <div class="type-icons">
                                 {% set tipos_vistos = [] %}
                                 {% for viaje in grupo %}
                                     {% if viaje.tipo not in tipos_vistos %}
@@ -1904,23 +1895,23 @@
                             {% if cambio_fr24 %}
                                 <span class="badge-status badge-changed">Cambió</span>
                             {% elif es_nueva %}
-                                <span class="badge-status badge-new">Nueva</span>
-                            {% endif %}
+                            <span class="badge-status badge-new">Nueva</span>
+                        {% endif %}
 
-                            <div class="card-date-wrapper">
+                        <div class="card-date-wrapper">
                             <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}"></span>
                             <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
                         </div>
-                        </div>
+                    </div>
 
-                        {# Computar título usando helper #}
-                        {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
-                            {% set titulo_default = primer_vuelo.nombre_viaje %}
-                        {% else %}
-                            {% set titulo_default = get_titulo_card(primer_vuelo) %}
-                        {% endif %}
+                    {# Computar título usando helper #}
+                    {% if primer_vuelo.nombre_viaje and 'None' not in primer_vuelo.nombre_viaje %}
+                        {% set titulo_default = primer_vuelo.nombre_viaje %}
+                    {% else %}
+                        {% set titulo_default = get_titulo_card(primer_vuelo) %}
+                    {% endif %}
 
-                        <div class="card-title-row">
+                    <div class="card-title-row">
                             <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
