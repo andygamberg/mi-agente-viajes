@@ -509,6 +509,41 @@ def eliminar_segmento(id):
     return redirect(url_for('viajes.index'))
 
 
+@viajes_bp.route('/eliminar-reserva/<int:id>', methods=['POST'])
+@login_required
+def eliminar_reserva(id):
+    """Elimina todos los segmentos de una reserva (mismo codigo_reserva)"""
+    viaje = Viaje.query.get_or_404(id)
+
+    # Verificar ownership
+    if viaje.user_id != current_user.id:
+        flash('No tenés permiso para eliminar esta reserva', 'error')
+        return redirect(url_for('viajes.index'))
+
+    codigo = viaje.codigo_reserva
+
+    if codigo:
+        # Eliminar todos los segmentos con el mismo código
+        segmentos = Viaje.query.filter_by(
+            user_id=current_user.id,
+            codigo_reserva=codigo
+        ).all()
+
+        count = len(segmentos)
+        for s in segmentos:
+            db.session.delete(s)
+
+        db.session.commit()
+        flash(f'Reserva {codigo} eliminada ({count} segmento{"s" if count > 1 else ""})', 'success')
+    else:
+        # Sin código, eliminar solo este
+        db.session.delete(viaje)
+        db.session.commit()
+        flash('Reserva eliminada', 'success')
+
+    return redirect(url_for('viajes.index'))
+
+
 @viajes_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editar(id):
