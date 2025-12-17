@@ -20,10 +20,10 @@
                 <span class="detail">{{ d.aerolinea or '' }} {{ d.numero_vuelo or '' }}</span>
             {% endif %}
             {% if d.hora_salida %}
-                <span class="detail">Salida: {{ d.hora_salida }}{% if d.terminal %} · Terminal {{ d.terminal }}{% endif %}{% if d.puerta %} · Puerta {{ d.puerta }}{% endif %}</span>
+                <span class="detail">Salida: <span class="format-time" data-time="{{ d.hora_salida }}">{{ d.hora_salida }}</span>{% if d.terminal %} · Terminal {{ d.terminal }}{% endif %}{% if d.puerta %} · Puerta {{ d.puerta }}{% endif %}</span>
             {% endif %}
             {% if d.hora_llegada %}
-                <span class="detail">Llegada: {{ d.hora_llegada }}</span>
+                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span></span>
             {% endif %}
             {% if d.codigo_reserva and not vuelo._es_combinado %}
                 <span class="detail">Reserva: {{ d.codigo_reserva }}</span>
@@ -90,10 +90,10 @@
         {% endif %}
         <div class="segment-dates">
             {% if d.fecha_checkin %}
-                <span class="detail">Check-in: {{ d.fecha_checkin }}{% if d.hora_checkin %} {{ d.hora_checkin }}{% endif %}</span>
+                <span class="detail">Check-in: <span class="format-datetime" data-date="{{ d.fecha_checkin }}" data-time="{{ d.hora_checkin or '' }}">{{ d.fecha_checkin }}{% if d.hora_checkin %} {{ d.hora_checkin }}{% endif %}</span></span>
             {% endif %}
             {% if d.fecha_checkout %}
-                <span class="detail">Check-out: {{ d.fecha_checkout }}{% if d.hora_checkout %} {{ d.hora_checkout }}{% endif %}</span>
+                <span class="detail">Check-out: <span class="format-datetime" data-date="{{ d.fecha_checkout }}" data-time="{{ d.hora_checkout or '' }}">{{ d.fecha_checkout }}{% if d.hora_checkout %} {{ d.hora_checkout }}{% endif %}</span></span>
             {% endif %}
         </div>
 
@@ -106,10 +106,10 @@
         </div>
         <div class="segment-details">
             {% if d.hora_embarque %}
-                <span class="detail">Embarque: {{ d.hora_embarque }}</span>
+                <span class="detail">Embarque: <span class="format-time" data-time="{{ d.hora_embarque }}">{{ d.hora_embarque }}</span></span>
             {% endif %}
             {% if d.hora_desembarque or d.hora_llegada %}
-                <span class="detail">Llegada: {{ d.hora_desembarque or d.hora_llegada }}</span>
+                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_desembarque or d.hora_llegada }}">{{ d.hora_desembarque or d.hora_llegada }}</span></span>
             {% endif %}
             {% if d.clase %}
                 <span class="detail">Clase: {{ d.clase }}</span>
@@ -200,7 +200,7 @@
                 <span class="detail">{{ d.modelo or d.categoria }}</span>
             {% endif %}
             {% if d.hora_retiro %}
-                <span class="detail">Retiro: {{ d.hora_retiro }}</span>
+                <span class="detail">Retiro: <span class="format-time" data-time="{{ d.hora_retiro }}">{{ d.hora_retiro }}</span></span>
             {% endif %}
         </div>
 
@@ -214,7 +214,7 @@
                 <span class="detail">{{ d.direccion or vuelo.ubicacion }}</span>
             {% endif %}
             {% if d.hora %}
-                <span class="detail">Hora: {{ d.hora }}</span>
+                <span class="detail">Hora: <span class="format-time" data-time="{{ d.hora }}">{{ d.hora }}</span></span>
             {% endif %}
             {% if d.comensales %}
                 <span class="detail">{{ d.comensales }} comensales</span>
@@ -231,7 +231,7 @@
                 <span class="detail">{{ d.venue or vuelo.ubicacion }}</span>
             {% endif %}
             {% if d.hora %}
-                <span class="detail">Hora: {{ d.hora }}</span>
+                <span class="detail">Hora: <span class="format-time" data-time="{{ d.hora }}">{{ d.hora }}</span></span>
             {% endif %}
             {% if d.sector %}
                 <span class="detail">Sector: {{ d.sector }}</span>
@@ -262,7 +262,7 @@
                 <span class="detail">{{ d.punto_encuentro }}</span>
             {% endif %}
             {% if d.hora %}
-                <span class="detail">Hora: {{ d.hora }}</span>
+                <span class="detail">Hora: <span class="format-time" data-time="{{ d.hora }}">{{ d.hora }}</span></span>
             {% endif %}
             {% if d.duracion %}
                 <span class="detail">Duración: {{ d.duracion }}</span>
@@ -281,10 +281,10 @@
                 <span class="detail">{{ d.operador }}</span>
             {% endif %}
             {% if d.hora_salida %}
-                <span class="detail">Salida: {{ d.hora_salida }}</span>
+                <span class="detail">Salida: <span class="format-time" data-time="{{ d.hora_salida }}">{{ d.hora_salida }}</span></span>
             {% endif %}
             {% if d.hora_llegada %}
-                <span class="detail">Llegada: {{ d.hora_llegada }}</span>
+                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span></span>
             {% endif %}
         </div>
 
@@ -300,10 +300,10 @@
                 <span class="detail">{{ d.empresa }}</span>
             {% endif %}
             {% if d.hora_salida %}
-                <span class="detail">Salida: {{ d.hora_salida }}</span>
+                <span class="detail">Salida: <span class="format-time" data-time="{{ d.hora_salida }}">{{ d.hora_salida }}</span></span>
             {% endif %}
             {% if d.hora_llegada %}
-                <span class="detail">Llegada: {{ d.hora_llegada }}</span>
+                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span></span>
             {% endif %}
             {% if d.codigo_reserva %}
                 <span class="detail">Reserva: {{ d.codigo_reserva }}</span>
@@ -355,7 +355,7 @@
                 <span class="detail">{{ d.empresa }}</span>
             {% endif %}
             {% if d.hora %}
-                <span class="detail">Hora: {{ d.hora }}</span>
+                <span class="detail">Hora: <span class="format-time" data-time="{{ d.hora }}">{{ d.hora }}</span></span>
             {% endif %}
         </div>
 

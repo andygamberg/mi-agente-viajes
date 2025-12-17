@@ -2272,6 +2272,57 @@
                 .catch(function() {});
         }, 120000);
     </script>
+
+    <script>
+    // Formatear fechas y horas según configuración del sistema
+    (function() {
+        const locale = navigator.language || 'es-AR';
+
+        // Formato solo hora (respeta 12h/24h del sistema)
+        document.querySelectorAll('.format-time').forEach(el => {
+            const time = el.dataset.time;
+            if (time && time.includes(':')) {
+                const [hours, minutes] = time.split(':');
+                const date = new Date();
+                date.setHours(parseInt(hours), parseInt(minutes));
+                el.textContent = date.toLocaleTimeString(locale, {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        });
+
+        // Formato fecha + hora
+        document.querySelectorAll('.format-datetime').forEach(el => {
+            const dateStr = el.dataset.date;
+            const timeStr = el.dataset.time;
+
+            if (dateStr) {
+                let datetime;
+                if (timeStr) {
+                    datetime = new Date(dateStr + 'T' + timeStr);
+                } else {
+                    datetime = new Date(dateStr + 'T00:00:00');
+                }
+
+                if (!isNaN(datetime)) {
+                    const options = {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    };
+
+                    if (timeStr) {
+                        options.hour = '2-digit';
+                        options.minute = '2-digit';
+                    }
+
+                    el.textContent = datetime.toLocaleString(locale, options);
+                }
+            }
+        });
+    })();
+    </script>
 </body>
 <!-- Deployed automatically by Claude Code - Meta 1 test -->
 </html>
