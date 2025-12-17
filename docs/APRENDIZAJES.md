@@ -516,3 +516,13 @@ if codigo and check_duplicate(codigo, user_id):
 4. Incluir criterio de verificación visual
 **Regla:** Si el task requiere UI, incluir wireframe ASCII o referencia visual
 **Sesión:** 27
+
+### 35. Emails deben seguir el Design System
+**Contexto:** Emails de notificación (check-in, FR24 changes) usan CSS inline
+**Principio:** Mantener consistencia visual con la app:
+- Colores: usar misma paleta (--text: #1d1d1f, --text-muted: #6e6e73, --accent: #0071e3)
+- Tipografía: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif
+- Border-radius: 12px para cards, 8px para elementos internos
+- Sin emojis decorativos excesivos, preferir iconos SVG cuando sea posible
+**Aplicable a:** Todos los emails transaccionales futuros
+**Sesión:** 27
