@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 15 Diciembre 2025
+**Última actualización:** 16 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -42,6 +42,37 @@
 | BUG-FIX-MULTITYPE | Multi-tipo en Sistema 1 (misviajes@) | 15 Dic 2025 | gmail_to_db.py ahora soporta 9 tipos, replica lógica de carga_rapida() |
 | **MVP-EDIT** | **Edición completa de reservas** | **14 Dic 2025** | **Form dinámico desde schemas, menú kebab, vuelos combinados, todos los tipos** |
 | **MVP16** | **Carga manual multi-tipo** | **14 Dic 2025** | **/agregar refactorizado con schemas dinámicos, selector tipo, 9 tipos soportados** |
+
+### ✅ Completado - Sesión 25 (16 Dic 2025)
+
+#### BUG-PASSENGER-MATCH ✅
+- Matching extendido a huéspedes/participantes en JSONB
+- Nueva función `extraer_personas_de_datos()` en utils/helpers.py
+- Casos V3, V4, V5 resueltos
+
+#### TIPO BUS ✅
+- Schema completo en config/schemas.py
+- Prompt Claude actualizado para extraer buses
+- Ícono SVG, display en cards, emoji calendario 🚌
+- Deduplicación incluida
+
+#### DEDUPLICACIÓN UNIVERSAL ✅
+- Aplica a todos los tipos (no solo vuelos)
+- Ordenamiento por fecha+hora
+- Combina pasajeros, vehículos, huéspedes
+- Ferries cortos (<24h) se deduplicam
+- Badge "COMBINADO" para todos los tipos
+
+#### CAMPO SOURCE ✅
+- Modelo: `source` VARCHAR(20)
+- Valores: manual, pdf_upload, gmail, microsoft, email_forward
+- Helper `puede_modificar_segmento()` en utils/permissions.py
+
+#### UX-DELETE ✅
+- Eliminar segmento individual (reservas editables)
+- Eliminar reserva completa por PNR (vuelos bloqueados)
+- Vista readonly para vuelos con PNR automático
+- Solo vuelos bloqueados por PNR, otros tipos siempre editables
 
 ### ✅ Refactor Arquitectónico (9 Dic 2025)
 
@@ -182,7 +213,7 @@ Evento (tabla base)
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
 | ~~**BUG-PASSENGER-MATCH**~~ | ~~Matching pasajeros extender a 9 tipos (no solo vuelos)~~ | ✅ **15 Dic 2025** |
-| **UX-DELETE** | Eliminar segmento individual sin desagrupar | - |
+| ~~**UX-DELETE**~~ | ~~Eliminar segmento individual + reserva completa por PNR~~ | ✅ **16 Dic 2025** |
 | **MVP-SHARE** | Compartir viajes (jerarquía: todo → viaje → segmento) | - |
 | **DATA-MIGRATION** | Normalizar campos legacy (pasajeros, entradas como int → array) | - |
 
@@ -190,7 +221,9 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
-| **UX** | Eliminar reserva individual sin desagrupar | - |
+| **TIPOGRAFÍA MOBILE** | Aumentar tamaño de fuentes, usar rem en vez de px | - |
+| **CAPITALIZACIÓN** | Auto-capitalizar nombres de pasajeros y ciudades | - |
+| **SVG /agregar** | Eliminar círculo decorativo inútil | - |
 | **UX** | Reorganizar acciones y menú hamburguesa | - |
 | **BUG** | Moorings/charter: mejorar extracción de info | - |
 | **14i/14j** | Guías in-app para Apple Mail y Outlook app | 14-UX |
@@ -265,10 +298,14 @@ Evento (tabla base)
 | 15 Dic 2025 | Edición > Extracción perfecta | Perseguir 100% extracción automática es infinito. Mejor: extracción "good enough" + edición por usuario. MVP-EDIT resuelve todos los edge cases de una vez. |
 | 15 Dic 2025 | gmail_to_db.py replica carga_rapida() | Dos flujos que hacen lo mismo (guardar reserva) deben usar misma lógica de mapeo de campos |
 | 15 Dic 2025 | Passenger matching extendido a datos JSONB | BUG-PASSENGER-MATCH: get_viajes_for_user() ahora busca en pasajeros/huespedes/participantes dentro del campo datos, no solo en columna legacy. Soporta formato dict y string. |
+| 16 Dic 2025 | Campo source para tracking de origen | Rastreo de origen (manual, pdf_upload, gmail, microsoft, email_forward) permite control granular de permisos de edición |
+| 16 Dic 2025 | Solo vuelos bloqueados por PNR | Hoteles, cruceros, restaurantes siempre editables aunque tengan código de reserva. Solo vuelos se bloquean (aerolíneas envían actualizaciones). |
+| 16 Dic 2025 | onclick directo vs event delegation | event.stopPropagation() en menú bloquea delegación. Solución: onclick directo en botones. |
+| 16 Dic 2025 | Deduplicación de ferries por ruta+fecha+hora | Nombre de embarcación varía ("Buquebus" vs "Ferry Buquebus"), usar hora_embarque como clave. |
 
 ---
 
-*Última actualización: 15 Dic 2025*
+*Última actualización: 16 Dic 2025*
 
 ## ✅ MVP15: Multi-Tipo de Reservas (15 Dic 2025)
 
