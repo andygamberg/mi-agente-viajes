@@ -505,6 +505,33 @@ if len(codigo) > 250:
 
 ---
 
+## Sesión 25 - 16 Dic 2025
+
+### Campo source para control de permisos
+- Agregamos columna `source` para rastrear origen de reservas
+- Importante: el DEFAULT en SQL se aplica a registros existentes
+- Tuvimos que correr UPDATE para poner NULL en registros legacy con PNR
+
+### JSONB vs columnas legacy
+- El helper de permisos debe revisar AMBOS lugares:
+  - `viaje.codigo_reserva` (columna legacy)
+  - `viaje.datos.get('codigo_reserva')` (JSONB)
+- Muchas reservas antiguas tienen datos solo en JSONB
+
+### event.stopPropagation() bloquea delegación
+- Un div con `onclick="event.stopPropagation()"` impide que clicks internos lleguen a `document.addEventListener`
+- Solución: usar `onclick` directo en los botones en vez de delegación de eventos
+
+### Deduplicación de ferries
+- No usar nombre de embarcación como clave (puede variar: "Buquebus" vs "Ferry Buquebus")
+- Usar: fecha + hora + ruta como clave de deduplicación
+
+### Permisos por tipo
+- Solo VUELOS deben bloquearse por PNR (porque aerolíneas envían actualizaciones)
+- Hoteles, cruceros, restaurantes, etc. siempre son editables aunque tengan código de reserva
+
+---
+
 ## 🔄 Historial de Cambios
 
 | Fecha | Aprendizaje |
@@ -516,6 +543,7 @@ if len(codigo) > 250:
 | 15 Dic 2025 | Privacidad: Precio oculto en UI |
 | 15 Dic 2025 | Bugs adicionales: int pasajeros, Gmail OAuth, expediciones, codigo_reserva largo |
 | 15 Dic 2025 | Metodología: Debugging multi-capa, Testing con datos reales |
+| 16 Dic 2025 | Sesión 25: Campo source, permisos por tipo, JSONB vs legacy, event delegation |
 
 ---
 
