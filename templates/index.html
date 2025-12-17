@@ -1639,7 +1639,7 @@
                         {% endif %}
 
                         <div class="card-date-wrapper">
-                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}"></span>
+                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ primer_vuelo.hora_salida or '' }}"></span>
                             <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
                         </div>
                     </div>
@@ -1898,7 +1898,7 @@
                         {% endif %}
 
                         <div class="card-date-wrapper">
-                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}"></span>
+                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ primer_vuelo.hora_salida or '' }}"></span>
                             <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
                         </div>
                     </div>
@@ -2477,41 +2477,68 @@
     function updateCountdowns() {
         document.querySelectorAll('.card-countdown').forEach(el => {
             const fechaStr = el.dataset.fecha;
+            const horaStr = el.dataset.hora;
             if (!fechaStr) return;
 
-            const fecha = new Date(fechaStr + 'T12:00:00');
+            // Calcular días calendario (sin considerar hora)
+            const fechaViaje = new Date(fechaStr + 'T00:00:00');
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const diffDiasCalendario = Math.round((fechaViaje - hoy) / (1000 * 60 * 60 * 24));
+
+            // Para últimas 24h: usar hora real si existe
+            let fechaHoraViaje;
+            if (horaStr && horaStr.match(/^\d{2}:\d{2}/)) {
+                fechaHoraViaje = new Date(fechaStr + 'T' + horaStr);
+            } else {
+                fechaHoraViaje = new Date(fechaStr + 'T23:59:59'); // Fin del día si no hay hora
+            }
             const ahora = new Date();
-            const diffMs = fecha - ahora;
-            const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffMs = fechaHoraViaje - ahora;
             const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
             const diffMin = Math.floor(diffMs / (1000 * 60));
 
             el.classList.remove('past', 'urgent', 'soon');
 
             let texto = '';
-            if (diffMs < 0) {
-                const diasPasados = Math.abs(diffDias);
-                texto = diasPasados === 0 ? 'Hoy' : diasPasados === 1 ? 'Ayer' : `Hace ${diasPasados} días`;
-                el.classList.add('past');
-            } else if (diffMin < 120) {
-                texto = diffMin <= 1 ? 'Ahora' : `En ${diffMin} min`;
-                el.classList.add('urgent');
-            } else if (diffHoras < 24) {
-                texto = `En ${diffHoras} horas`;
-                el.classList.add('urgent');
-            } else if (diffDias === 0) {
-                texto = 'Hoy';
-                el.classList.add('soon');
-            } else if (diffDias === 1) {
-                texto = 'Mañana';
-                el.classList.add('soon');
-            } else if (diffDias < 7) {
-                texto = `En ${diffDias} días`;
+
+            if (diffDiasCalendario < 0) {
+                // PASADO: ocultar countdown (Bug #8)
+                el.style.display = 'none';
+                return;
+            } else if (diffDiasCalendario === 0) {
+                // HOY
+                if (diffMs > 0 && diffMin < 120) {
+                    texto = diffMin <= 1 ? 'Ahora' : `En ${diffMin} min`;
+                    el.classList.add('urgent');
+                } else if (diffMs > 0 && diffHoras < 12) {
+                    texto = `En ${diffHoras}h`;
+                    el.classList.add('urgent');
+                } else if (diffMs > 0) {
+                    texto = 'Hoy';
+                    el.classList.add('soon');
+                } else {
+                    // Ya pasó hoy - ocultar
+                    el.style.display = 'none';
+                    return;
+                }
+            } else if (diffDiasCalendario === 1) {
+                // MAÑANA
+                if (diffHoras > 0 && diffHoras <= 24) {
+                    texto = `En ${diffHoras}h`;
+                    el.classList.add('urgent');
+                } else {
+                    texto = 'Mañana';
+                    el.classList.add('soon');
+                }
+            } else if (diffDiasCalendario < 7) {
+                texto = `En ${diffDiasCalendario} días`;
                 el.classList.add('soon');
             } else {
-                texto = `En ${diffDias} días`;
+                texto = `En ${diffDiasCalendario} días`;
             }
 
+            el.style.display = ''; // Asegurar que esté visible
             el.textContent = texto;
         });
     }
