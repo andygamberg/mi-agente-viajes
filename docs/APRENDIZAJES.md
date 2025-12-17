@@ -505,3 +505,14 @@ if codigo and check_duplicate(codigo, user_id):
 ### 33. Flask-Migrate en Cloud Run no es automático
 **Problema:** Deploy NO ejecuta flask db upgrade automáticamente
 **Solución:** Verificar columnas nuevas existen post-deploy, usar Cloud Run Job o script manual
+
+### 34. Instrucciones para Claude Code deben ser ultra-específicas
+**Problema:** Tasks "sencillos" como agregar menú kebab requirieron múltiples correcciones (centrado, z-index, overflow)
+**Causa raíz:** Instrucciones vagas asumen que CC "entenderá" el contexto visual
+**Solución:** Antes de enviar prompt a CC:
+1. Especificar dimensiones exactas (px/rem, colores hex, clases Tailwind)
+2. Describir posición relativa a elementos existentes
+3. Listar casos edge (texto largo, mobile, etc.)
+4. Incluir criterio de verificación visual
+**Regla:** Si el task requiere UI, incluir wireframe ASCII o referencia visual
+**Sesión:** 27
