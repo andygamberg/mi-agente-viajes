@@ -150,7 +150,8 @@
             position: relative;
         }
         
-        .menu-toggle {
+        /* Botones de header - transparentes */
+        .btn-header {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -158,20 +159,23 @@
             height: 44px;
             background: transparent;
             border: none;
+            border-radius: 12px;
             cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .menu-toggle:hover {
-            opacity: 0.7;
-        }
-        
-        .menu-toggle svg {
-            width: 20px;
-            height: 20px;
+            transition: all 0.2s;
             color: var(--text-secondary);
         }
-        
+
+        .btn-header:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .btn-header svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+        }
+
         .menu-dropdown {
             position: absolute;
             top: calc(100% + 8px);
@@ -386,10 +390,14 @@
         }
         
         .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
             padding: 20px;
             cursor: pointer;
         }
-        
+
         .card-top {
             display: flex;
             align-items: center;
@@ -406,8 +414,9 @@
         /* Type icons - SVG monocromo */
         .type-icons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .type-icon {
@@ -520,6 +529,7 @@
             flex-direction: column;
             align-items: flex-end;
             gap: 2px;
+            margin-left: auto;
         }
 
         .card-countdown {
@@ -1508,6 +1518,18 @@
 
                         <div class="divider"></div>
 
+                        <div class="menu-section-label">Acciones</div>
+                        <button onclick="toggleGroupMode(); closeMenu();">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                            Agrupar viajes
+                        </button>
+                        <button onclick="toggleDeleteMode(); closeMenu();">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            Eliminar viajes
+                        </button>
+
+                        <div class="divider"></div>
+
                         <div class="menu-section-label">Sincronización</div>
                         <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}">
                             <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -1521,18 +1543,6 @@
                             <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                             Outlook
                         </a>
-
-                        <div class="divider"></div>
-
-                        <div class="menu-section-label">Acciones</div>
-                        <button onclick="toggleGroupMode(); closeMenu();">
-                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                            Agrupar viajes
-                        </button>
-                        <button onclick="toggleDeleteMode(); closeMenu();">
-                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            Eliminar viajes
-                        </button>
 
                         <div class="divider"></div>
 
