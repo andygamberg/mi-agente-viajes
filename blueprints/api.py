@@ -590,6 +590,11 @@ def migrate_db():
             # MVP15: Aumentar límite de codigo_reserva para expediciones/charters
             conn.execute(db.text("ALTER TABLE viaje ALTER COLUMN codigo_reserva TYPE VARCHAR(255)"))
 
+            # Campos FR24 para monitoreo de vuelos
+            conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS ultima_actualizacion_fr24 TIMESTAMP"))
+            conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS status_fr24 VARCHAR(50)"))
+            conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS delay_minutos INTEGER"))
+
             conn.commit()
         
         # ========================================

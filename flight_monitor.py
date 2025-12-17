@@ -182,7 +182,12 @@ def check_all_upcoming_flights(db_session):
             if status.get('datetime_landed_actual'):
                 vuelo.fecha_llegada = status['datetime_landed_actual']
                 vuelo.hora_llegada = status['datetime_landed_actual'].strftime('%H:%M')
-            
+
+            # Actualizar campos FR24 para badges y tracking
+            vuelo.ultima_actualizacion_fr24 = datetime.now()
+            vuelo.status_fr24 = status.get('estado', 'unknown')
+            vuelo.delay_minutos = status.get('delay_minutos', 0)
+
             db_session.commit()
             print(f"   💾 BD actualizada con nuevos horarios")
         else:
