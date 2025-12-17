@@ -281,7 +281,107 @@ def process_microsoft_emails_cron():
 
 @api_bp.route('/cron/check-flights', methods=['GET', 'POST'])
 def cron_check_flights():
-    return api_check_flights()
+    """Chequea vuelos y envía notificaciones de cambios"""
+    try:
+        from flight_monitor import check_all_upcoming_flights
+        from email_processor import send_email
+        from models import User
+
+        cambios = check_all_upcoming_flights(db.session)
+
+        emails_enviados = 0
+
+        for item in cambios:
+            viaje_id = item.get('vuelo_id')
+            if not viaje_id:
+                continue
+
+            viaje = Viaje.query.get(viaje_id)
+            if not viaje or not viaje.user_id:
+                continue
+
+            user = User.query.get(viaje.user_id)
+            if not user or not user.notif_email_master:
+                continue
+
+            # Verificar preferencias por tipo de cambio
+            for cambio in item.get('cambios', []):
+                tipo = cambio.get('tipo')
+
+                # Verificar si usuario quiere este tipo de notificación
+                if tipo == 'delay' and not user.notif_delay:
+                    continue
+                if tipo == 'cancelacion' and not user.notif_cancelacion:
+                    continue
+                if tipo == 'gate' and not user.notif_gate:
+                    continue
+
+                # Preparar email según tipo
+                numero_vuelo = item.get('numero_vuelo', '')
+                ruta = item.get('ruta', '')
+                fecha = item.get('fecha_salida')
+                fecha_str = fecha.strftime('%d %b %Y') if fecha else ''
+
+                if tipo == 'delay':
+                    emoji = '⏰'
+                    titulo = f'Delay en tu vuelo {numero_vuelo}'
+                    mensaje = f'Tu vuelo tiene un retraso de {cambio.get("valor_nuevo", "")}'
+                    color = '#d97706'  # naranja
+                elif tipo == 'cancelacion':
+                    emoji = '❌'
+                    titulo = f'Vuelo {numero_vuelo} cancelado'
+                    mensaje = 'Tu vuelo ha sido cancelado. Contactá a la aerolínea.'
+                    color = '#dc2626'  # rojo
+                elif tipo == 'gate':
+                    emoji = '🚪'
+                    titulo = f'Cambio de gate: {numero_vuelo}'
+                    mensaje = f'Nueva puerta de embarque: {cambio.get("valor_nuevo", "")}'
+                    color = '#2563eb'  # azul
+                else:
+                    emoji = '✈️'
+                    titulo = f'Cambio en vuelo {numero_vuelo}'
+                    mensaje = f'{tipo}: {cambio.get("valor_anterior", "")} → {cambio.get("valor_nuevo", "")}'
+                    color = '#6b7280'  # gris
+
+                subject = f'{emoji} {titulo}'
+
+                body_html = f'''
+                <html>
+                <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background: #f5f5f7;">
+                    <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px; border-left: 4px solid {color};">
+                        <h1 style="color: #1d1d1f; font-size: 24px; margin: 0 0 8px 0;">{emoji} {titulo}</h1>
+                        <p style="color: #6e6e73; font-size: 14px; margin: 0 0 24px 0;">{ruta} - {fecha_str}</p>
+
+                        <div style="background: #f5f5f7; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                            <p style="color: #1d1d1f; font-size: 16px; margin: 0;">{mensaje}</p>
+                        </div>
+
+                        <p style="color: #6e6e73; font-size: 14px; margin: 0;">
+                            Información obtenida de FlightRadar24. Verificá con tu aerolínea para confirmar.
+                        </p>
+                    </div>
+                    <p style="text-align: center; color: #6e6e73; font-size: 12px; margin-top: 16px;">
+                        Mis Viajes - Tu asistente de viajes personal
+                    </p>
+                </body>
+                </html>
+                '''
+
+                send_email(user.email, subject, body_html)
+                emails_enviados += 1
+                print(f'📧 Notificación enviada a {user.email}: {titulo}')
+
+        return {
+            'success': True,
+            'timestamp': datetime.now().isoformat(),
+            'cambios_detectados': len(cambios),
+            'emails_enviados': emails_enviados
+        }, 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {'success': False, 'error': str(e)}, 500
 
 
 @api_bp.route('/cron/checkin-reminders', methods=['GET', 'POST'])
