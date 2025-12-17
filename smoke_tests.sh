@@ -44,8 +44,12 @@ echo "9. Calendar feed token inválido (debe dar 404)..."
 echo "10. Migrate DB..."
 curl -s $BASE_URL/migrate-db | grep -q "success" && echo "   ✅ OK" || echo "   ❌ FAIL"
 
+# 11. Cron checkin-reminders
+echo "11. Cron checkin-reminders..."
+curl -s -X POST $BASE_URL/cron/checkin-reminders | grep -q "success" && echo "   ✅ OK" || echo "   ❌ FAIL"
+
 echo ""
-echo "🏁 Smoke tests completados (10 tests)"
+echo "🏁 Smoke tests completados (11 tests)"
 echo ""
 echo "📝 NOTA: Para probar calendar feed con token válido:"
 echo "   1. Login en la app"

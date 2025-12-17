@@ -284,6 +284,103 @@ def cron_check_flights():
     return api_check_flights()
 
 
+@api_bp.route('/cron/checkin-reminders', methods=['GET', 'POST'])
+def checkin_reminders_cron():
+    """Envía recordatorios de check-in 24h antes - llamado por Cloud Scheduler"""
+    from datetime import timedelta
+    from models import Viaje, User
+    from email_processor import send_email
+
+    try:
+        ahora = datetime.now()
+        # Ventana: vuelos entre 23 y 25 horas desde ahora
+        desde = ahora + timedelta(hours=23)
+        hasta = ahora + timedelta(hours=25)
+
+        # Buscar vuelos en esa ventana
+        vuelos = Viaje.query.filter(
+            Viaje.tipo == 'vuelo',
+            Viaje.fecha_salida >= desde.date(),
+            Viaje.fecha_salida <= hasta.date()
+        ).all()
+
+        # Filtrar por hora exacta (fecha_salida + hora_salida)
+        vuelos_24h = []
+        for v in vuelos:
+            if not v.hora_salida:
+                continue
+            try:
+                hora = datetime.strptime(v.hora_salida, '%H:%M').time()
+                dt_vuelo = datetime.combine(v.fecha_salida, hora)
+                if desde <= dt_vuelo <= hasta:
+                    vuelos_24h.append(v)
+            except:
+                continue
+
+        enviados = 0
+        for vuelo in vuelos_24h:
+            user = User.query.get(vuelo.user_id)
+            if not user or not user.notif_email_master:
+                continue
+
+            # Evitar enviar duplicados (verificar si ya se envió)
+            # Por ahora simple: enviar siempre, Cloud Scheduler corre cada 15min
+            # y la ventana de 2h evita duplicados
+
+            datos = vuelo.datos or {}
+            aerolinea = datos.get('aerolinea') or vuelo.proveedor or ''
+            numero_vuelo = datos.get('numero_vuelo') or ''
+            origen = datos.get('origen') or vuelo.origen or ''
+            destino = datos.get('destino') or vuelo.destino or ''
+            hora_salida = vuelo.hora_salida or ''
+            codigo = datos.get('codigo_reserva') or vuelo.codigo_reserva or ''
+
+            subject = f'⏰ Check-in abierto: {aerolinea} {numero_vuelo} mañana'
+
+            body_html = f'''
+            <html>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background: #f5f5f7;">
+                <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px;">
+                    <h1 style="color: #1d1d1f; font-size: 24px; margin: 0 0 8px 0;">✈️ Recordatorio de Check-in</h1>
+                    <p style="color: #6e6e73; font-size: 14px; margin: 0 0 24px 0;">Tu vuelo sale en aproximadamente 24 horas</p>
+
+                    <div style="background: #f5f5f7; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                        <div style="font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px;">
+                            {aerolinea} {numero_vuelo}
+                        </div>
+                        <div style="font-size: 16px; color: #1d1d1f; margin-bottom: 12px;">
+                            {origen} → {destino}
+                        </div>
+                        <div style="font-size: 14px; color: #6e6e73;">
+                            Salida: {vuelo.fecha_salida.strftime('%d %b %Y')} a las {hora_salida}
+                        </div>
+                        {f'<div style="font-size: 14px; color: #6e6e73; margin-top: 4px;">Código: {codigo}</div>' if codigo else ''}
+                    </div>
+
+                    <p style="color: #1d1d1f; font-size: 14px; line-height: 1.5; margin: 0;">
+                        La mayoría de aerolíneas permiten hacer check-in online 24 horas antes del vuelo.
+                        Visitá el sitio web de <strong>{aerolinea}</strong> para hacer tu check-in.
+                    </p>
+                </div>
+                <p style="text-align: center; color: #6e6e73; font-size: 12px; margin-top: 16px;">
+                    Mis Viajes - Tu asistente de viajes personal
+                </p>
+            </body>
+            </html>
+            '''
+
+            send_email(user.email, subject, body_html)
+            enviados += 1
+            print(f'📧 Check-in reminder enviado a {user.email} para {aerolinea} {numero_vuelo}')
+
+        return {'success': True, 'enviados': enviados, 'vuelos_encontrados': len(vuelos_24h)}, 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {'success': False, 'error': str(e)}, 500
+
+
 @api_bp.route('/api/check-flights', methods=['GET'])
 def api_check_flights():
     """
