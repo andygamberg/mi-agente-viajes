@@ -526,3 +526,37 @@ if codigo and check_duplicate(codigo, user_id):
 - Sin emojis decorativos excesivos, preferir iconos SVG cuando sea posible
 **Aplicable a:** Todos los emails transaccionales futuros
 **Sesión:** 27
+
+---
+
+## Sesión 27: Auditoría UX/Técnica (17-18 Dic 2025)
+
+### 36. Verificar deuda técnica antes de migraciones BD
+**Contexto:** Antes de agregar columnas nuevas, revisar si ya existen en modelo
+**Problema:** Campos FR24 ya existían pero no se usaban
+**Solución:** Auditoría de schema antes de proponer cambios
+**Aplicable a:** Cualquier migración de BD
+
+### 37. Deploy incremental con sync entre prompts
+**Contexto:** Cambios grandes (4+ archivos) deben dividirse
+**Problema:** Un error pequeño se propaga y es difícil de diagnosticar
+**Solución:** Commit → Deploy → Verificar → Siguiente cambio
+**Aplicable a:** Refactors de UI, cambios estructurales
+
+### 38. Inconsistencias de design system emergen con features nuevas
+**Contexto:** Badges/menú nuevos revelaron divergencia base.html vs index.html
+**Problema:** Estilos duplicados, comportamientos diferentes
+**Solución:** Auditoría completa cuando se detecta primera inconsistencia
+**Aplicable a:** Cualquier feature que toque múltiples templates
+
+### 39. Detección de duplicados debe considerar múltiples campos
+**Contexto:** Mismo PNR pero año diferente = viaje nuevo, no duplicado
+**Problema:** Solo verificaba codigo_reserva, ignoraba fecha
+**Solución:** Verificar código + fecha (diferencia >90 días = permitir)
+**Aplicable a:** Cualquier lógica de deduplicación
+
+### 40. Benchmark contra líderes antes de implementar
+**Contexto:** Auditoría UX comparó con Flighty, TripIt, Kayak
+**Beneficio:** Identificar gaps y oportunidades de diferenciación
+**Insight clave:** Flighty ganó Apple Design Award por ser "boringly obvious"
+**Aplicable a:** Cualquier feature de UX importante

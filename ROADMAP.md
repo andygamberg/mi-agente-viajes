@@ -151,8 +151,10 @@
 |-----|-------------|--------------|
 | ~~**BUG-PASSENGER-MATCH**~~ | ~~Matching pasajeros extender a 9 tipos (no solo vuelos)~~ | ✅ **15 Dic 2025** |
 | ~~**UX-DELETE**~~ | ~~Eliminar segmento individual + reserva completa por PNR~~ | ✅ **16 Dic 2025** |
-| **MVP-SHARE** | Compartir viajes (jerarquía: todo → viaje → segmento) | - |
-| **DATA-MIGRATION** | Normalizar campos legacy (pasajeros, entradas como int → array) | - |
+| **UI-POLISH** | Fix 8 bugs de UI detectados en Sesión 27 | - |
+| **REDIRECT-SMART** | Redirect inteligente post-guardado | - |
+| **MVP-SHARE** | Compartir viajes entre usuarios | UI-POLISH |
+| **DATA-MIGRATION** | Normalizar campos legacy (pasajeros int→array) | - |
 
 ### Prioridad Media
 
@@ -161,27 +163,66 @@
 | ~~**TIPOGRAFÍA MOBILE**~~ | ~~Aumentar tamaño de fuentes, usar rem en vez de px~~ | ✅ **17 Dic 2025** |
 | ~~**CAPITALIZACIÓN**~~ | ~~Auto-capitalizar nombres de pasajeros y ciudades~~ | ✅ **17 Dic 2025** |
 | ~~**SVG /agregar**~~ | ~~Eliminar círculo decorativo inútil~~ | ✅ **17 Dic 2025** |
-| **UX** | Reorganizar acciones y menú hamburguesa | - |
+| **DEMO-TRIP** | Viaje de ejemplo para usuario nuevo | - |
+| **SETUP-CHECKLIST** | Checklist de configuración visible | - |
+| **14i/14j** | Guías in-app para Apple Mail y Outlook | - |
+| **SECURITY-CLEANUP** | Eliminar endpoints debug | - |
 | **BUG** | Moorings/charter: mejorar extracción de info | - |
-| **14i/14j** | Guías in-app para Apple Mail y Outlook app | 14-UX |
 | **MVP13b** | Envío de notificaciones (email cuando FR24 detecta cambio) | - |
 
-## Sesión 27: Auditoría UX/UI (Próxima)
+## Sesión 27: Auditoría UX/UI + Técnica ✅ (17-18 Dic 2025)
 
-### Quick Wins - Fase 1
-- [ ] Countdown en cards ("En 3 días")
-- [ ] Badge "Nueva" en reservas recientes (<24h)
+### Benchmark Realizado
+- **Flighty** (Apple Design Award 2023): "boringly obvious", info siempre visible, diseño aeroportuario
+- **TripIt/Kayak**: email forwarding, auto-merge, alertas más rápidas que aerolíneas
+- **Objetivo**: Superar en UX a competencia paid siendo free
+
+### Quick Wins Implementados ✅
+- [x] Countdown en cards ("En 3 días")
+- [x] Badge "Nueva" en reservas recientes (<24h)
+- [x] Badge "Cambió" para actualizaciones FR24
+- [x] Menú reorganizado con iconos SVG
+- [x] Header unificado (botones transparentes)
+- [x] Fix duplicados: PNR + fecha (>90 días = viaje nuevo)
+
+### Bugs de UI Detectados (Pendientes)
+| # | Bug | Descripción |
+|---|-----|-------------|
+| 1 | Tipografía nombre viaje | Muy chico, agrandar |
+| 2 | Overflow nombre | Limitar chars para no pisar lápiz editar |
+| 3 | Fecha fin viaje | Solo muestra inicio, falta finalización |
+| 4 | Vuelos overnight | Falta día de llegada (solo hora no alcanza) |
+| 5 | Formato vuelo | Debería ser: Salida [día hora] Terminal / Llegada [día hora] Terminal |
+| 6 | Flecha expand | No clickeable, confuso (solo header funciona) |
+| 7 | SVG tipo | Muy chico vs countdown |
+| 8 | Countdown en pasados | NO debe haber countdown en viajes pasados |
+
+### Must-Haves ANTES de MVP-SHARE
+
+**Críticos (bloquean share):**
+- [ ] Fix bugs de UI (lista arriba)
 - [ ] Redirect inteligente post-guardado
-- [ ] Reorganizar menú hamburguesa
 
-### Onboarding Mejorado - Fase 2
-- [ ] Trip de demo pre-cargado
+**Altos (afectan retención):**
+- [ ] Trip de demo para usuario nuevo
 - [ ] Checklist de setup visible
-- [ ] Progress bar de configuración
+- [ ] Guías 14i/14j (Apple Mail, Outlook)
 
-### Guías Contextuales - Fase 3
-- [ ] 14i: Guía Apple Mail in-app
-- [ ] 14j: Guía Outlook app in-app
+**Técnicos pre-escala:**
+- [ ] Eliminar endpoints debug
+- [ ] Fix pasajeros int → array
+- [ ] Google OAuth verification
+
+### Auditoría Técnica - Hallazgos
+
+| Área | Estado | Acción |
+|------|--------|--------|
+| Endpoints debug | 🔴 Expuestos | Eliminar antes de escalar |
+| Pasajeros legacy | 🟡 Algunos int | Migrar a array |
+| Performance matching | 🟡 Escala mal | Optimizar con >100 usuarios |
+| Google OAuth | 🟡 Modo testing | Verificar antes de beta público |
+| JSONB datos | ✅ Funcionando | OK |
+| Blueprints | ✅ Limpio | OK |
 
 ### Prioridad Baja
 

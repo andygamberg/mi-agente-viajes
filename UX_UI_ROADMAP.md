@@ -1,7 +1,7 @@
 # 🎨 UX/UI ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 14 Diciembre 2025
-**Versión:** 2.3 (toggle funcional clickeable + eliminación de botones confusos)
+**Última actualización:** 18 Diciembre 2025
+**Versión:** 2.4 (Benchmark competitivo + bugs UI identificados)
 
 ---
 
@@ -410,7 +410,76 @@ Próximos eventos
 
 ---
 
+## 🎯 BENCHMARK: Apps Líderes (Dic 2025)
+
+### Flighty (Apple Design Award 2023)
+> "We want Flighty to work so well that it feels almost boringly obvious."
+
+**Principios clave:**
+- Información crítica **siempre visible** (Dynamic Island, Live Activities)
+- Diseño inspirado en señalética de aeropuertos (50 años de UX refinado)
+- Prioriza datos críticos "above the fold"
+- Offline-first (asume pérdida de conexión)
+- Countdown visual prominente
+
+### TripIt / Kayak
+**Lo que hacen bien:**
+- Email forwarding simple → trips@kayak.com
+- Auto-merge de reservas en un viaje
+- Alertas de cambios más rápidas que aerolíneas
+- Compartir itinerario con no-usuarios (link único)
+- Recordatorio de check-in 24h antes
+
+### Nuestro Diferenciador
+- **Gratis** vs TripIt Pro ($49/año) y Flighty ($5.99/mes)
+- **Multi-tipo** (9 tipos de reservas, no solo vuelos)
+- **IA para extracción** (Claude API)
+- **Visión expandida** (más allá de viajes: citas, reservas)
+
+---
+
+## 🐛 BUGS DE UI PENDIENTES (Sesión 27)
+
+| # | Componente | Bug | Fix Propuesto |
+|---|------------|-----|---------------|
+| 1 | Card header | Nombre viaje muy chico | Aumentar font-size a 1.25rem |
+| 2 | Card header | Nombre overflow pisa lápiz | max-width + text-overflow: ellipsis |
+| 3 | Card header | Solo fecha inicio | Agregar " - [fecha fin]" |
+| 4 | Segmento vuelo | Overnight sin día llegada | Mostrar día si diferente a salida |
+| 5 | Segmento vuelo | Formato confuso | "Sal: [día] [hora] T1 → Lleg: [día] [hora] T2" |
+| 6 | Card | Flecha expand no clickeable | onclick en el SVG además del header |
+| 7 | Card header | SVG tipo muy chico | Aumentar a 28px o 32px |
+| 8 | Viajes pasados | Muestra countdown | Condicional: solo si fecha_salida > now |
+
+---
+
+## 📋 MUST-HAVES ANTES DE MVP-SHARE
+
+### Críticos (Bloquean share)
+- [ ] Fix 8 bugs de UI
+- [ ] Redirect inteligente post-guardado
+
+### Altos (Afectan retención)
+- [ ] Trip de demo para usuario nuevo (time-to-value)
+- [ ] Checklist de setup visible (progreso)
+- [ ] Guías 14i/14j (Apple Mail, Outlook)
+
+### Técnicos (Pre-escala)
+- [ ] Eliminar endpoints debug
+- [ ] Fix pasajeros int → array
+- [ ] Google OAuth verification
+
+---
+
 ## ✅ COMPLETADO
+
+### Sesión 27: Quick Wins UX (17-18 Dic 2025)
+- [x] Countdown en cards ("En 3 días", "Mañana", "Hoy")
+- [x] Badge "Nueva" en reservas <24h
+- [x] Badge "Cambió" para updates FR24
+- [x] Menú reorganizado: Acciones arriba, iconos SVG
+- [x] Header unificado: botones transparentes
+- [x] Fix duplicados: considera PNR + fecha
 
 ### Onboarding Post-Registro (14 Dic 2025)
 - [x] Pantalla /bienvenida después de registro
