@@ -1,39 +1,44 @@
-# 🌍 Mi Agente Viajes
+# Mi Agente Viajes
 
-Sistema inteligente de gestión de viajes con monitoreo automático de vuelos y sincronización de calendario.
+Sistema inteligente de gestión de viajes con extracción automática de reservas desde emails y PDFs.
 
-## 🎯 Descripción
+## Estado: MVP 26 (17 Dic 2025)
 
-Alternativa moderna a TripCase que permite:
-- ✈️ Cargar vuelos automáticamente desde PDFs o emails
-- 📅 Sincronización automática con Apple Calendar (webcal)
-- 🔍 Monitoreo en tiempo real de cambios en vuelos
-- 👥 Gestión multi-usuario (futuro)
-- 📱 Acceso web responsive
+### Features Principales
+- 11 tipos de reservas: vuelos, hoteles, cruceros, autos, restaurantes, espectáculos, actividades, trenes, buses, transfers
+- Extracción automática: Gmail OAuth + Microsoft OAuth + reenvío de emails
+- Monitoreo de vuelos: Flightradar24 API con alertas de cambios
+- Calendario sincronizado: Apple Calendar, Google Calendar, Outlook
+- Multi-usuario: Cada usuario ve sus propias reservas + donde es pasajero
+- Deduplicación inteligente: Combina reservas idénticas de diferentes pasajeros
 
-## 🚀 Estado Actual: MVP 4.5 ✅
+### Stack Técnico
+- Backend: Flask + PostgreSQL + SQLAlchemy
+- Hosting: Google Cloud Run
+- AI: Claude API para extracción de información
+- APIs: Gmail, Microsoft Graph, Flightradar24
 
-### Completado
-- ✅ Core app con carga de vuelos
-- ✅ Extracción con Claude API de PDFs
-- ✅ Calendar sync (webcal)
-- ✅ Flight monitoring con FR24
-- ✅ Auto-update de BD cuando hay cambios
+## URLs
 
-### En Desarrollo
-- 🔄 MVP 5: Email monitoring automático (Gmail API)
+- App: https://mi-agente-viajes-454542398872.us-east1.run.app
+- Repo: https://github.com/andygamberg/mi-agente-viajes
 
-## 🌐 URLs Producción
+## Documentación
 
-- **App:** https://mi-agente-viajes-454542398872.us-east1.run.app
-- **Calendar:** https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed
+- ROADMAP.md - Estado del proyecto y próximos pasos
+- METODOLOGIA_TRABAJO.md - Workflow de desarrollo
+- DESIGN_SYSTEM.md - Sistema de diseño
+- UX_UI_ROADMAP.md - Principios de UX
+- docs/APRENDIZAJES.md - Lecciones aprendidas
+- docs/CASOS_DE_USO.md - Matriz de casos de uso
 
-## 📚 Documentación
+## Costos Mensuales
 
-- Ver [ROADMAP.md](ROADMAP.md) para plan completo de features
-- Ver [MVP4_RESEARCH.md](MVP4_RESEARCH.md) para detalles técnicos FR24
-
-## 💰 Costos: ~$19/mes
-- Cloud SQL: $10/mes
-- FR24 API: $9/mes
+- Cloud SQL: ~$10
+- FR24 API: $9
 - Cloud Run: $0 (free tier)
+- Total: ~$19/mes
+
+## Licencia
+
+Proyecto privado - 2025 Andy Gamberg
