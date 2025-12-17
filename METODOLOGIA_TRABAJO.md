@@ -220,6 +220,25 @@ gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthen
 gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=mi-agente-viajes" --limit 30
 ```
 
+### Estrategia de Deploy por Complejidad
+
+| Complejidad | Criterio | Workflow |
+|-------------|----------|----------|
+| **Baja** | CSS, textos, fixes menores | Acumular varios → deploy en el último prompt del grupo |
+| **Media** | Features pequeñas, UI components | Incluir deploy + smoke tests al final de cada prompt |
+| **Alta** | Refactors, múltiples archivos, lógica compleja | Commit → Sync Project Knowledge → Claude revisa → Prompt separado de deploy |
+
+#### Ejemplos
+
+**Baja:** Cambiar color de botón, fix typo, ajustar padding
+→ Hacer 3-4 cambios, deploy solo en el último
+
+**Media:** Agregar countdown en cards, badge "Nueva", reorganizar menú
+→ Cada prompt termina con: `git push && gcloud run deploy... && ./smoke_tests.sh`
+
+**Alta:** Migrar de px a rem, refactor de blueprints, nueva feature multi-archivo
+→ Commit + push, sync, revisar con Claude, luego deploy separado
+
 ---
 
 ## 📁 Estructura de Archivos para Deploy
