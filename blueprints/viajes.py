@@ -286,7 +286,8 @@ def index():
                            get_dato=get_dato,
                            get_titulo_card=get_titulo_card,
                            get_subtitulo_card=get_subtitulo_card,
-                           get_schema=get_schema)
+                           get_schema=get_schema,
+                           now=datetime.now())
 
 
 @viajes_bp.route('/bienvenida')
