@@ -225,11 +225,6 @@
             color: var(--text);
         }
 
-        .menu-item-compact {
-            padding: 10px 14px !important;
-            font-size: 0.875rem !important;
-        }
-
         .menu-dropdown .divider {
             height: 1px;
             background: var(--border-light);
@@ -341,9 +336,11 @@
         }
         
         .section-title {
-            font-size: 1.25rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            letter-spacing: -0.3px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .section-count {
@@ -526,13 +523,15 @@
         }
 
         .card-countdown {
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
             color: var(--text);
         }
 
         .card-countdown.past {
             color: var(--text-muted);
+            font-weight: 600;
         }
 
         .card-countdown.urgent {
@@ -544,8 +543,8 @@
         }
 
         .card-date-absolute {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
             text-transform: capitalize;
         }
 
@@ -575,32 +574,6 @@
         @keyframes badge-appear {
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Botón circular de agregar */
-        .btn-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--text-secondary);
-        }
-
-        .btn-icon:hover {
-            background: var(--bg);
-            border-color: var(--text-secondary);
-            color: var(--text);
-        }
-
-        .icon-md {
-            width: 20px;
-            height: 20px;
         }
 
         .card-title-row {
@@ -1511,14 +1484,14 @@
                 <a href="{{ url_for('viajes.perfil') }}" class="profile-alert">Completar perfil</a>
                 {% endif %}
                 
-                <button class="btn-icon" onclick="openAddModal()" title="Agregar reserva">
-                    <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="btn-header" onclick="openAddModal()" title="Agregar reserva">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 5v14M5 12h14"/>
                     </svg>
                 </button>
-                
+
                 <div class="menu-container" id="mainMenu">
-                    <button class="menu-toggle" onclick="toggleMenu()">
+                    <button class="btn-header" onclick="toggleMenu()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -1536,18 +1509,30 @@
                         <div class="divider"></div>
 
                         <div class="menu-section-label">Sincronización</div>
-                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="menu-item-compact">
-                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+                        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                             Apple Calendar
                         </a>
-                        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="menu-item-compact">
-                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+                        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                             Google Calendar
                         </a>
-                        <a href="https://outlook.live.com/calendar/0/addfromweb?url=https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" target="_blank" class="menu-item-compact">
-                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+                        <a href="https://outlook.live.com/calendar/0/addfromweb?url=https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" target="_blank">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                             Outlook
                         </a>
+
+                        <div class="divider"></div>
+
+                        <div class="menu-section-label">Acciones</div>
+                        <button onclick="toggleGroupMode(); closeMenu();">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                            Agrupar viajes
+                        </button>
+                        <button onclick="toggleDeleteMode(); closeMenu();">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            Eliminar viajes
+                        </button>
 
                         <div class="divider"></div>
 

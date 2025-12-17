@@ -3,15 +3,8 @@
 {% block title %}Preferencias - Mis Viajes{% endblock %}
 
 {% block styles %}
-.page-header {
-    margin-bottom: 32px;
-}
-
-.page-header h1 {
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 8px;
+.container {
+    max-width: 800px;
 }
 
 .alert {
@@ -259,10 +252,6 @@
 }
 
 @media (max-width: 480px) {
-    .page-header h1 {
-        font-size: 28px;
-    }
-
     .card {
         padding: 20px;
     }
@@ -288,9 +277,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Preferencias</h1>
-</div>
+<h1 class="page-title">Preferencias</h1>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

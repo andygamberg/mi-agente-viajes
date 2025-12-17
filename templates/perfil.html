@@ -4,7 +4,7 @@
 
 {% block styles %}
 .container {
-    max-width: 540px;
+    max-width: 800px;
 }
 
 .card {
@@ -13,21 +13,6 @@
     padding: 28px;
     margin-bottom: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.card-header {
-    margin-bottom: 24px;
-}
-
-.card-header h1 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.card-header p {
-    color: var(--text-secondary);
-    font-size: 14px;
 }
 
 .alert {
@@ -779,11 +764,10 @@ input[name="apellido_pax"] {
 {% endblock %}
 
 {% block content %}
+<h1 class="page-title">Mi Perfil</h1>
+<p class="page-subtitle">Configurá tu cuenta</p>
+
 <div class="card">
-    <div class="card-header">
-        <h1>Mi Perfil</h1>
-        <p>Configurá tu cuenta</p>
-    </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
