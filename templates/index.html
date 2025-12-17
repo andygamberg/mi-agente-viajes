@@ -499,9 +499,35 @@
             z-index: 101;
         }
         
-        .card-date {
-            font-size: 0.8125rem;
-            color: var(--text-secondary);
+        .card-date-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .card-countdown {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-countdown.past {
+            color: var(--text-muted);
+        }
+
+        .card-countdown.urgent {
+            color: #dc2626;
+        }
+
+        .card-countdown.soon {
+            color: #d97706;
+        }
+
+        .card-date-absolute {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: capitalize;
         }
         
         .card-title-row {
@@ -1526,7 +1552,10 @@
                                     {% endif %}
                                 {% endfor %}
                             </div>
-                            <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
+                            <div class="card-date-wrapper">
+                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}"></span>
+                            <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
+                        </div>
                         </div>
 
                         {# Computar título usando helper #}
@@ -1773,7 +1802,10 @@
                                     {% endif %}
                                 {% endfor %}
                             </div>
-                            <span class="card-date">{{ primer_vuelo.fecha_salida.strftime('%d %b %Y') }}</span>
+                            <div class="card-date-wrapper">
+                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}"></span>
+                            <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
+                        </div>
                         </div>
 
                         {# Computar título usando helper #}
@@ -2346,6 +2378,52 @@
             }
         });
     })();
+
+    // Countdown relativo para cards de viajes
+    function updateCountdowns() {
+        document.querySelectorAll('.card-countdown').forEach(el => {
+            const fechaStr = el.dataset.fecha;
+            if (!fechaStr) return;
+
+            const fecha = new Date(fechaStr + 'T12:00:00');
+            const ahora = new Date();
+            const diffMs = fecha - ahora;
+            const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMin = Math.floor(diffMs / (1000 * 60));
+
+            el.classList.remove('past', 'urgent', 'soon');
+
+            let texto = '';
+            if (diffMs < 0) {
+                const diasPasados = Math.abs(diffDias);
+                texto = diasPasados === 0 ? 'Hoy' : diasPasados === 1 ? 'Ayer' : `Hace ${diasPasados} días`;
+                el.classList.add('past');
+            } else if (diffMin < 120) {
+                texto = diffMin <= 1 ? 'Ahora' : `En ${diffMin} min`;
+                el.classList.add('urgent');
+            } else if (diffHoras < 24) {
+                texto = `En ${diffHoras} horas`;
+                el.classList.add('urgent');
+            } else if (diffDias === 0) {
+                texto = 'Hoy';
+                el.classList.add('soon');
+            } else if (diffDias === 1) {
+                texto = 'Mañana';
+                el.classList.add('soon');
+            } else if (diffDias < 7) {
+                texto = `En ${diffDias} días`;
+                el.classList.add('soon');
+            } else {
+                texto = `En ${diffDias} días`;
+            }
+
+            el.textContent = texto;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', updateCountdowns);
+    setInterval(updateCountdowns, 60000);
     </script>
 </body>
 <!-- Deployed automatically by Claude Code - Meta 1 test -->
