@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 16 Diciembre 2025
+**Última actualización:** 17 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -42,6 +42,7 @@
 | BUG-FIX-MULTITYPE | Multi-tipo en Sistema 1 (misviajes@) | 15 Dic 2025 | gmail_to_db.py ahora soporta 9 tipos, replica lógica de carga_rapida() |
 | **MVP-EDIT** | **Edición completa de reservas** | **14 Dic 2025** | **Form dinámico desde schemas, menú kebab, vuelos combinados, todos los tipos** |
 | **MVP16** | **Carga manual multi-tipo** | **14 Dic 2025** | **/agregar refactorizado con schemas dinámicos, selector tipo, 9 tipos soportados** |
+| 26 | UX Mobile + Formato hora | 17 Dic 2025 | Tipografía rem, capitalización, formato hora 24h/12h |
 
 ### ✅ Completado - Sesión 25 (16 Dic 2025)
 
@@ -221,9 +222,9 @@ Evento (tabla base)
 
 | MVP | Descripción | Dependencias |
 |-----|-------------|--------------|
-| **TIPOGRAFÍA MOBILE** | Aumentar tamaño de fuentes, usar rem en vez de px | - |
-| **CAPITALIZACIÓN** | Auto-capitalizar nombres de pasajeros y ciudades | - |
-| **SVG /agregar** | Eliminar círculo decorativo inútil | - |
+| ~~**TIPOGRAFÍA MOBILE**~~ | ~~Aumentar tamaño de fuentes, usar rem en vez de px~~ | ✅ **17 Dic 2025** |
+| ~~**CAPITALIZACIÓN**~~ | ~~Auto-capitalizar nombres de pasajeros y ciudades~~ | ✅ **17 Dic 2025** |
+| ~~**SVG /agregar**~~ | ~~Eliminar círculo decorativo inútil~~ | ✅ **17 Dic 2025** |
 | **UX** | Reorganizar acciones y menú hamburguesa | - |
 | **BUG** | Moorings/charter: mejorar extracción de info | - |
 | **14i/14j** | Guías in-app para Apple Mail y Outlook app | 14-UX |

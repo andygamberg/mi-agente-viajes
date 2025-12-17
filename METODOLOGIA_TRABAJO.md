@@ -580,6 +580,27 @@ gcloud sql connect mi-agente-viajes-db --user=postgres --database=viajes_db
 curl https://mi-agente-viajes-454542398872.us-east1.run.app/migrate-db
 ```
 
+### Migración BD olvidada en Cloud Run
+
+**Síntoma:** App devuelve 500 después de deploy que agrega columna nueva.
+
+**Causa:** Cloud Run deploy NO ejecuta `flask db upgrade` automáticamente.
+
+**Solución:**
+```bash
+# Ver logs para confirmar error de columna
+gcloud run services logs read mi-agente-viajes --region us-east1 --limit 50
+
+# Ejecutar migración manual (una de estas opciones):
+# 1. Desde Cloud Run Job
+# 2. Script Python con DATABASE_URL correcto (recordar URL-encode de caracteres especiales en password)
+```
+
+**Prevención:** Después de agregar campo a modelo, verificar:
+1. `flask db migrate` genera archivo
+2. `flask db upgrade` se ejecuta en producción
+3. Smoke test pasa
+
 ### Archivo corrupto / deploy roto
 
 **Síntoma:** Internal Server Error después de deploy, logs muestran `TemplateSyntaxError: unexpected end of template`

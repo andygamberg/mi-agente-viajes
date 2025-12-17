@@ -419,6 +419,39 @@ if codigo and check_duplicate(codigo, user_id):
 
 ---
 
+## Sesión 26 (17 Dic 2025)
+
+### Tipografía accesible con rem
+- **Problema**: font-size en px ignora configuración "Texto más grande" de iOS/Android
+- **Solución**: Migrar todo a rem con `html { font-size: 100%; -webkit-text-size-adjust: 100%; }`
+- **Escala**: 16px = 1rem base, mínimo 0.75rem (12px) para legibilidad
+- **Archivos**: base.html, index.html, login.html, y todos los templates standalone
+
+### JavaScript no accede a preferencia 12h/24h del OS
+- **Problema**: `navigator.language` solo devuelve idioma, no preferencia de formato hora
+- **Solución**: Sistema híbrido:
+  1. Campo `formato_hora` en BD (null=auto, '24h', '12h')
+  2. Heurística por locale (US/AU/PH → 12h, resto → 24h)
+  3. UI en Preferencias para override manual
+- **Beneficio**: Funciona automático para mayoría, configurable para el resto
+
+### Flask-Migrate en Cloud Run
+- **Problema**: Deploy de código NO ejecuta migraciones automáticamente
+- **Síntoma**: App caída con 500 porque columna no existe
+- **Solución**: Ejecutar migración manualmente post-deploy:
+```bash
+  # Opción 1: Cloud Run Job
+  # Opción 2: Script directo con DATABASE_URL
+```
+- **Prevención**: Siempre verificar que columnas nuevas existan después de deploy
+
+### Auto-capitalización CSS
+- **Solución**: `text-transform: capitalize` en inputs de nombres y ciudades
+- **Limitación**: Solo visual, el valor guardado mantiene el case original
+- **Campos**: origen, destino, puertos, nombres de pasajeros
+
+---
+
 ## Checklist para Nuevos Proyectos
 
 ### Setup inicial

@@ -1,6 +1,6 @@
 # 🎨 DESIGN SYSTEM - Mi Agente Viajes
 
-**Última actualización:** 10 Diciembre 2025
+**Última actualización:** 17 Diciembre 2025
 **Versión:** 1.0
 
 ---
@@ -63,18 +63,32 @@ font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Ro
 font-family: 'SF Mono', Monaco, 'Courier New', monospace;
 ```
 
+### Unidades y Accesibilidad
+```css
+/* Base obligatoria en todos los templates */
+html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+```
+
+**Regla:** Usar rem para font-size, NO px.
+
 ### Escala Tipográfica
 
-| Uso | Tamaño | Peso | Letter-spacing |
-|-----|--------|------|----------------|
-| Hero title | 32px | 700 | -0.5px |
-| Page title | 28px | 600 | -0.5px |
-| Section title | 20px | 600 | -0.3px |
-| Card title | 18px | 600 | -0.3px |
-| Body | 16px | 400 | 0 |
-| Label | 14px | 500 | 0 |
-| Caption | 13px | 400 | 0 |
-| Micro | 11px | 600 | 0.5px (uppercase) |
+| Uso | rem | px equivalente | Peso | Letter-spacing |
+|-----|-----|----------------|------|----------------|
+| Hero | 3.5rem | 56px | 700 | -0.5px |
+| Page title | 2rem | 32px | 600 | -0.5px |
+| Section | 1.75rem | 28px | 600 | -0.3px |
+| Card title | 1.125rem | 18px | 600 | -0.3px |
+| Body | 1rem | 16px | 400 | 0 |
+| Label | 0.875rem | 14px | 500 | 0 |
+| Caption | 0.8125rem | 13px | 400 | 0 |
+| Micro (mínimo) | 0.75rem | 12px | 600 | 0.5px (uppercase) |
+
+**Nunca usar** font-size menor a 0.75rem (12px).
 
 ---
 
@@ -260,3 +274,4 @@ Antes de agregar cualquier elemento de UI, verificar:
 |-------|--------|
 | 10 Dic 2025 | Documento inicial creado |
 | 10 Dic 2025 | Regla de no-emojis establecida |
+| 17 Dic 2025 | Migración a rem, tabla actualizada con valores, regla de mínimo 0.75rem |
