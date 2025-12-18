@@ -344,6 +344,7 @@ def agregar():
 
             # Agregar tipo
             datos['tipo'] = nuevo_tipo
+            print(f"DEBUG /agregar: tipo={nuevo_tipo}, datos keys={list(datos.keys())}")
 
             nuevo_viaje = save_reservation(
                 user_id=current_user.id,

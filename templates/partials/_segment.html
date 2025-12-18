@@ -99,11 +99,21 @@
 
     {# ========== CRUCERO / FERRY ========== #}
     {% elif tipo in ['crucero', 'barco'] %}
+        {% set puerto_origen = d.puerto_embarque or vuelo.origen %}
+        {% set puerto_destino = d.puerto_desembarque or vuelo.destino %}
+        {% if puerto_origen or puerto_destino %}
         <div class="segment-route">
-            <span class="route-point">{{ d.puerto_embarque or vuelo.origen or '?' }}</span>
-            <span class="route-arrow">→</span>
-            <span class="route-point">{{ d.puerto_desembarque or vuelo.destino or '?' }}</span>
+            {% if puerto_origen and puerto_destino %}
+                <span class="route-point">{{ puerto_origen }}</span>
+                <span class="route-arrow">→</span>
+                <span class="route-point">{{ puerto_destino }}</span>
+            {% elif puerto_origen %}
+                <span class="route-point">Desde: {{ puerto_origen }}</span>
+            {% else %}
+                <span class="route-point">Hacia: {{ puerto_destino }}</span>
+            {% endif %}
         </div>
+        {% endif %}
         <div class="segment-details">
             {% if d.hora_embarque %}
                 <span class="detail">Embarque: <span class="format-time" data-time="{{ d.hora_embarque }}">{{ d.hora_embarque }}</span></span>
