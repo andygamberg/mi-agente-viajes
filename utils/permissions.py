@@ -28,6 +28,7 @@ def puede_modificar_segmento(viaje):
     # Solo vuelos tienen restricción de PNR
     # Hoteles, cruceros, restaurantes, etc. siempre son editables
     if tipo != 'vuelo':
+        print(f"DEBUG puede_modificar: id={viaje.id} → PUEDE EDITAR (no es vuelo)")
         return True
 
     # --- A partir de aquí, solo aplica a vuelos ---
