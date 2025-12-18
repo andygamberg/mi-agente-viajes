@@ -23,7 +23,7 @@
                 <span class="detail">Salida: <span class="format-time" data-time="{{ d.hora_salida }}">{{ d.hora_salida }}</span>{% if d.terminal %} · Terminal {{ d.terminal }}{% endif %}{% if d.puerta %} · Puerta {{ d.puerta }}{% endif %}</span>
             {% endif %}
             {% if d.hora_llegada %}
-                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span></span>
+                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span>{% if vuelo.fecha_llegada and vuelo.fecha_salida and vuelo.fecha_llegada.date() != vuelo.fecha_salida.date() %} <span class="arrival-day">({{ vuelo.fecha_llegada.strftime('%d %b') }})</span>{% endif %}</span>
             {% endif %}
             {% if d.codigo_reserva and not vuelo._es_combinado %}
                 <span class="detail">Reserva: {{ d.codigo_reserva }}</span>
@@ -284,7 +284,7 @@
                 <span class="detail">Salida: <span class="format-time" data-time="{{ d.hora_salida }}">{{ d.hora_salida }}</span></span>
             {% endif %}
             {% if d.hora_llegada %}
-                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span></span>
+                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span>{% if vuelo.fecha_llegada and vuelo.fecha_salida and vuelo.fecha_llegada.date() != vuelo.fecha_salida.date() %} <span class="arrival-day">({{ vuelo.fecha_llegada.strftime('%d %b') }})</span>{% endif %}</span>
             {% endif %}
         </div>
 
@@ -303,7 +303,7 @@
                 <span class="detail">Salida: <span class="format-time" data-time="{{ d.hora_salida }}">{{ d.hora_salida }}</span></span>
             {% endif %}
             {% if d.hora_llegada %}
-                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span></span>
+                <span class="detail">Llegada: <span class="format-time" data-time="{{ d.hora_llegada }}">{{ d.hora_llegada }}</span>{% if vuelo.fecha_llegada and vuelo.fecha_salida and vuelo.fecha_llegada.date() != vuelo.fecha_salida.date() %} <span class="arrival-day">({{ vuelo.fecha_llegada.strftime('%d %b') }})</span>{% endif %}</span>
             {% endif %}
             {% if d.codigo_reserva %}
                 <span class="detail">Reserva: {{ d.codigo_reserva }}</span>

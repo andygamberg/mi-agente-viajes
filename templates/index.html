@@ -412,8 +412,8 @@
         }
 
         .type-icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             color: #1f2937;  /* gris oscuro */
             flex-shrink: 0;
         }
@@ -598,10 +598,13 @@
         }
         
         .card-title {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            letter-spacing: -0.3px;
-            flex: 1;
+            color: var(--text);
+            max-width: calc(100% - 40px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .btn-edit-name {
@@ -980,6 +983,12 @@
         .detail {
             font-size: 0.8125rem;
             color: var(--text-secondary);
+        }
+
+        .arrival-day {
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 500;
         }
 
         .segment-main {
@@ -1640,7 +1649,7 @@
 
                         <div class="card-date-wrapper">
                             <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ primer_vuelo.hora_salida or '' }}"></span>
-                            <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
+                            <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}{% if grupo|length > 1 and grupo[-1].fecha_salida != primer_vuelo.fecha_salida %} - {{ grupo[-1].fecha_salida.strftime('%d %b') }}{% elif primer_vuelo.fecha_llegada and primer_vuelo.fecha_llegada.date() != primer_vuelo.fecha_salida.date() %} - {{ primer_vuelo.fecha_llegada.strftime('%d %b') }}{% endif %}</span>
                         </div>
                     </div>
 
@@ -1652,7 +1661,7 @@
                     {% endif %}
 
                     <div class="card-title-row">
-                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="this.closest('.card').classList.toggle('collapsed')" style="cursor: pointer;">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
                             <span class="card-title">{{ titulo_default }}</span>
@@ -1899,7 +1908,7 @@
 
                         <div class="card-date-wrapper">
                             <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ primer_vuelo.hora_salida or '' }}"></span>
-                            <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}</span>
+                            <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}{% if grupo|length > 1 and grupo[-1].fecha_salida != primer_vuelo.fecha_salida %} - {{ grupo[-1].fecha_salida.strftime('%d %b') }}{% elif primer_vuelo.fecha_llegada and primer_vuelo.fecha_llegada.date() != primer_vuelo.fecha_salida.date() %} - {{ primer_vuelo.fecha_llegada.strftime('%d %b') }}{% endif %}</span>
                         </div>
                     </div>
 
@@ -1911,7 +1920,7 @@
                     {% endif %}
 
                     <div class="card-title-row">
-                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="this.closest('.card').classList.toggle('collapsed')" style="cursor: pointer;">
                                 <path d="M9 18l6-6-6-6"/>
                             </svg>
                             <span class="card-title">{{ titulo_default }}</span>
