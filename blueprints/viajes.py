@@ -352,6 +352,7 @@ def agregar():
                 source='manual'
             )
             db.session.commit()
+            print(f"DEBUG /agregar guardado: id={nuevo_viaje.id}, tipo={nuevo_viaje.tipo}, source={nuevo_viaje.source}")
             flash("✓ Reserva agregada", "success")
             return redirect(url_for('viajes.index'))
 
