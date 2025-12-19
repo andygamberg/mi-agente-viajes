@@ -22,13 +22,9 @@ def puede_modificar_segmento(viaje):
     # Obtener tipo
     tipo = viaje.tipo or 'vuelo'
 
-    # DEBUG: ver qué tipo tiene el viaje
-    print(f"DEBUG puede_modificar: id={viaje.id}, tipo={tipo}, viaje.tipo={viaje.tipo}, source={viaje.source}")
-
     # Solo vuelos tienen restricción de PNR
     # Hoteles, cruceros, restaurantes, etc. siempre son editables
     if tipo != 'vuelo':
-        print(f"DEBUG puede_modificar: id={viaje.id} → PUEDE EDITAR (no es vuelo)")
         return True
 
     # --- A partir de aquí, solo aplica a vuelos ---

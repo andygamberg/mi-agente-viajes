@@ -652,6 +652,7 @@
             border-radius: var(--radius);
             padding: 16px;
             margin-bottom: 12px;
+            position: relative;
         }
         
         .segment:last-child {
@@ -681,6 +682,14 @@
 
         .segment-header .segment-label {
             text-transform: uppercase;
+            margin-bottom: 0;
+        }
+
+        /* Menú kebab para viajes de un solo segmento */
+        .segment-header-single {
+            position: absolute;
+            top: 8px;
+            right: 8px;
             margin-bottom: 0;
         }
 
@@ -1774,12 +1783,52 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% else %}
+                                {# Viaje de un solo segmento - mostrar menú kebab en el segment #}
+                                <div class="segment-header segment-header-single">
+                                    <div class="segment-actions">
+                                        <button type="button" class="btn-kebab" onclick="toggleSegmentMenu(event, this)" title="Acciones">
+                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                                            </svg>
+                                        </button>
+                                        <div class="segment-menu" onclick="event.stopPropagation()">
+                                            {% if puede_modificar_segmento(vuelo) %}
+                                                <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
+                                                    </svg>
+                                                    Editar reserva
+                                                </a>
+                                                <button class="segment-menu-item segment-menu-delete" onclick="eliminarSegmento({{ vuelo.id }}); return false;">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+                                                    </svg>
+                                                    Eliminar
+                                                </button>
+                                            {% else %}
+                                                <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                    </svg>
+                                                    Ver detalles
+                                                </a>
+                                                <button class="segment-menu-item segment-menu-delete" onclick="eliminarReserva({{ vuelo.id }}, '{{ vuelo.codigo_reserva or '' }}'); return false;">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    Eliminar reserva
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
                                 {% endif %}
-                                
+
                                 {% include 'partials/_segment.html' with context %}
                             </div>
                             {% endfor %}
-                            
+
                         </div>
 
                         {% if grupo|length > 1 %}
@@ -2028,8 +2077,48 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% else %}
+                                {# Viaje de un solo segmento (pasados) - mostrar menú kebab #}
+                                <div class="segment-header segment-header-single">
+                                    <div class="segment-actions">
+                                        <button type="button" class="btn-kebab" onclick="toggleSegmentMenu(event, this)" title="Acciones">
+                                            <svg class="icon-sm" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                                            </svg>
+                                        </button>
+                                        <div class="segment-menu" onclick="event.stopPropagation()">
+                                            {% if puede_modificar_segmento(vuelo) %}
+                                                <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M14.846 1.403a2.081 2.081 0 0 1 3.02 2.857l-9.134 9.634a2.5 2.5 0 0 1-1.205.653l-2.93.61a.5.5 0 0 1-.593-.593l.61-2.93a2.5 2.5 0 0 1 .653-1.205l9.58-9.026z"/>
+                                                    </svg>
+                                                    Editar reserva
+                                                </a>
+                                                <button class="segment-menu-item segment-menu-delete" onclick="eliminarSegmento({{ vuelo.id }}); return false;">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+                                                    </svg>
+                                                    Eliminar
+                                                </button>
+                                            {% else %}
+                                                <a href="{{ url_for('viajes.editar', id=vuelo.id) }}" class="segment-menu-item">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                    </svg>
+                                                    Ver detalles
+                                                </a>
+                                                <button class="segment-menu-item segment-menu-delete" onclick="eliminarReserva({{ vuelo.id }}, '{{ vuelo.codigo_reserva or '' }}'); return false;">
+                                                    <svg class="icon-sm" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    Eliminar reserva
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
                                 {% endif %}
-                                
+
                                 {% include 'partials/_segment.html' with context %}
                             </div>
                             {% endfor %}

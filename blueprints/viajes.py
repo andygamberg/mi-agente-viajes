@@ -344,7 +344,6 @@ def agregar():
 
             # Agregar tipo
             datos['tipo'] = nuevo_tipo
-            print(f"DEBUG /agregar: tipo={nuevo_tipo}, datos keys={list(datos.keys())}")
 
             nuevo_viaje = save_reservation(
                 user_id=current_user.id,
@@ -352,7 +351,6 @@ def agregar():
                 source='manual'
             )
             db.session.commit()
-            print(f"DEBUG /agregar guardado: id={nuevo_viaje.id}, tipo={nuevo_viaje.tipo}, source={nuevo_viaje.source}")
             flash("✓ Reserva agregada", "success")
             return redirect(url_for('viajes.index'))
 
