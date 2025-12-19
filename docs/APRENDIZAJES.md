@@ -560,3 +560,14 @@ if codigo and check_duplicate(codigo, user_id):
 **Beneficio:** Identificar gaps y oportunidades de diferenciación
 **Insight clave:** Flighty ganó Apple Design Award por ser "boringly obvious"
 **Aplicable a:** Cualquier feature de UX importante
+
+---
+
+## Sesión 28: Fix Menú Kebab Segmentos Individuales (19 Dic 2025)
+
+### 41. Menú kebab debe renderizarse para segmentos individuales
+**Problema:** Cruceros/barcos creados manualmente no mostraban el menú de 3 puntitos (editar/eliminar)
+**Causa raíz:** El menú kebab solo se renderizaba dentro del bloque `{% if es_multi %}`, ignorando viajes de un solo segmento
+**Solución:** Agregar bloque `{% else %}` con el menú para segmentos individuales, con CSS `.segment-header-single` posicionado absoluto
+**Sesión:** 28
+**Aplicable a:** Cualquier acción que deba estar disponible tanto en grupos como en segmentos individuales
