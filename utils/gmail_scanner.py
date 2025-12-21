@@ -253,10 +253,10 @@ def extract_pdf_attachments(service, message_id, payload):
 def extract_text_from_pdf(pdf_data):
     """
     Extrae texto de un PDF en memoria usando PyMuPDF (fitz).
-    
+
     Args:
         pdf_data: bytes del PDF
-    
+
     Returns:
         str: Texto extraído
     """
@@ -265,8 +265,26 @@ def extract_text_from_pdf(pdf_data):
         doc = fitz.open(stream=pdf_data, filetype="pdf")
         text = ""
         for page in doc:
-            text += page.get_text() + "\n"
+            # Intentar extracción normal primero
+            page_text = page.get_text()
+
+            # Si no hay mucho texto, intentar con OCR-like extraction
+            if len(page_text) < 100:
+                # Intentar extraer texto de bloques/dict
+                blocks = page.get_text("dict")
+                for block in blocks.get("blocks", []):
+                    if "lines" in block:
+                        for line in block["lines"]:
+                            for span in line.get("spans", []):
+                                page_text += span.get("text", "") + " "
+
+            text += page_text + "\n"
         doc.close()
+
+        # DEBUG: Log primeras líneas para diagnóstico
+        first_lines = text[:500].replace('\n', ' | ')
+        print(f"    📄 PDF primeras líneas: {first_lines[:200]}...")
+
         return text.strip()
     except ImportError:
         print("    ⚠️ PyMuPDF no instalado, intentando PyPDF2...")
