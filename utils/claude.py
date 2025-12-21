@@ -299,9 +299,12 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
             for campo in ['fecha_salida', 'fecha_llegada', 'fecha_checkin', 'fecha_checkout',
                           'fecha_retiro', 'fecha_devolucion', 'fecha', 'fecha_embarque', 'fecha_desembarque']:
                 fecha_valor = reserva.get(campo, '')
-                if fecha_valor and len(fecha_valor) >= 4:
+                if fecha_valor and len(fecha_valor) >= 10:  # YYYY-MM-DD
                     try:
                         year_extracted = int(fecha_valor[:4])
+                        month_extracted = int(fecha_valor[5:7])
+                        day_extracted = int(fecha_valor[8:10])
+
                         # Corregir años pasados (antes del año actual)
                         if year_extracted < current_year:
                             reserva[campo] = str(target_year) + fecha_valor[4:]
@@ -310,6 +313,14 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
                         elif year_extracted > current_year + 2:
                             reserva[campo] = str(target_year) + fecha_valor[4:]
                             print(f"  ⚠️ Año corregido (futuro lejano): {year_extracted} → {target_year}")
+                        # Corregir fecha del año actual que ya pasó → debe ser próximo año
+                        elif year_extracted == current_year:
+                            fecha_extraida = datetime(year_extracted, month_extracted, day_extracted)
+                            if fecha_extraida.date() < now.date():
+                                # La fecha ya pasó este año, debe ser el próximo
+                                nuevo_year = current_year + 1
+                                reserva[campo] = str(nuevo_year) + fecha_valor[4:]
+                                print(f"  ⚠️ Año corregido (fecha pasada): {year_extracted} → {nuevo_year}")
                     except (ValueError, IndexError):
                         pass
 
