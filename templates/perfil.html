@@ -18,6 +18,7 @@ html { font-size: 100%; }
     padding: 24px;
     margin-bottom: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid var(--border-light);
 }
 
 .card-title {
@@ -29,9 +30,13 @@ html { font-size: 100%; }
     gap: 8px;
 }
 
+/* CRÍTICO: Forzar tamaño de iconos en títulos */
 .card-title svg {
-    width: 20px;
-    height: 20px;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px;
+    max-width: 20px;
+    flex-shrink: 0;
     color: var(--text-secondary);
 }
 
@@ -56,6 +61,7 @@ html { font-size: 100%; }
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 6px;
+    color: var(--text);
 }
 
 .form-group input {
@@ -65,11 +71,13 @@ html { font-size: 100%; }
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-card);
+    color: var(--text);
 }
 
 .form-group input:focus {
     outline: none;
     border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
 }
 
 .form-group .hint {
@@ -101,7 +109,7 @@ html { font-size: 100%; }
 .email-item .badge {
     font-size: 0.75rem;
     padding: 2px 8px;
-    background: var(--accent-light);
+    background: var(--accent-light, #e8f4fd);
     color: var(--accent);
     border-radius: 12px;
     margin-left: 8px;
@@ -110,27 +118,14 @@ html { font-size: 100%; }
 .email-item .status {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-size: 0.8125rem;
     color: var(--success);
 }
 
 .email-item .status svg {
-    width: 16px;
-    height: 16px;
-}
-
-.add-email-form {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-}
-
-.add-email-form input {
-    flex: 1;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    width: 16px !important;
+    height: 16px !important;
 }
 
 /* Calendar */
@@ -153,7 +148,7 @@ html { font-size: 100%; }
     flex-wrap: wrap;
 }
 
-/* Preferences toggles */
+/* Preferences toggles - CORREGIDO */
 .preference-item {
     display: flex;
     align-items: center;
@@ -168,11 +163,13 @@ html { font-size: 100%; }
 
 .preference-info {
     flex: 1;
+    padding-right: 16px;
 }
 
 .preference-label {
     font-size: 0.9375rem;
     font-weight: 500;
+    color: var(--text);
 }
 
 .preference-description {
@@ -181,8 +178,10 @@ html { font-size: 100%; }
     margin-top: 2px;
 }
 
+/* Toggle switch - COMPLETO */
 .toggle-switch {
     position: relative;
+    display: inline-block;
     width: 46px;
     height: 26px;
     flex-shrink: 0;
@@ -192,6 +191,7 @@ html { font-size: 100%; }
     opacity: 0;
     width: 0;
     height: 0;
+    position: absolute;
 }
 
 .toggle-slider {
@@ -240,6 +240,53 @@ html { font-size: 100%; }
     margin-bottom: 12px;
 }
 
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-secondary {
+    background: var(--bg-card);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+}
+
+/* Alerts */
 .alert {
     padding: 12px 16px;
     border-radius: var(--radius);
@@ -248,33 +295,19 @@ html { font-size: 100%; }
 }
 
 .alert-success {
-    background: #F0FDF4;
+    background: var(--success-light, #f0fdf4);
     color: var(--success);
-    border: 1px solid #BBF7D0;
 }
 
 .alert-error {
-    background: #FEF2F2;
+    background: #fef2f2;
     color: var(--danger);
-    border: 1px solid #FECACA;
-}
-
-.alert-warning {
-    background: #FFFBEB;
-    color: #92400E;
-    border: 1px solid #FDE68A;
-}
-
-.alert-info {
-    background: #EFF6FF;
-    color: #1E40AF;
-    border: 1px solid #BFDBFE;
 }
 
 @media (max-width: 600px) {
     .form-row { flex-direction: column; gap: 12px; }
     .calendar-buttons { flex-direction: column; }
-    .add-email-form { flex-direction: column; }
+    .preference-item { flex-direction: column; align-items: flex-start; gap: 12px; }
 }
 </style>
 {% endblock %}
