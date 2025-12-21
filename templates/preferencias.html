@@ -179,6 +179,48 @@
     margin-top: 12px;
 }
 
+.section-divider {
+    height: 1px;
+    background: var(--border-light);
+    margin: 20px 0;
+}
+
+.add-email-form {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.add-email-form input {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    font-family: inherit;
+}
+
+.add-email-form input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.emails-adicionales-list {
+    margin-top: 12px;
+}
+
+.email-adicional-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+    font-size: 0.875rem;
+}
+
 /* Calendar */
 .calendar-link-details {
     margin-bottom: 16px;
@@ -485,6 +527,31 @@
         <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">+ Gmail</a>
         <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn btn-secondary btn-small">+ Microsoft</a>
     </div>
+
+    <!-- Emails adicionales para reenvío manual -->
+    <div class="section-divider"></div>
+    <p class="card-description" style="margin-bottom: 0;">
+        <strong>Emails adicionales</strong> (para reenvío manual)
+    </p>
+    <p class="hint" style="margin-top: 4px;">Si reenviás confirmaciones desde otros emails a misviajes@gamberg.com.ar, agregalos acá.</p>
+
+    <form method="POST" action="{{ url_for('viajes.add_email') }}" class="add-email-form">
+        <input type="email" name="email" placeholder="otro@email.com" required>
+        <button type="submit" class="btn btn-secondary btn-small">Agregar</button>
+    </form>
+
+    {% if emails_adicionales %}
+    <div class="emails-adicionales-list">
+        {% for email_add in emails_adicionales %}
+        <div class="email-adicional-item">
+            <span>{{ email_add.email }}</span>
+            <form method="POST" action="{{ url_for('viajes.remove_email', email_id=email_add.id) }}" style="display: inline;">
+                <button type="submit" class="btn-link btn-danger-link" onclick="return confirm('¿Eliminar este email?')">Quitar</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>
 
 <!-- Calendario -->
