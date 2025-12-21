@@ -231,6 +231,7 @@ def index():
     viajes = sorted(viajes, key=lambda v: v.fecha_salida)
     
     ahora = datetime.now()
+    print(f"DEBUG clasificación: ahora={ahora}")
 
     def get_datetime_viaje(v):
         """Combina fecha_salida con hora real del tipo para clasificación correcta"""
@@ -239,21 +240,29 @@ def index():
             return datetime.max
 
         hora_str = get_hora_salida_display(v)
+        print(f"DEBUG get_datetime_viaje: id={v.id}, nombre={v.nombre_viaje}, tipo={v.tipo}, fecha_salida={v.fecha_salida}, hora_str='{hora_str}'")
+
         if hora_str:
             try:
                 parts = str(hora_str).replace('h', ':').split(':')
                 hora = int(parts[0])
                 minuto = int(parts[1]) if len(parts) > 1 else 0
-                return datetime.combine(v.fecha_salida.date(), time(hora, minuto))
-            except:
+                resultado = datetime.combine(v.fecha_salida.date(), time(hora, minuto))
+                print(f"DEBUG   -> datetime calculado: {resultado}, es_futuro={resultado >= ahora}")
+                return resultado
+            except Exception as e:
+                print(f"DEBUG   -> error parseando hora: {e}")
                 pass
 
         # Sin hora = usar 23:59 del día (para que sea futuro todo el día)
-        return datetime.combine(v.fecha_salida.date(), time(23, 59))
+        resultado = datetime.combine(v.fecha_salida.date(), time(23, 59))
+        print(f"DEBUG   -> sin hora, usando 23:59: {resultado}, es_futuro={resultado >= ahora}")
+        return resultado
 
     # Separar por futuro/pasado usando datetime completo
     viajes_futuros = [v for v in viajes if get_datetime_viaje(v) >= ahora]
     viajes_pasados = [v for v in viajes if get_datetime_viaje(v) < ahora]
+    print(f"DEBUG resultado: {len(viajes_futuros)} futuros, {len(viajes_pasados)} pasados")
     
     # MVP11: Obtener preferencia de usuario
     combinar = getattr(current_user, 'combinar_vuelos', True)
