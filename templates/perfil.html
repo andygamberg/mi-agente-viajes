@@ -104,6 +104,15 @@
     padding: 12px 16px;
     background: var(--bg);
     border-radius: var(--radius);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.email-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
 .email-item .email {
@@ -117,7 +126,17 @@
     background: var(--accent-light, #e8f4fd);
     color: var(--accent);
     border-radius: 12px;
-    margin-left: 8px;
+}
+
+.email-item .badge-alias {
+    background: #f3f4f6;
+    color: var(--text-secondary);
+}
+
+.email-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .email-item .status {
@@ -128,9 +147,30 @@
     color: var(--success);
 }
 
+.email-item .status-alias {
+    color: var(--text-secondary);
+}
+
 .email-item .status svg {
     width: 14px;
     height: 14px;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn-danger-link {
+    color: var(--danger);
+}
+
+.btn-danger-link:hover {
+    text-decoration: underline;
 }
 
 .email-buttons {
@@ -362,18 +402,47 @@
     <div class="email-list">
         {% for item in unified_emails %}
         <div class="email-item">
-            <div>
+            <div class="email-info">
                 <span class="email">{{ item.email }}</span>
                 {% if item.is_principal %}<span class="badge">Principal</span>{% endif %}
+                {% if item.connected_via %}
+                <span class="badge badge-alias">Alias de {{ item.connected_via }}</span>
+                {% endif %}
             </div>
-            {% if item.gmail_connection or item.microsoft_connection %}
-            <span class="status">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Conectado
-            </span>
-            {% endif %}
+            <div class="email-actions">
+                {% if item.gmail_connection %}
+                <span class="status">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Gmail
+                </span>
+                <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
+                    <button type="submit" class="btn-link btn-danger-link" onclick="return confirm('¿Desconectar esta cuenta de Gmail?')">Desconectar</button>
+                </form>
+                {% elif item.microsoft_connection %}
+                <span class="status">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Microsoft
+                </span>
+                <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
+                    <button type="submit" class="btn-link btn-danger-link" onclick="return confirm('¿Desconectar esta cuenta de Microsoft?')">Desconectar</button>
+                </form>
+                {% elif item.connected_via %}
+                <span class="status status-alias">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Conectado
+                </span>
+                {% elif item.user_email_id %}
+                <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display:inline;">
+                    <button type="submit" class="btn-link btn-danger-link" onclick="return confirm('¿Eliminar este email?')">Eliminar</button>
+                </form>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
