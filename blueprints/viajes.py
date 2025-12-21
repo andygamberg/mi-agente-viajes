@@ -1259,44 +1259,4 @@ def update_preferences():
 
     db.session.commit()
     flash('Preferencias actualizadas', 'success')
-    return redirect(url_for('viajes.preferencias'))
-
-
-# ============================================
-# MVP14e: Custom Senders (Remitentes de Confianza)
-# ============================================
-
-@viajes_bp.route('/add-sender', methods=['POST'])
-@login_required
-def add_sender():
-    """Agrega un remitente a la whitelist personal"""
-    sender = request.form.get('sender', '').strip().lower()
-    
-    if not sender:
-        flash('Ingresá un email o dominio válido', 'error')
-        return redirect(url_for('viajes.preferencias'))
-    
-    # Validar formato básico
-    if '@' not in sender and not sender.startswith('@'):
-        sender = '@' + sender
-    
-    if current_user.add_custom_sender(sender):
-        db.session.commit()
-        if sender.startswith('@'):
-            flash(f'Dominio {sender} agregado. Ahora detectaremos emails de cualquier dirección de ese dominio.', 'success')
-        else:
-            flash(f'Remitente {sender} agregado', 'success')
-    else:
-        flash('Ese remitente ya está en tu lista', 'info')
-    
-    return redirect(url_for('viajes.preferencias'))
-
-
-@viajes_bp.route('/remove-sender/<path:sender>', methods=['POST'])
-@login_required
-def remove_sender(sender):
-    """Elimina un remitente de la whitelist personal"""
-    if current_user.remove_custom_sender(sender):
-        db.session.commit()
-        flash(f'Remitente eliminado', 'success')
-    return redirect(url_for('viajes.preferencias'))
+    return redirect(url_for('viajes.perfil'))

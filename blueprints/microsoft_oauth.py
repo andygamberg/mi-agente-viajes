@@ -49,7 +49,7 @@ def conectar_microsoft():
     """Inicia el flujo OAuth para conectar Microsoft (Outlook/365)"""
     if not MICROSOFT_CLIENT_ID or not MICROSOFT_CLIENT_SECRET:
         flash('Error: Credenciales OAuth no configuradas', 'error')
-        return redirect(url_for('viajes.preferencias'))
+        return redirect(url_for('viajes.perfil'))
 
     try:
         import secrets
