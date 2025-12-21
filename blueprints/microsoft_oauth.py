@@ -49,7 +49,7 @@ def conectar_microsoft():
     """Inicia el flujo OAuth para conectar Microsoft (Outlook/365)"""
     if not MICROSOFT_CLIENT_ID or not MICROSOFT_CLIENT_SECRET:
         flash('Error: Credenciales OAuth no configuradas', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
     try:
         import secrets
@@ -79,7 +79,7 @@ def conectar_microsoft():
         import traceback
         traceback.print_exc()
         flash(f'Error iniciando conexión: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 @microsoft_oauth_bp.route('/microsoft-callback')
@@ -98,13 +98,13 @@ def microsoft_callback():
         else:
             flash(f'Error de autorización: {error_description or error}', 'error')
 
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
     try:
         code = request.args.get('code')
         if not code:
             flash('No se recibió código de autorización', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         # Token exchange
         token_response = http_requests.post(
@@ -123,7 +123,7 @@ def microsoft_callback():
             error_data = token_response.json()
             logger.error(f"MS OAuth token error: status={token_response.status_code}, response={error_data}")
             flash(f'Error obteniendo token: {error_data.get("error_description", "Unknown")}', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         token_data = token_response.json()
         access_token = token_data.get('access_token')
@@ -133,7 +133,7 @@ def microsoft_callback():
         if not access_token:
             logger.error("MS OAuth: No access token in response")
             flash('No se recibió access token', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         # Obtener info del usuario con Graph API
         logger.info("MS OAuth: Calling Graph API /me endpoint")
@@ -145,7 +145,7 @@ def microsoft_callback():
         if user_info_response.status_code != 200:
             logger.error(f"MS Graph API error: status={user_info_response.status_code}, response={user_info_response.text}")
             flash('No se pudo obtener información de la cuenta', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         user_info = user_info_response.json()
         logger.info(f"MS Graph API response: {user_info}")
@@ -154,7 +154,7 @@ def microsoft_callback():
         if not microsoft_email:
             logger.error(f"MS OAuth: No email in user_info: {user_info}")
             flash('No se pudo obtener el email de la cuenta', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         # Verificar si ya existe conexión
         existing = EmailConnection.query.filter_by(
@@ -190,13 +190,13 @@ def microsoft_callback():
         # Si viene del wizard, volver ahí
         if session.pop('from_wizard', False):
             return redirect(url_for('viajes.bienvenida'))
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         flash(f'Error conectando Microsoft: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 @microsoft_oauth_bp.route('/desconectar-microsoft/<int:connection_id>', methods=['POST'])
@@ -211,7 +211,7 @@ def desconectar_microsoft_by_id(connection_id):
 
         if not connection:
             flash('Conexión no encontrada', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         email = connection.email
 
@@ -231,13 +231,13 @@ def desconectar_microsoft_by_id(connection_id):
         db.session.commit()
 
         flash(f'Microsoft desconectado: {email}', 'success')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         flash(f'Error desconectando: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 @microsoft_oauth_bp.route('/quitar-email-microsoft/<int:connection_id>', methods=['POST'])
@@ -252,7 +252,7 @@ def quitar_email_microsoft(connection_id):
 
         if not connection:
             flash('Conexión no encontrada', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         email = connection.email
 
@@ -282,13 +282,13 @@ def quitar_email_microsoft(connection_id):
         db.session.commit()
 
         flash(f'Email eliminado: {email}', 'success')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         flash(f'Error eliminando email: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 # ============================================

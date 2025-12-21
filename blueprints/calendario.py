@@ -118,7 +118,7 @@ def regenerate_calendar_token():
     current_user.regenerate_calendar_token()
     db.session.commit()
     flash('Token de calendario regenerado. Deberás volver a suscribirte con el nuevo link.', 'success')
-    return redirect(url_for('viajes.perfil'))
+    return redirect(url_for('viajes.preferencias'))
 
 
 @calendario_bp.route('/export-calendar/<grupo_id>')

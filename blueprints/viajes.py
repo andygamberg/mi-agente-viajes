@@ -1081,10 +1081,10 @@ def detect_email_provider(email):
             'oauth_implemented': True
         }
 
-@viajes_bp.route('/perfil')
+@viajes_bp.route('/preferencias')
 @login_required
-def perfil():
-    """Perfil con lista unificada de emails"""
+def preferencias():
+    """Preferencias con lista unificada de emails"""
     emails_adicionales = UserEmail.query.filter_by(user_id=current_user.id).all()
     gmail_connections = EmailConnection.query.filter_by(
         user_id=current_user.id,
@@ -1175,7 +1175,7 @@ def perfil():
         else:
             email_info['connected_via'] = None
 
-    return render_template('perfil.html',
+    return render_template('preferencias.html',
                            unified_emails=unified_emails,
                            emails_adicionales=emails_adicionales,
                            gmail_connections=gmail_connections,
@@ -1200,7 +1200,7 @@ def update_profile():
     current_user.formato_hora = formato_hora if formato_hora in ['24h', '12h'] else None
     db.session.commit()
     flash('Perfil actualizado', 'success')
-    return redirect(url_for('viajes.perfil'))
+    return redirect(url_for('viajes.preferencias'))
 
 
 @viajes_bp.route('/add-email', methods=['POST'])
@@ -1209,18 +1209,18 @@ def add_email():
     email = request.form.get('email', '').strip().lower()
     if not email:
         flash('Email inválido', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
     
     existe = UserEmail.query.filter_by(email=email).first()
     if existe:
         flash('Ese email ya está registrado', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
     
     nuevo = UserEmail(user_id=current_user.id, email=email)
     db.session.add(nuevo)
     db.session.commit()
     flash(f'Email {email} agregado', 'success')
-    return redirect(url_for('viajes.perfil'))
+    return redirect(url_for('viajes.preferencias'))
 
 
 @viajes_bp.route('/remove-email/<int:email_id>', methods=['POST'])
@@ -1231,14 +1231,14 @@ def remove_email(email_id):
         db.session.delete(email)
         db.session.commit()
         flash('Email eliminado', 'success')
-    return redirect(url_for('viajes.perfil'))
+    return redirect(url_for('viajes.preferencias'))
 
 
-@viajes_bp.route('/preferencias')
+@viajes_bp.route('/perfil')
 @login_required
-def preferencias():
-    """Redirige a /perfil (página unificada)"""
-    return redirect(url_for('viajes.perfil'))
+def perfil_redirect():
+    """Redirect legacy /perfil URL to /preferencias"""
+    return redirect(url_for('viajes.preferencias'))
 
 
 @viajes_bp.route('/update-preferences', methods=['POST'])
@@ -1262,4 +1262,4 @@ def update_preferences():
 
     db.session.commit()
     flash('Preferencias actualizadas', 'success')
-    return redirect(url_for('viajes.perfil'))
+    return redirect(url_for('viajes.preferencias'))

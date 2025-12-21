@@ -48,7 +48,7 @@ def conectar_gmail():
     """Inicia el flujo OAuth para conectar Gmail"""
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         flash('Error: Credenciales OAuth no configuradas', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
     
     try:
         import secrets
@@ -79,7 +79,7 @@ def conectar_gmail():
         import traceback
         traceback.print_exc()
         flash(f'Error iniciando conexión: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 @gmail_oauth_bp.route('/gmail-callback')
@@ -89,13 +89,13 @@ def gmail_callback():
     if 'error' in request.args:
         error = request.args.get('error')
         flash(f'Error de autorización: {error}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
     
     try:
         code = request.args.get('code')
         if not code:
             flash('No se recibió código de autorización', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
         
         # Token exchange manual
         token_response = http_requests.post(
@@ -112,7 +112,7 @@ def gmail_callback():
         if token_response.status_code != 200:
             error_data = token_response.json()
             flash(f'Error obteniendo token: {error_data.get("error_description", "Unknown")}', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
         
         token_data = token_response.json()
         access_token = token_data.get('access_token')
@@ -120,7 +120,7 @@ def gmail_callback():
         
         if not access_token:
             flash('No se recibió access token', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
         
         credentials = Credentials(
             token=access_token,
@@ -136,7 +136,7 @@ def gmail_callback():
         
         if not gmail_email:
             flash('No se pudo obtener el email de la cuenta', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
         
         existing = EmailConnection.query.filter_by(
             user_id=current_user.id,
@@ -179,13 +179,13 @@ def gmail_callback():
         # Si viene del wizard, volver ahí
         if session.pop('from_wizard', False):
             return redirect(url_for('viajes.bienvenida'))
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
         
     except Exception as e:
         import traceback
         traceback.print_exc()
         flash(f'Error conectando Gmail: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 @gmail_oauth_bp.route('/desconectar-gmail/<int:connection_id>', methods=['POST'])
@@ -200,7 +200,7 @@ def desconectar_gmail_by_id(connection_id):
 
         if not connection:
             flash('Conexión no encontrada', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         email = connection.email
 
@@ -219,13 +219,13 @@ def desconectar_gmail_by_id(connection_id):
         db.session.commit()
 
         flash(f'Gmail desconectado: {email}', 'success')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         flash(f'Error desconectando: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 @gmail_oauth_bp.route('/quitar-email-gmail/<int:connection_id>', methods=['POST'])
@@ -240,7 +240,7 @@ def quitar_email_gmail(connection_id):
 
         if not connection:
             flash('Conexión no encontrada', 'error')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
 
         email = connection.email
 
@@ -269,13 +269,13 @@ def quitar_email_gmail(connection_id):
         db.session.commit()
 
         flash(f'Email eliminado: {email}', 'success')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         flash(f'Error eliminando email: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 @gmail_oauth_bp.route('/desconectar-gmail', methods=['POST'])
@@ -291,7 +291,7 @@ def desconectar_gmail():
         
         if not connection:
             flash('No tenés Gmail conectado', 'info')
-            return redirect(url_for('viajes.perfil'))
+            return redirect(url_for('viajes.preferencias'))
         
         return desconectar_gmail_by_id(connection.id)
         
@@ -299,7 +299,7 @@ def desconectar_gmail():
         import traceback
         traceback.print_exc()
         flash(f'Error desconectando: {str(e)}', 'error')
-        return redirect(url_for('viajes.perfil'))
+        return redirect(url_for('viajes.preferencias'))
 
 
 # ============================================
