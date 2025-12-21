@@ -1466,17 +1466,33 @@
             }
         }
         
-        .empty-state-hero { background: var(--bg-card); border-radius: var(--radius-lg); padding: 48px 32px; text-align: center; max-width: 480px; margin: 0 auto; }
+        .empty-state-hero { background: var(--bg-card); border-radius: var(--radius-lg); padding: 48px 32px; text-align: center; max-width: 520px; margin: 0 auto; }
         .empty-state-icon { font-size: 3rem; margin-bottom: 16px; }
-        .empty-state-title { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 24px; }
-        .empty-state-tip { background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); border-radius: var(--radius); padding: 20px; color: white; text-align: left; margin-bottom: 24px; }
-        .tip-label { font-size: 0.875rem; margin-bottom: 10px; opacity: 0.9; }
-        .tip-email { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-        .tip-email code { font-size: 0.9375rem; font-weight: 600; font-family: 'SF Mono', Monaco, monospace; }
-        .btn-copy-sm { background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; cursor: pointer; }
-        .btn-copy-sm:hover { background: rgba(255,255,255,0.3); }
-        .tip-note { font-size: 0.8125rem; opacity: 0.8; }
-        .empty-state-divider { color: var(--text-muted); font-size: 0.875rem; margin: 24px 0; }
+        .empty-state-title { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 8px; }
+        .empty-state-subtitle { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: 28px; }
+
+        /* OAuth Section */
+        .oauth-section { margin-bottom: 24px; }
+        .oauth-section-title { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .oauth-buttons { display: flex; flex-direction: column; gap: 10px; }
+        .btn-oauth { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border-radius: var(--radius); font-size: 0.9375rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+        .btn-oauth-gmail { background: #4285F4; color: white; }
+        .btn-oauth-gmail:hover { background: #3367D6; }
+        .btn-oauth-outlook { background: #0078D4; color: white; }
+        .btn-oauth-outlook:hover { background: #006CBD; }
+        .btn-oauth .badge-recommended { background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 10px; font-size: 0.6875rem; font-weight: 600; }
+
+        /* Alternative Section */
+        .empty-state-divider { color: var(--text-muted); font-size: 0.8125rem; margin: 20px 0; display: flex; align-items: center; gap: 12px; }
+        .empty-state-divider::before, .empty-state-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+
+        .alt-option { background: var(--bg); border-radius: var(--radius); padding: 16px; text-align: left; margin-bottom: 20px; }
+        .alt-option-label { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .alt-option-email { display: flex; align-items: center; gap: 10px; }
+        .alt-option-email code { font-size: 0.875rem; font-weight: 600; font-family: 'SF Mono', Monaco, monospace; }
+        .btn-copy-sm { background: var(--accent); border: none; color: white; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; cursor: pointer; }
+        .btn-copy-sm:hover { background: var(--accent-dark, #0056b3); }
+
         .empty-state-actions { display: flex; gap: 12px; justify-content: center; }
 
         /* Icon sizes */
@@ -1847,20 +1863,36 @@
                     </svg>
                 </div>
                 <h2 class="empty-state-title">Tu próxima aventura empieza aquí</h2>
-                <div class="empty-state-tip">
-                    <div class="tip-label">
-                        <svg class="icon-sm icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-                        </svg>
-                        Reenviá tu confirmación de vuelo a:
+                <p class="empty-state-subtitle">Conectá tu email para detectar viajes automáticamente</p>
+
+                <div class="oauth-section">
+                    <div class="oauth-buttons">
+                        <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn-oauth btn-oauth-gmail">
+                            <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                            </svg>
+                            Conectar Gmail
+                            <span class="badge-recommended">Recomendado</span>
+                        </a>
+                        <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn-oauth btn-oauth-outlook">
+                            <svg class="icon-md" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M0 0v11.408h11.408V0zm12.594 0v11.408H24V0zM0 12.594V24h11.408V12.594zm12.594 0V24H24V12.594z"/>
+                            </svg>
+                            Conectar Outlook
+                        </a>
                     </div>
-                    <div class="tip-email">
+                </div>
+
+                <div class="empty-state-divider">o sin conectar</div>
+
+                <div class="alt-option">
+                    <div class="alt-option-label">Reenviá confirmaciones a:</div>
+                    <div class="alt-option-email">
                         <code>misviajes@gamberg.com.ar</code>
                         <button class="btn-copy-sm" onclick="copyEmailEmpty(this)">Copiar</button>
                     </div>
-                    <div class="tip-note">Aparecerá automáticamente en minutos</div>
                 </div>
-                <div class="empty-state-divider">─── o ───</div>
+
                 <div class="empty-state-actions">
                     <a href="{{ url_for('viajes.carga_rapida') }}" class="btn btn-secondary">
                         <svg class="icon-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

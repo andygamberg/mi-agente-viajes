@@ -180,17 +180,51 @@
 }
 
 /* Calendar */
+.calendar-link-details {
+    margin-bottom: 16px;
+}
+
+.calendar-link-details summary {
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px 0;
+}
+
+.calendar-link-details summary:hover {
+    color: var(--text-secondary);
+}
+
 .calendar-link-box {
     background: var(--bg);
     padding: 12px 16px;
     border-radius: var(--radius);
-    margin-bottom: 16px;
-    overflow-x: auto;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .calendar-link-box code {
-    font-size: 12px;
+    font-size: 11px;
     word-break: break-all;
+    flex: 1;
+}
+
+.btn-copy-link {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-copy-link:hover {
+    background: var(--accent-dark, #0056b3);
 }
 
 .calendar-buttons {
@@ -384,12 +418,12 @@
         <div class="form-group">
             <label>Nombre</label>
             <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="MARIA LAURA">
-            <p class="hint">Como aparece después de la /</p>
+            <p class="hint">Ej: en GAMBERG/ANDRES sería ANDRES</p>
         </div>
         <div class="form-group">
             <label>Apellido</label>
             <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="PEREZ">
-            <p class="hint">Como aparece antes de la /</p>
+            <p class="hint">Ej: en GAMBERG/ANDRES sería GAMBERG</p>
         </div>
     </div>
 </div>
@@ -458,15 +492,19 @@
     <div class="card-title">Calendario</div>
     <p class="card-description">Suscribite para ver tus viajes en el calendario.</p>
 
-    <div class="calendar-link-box">
-        <code>webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}</code>
-    </div>
-
     <div class="calendar-buttons">
         <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-primary btn-small">Apple Calendar</a>
         <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary btn-small">Google Calendar</a>
         <a href="https://outlook.live.com/calendar/0/addfromweb?url=https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary btn-small" target="_blank">Outlook</a>
     </div>
+
+    <details class="calendar-link-details">
+        <summary>Ver link técnico para otras apps</summary>
+        <div class="calendar-link-box">
+            <code id="calendarLink">webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}</code>
+            <button type="button" class="btn-copy-link" onclick="copyCalendarLink()">Copiar</button>
+        </div>
+    </details>
 
     <div class="regenerate-section">
         <p>¿Compartiste tu link por error?</p>
@@ -574,6 +612,18 @@ function toggleSubPreferences(masterToggle) {
         subPreferences.style.opacity = '1';
         subPreferences.style.pointerEvents = 'auto';
     }
+}
+
+function copyCalendarLink() {
+    const link = document.getElementById('calendarLink').textContent;
+    navigator.clipboard.writeText(link).then(function() {
+        const btn = document.querySelector('.btn-copy-link');
+        const originalText = btn.textContent;
+        btn.textContent = '¡Copiado!';
+        setTimeout(function() {
+            btn.textContent = originalText;
+        }, 2000);
+    });
 }
 
 window.addEventListener('DOMContentLoaded', function() {
