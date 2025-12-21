@@ -1,21 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Mi Perfil - Mi Agente Viajes{% endblock %}
+{% block title %}Preferencias - Mi Agente Viajes{% endblock %}
 
 {% block styles %}
-<style>
-html { font-size: 100%; }
+.alert {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
 
-.page-title {
-    font-size: 2rem;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    margin-bottom: 24px;
+.alert-success {
+    background: #E8F9ED;
+    color: #1A7F37;
+    border: 1px solid #A7E3BB;
+}
+
+.alert-error {
+    background: #FEF2F2;
+    color: var(--danger);
+    border: 1px solid #FECACA;
 }
 
 .card {
     background: var(--bg-card);
-    border-radius: var(--radius-lg);
+    border-radius: 16px;
     padding: 24px;
     margin-bottom: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
@@ -30,29 +39,32 @@ html { font-size: 100%; }
     margin-bottom: 16px;
 }
 
-.hint {
-    font-size: 0.875rem;
+.card-description {
+    font-size: 14px;
     color: var(--text-secondary);
+    line-height: 1.5;
     margin-bottom: 16px;
+}
+
+.hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
 }
 
 .form-row {
     display: flex;
     gap: 16px;
+    margin-bottom: 16px;
 }
 
 .form-group {
     flex: 1;
-    margin-bottom: 16px;
-}
-
-.form-group:last-child {
-    margin-bottom: 0;
 }
 
 .form-group label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 14px;
     font-weight: 500;
     margin-bottom: 6px;
 }
@@ -60,22 +72,22 @@ html { font-size: 100%; }
 .form-group input {
     width: 100%;
     padding: 12px 14px;
-    font-size: 1rem;
+    font-size: 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-card);
+    font-family: inherit;
 }
 
 .form-group input:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
 }
 
 .form-group .hint {
     margin-top: 4px;
     margin-bottom: 0;
-    font-size: 0.8125rem;
 }
 
 /* Emails */
@@ -83,7 +95,6 @@ html { font-size: 100%; }
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 16px;
 }
 
 .email-item {
@@ -95,50 +106,37 @@ html { font-size: 100%; }
     border-radius: var(--radius);
 }
 
-.email-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
+.email-item .email {
+    font-size: 14px;
+    font-weight: 500;
 }
 
-.email-info .email {
-    font-size: 0.9375rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.email-info .badge {
-    font-size: 0.6875rem;
-    padding: 2px 6px;
+.email-item .badge {
+    font-size: 11px;
+    padding: 2px 8px;
     background: var(--accent-light, #e8f4fd);
     color: var(--accent);
-    border-radius: 10px;
-    white-space: nowrap;
+    border-radius: 12px;
+    margin-left: 8px;
 }
 
-.email-status {
+.email-item .status {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.8125rem;
+    font-size: 12px;
     color: var(--success);
 }
 
-.email-status svg {
+.email-item .status svg {
     width: 14px;
     height: 14px;
 }
 
-.email-status.disconnected {
-    color: var(--text-muted);
-}
-
-.connect-buttons {
+.email-buttons {
     display: flex;
     gap: 8px;
-    flex-wrap: wrap;
+    margin-top: 12px;
 }
 
 /* Calendar */
@@ -151,9 +149,8 @@ html { font-size: 100%; }
 }
 
 .calendar-link-box code {
-    font-size: 0.8125rem;
+    font-size: 12px;
     word-break: break-all;
-    color: var(--text-secondary);
 }
 
 .calendar-buttons {
@@ -163,15 +160,15 @@ html { font-size: 100%; }
 }
 
 .regenerate-section {
-    margin-top: 20px;
+    margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid var(--border-light);
 }
 
 .regenerate-section p {
-    font-size: 0.8125rem;
+    font-size: 12px;
     color: var(--text-muted);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 /* Preferences */
@@ -194,23 +191,28 @@ html { font-size: 100%; }
     border: 1px solid var(--border-light);
 }
 
+.preference-item.sub-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+}
+
 .preference-info {
     flex: 1;
     padding-right: 16px;
 }
 
 .preference-label {
-    font-size: 0.875rem;
+    font-size: 14px;
     font-weight: 500;
+    margin-bottom: 2px;
 }
 
 .preference-description {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: var(--text-secondary);
-    margin-top: 2px;
+    line-height: 1.4;
 }
 
-/* Sub-preferences box */
 .sub-preferences {
     margin-top: 12px;
     padding: 12px;
@@ -219,7 +221,7 @@ html { font-size: 100%; }
 }
 
 .sub-preferences-label {
-    font-size: 0.75rem;
+    font-size: 12px;
     color: var(--text-secondary);
     margin-bottom: 10px;
 }
@@ -227,8 +229,6 @@ html { font-size: 100%; }
 .sub-preferences .preference-item {
     margin-bottom: 6px;
     padding: 10px 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-light);
 }
 
 /* Toggle switch */
@@ -243,7 +243,6 @@ html { font-size: 100%; }
     opacity: 0;
     width: 0;
     height: 0;
-    position: absolute;
 }
 
 .toggle-slider {
@@ -253,7 +252,7 @@ html { font-size: 100%; }
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #E5E5EA;
+    background-color: var(--border);
     transition: 0.2s;
     border-radius: 26px;
 }
@@ -279,101 +278,44 @@ html { font-size: 100%; }
     transform: translateX(20px);
 }
 
-/* Select */
 .select-small {
     padding: 8px 12px;
-    font-size: 0.875rem;
+    font-size: 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-card);
     color: var(--text);
+    font-family: inherit;
     cursor: pointer;
 }
 
-/* Buttons */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 16px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    border: 1px solid transparent;
-}
-
-.btn-primary {
-    background: var(--accent);
-    color: white;
+.select-small:focus {
+    outline: none;
     border-color: var(--accent);
-}
-
-.btn-primary:hover {
-    background: var(--accent-hover);
-}
-
-.btn-secondary {
-    background: var(--bg-card);
-    color: var(--text);
-    border-color: var(--border);
-}
-
-.btn-secondary:hover {
-    border-color: var(--accent);
-}
-
-.btn-danger {
-    background: transparent;
-    color: var(--danger);
-    border-color: transparent;
-    padding: 6px 10px;
-    font-size: 0.8125rem;
-}
-
-.btn-danger:hover {
-    background: #FEF2F2;
 }
 
 .btn-small {
-    padding: 6px 12px;
-    font-size: 0.8125rem;
-}
-
-/* Alerts */
-.alert {
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    margin-bottom: 20px;
-    font-size: 0.875rem;
-}
-
-.alert-success {
-    background: #E8F9ED;
-    color: #1A7F37;
-    border: 1px solid #A7E3BB;
-}
-
-.alert-error {
-    background: #FEF2F2;
-    color: var(--danger);
-    border: 1px solid #FECACA;
+    padding: 8px 14px;
+    font-size: 13px;
 }
 
 @media (max-width: 600px) {
-    .form-row { flex-direction: column; gap: 0; }
+    .form-row { flex-direction: column; gap: 12px; }
     .calendar-buttons { flex-direction: column; }
-    .preference-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-    .preference-info { padding-right: 0; }
-    .email-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .email-buttons { flex-direction: column; }
+    .preference-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .preference-info {
+        padding-right: 0;
+    }
 }
-</style>
 {% endblock %}
 
 {% block content %}
-<h1 class="page-title">Mi Perfil</h1>
+<h1 class="page-title">Preferencias</h1>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -388,22 +330,24 @@ html { font-size: 100%; }
 <!-- Datos personales -->
 <div class="card">
     <div class="card-title">Datos personales</div>
-
     <div class="form-group">
         <label>Nombre</label>
         <input type="text" name="nombre" value="{{ current_user.nombre }}" required>
     </div>
+</div>
 
-    <p class="hint">¿Cómo aparecés en los pasajes? Así te reconocemos cuando te incluyen en una reserva.</p>
-
+<!-- Nombre en pasajes -->
+<div class="card">
+    <div class="card-title">Nombre en pasajes</div>
+    <p class="card-description">¿Cómo aparecés en los pasajes? Así te reconocemos cuando te incluyen en una reserva.</p>
     <div class="form-row">
         <div class="form-group">
-            <label>Nombre en pasajes</label>
+            <label>Nombre</label>
             <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="MARIA LAURA">
             <p class="hint">Como aparece después de la /</p>
         </div>
         <div class="form-group">
-            <label>Apellido en pasajes</label>
+            <label>Apellido</label>
             <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="PEREZ">
             <p class="hint">Como aparece antes de la /</p>
         </div>
@@ -413,32 +357,28 @@ html { font-size: 100%; }
 <!-- Mis emails -->
 <div class="card">
     <div class="card-title">Mis emails</div>
-    <p class="hint">Conectá tus cuentas para detectar viajes automáticamente.</p>
+    <p class="card-description">Conectá tus cuentas para detectar viajes automáticamente.</p>
 
     <div class="email-list">
         {% for item in unified_emails %}
         <div class="email-item">
-            <div class="email-info">
+            <div>
                 <span class="email">{{ item.email }}</span>
                 {% if item.is_principal %}<span class="badge">Principal</span>{% endif %}
             </div>
             {% if item.gmail_connection or item.microsoft_connection %}
-            <div class="email-status">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <span class="status">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                {% if item.gmail_connection %}Gmail{% else %}Microsoft{% endif %}
-            </div>
-            {% elif item.connected_via %}
-            <div class="email-status" style="color: var(--text-secondary); font-style: italic;">via {{ item.connected_via }}</div>
-            {% else %}
-            <div class="email-status disconnected">Sin conectar</div>
+                Conectado
+            </span>
             {% endif %}
         </div>
         {% endfor %}
     </div>
 
-    <div class="connect-buttons">
+    <div class="email-buttons">
         <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">+ Gmail</a>
         <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn btn-secondary btn-small">+ Microsoft</a>
     </div>
@@ -447,16 +387,16 @@ html { font-size: 100%; }
 <!-- Calendario -->
 <div class="card">
     <div class="card-title">Calendario</div>
-    <p class="hint">Suscribite para ver tus viajes en el calendario.</p>
+    <p class="card-description">Suscribite para ver tus viajes en el calendario.</p>
 
     <div class="calendar-link-box">
         <code>webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}</code>
     </div>
 
     <div class="calendar-buttons">
-        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-primary">Apple Calendar</a>
-        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary">Google Calendar</a>
-        <a href="https://outlook.live.com/calendar/0/addfromweb?url=https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary" target="_blank">Outlook</a>
+        <a href="webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-primary btn-small">Apple Calendar</a>
+        <a href="https://calendar.google.com/calendar/r?cid=webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary btn-small">Google Calendar</a>
+        <a href="https://outlook.live.com/calendar/0/addfromweb?url=https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}" class="btn btn-secondary btn-small" target="_blank">Outlook</a>
     </div>
 
     <div class="regenerate-section">
@@ -487,7 +427,7 @@ html { font-size: 100%; }
     <div class="sub-preferences" id="subPreferences">
         <div class="sub-preferences-label">Tipos de alertas:</div>
 
-        <div class="preference-item">
+        <div class="preference-item sub-item">
             <div class="preference-info">
                 <div class="preference-label">Demoras</div>
             </div>
@@ -498,7 +438,7 @@ html { font-size: 100%; }
             </label>
         </div>
 
-        <div class="preference-item">
+        <div class="preference-item sub-item">
             <div class="preference-info">
                 <div class="preference-label">Cancelaciones</div>
             </div>
@@ -509,7 +449,7 @@ html { font-size: 100%; }
             </label>
         </div>
 
-        <div class="preference-item">
+        <div class="preference-item sub-item">
             <div class="preference-info">
                 <div class="preference-label">Cambios de puerta</div>
             </div>
@@ -553,8 +493,9 @@ html { font-size: 100%; }
 
 <button type="submit" class="btn btn-primary" style="width: 100%;">Guardar cambios</button>
 </form>
+{% endblock %}
 
-<script>
+{% block scripts %}
 function toggleSubPreferences(masterToggle) {
     const subPreferences = document.getElementById('subPreferences');
     if (!masterToggle.checked) {
@@ -572,5 +513,4 @@ window.addEventListener('DOMContentLoaded', function() {
         toggleSubPreferences(masterToggle);
     }
 });
-</script>
 {% endblock %}
