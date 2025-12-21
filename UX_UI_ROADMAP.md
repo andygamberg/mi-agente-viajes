@@ -1,7 +1,7 @@
 # 🎨 UX/UI ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 18 Diciembre 2025
-**Versión:** 2.4 (Benchmark competitivo + bugs UI identificados)
+**Última actualización:** 21 Diciembre 2025
+**Versión:** 2.5 (Unificación Preferencias + Merge reservas)
 
 ---
 
@@ -473,6 +473,14 @@ Próximos eventos
 
 ## ✅ COMPLETADO
 
+### Sesión 29: Unificación y Merge (21 Dic 2025)
+- [x] Fusión Perfil + Preferencias → única página /preferencias
+- [x] Outlook Calendar integrado (botón en preferencias, menú, wizard)
+- [x] Merge de reservas: asientos, horarios, terminal, gate
+- [x] Actualización incremental (sobreescribe campos con nuevos valores)
+- [x] 4 flujos de entrada unificados (Gmail push, Gmail cron, Microsoft, misviajes@)
+- [x] Prompt Claude mejorado: distingue fecha emisión vs fecha vuelo
+
 ### Sesión 27: Quick Wins UX (17-18 Dic 2025)
 - [x] Countdown en cards ("En 3 días", "Mañana", "Hoy")
 - [x] Badge "Nueva" en reservas <24h
@@ -555,7 +563,7 @@ Próximos eventos
 |-------|-------------|----------|
 | MVP-REF | Refactor BD (Viaje → Evento + extensiones) | 8-10h |
 | Dark mode | Toggle en perfil | 4h |
-| Microsoft OAuth | Conectar Outlook/365 | 6-8h |
+| ~~Microsoft OAuth~~ | ~~Conectar Outlook/365~~ | ✅ **Completado 12 Dic** |
 
 ### Baja Prioridad
 - [ ] Autocomplete aerolíneas

@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 18 Diciembre 2025
+**Última actualización:** 21 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -43,6 +43,29 @@
 | **MVP-EDIT** | **Edición completa de reservas** | **14 Dic 2025** | **Form dinámico desde schemas, menú kebab, vuelos combinados, todos los tipos** |
 | **MVP16** | **Carga manual multi-tipo** | **14 Dic 2025** | **/agregar refactorizado con schemas dinámicos, selector tipo, 9 tipos soportados** |
 | 26 | UX Mobile + Formato hora | 17 Dic 2025 | Tipografía rem, capitalización, formato hora 24h/12h |
+| **27** | **Unificación Preferencias + Merge reservas** | **21 Dic 2025** | **Perfil→Preferencias, merge asientos/actualizaciones, Outlook Calendar** |
+
+### ✅ Completado - Sesión 29 (21 Dic 2025)
+
+#### UNIFICACIÓN PREFERENCIAS ✅
+- Rename: Mi Perfil → Preferencias (template, rutas, menú)
+- Redirect legacy /perfil → /preferencias
+
+#### OUTLOOK CALENDAR ✅
+- Botón en preferencias y menú
+- Wizard post-conexión Microsoft incluye Outlook Calendar
+
+#### MERGE DE RESERVAS ✅
+- Actualización incremental de reservas existentes
+- Sobreescribe TODOS los campos con nuevos valores (excepto tipo, codigo_reserva)
+- Merge inteligente de pasajeros (actualiza existentes, agrega nuevos)
+- 4 flujos unificados: Gmail push, Gmail cron, Microsoft, misviajes@
+- Soporta: asientos, terminal, puerta, horarios, equipaje, cualquier campo
+
+#### EXTRACCIÓN MEJORADA ✅
+- Prompt Claude distingue fecha emisión vs fecha vuelo
+- Extrae ambos vuelos (ida y vuelta) correctamente
+- Corrección automática de años pasados/futuros
 
 ### ✅ Completado - Sesión 25 (16 Dic 2025)
 
@@ -300,7 +323,7 @@
 
 ---
 
-*Última actualización: 16 Dic 2025*
+*Última actualización: 21 Dic 2025*
 
 ## ✅ MVP15: Multi-Tipo de Reservas (15 Dic 2025)
 
