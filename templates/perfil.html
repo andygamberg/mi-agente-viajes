@@ -7,8 +7,9 @@
 html { font-size: 100%; }
 
 .page-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 600;
+    letter-spacing: -0.5px;
     margin-bottom: 24px;
 }
 
@@ -81,6 +82,16 @@ html { font-size: 100%; }
     box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
 }
 
+.select-inline {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    cursor: pointer;
+}
+
 .form-group .hint {
     margin-top: 4px;
     margin-bottom: 0;
@@ -116,17 +127,49 @@ html { font-size: 100%; }
     margin-left: 8px;
 }
 
+.email-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .email-item .status {
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 0.8125rem;
+}
+
+.email-item .status.connected {
     color: var(--success);
+}
+
+.email-item .status.connected-via {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.email-item .status.disconnected {
+    color: var(--text-muted);
 }
 
 .email-item .status svg {
     width: 16px !important;
     height: 16px !important;
+}
+
+.btn-text-danger {
+    background: none;
+    border: none;
+    color: var(--danger);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+
+.btn-text-danger:hover {
+    background: #fef2f2;
 }
 
 /* Calendar */
@@ -423,14 +466,38 @@ html { font-size: 100%; }
                 <span class="email">{{ item.email }}</span>
                 {% if item.is_principal %}<span class="badge">Principal</span>{% endif %}
             </div>
-            {% if item.gmail_connection or item.microsoft_connection %}
-            <span class="status">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Conectado
-            </span>
-            {% endif %}
+            <div class="email-actions">
+                {% if item.gmail_connection %}
+                <span class="status connected">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Gmail
+                </span>
+                <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
+                    <button type="submit" class="btn-text-danger" onclick="return confirm('¿Desconectar Gmail?')">Desconectar</button>
+                </form>
+                {% elif item.microsoft_connection %}
+                <span class="status connected">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Microsoft
+                </span>
+                <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
+                    <button type="submit" class="btn-text-danger" onclick="return confirm('¿Desconectar Microsoft?')">Desconectar</button>
+                </form>
+                {% elif item.connected_via %}
+                <span class="status connected-via">via {{ item.connected_via }}</span>
+                {% else %}
+                <span class="status disconnected">Sin conectar</span>
+                {% endif %}
+                {% if item.user_email_id and not item.is_principal %}
+                <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display:inline;">
+                    <button type="submit" class="btn-text-danger" onclick="return confirm('¿Eliminar este email?')">Eliminar</button>
+                </form>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -544,6 +611,18 @@ html { font-size: 100%; }
         </svg>
         Opciones
     </h2>
+
+    <div class="preference-item">
+        <div class="preference-info">
+            <div class="preference-label">Formato de hora</div>
+            <div class="preference-description">Cómo mostrar los horarios</div>
+        </div>
+        <select name="formato_hora" class="select-inline">
+            <option value="" {% if not current_user.formato_hora %}selected{% endif %}>Auto</option>
+            <option value="24h" {% if current_user.formato_hora == '24h' %}selected{% endif %}>24h (14:30)</option>
+            <option value="12h" {% if current_user.formato_hora == '12h' %}selected{% endif %}>12h (2:30 PM)</option>
+        </select>
+    </div>
 
     <div class="preference-item">
         <div class="preference-info">
