@@ -1231,12 +1231,8 @@ def remove_email(email_id):
 @viajes_bp.route('/preferencias')
 @login_required
 def preferencias():
-    gmail_connections = EmailConnection.query.filter_by(
-        user_id=current_user.id,
-        provider='gmail',
-        is_active=True
-    ).all()
-    return render_template('preferencias.html', gmail_connections=gmail_connections)
+    """Redirige a /perfil (página unificada)"""
+    return redirect(url_for('viajes.perfil'))
 
 
 @viajes_bp.route('/update-preferences', methods=['POST'])
