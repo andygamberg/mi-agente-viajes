@@ -230,7 +230,10 @@ def index():
     viajes = get_viajes_for_user(current_user, Viaje, User)
     viajes = sorted(viajes, key=lambda v: v.fecha_salida)
     
-    ahora = datetime.now()
+    # Usar timezone de Argentina (UTC-3) para clasificación correcta
+    import pytz
+    tz_argentina = pytz.timezone('America/Argentina/Buenos_Aires')
+    ahora = datetime.now(tz_argentina).replace(tzinfo=None)
 
     def get_datetime_viaje(v):
         """Combina fecha_salida con hora real del tipo para clasificación correcta"""
