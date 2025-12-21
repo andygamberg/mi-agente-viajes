@@ -18,26 +18,16 @@ html { font-size: 100%; }
     border-radius: var(--radius-lg);
     padding: 24px;
     margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    border: 1px solid var(--border-light);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 .card-title {
-    font-size: 1.125rem;
+    font-size: 11px;
     font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.card-title svg {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px;
-    max-width: 20px;
-    flex-shrink: 0;
-    color: var(--text-secondary);
 }
 
 .hint {
@@ -49,11 +39,15 @@ html { font-size: 100%; }
 .form-row {
     display: flex;
     gap: 16px;
-    margin-bottom: 16px;
 }
 
 .form-group {
     flex: 1;
+    margin-bottom: 16px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
 }
 
 .form-group label {
@@ -61,35 +55,21 @@ html { font-size: 100%; }
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 6px;
-    color: var(--text);
 }
 
-.form-group input,
-.form-group select {
+.form-group input {
     width: 100%;
     padding: 12px 14px;
     font-size: 1rem;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--bg-card);
-    color: var(--text);
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.form-group input:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
-}
-
-.select-inline {
-    padding: 8px 12px;
-    font-size: 0.875rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg-card);
-    color: var(--text);
-    cursor: pointer;
 }
 
 .form-group .hint {
@@ -102,7 +82,8 @@ html { font-size: 100%; }
 .email-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 .email-item {
@@ -114,62 +95,50 @@ html { font-size: 100%; }
     border-radius: var(--radius);
 }
 
-.email-item .email {
-    font-size: 0.9375rem;
-}
-
-.email-item .badge {
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    background: var(--accent-light, #e8f4fd);
-    color: var(--accent);
-    border-radius: 12px;
-    margin-left: 8px;
-}
-
-.email-actions {
+.email-info {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
 }
 
-.email-item .status {
+.email-info .email {
+    font-size: 0.9375rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.email-info .badge {
+    font-size: 0.6875rem;
+    padding: 2px 6px;
+    background: var(--accent-light, #e8f4fd);
+    color: var(--accent);
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.email-status {
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 0.8125rem;
-}
-
-.email-item .status.connected {
     color: var(--success);
 }
 
-.email-item .status.connected-via {
-    color: var(--text-secondary);
-    font-style: italic;
+.email-status svg {
+    width: 14px;
+    height: 14px;
 }
 
-.email-item .status.disconnected {
+.email-status.disconnected {
     color: var(--text-muted);
 }
 
-.email-item .status svg {
-    width: 16px !important;
-    height: 16px !important;
-}
-
-.btn-text-danger {
-    background: none;
-    border: none;
-    color: var(--danger);
-    font-size: 0.8125rem;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-}
-
-.btn-text-danger:hover {
-    background: #fef2f2;
+.connect-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 /* Calendar */
@@ -178,30 +147,13 @@ html { font-size: 100%; }
     padding: 12px 16px;
     border-radius: var(--radius);
     margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    overflow-x: auto;
 }
 
 .calendar-link-box code {
-    font-size: 0.75rem;
-    word-break: break-all;
-    flex: 1;
-    color: var(--text-secondary);
-}
-
-.calendar-link-box .btn-copy {
-    padding: 8px 12px;
     font-size: 0.8125rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.calendar-link-box .btn-copy:hover {
-    border-color: var(--accent);
+    word-break: break-all;
+    color: var(--text-secondary);
 }
 
 .calendar-buttons {
@@ -210,17 +162,36 @@ html { font-size: 100%; }
     flex-wrap: wrap;
 }
 
-/* Preference toggles */
+.regenerate-section {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+.regenerate-section p {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+/* Preferences */
 .preference-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--border-light);
+    padding: 14px 16px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
 }
 
 .preference-item:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.preference-item.master {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
 }
 
 .preference-info {
@@ -229,21 +200,40 @@ html { font-size: 100%; }
 }
 
 .preference-label {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 500;
-    color: var(--text);
 }
 
 .preference-description {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     margin-top: 2px;
+}
+
+/* Sub-preferences box */
+.sub-preferences {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: var(--radius);
+}
+
+.sub-preferences-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.sub-preferences .preference-item {
+    margin-bottom: 6px;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
 }
 
 /* Toggle switch */
 .toggle-switch {
     position: relative;
-    display: inline-block;
     width: 46px;
     height: 26px;
     flex-shrink: 0;
@@ -263,7 +253,7 @@ html { font-size: 100%; }
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--border);
+    background-color: #E5E5EA;
     transition: 0.2s;
     border-radius: 26px;
 }
@@ -289,33 +279,15 @@ html { font-size: 100%; }
     transform: translateX(20px);
 }
 
-/* Granular notifications (indented) */
-.granular-notifications {
-    padding-left: 24px;
-    border-left: 2px solid var(--border-light);
-    margin-left: 8px;
-    margin-top: 8px;
-}
-
-.granular-notifications .preference-item {
-    padding: 12px 0;
-}
-
-.granular-notifications .preference-label {
+/* Select */
+.select-small {
+    padding: 8px 12px;
     font-size: 0.875rem;
-}
-
-/* Regenerate */
-.regenerate-section {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-light);
-}
-
-.regenerate-section p {
-    font-size: 0.8125rem;
-    color: var(--text-muted);
-    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text);
+    cursor: pointer;
 }
 
 /* Buttons */
@@ -356,7 +328,13 @@ html { font-size: 100%; }
 .btn-danger {
     background: transparent;
     color: var(--danger);
-    border-color: var(--danger);
+    border-color: transparent;
+    padding: 6px 10px;
+    font-size: 0.8125rem;
+}
+
+.btn-danger:hover {
+    background: #FEF2F2;
 }
 
 .btn-small {
@@ -366,29 +344,30 @@ html { font-size: 100%; }
 
 /* Alerts */
 .alert {
-    padding: 12px 16px;
+    padding: 14px 18px;
     border-radius: var(--radius);
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     font-size: 0.875rem;
 }
 
 .alert-success {
-    background: var(--success-light, #f0fdf4);
-    color: var(--success);
+    background: #E8F9ED;
+    color: #1A7F37;
+    border: 1px solid #A7E3BB;
 }
 
 .alert-error {
-    background: #fef2f2;
+    background: #FEF2F2;
     color: var(--danger);
+    border: 1px solid #FECACA;
 }
 
 @media (max-width: 600px) {
-    .form-row { flex-direction: column; gap: 12px; }
+    .form-row { flex-direction: column; gap: 0; }
     .calendar-buttons { flex-direction: column; }
-    .calendar-link-box { flex-direction: column; align-items: stretch; }
-    .calendar-link-box code { margin-bottom: 8px; }
     .preference-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-    .granular-notifications { padding-left: 16px; }
+    .preference-info { padding-right: 0; }
+    .email-item { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 </style>
 {% endblock %}
@@ -406,129 +385,72 @@ html { font-size: 100%; }
 
 <form method="POST" action="{{ url_for('viajes.update_profile') }}">
 
-<!-- 1. Datos personales -->
+<!-- Datos personales -->
 <div class="card">
-    <h2 class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-        </svg>
-        Datos personales
-    </h2>
+    <div class="card-title">Datos personales</div>
 
-    <div class="form-row">
-        <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" name="nombre" value="{{ current_user.nombre }}" required>
-        </div>
+    <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" name="nombre" value="{{ current_user.nombre }}" required>
     </div>
-</div>
 
-<!-- 2. Nombre en pasajes -->
-<div class="card">
-    <h2 class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M2 12h6l3-9 3 18 3-9h5"/>
-        </svg>
-        Nombre en pasajes
-    </h2>
-    <p class="hint">Así te reconocemos cuando te incluyen en una reserva. Usá el formato exacto de tus documentos.</p>
+    <p class="hint">¿Cómo aparecés en los pasajes? Así te reconocemos cuando te incluyen en una reserva.</p>
 
     <div class="form-row">
         <div class="form-group">
-            <label>Nombre</label>
+            <label>Nombre en pasajes</label>
             <input type="text" name="nombre_pax" value="{{ current_user.nombre_pax or '' }}" placeholder="MARIA LAURA">
             <p class="hint">Como aparece después de la /</p>
         </div>
         <div class="form-group">
-            <label>Apellido</label>
+            <label>Apellido en pasajes</label>
             <input type="text" name="apellido_pax" value="{{ current_user.apellido_pax or '' }}" placeholder="PEREZ">
             <p class="hint">Como aparece antes de la /</p>
         </div>
     </div>
 </div>
 
-<!-- 3. Mis emails -->
+<!-- Mis emails -->
 <div class="card">
-    <h2 class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-            <polyline points="22,6 12,13 2,6"/>
-        </svg>
-        Mis emails
-    </h2>
+    <div class="card-title">Mis emails</div>
     <p class="hint">Conectá tus cuentas para detectar viajes automáticamente.</p>
 
     <div class="email-list">
         {% for item in unified_emails %}
         <div class="email-item">
-            <div>
+            <div class="email-info">
                 <span class="email">{{ item.email }}</span>
                 {% if item.is_principal %}<span class="badge">Principal</span>{% endif %}
             </div>
-            <div class="email-actions">
-                {% if item.gmail_connection %}
-                <span class="status connected">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Gmail
-                </span>
-                <form method="POST" action="{{ url_for('gmail_oauth.desconectar_gmail_by_id', connection_id=item.gmail_connection.id) }}" style="display:inline;">
-                    <button type="submit" class="btn-text-danger" onclick="return confirm('¿Desconectar Gmail?')">Desconectar</button>
-                </form>
-                {% elif item.microsoft_connection %}
-                <span class="status connected">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Microsoft
-                </span>
-                <form method="POST" action="{{ url_for('microsoft_oauth.desconectar_microsoft_by_id', connection_id=item.microsoft_connection.id) }}" style="display:inline;">
-                    <button type="submit" class="btn-text-danger" onclick="return confirm('¿Desconectar Microsoft?')">Desconectar</button>
-                </form>
-                {% elif item.connected_via %}
-                <span class="status connected-via">via {{ item.connected_via }}</span>
-                {% else %}
-                <span class="status disconnected">Sin conectar</span>
-                {% endif %}
-                {% if item.user_email_id and not item.is_principal %}
-                <form method="POST" action="{{ url_for('viajes.remove_email', email_id=item.user_email_id) }}" style="display:inline;">
-                    <button type="submit" class="btn-text-danger" onclick="return confirm('¿Eliminar este email?')">Eliminar</button>
-                </form>
-                {% endif %}
+            {% if item.gmail_connection or item.microsoft_connection %}
+            <div class="email-status">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {% if item.gmail_connection %}Gmail{% else %}Microsoft{% endif %}
             </div>
+            {% elif item.connected_via %}
+            <div class="email-status" style="color: var(--text-secondary); font-style: italic;">via {{ item.connected_via }}</div>
+            {% else %}
+            <div class="email-status disconnected">Sin conectar</div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
 
-    <form method="POST" action="{{ url_for('viajes.add_email') }}" style="display: flex; gap: 12px; margin-top: 16px; margin-bottom: 16px;">
-        <input type="email" name="email" placeholder="otro@email.com" required style="flex: 1; padding: 12px 14px; font-size: 1rem; border: 1px solid var(--border); border-radius: var(--radius);">
-        <button type="submit" class="btn btn-secondary">+ Agregar</button>
-    </form>
-
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary">+ Gmail</a>
-        <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn btn-secondary">+ Microsoft</a>
+    <div class="connect-buttons">
+        <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary btn-small">+ Gmail</a>
+        <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn btn-secondary btn-small">+ Microsoft</a>
     </div>
 </div>
 
-<!-- 4. Calendario -->
+<!-- Calendario -->
 <div class="card">
-    <h2 class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-        Calendario
-    </h2>
+    <div class="card-title">Calendario</div>
     <p class="hint">Suscribite para ver tus viajes en el calendario.</p>
 
     <div class="calendar-link-box">
-        <code id="calendarUrl">https://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}</code>
-        <button type="button" class="btn-copy" onclick="copyCalendarUrl()">Copiar</button>
+        <code>webcal://mi-agente-viajes-454542398872.us-east1.run.app/calendar-feed/{{ current_user.calendar_token }}</code>
     </div>
 
     <div class="calendar-buttons">
@@ -545,46 +467,33 @@ html { font-size: 100%; }
     </div>
 </div>
 
-<!-- 5. Notificaciones -->
+<!-- Notificaciones -->
 <div class="card">
-    <h2 class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        Notificaciones
-    </h2>
+    <div class="card-title">Notificaciones</div>
 
-    <div class="preference-item">
+    <div class="preference-item master">
         <div class="preference-info">
             <div class="preference-label">Alertas por email</div>
-            <div class="preference-description">Recibir notificaciones sobre cambios en tus vuelos</div>
+            <div class="preference-description">Cambios de horario, cancelaciones y puertas</div>
         </div>
         <label class="toggle-switch">
-            <input type="checkbox" name="notif_email_master" id="notifMaster" {% if current_user.notif_email_master %}checked{% endif %} onchange="toggleGranularNotifications()">
+            <input type="checkbox" name="notif_email_master" id="masterToggle"
+                   onchange="toggleSubPreferences(this)"
+                   {% if current_user.notif_email_master %}checked{% endif %}>
             <span class="toggle-slider"></span>
         </label>
     </div>
 
-    <div class="granular-notifications" id="granularNotifications" style="{% if not current_user.notif_email_master %}display: none;{% endif %}">
-        <div class="preference-item">
-            <div class="preference-info">
-                <div class="preference-label">Cambios de horario</div>
-                <div class="preference-description">Adelantos o demoras en tus vuelos</div>
-            </div>
-            <label class="toggle-switch">
-                <input type="checkbox" name="notif_delay" {% if current_user.notif_delay %}checked{% endif %}>
-                <span class="toggle-slider"></span>
-            </label>
-        </div>
+    <div class="sub-preferences" id="subPreferences">
+        <div class="sub-preferences-label">Tipos de alertas:</div>
 
         <div class="preference-item">
             <div class="preference-info">
-                <div class="preference-label">Cambios de gate</div>
-                <div class="preference-description">Cambios de puerta de embarque</div>
+                <div class="preference-label">Demoras</div>
             </div>
             <label class="toggle-switch">
-                <input type="checkbox" name="notif_gate" {% if current_user.notif_gate %}checked{% endif %}>
+                <input type="checkbox" name="notif_delay"
+                       {% if current_user.notif_delay %}checked{% endif %}>
                 <span class="toggle-slider"></span>
             </label>
         </div>
@@ -592,47 +501,53 @@ html { font-size: 100%; }
         <div class="preference-item">
             <div class="preference-info">
                 <div class="preference-label">Cancelaciones</div>
-                <div class="preference-description">Vuelos cancelados</div>
             </div>
             <label class="toggle-switch">
-                <input type="checkbox" name="notif_cancelacion" {% if current_user.notif_cancelacion %}checked{% endif %}>
+                <input type="checkbox" name="notif_cancelacion"
+                       {% if current_user.notif_cancelacion %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <div class="preference-item">
+            <div class="preference-info">
+                <div class="preference-label">Cambios de puerta</div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" name="notif_gate"
+                       {% if current_user.notif_gate %}checked{% endif %}>
                 <span class="toggle-slider"></span>
             </label>
         </div>
     </div>
 </div>
 
-<!-- 6. Opciones de visualización -->
+<!-- Visualización -->
 <div class="card">
-    <h2 class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-        Opciones
-    </h2>
+    <div class="card-title">Visualización</div>
 
     <div class="preference-item">
         <div class="preference-info">
-            <div class="preference-label">Formato de hora</div>
-            <div class="preference-description">Cómo mostrar los horarios</div>
+            <div class="preference-label">Combinar vuelos compartidos</div>
+            <div class="preference-description">Unificar vuelos idénticos de distintas reservas</div>
         </div>
-        <select name="formato_hora" class="select-inline">
-            <option value="" {% if not current_user.formato_hora %}selected{% endif %}>Auto</option>
-            <option value="24h" {% if current_user.formato_hora == '24h' %}selected{% endif %}>24h (14:30)</option>
-            <option value="12h" {% if current_user.formato_hora == '12h' %}selected{% endif %}>12h (2:30 PM)</option>
-        </select>
+        <label class="toggle-switch">
+            <input type="checkbox" name="combinar_vuelos"
+                   {% if current_user.combinar_vuelos %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+        </label>
     </div>
 
     <div class="preference-item">
         <div class="preference-info">
-            <div class="preference-label">Combinar vuelos duplicados</div>
-            <div class="preference-description">Une vuelos idénticos de distintas reservas</div>
+            <div class="preference-label">Formato de hora</div>
+            <div class="preference-description">Elegí cómo mostrar los horarios</div>
         </div>
-        <label class="toggle-switch">
-            <input type="checkbox" name="combinar_vuelos" {% if current_user.combinar_vuelos %}checked{% endif %}>
-            <span class="toggle-slider"></span>
-        </label>
+        <select name="formato_hora" class="select-small">
+            <option value="" {% if not current_user.formato_hora %}selected{% endif %}>Automático</option>
+            <option value="24h" {% if current_user.formato_hora == '24h' %}selected{% endif %}>24 horas (14:30)</option>
+            <option value="12h" {% if current_user.formato_hora == '12h' %}selected{% endif %}>12 horas (2:30 PM)</option>
+        </select>
     </div>
 </div>
 
@@ -640,19 +555,22 @@ html { font-size: 100%; }
 </form>
 
 <script>
-function copyCalendarUrl() {
-    const url = document.getElementById('calendarUrl').textContent;
-    navigator.clipboard.writeText(url).then(() => {
-        const btn = document.querySelector('.btn-copy');
-        btn.textContent = '¡Copiado!';
-        setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
-    });
+function toggleSubPreferences(masterToggle) {
+    const subPreferences = document.getElementById('subPreferences');
+    if (!masterToggle.checked) {
+        subPreferences.style.opacity = '0.5';
+        subPreferences.style.pointerEvents = 'none';
+    } else {
+        subPreferences.style.opacity = '1';
+        subPreferences.style.pointerEvents = 'auto';
+    }
 }
 
-function toggleGranularNotifications() {
-    const master = document.getElementById('notifMaster');
-    const granular = document.getElementById('granularNotifications');
-    granular.style.display = master.checked ? 'block' : 'none';
-}
+window.addEventListener('DOMContentLoaded', function() {
+    const masterToggle = document.getElementById('masterToggle');
+    if (masterToggle) {
+        toggleSubPreferences(masterToggle);
+    }
+});
 </script>
 {% endblock %}
