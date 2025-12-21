@@ -55,6 +55,13 @@ CRÍTICO PARA VUELOS:
 - Verificar que el documento no tenga más páginas con otros tramos
 - Un itinerario completo típicamente tiene 2+ segmentos (ida y vuelta)
 
+CRÍTICO - DISTINCIÓN DE FECHAS:
+- "FECHA DE EMISIÓN" o "FECHA DE EMISIÓN DEL BOLETO" = cuándo se compró el ticket (IGNORAR)
+- "FECHA DE SALIDA" o fechas junto a rutas/destinos = cuándo viaja el pasajero (USAR ESTA)
+- Buscar fechas en el ITINERARIO del viaje, no en la información del boleto/ticket
+- Si el documento tiene encabezado con fecha del viaje (ej: "28 AGO 2026") usar ESA fecha
+- NUNCA usar la fecha de emisión como fecha de salida del vuelo
+
 IMPORTANTE:
 - Extrae TODAS las reservas del documento
 - Códigos IATA para aeropuertos en MAYÚSCULAS
