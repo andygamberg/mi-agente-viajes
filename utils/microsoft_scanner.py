@@ -279,12 +279,32 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                         else:
                             print(f"          [{idx+1}] {tipo}: {vuelo.get('descripcion', vuelo.get('nombre', vuelo.get('evento', '?')))}")
 
-                    # Verificar duplicado por código
+                    # Verificar duplicado por código - ahora con merge de datos
                     codigo = vuelos[0].get('codigo_reserva')
-                    if codigo and check_duplicate(codigo, user_id):
-                        print(f"        ⏭️ Duplicado por código: {codigo}")
-                        results['viajes_duplicados'] += 1
-                        continue
+                    if codigo:
+                        existing_viajes = Viaje.query.filter_by(
+                            user_id=user_id,
+                            codigo_reserva=codigo
+                        ).all()
+                        if existing_viajes:
+                            # Intentar actualizar cada viaje existente con datos correspondientes
+                            from utils.save_reservation import merge_reservation_data
+                            hubo_actualizacion = False
+                            for existing in existing_viajes:
+                                # Buscar vuelo correspondiente por fecha
+                                fecha_existing = existing.fecha_salida
+                                for vuelo in vuelos:
+                                    fecha_vuelo = vuelo.get('fecha_salida')
+                                    if fecha_existing and fecha_vuelo and str(fecha_existing.date()) == fecha_vuelo[:10]:
+                                        if merge_reservation_data(existing, vuelo):
+                                            hubo_actualizacion = True
+                                            print(f"        🔄 Reserva actualizada: {codigo} ({fecha_vuelo})")
+                            if hubo_actualizacion:
+                                db.session.commit()
+                            else:
+                                print(f"        ⏭️ Duplicado sin cambios: {codigo}")
+                            results['viajes_duplicados'] += 1
+                            continue
 
                     # Verificar duplicado por contenido
                     primer_vuelo = vuelos[0]

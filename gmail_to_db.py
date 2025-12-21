@@ -254,16 +254,31 @@ def check_duplicate(vuelo_data):
     Chequea si la reserva ya existe en BD.
 
     Estrategia multi-tipo:
-    1. Si tiene codigo_reserva: buscar por código (funciona para todos los tipos)
+    1. Si tiene codigo_reserva: buscar por código + fecha (para ida/vuelta)
     2. Si es vuelo y tiene numero_vuelo: buscar por vuelo + ruta
     3. Sino: no hacer deduplicación (return None)
     """
     codigo = vuelo_data.get('codigo_reserva')
     tipo = vuelo_data.get('tipo', 'vuelo')
+    fecha_salida = vuelo_data.get('fecha_salida')
 
-    # Estrategia 1: Buscar por código de reserva (funciona para todos los tipos)
+    # Estrategia 1: Buscar por código de reserva + fecha (para identificar ida vs vuelta)
     if codigo:
-        existe = Viaje.query.filter_by(codigo_reserva=codigo).first()
+        query = Viaje.query.filter_by(codigo_reserva=codigo)
+        # Si hay fecha, buscar el vuelo específico (ida o vuelta)
+        if fecha_salida:
+            from datetime import datetime
+            try:
+                fecha_dt = datetime.strptime(fecha_salida[:10], '%Y-%m-%d')
+                existe = query.filter(
+                    db.func.date(Viaje.fecha_salida) == fecha_dt.date()
+                ).first()
+                if existe:
+                    return existe
+            except:
+                pass
+        # Sin fecha, buscar cualquiera con ese código
+        existe = query.first()
         if existe:
             return existe
 
@@ -324,10 +339,17 @@ def create_flight(vuelo_data, grupo_id=None, nombre_viaje=None, from_email=None)
         print(f'  ⚠️ {e}')
 
 def update_flight(viaje, vuelo_data):
-    """Actualiza reserva existente usando función unificada"""
-    update_reservation(viaje, vuelo_data)
-    db.session.commit()
-    print(f'  ✅ {vuelo_data.get("tipo", "vuelo").capitalize()} actualizado (ID: {viaje.id})')
+    """Actualiza reserva existente - merge incremental de datos nuevos"""
+    from utils.save_reservation import merge_reservation_data
+    # Intentar merge incremental primero (para asientos, etc.)
+    if merge_reservation_data(viaje, vuelo_data):
+        db.session.commit()
+        print(f'  🔄 {vuelo_data.get("tipo", "vuelo").capitalize()} actualizado con nuevos datos (ID: {viaje.id})')
+    else:
+        # Si no hubo cambios en merge, hacer update completo
+        update_reservation(viaje, vuelo_data)
+        db.session.commit()
+        print(f'  ✅ {vuelo_data.get("tipo", "vuelo").capitalize()} actualizado (ID: {viaje.id})')
 
 if __name__ == '__main__':
     process_emails()
