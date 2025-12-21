@@ -1190,8 +1190,11 @@ def update_profile():
     current_user.apellido_pax = request.form.get('apellido_pax', '').strip().title() or None
     # MVP11: Toggle combinar vuelos
     current_user.combinar_vuelos = request.form.get('combinar_vuelos') == 'on'
-    # Preferencia de alertas por email
+    # Preferencias de notificaciones
     current_user.notif_email_master = request.form.get('notif_email_master') == 'on'
+    current_user.notif_delay = request.form.get('notif_delay') == 'on'
+    current_user.notif_gate = request.form.get('notif_gate') == 'on'
+    current_user.notif_cancelacion = request.form.get('notif_cancelacion') == 'on'
     db.session.commit()
     flash('Perfil actualizado', 'success')
     return redirect(url_for('viajes.perfil'))
