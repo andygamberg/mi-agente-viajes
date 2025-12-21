@@ -144,8 +144,8 @@ def update_reservation(viaje, datos_dict):
 
 def merge_reservation_data(existing_viaje, new_datos):
     """
-    Actualiza una reserva existente con nueva información (ej: asientos asignados).
-    Solo actualiza campos que están vacíos o que son listas (pasajeros).
+    Actualiza una reserva existente con nueva información.
+    SOBREESCRIBE cualquier campo que venga con valor nuevo.
 
     Args:
         existing_viaje: Viaje existente en BD
@@ -157,43 +157,88 @@ def merge_reservation_data(existing_viaje, new_datos):
     datos_actuales = existing_viaje.datos or {}
     hubo_cambios = False
 
-    # Campos que se pueden actualizar/agregar
-    campos_actualizables = [
-        'asiento', 'terminal', 'puerta', 'gate',
-        'hora_salida', 'hora_llegada',
-        'equipaje_facturado', 'equipaje_mano'
-    ]
+    # Campos que NO se deben sobreescribir (identificadores únicos)
+    campos_inmutables = ['tipo', 'codigo_reserva']
 
-    for campo in campos_actualizables:
-        nuevo_valor = new_datos.get(campo)
+    # Iterar sobre todos los campos nuevos
+    for campo, nuevo_valor in new_datos.items():
+        if campo in campos_inmutables:
+            continue
+
         valor_actual = datos_actuales.get(campo)
-        # Actualizar si hay nuevo valor y el actual está vacío
-        if nuevo_valor and not valor_actual:
+
+        # Caso especial: pasajeros - merge inteligente
+        if campo == 'pasajeros' and isinstance(nuevo_valor, list) and isinstance(valor_actual, list):
+            pasajeros_changed = _merge_pasajeros(valor_actual, nuevo_valor)
+            if pasajeros_changed:
+                hubo_cambios = True
+            continue
+
+        # Para otros campos: sobreescribir si hay valor nuevo diferente
+        if nuevo_valor is not None and nuevo_valor != valor_actual:
+            valor_anterior = valor_actual
             datos_actuales[campo] = nuevo_valor
             hubo_cambios = True
-            print(f"  📝 Actualizado {campo}: {nuevo_valor}")
-
-    # Caso especial: pasajeros con asientos
-    nuevos_pasajeros = new_datos.get('pasajeros', [])
-    pasajeros_actuales = datos_actuales.get('pasajeros', [])
-
-    if nuevos_pasajeros and pasajeros_actuales:
-        for nuevo_pax in nuevos_pasajeros:
-            if isinstance(nuevo_pax, dict) and nuevo_pax.get('asiento'):
-                # Buscar pasajero por nombre y actualizar asiento
-                nombre_nuevo = nuevo_pax.get('nombre', '').upper()
-                for pax_actual in pasajeros_actuales:
-                    if isinstance(pax_actual, dict):
-                        nombre_actual = pax_actual.get('nombre', '').upper()
-                        if nombre_nuevo and nombre_actual and (nombre_nuevo in nombre_actual or nombre_actual in nombre_nuevo):
-                            if not pax_actual.get('asiento') and nuevo_pax.get('asiento'):
-                                pax_actual['asiento'] = nuevo_pax['asiento']
-                                hubo_cambios = True
-                                print(f"  📝 Asiento asignado a {nombre_actual}: {nuevo_pax['asiento']}")
+            if valor_anterior:
+                print(f"  📝 Actualizado {campo}: {valor_anterior} → {nuevo_valor}")
+            else:
+                print(f"  📝 Agregado {campo}: {nuevo_valor}")
 
     if hubo_cambios:
         existing_viaje.datos = datos_actuales
         existing_viaje.raw_data = json.dumps(datos_actuales, ensure_ascii=False)
         existing_viaje.actualizado = datetime.utcnow()
+
+        # Actualizar columnas legacy también
+        existing_viaje.descripcion = datos_actuales.get('descripcion', existing_viaje.descripcion or '')
+        existing_viaje.origen = datos_actuales.get('origen') or datos_actuales.get('puerto_embarque') or datos_actuales.get('lugar_retiro') or existing_viaje.origen or ''
+        existing_viaje.destino = datos_actuales.get('destino') or datos_actuales.get('puerto_desembarque') or datos_actuales.get('lugar_devolucion') or existing_viaje.destino or ''
+        existing_viaje.proveedor = datos_actuales.get('aerolinea') or datos_actuales.get('nombre_propiedad') or datos_actuales.get('embarcacion') or datos_actuales.get('empresa') or datos_actuales.get('nombre') or datos_actuales.get('evento') or datos_actuales.get('operador') or existing_viaje.proveedor or ''
+        existing_viaje.precio = datos_actuales.get('precio') or datos_actuales.get('precio_total') or existing_viaje.precio or ''
+
+    return hubo_cambios
+
+
+def _merge_pasajeros(pasajeros_actuales, nuevos_pasajeros):
+    """
+    Merge inteligente de pasajeros: actualiza info existente, agrega nuevos.
+    """
+    hubo_cambios = False
+
+    for nuevo_pax in nuevos_pasajeros:
+        if not isinstance(nuevo_pax, dict):
+            continue
+
+        nombre_nuevo = nuevo_pax.get('nombre', '').upper()
+        if not nombre_nuevo:
+            continue
+
+        # Buscar pasajero existente por nombre
+        pax_encontrado = None
+        for pax_actual in pasajeros_actuales:
+            if isinstance(pax_actual, dict):
+                nombre_actual = pax_actual.get('nombre', '').upper()
+                if nombre_nuevo and nombre_actual:
+                    # Match flexible: uno contiene al otro
+                    if nombre_nuevo in nombre_actual or nombre_actual in nombre_nuevo:
+                        pax_encontrado = pax_actual
+                        break
+
+        if pax_encontrado:
+            # Actualizar campos del pasajero existente
+            for key, val in nuevo_pax.items():
+                if val is not None and val != pax_encontrado.get(key):
+                    valor_ant = pax_encontrado.get(key)
+                    pax_encontrado[key] = val
+                    hubo_cambios = True
+                    if valor_ant:
+                        print(f"  📝 Pasajero {nombre_nuevo}: {key} {valor_ant} → {val}")
+                    else:
+                        print(f"  📝 Pasajero {nombre_nuevo}: {key} = {val}")
+        else:
+            # Pasajero nuevo, agregar
+            pasajeros_actuales.append(nuevo_pax)
+            hubo_cambios = True
+            print(f"  📝 Pasajero agregado: {nombre_nuevo}")
 
     return hubo_cambios
