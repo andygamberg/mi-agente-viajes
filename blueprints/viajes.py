@@ -276,13 +276,17 @@ def index():
     
     # Badge de perfil incompleto (mostrar si nombre_pax vacío)
     profile_incomplete = not current_user.nombre_pax
-    
+
+    # REDIRECT-SMART: Obtener grupo a destacar
+    highlight_grupo = request.args.get('highlight')
+
     # Pasar helpers al template
     return render_template('index.html',
                            proximos=proximos,
                            pasados=pasados,
                            show_onboarding=show_onboarding,
                            profile_incomplete=profile_incomplete,
+                           highlight_grupo=highlight_grupo,
                            get_dato=get_dato,
                            get_titulo_card=get_titulo_card,
                            get_subtitulo_card=get_subtitulo_card,
@@ -366,8 +370,10 @@ def agregar():
                 source='manual'
             )
             db.session.commit()
+            # Obtener grupo_id del viaje recién creado
+            grupo_id = nuevo_viaje.grupo_viaje or f"solo_{nuevo_viaje.id}"
             flash("✓ Reserva agregada", "success")
-            return redirect(url_for('viajes.index'))
+            return redirect(url_for('viajes.index', highlight=grupo_id))
 
         except ValueError as e:
             flash(f"Error: {e}", "error")
@@ -494,7 +500,7 @@ def carga_rapida():
             
             db.session.commit()
             flash(f"✓ {vuelos_guardados} vuelo(s) guardado(s)", "success")
-            return redirect(url_for('viajes.index'))
+            return redirect(url_for('viajes.index', highlight=grupo_id))
             
         except Exception as e:
             import traceback
@@ -665,8 +671,9 @@ def editar(id):
             viaje.codigo_reserva = nuevos_datos.get('codigo_reserva', '')
 
             db.session.commit()
+            grupo_id = viaje.grupo_viaje or f"solo_{viaje.id}"
             flash("✓ Reserva actualizada", "success")
-            return redirect(url_for('viajes.index'))
+            return redirect(url_for('viajes.index', highlight=grupo_id))
 
         except Exception as e:
             import traceback

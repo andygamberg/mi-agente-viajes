@@ -388,7 +388,17 @@
             border-color: var(--danger);
             background: #FFF5F5;
         }
-        
+
+        .card.highlighted {
+            animation: highlightPulse 2s ease-out;
+            box-shadow: 0 0 0 3px var(--accent);
+        }
+
+        @keyframes highlightPulse {
+            0% { box-shadow: 0 0 0 6px rgba(0, 113, 227, 0.4); }
+            100% { box-shadow: 0 0 0 3px var(--accent); }
+        }
+
         .card-header {
             display: flex;
             align-items: center;
@@ -1609,7 +1619,7 @@
                 {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
                 {% set es_multi = grupo|length > 1 %}
                 
-                <div class="card collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
+                <div class="card{% if highlight_grupo == grupo_id %} highlighted{% endif %} collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="type-icons">
                                 {% set tipos_vistos = [] %}
@@ -1924,7 +1934,7 @@
                 {% set grupo_id = primer_vuelo.grupo_viaje or ('solo_' ~ primer_vuelo.id) %}
                 {% set es_multi = grupo|length > 1 %}
                 
-                <div class="card past collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
+                <div class="card past{% if highlight_grupo == grupo_id %} highlighted{% endif %} collapsed" id="card-{{ grupo_id }}" onclick="handleCardClick(event, '{{ grupo_id }}')">
                     <div class="card-header" onclick="toggleCard(event, this.parentElement)">
                         <div class="type-icons">
                                 {% set tipos_vistos = [] %}
@@ -2681,6 +2691,16 @@
 
     document.addEventListener('DOMContentLoaded', updateCountdowns);
     setInterval(updateCountdowns, 60000);
+
+    // REDIRECT-SMART: Auto-scroll al viaje destacado
+    document.addEventListener('DOMContentLoaded', function() {
+        const highlighted = document.querySelector('.card.highlighted');
+        if (highlighted) {
+            setTimeout(() => {
+                highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    });
     </script>
 </body>
 <!-- Deployed automatically by Claude Code - Meta 1 test -->
