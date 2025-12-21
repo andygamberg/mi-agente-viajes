@@ -218,13 +218,66 @@ def extract_text_from_pdf(pdf_data):
         print(f'    ⚠️ Error extrayendo PDF: {e}')
         return ''
 
+# Keywords que indican que un email puede contener reservas de viaje
+TRAVEL_KEYWORDS = [
+    # Confirmaciones genéricas
+    'confirmation', 'confirmación', 'confirma', 'booking', 'reservation', 'reserva',
+    'itinerary', 'itinerario', 'e-ticket', 'eticket', 'receipt', 'recibo',
+    # Vuelos
+    'vuelo', 'flight', 'boarding', 'embarque', 'check-in', 'checkin',
+    'aeropuerto', 'airport', 'airline', 'aerolinea',
+    # Hoteles
+    'hotel', 'hospedaje', 'alojamiento', 'habitación', 'room', 'checkout', 'check-out',
+    # Otros transportes
+    'crucero', 'cruise', 'ferry', 'tren', 'train', 'bus', 'transfer',
+    # Autos
+    'rental', 'alquiler', 'car rental', 'rent a car',
+    # Códigos de reserva (patrones comunes)
+    'PNR', 'locator', 'localizador', 'código de reserva', 'booking reference',
+]
+
+# Keywords que indican que NO es una reserva (para filtrar falsos positivos)
+EXCLUDE_KEYWORDS = [
+    'unsubscribe', 'newsletter', 'promoción', 'oferta especial', 'password reset',
+    'verify your email', 'confirma tu email', 'account created',
+]
+
+
+def email_parece_reserva(subject, body):
+    """
+    Pre-filtro local para determinar si un email parece contener una reserva.
+    Retorna True si vale la pena enviarlo a Claude.
+    """
+    contenido = (subject + ' ' + body[:2000]).lower()
+
+    # Excluir si tiene keywords de exclusión
+    for kw in EXCLUDE_KEYWORDS:
+        if kw.lower() in contenido:
+            return False
+
+    # Incluir si tiene keywords de viaje
+    for kw in TRAVEL_KEYWORDS:
+        if kw.lower() in contenido:
+            return True
+
+    return False
+
+
 def fetch_emails_with_attachments():
     """Lee emails no leídos incluyendo PDFs adjuntos"""
     service = get_gmail_service()
-    
+
+    # Query con keywords de viaje para capturar reenvíos
+    # Esto es más amplio que filtrar por remitente
+    keyword_query = ' OR '.join([f'"{kw}"' for kw in [
+        'confirmation', 'booking', 'itinerary', 'vuelo', 'flight',
+        'hotel', 'reserva', 'e-ticket', 'check-in', 'crucero', 'cruise'
+    ]])
+    query = f'is:unread ({keyword_query})'
+
     results = service.users().messages().list(
         userId='me',
-        q='is:unread',
+        q=query,
         maxResults=10
     ).execute()
     

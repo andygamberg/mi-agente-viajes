@@ -6,7 +6,7 @@ import uuid
 import os
 import sys
 import unicodedata
-from email_processor import fetch_emails_with_attachments, mark_as_read
+from email_processor import fetch_emails_with_attachments, mark_as_read, email_parece_reserva
 from app import app
 from utils import extraer_info_con_claude, get_ciudad_nombre
 from models import db, Viaje, User, UserEmail
@@ -177,10 +177,21 @@ def process_emails():
         vuelos_actualizados = 0
         emails_procesados = 0
         
+        emails_descartados = 0
         for email in emails:
             print(f'\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
             print(f'📧 Procesando: {email["subject"][:60]}...')
-            
+
+            # Pre-filtro local: verificar si parece una reserva antes de enviar a Claude
+            if not email_parece_reserva(email['subject'], email['body']):
+                print('⏭️  Descartado por pre-filtro (no parece reserva)')
+                try:
+                    mark_as_read(email['id'])
+                except Exception as e:
+                    print(f'⚠️  No se pudo marcar como leído: {e}')
+                emails_descartados += 1
+                continue
+
             # Extraer vuelos con Claude API
             try:
                 vuelos = extraer_info_con_claude(email['body'])
@@ -232,10 +243,11 @@ def process_emails():
         print(f'\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
         print(f'📊 RESUMEN:')
         print(f'  • Emails procesados: {emails_procesados}')
-        print(f'  • Vuelos nuevos: {vuelos_creados}')
-        print(f'  • Vuelos actualizados: {vuelos_actualizados}')
-        
-        return {'emails': emails_procesados, 'creados': vuelos_creados, 'actualizados': vuelos_actualizados}
+        print(f'  • Emails descartados (pre-filtro): {emails_descartados}')
+        print(f'  • Reservas nuevas: {vuelos_creados}')
+        print(f'  • Reservas actualizadas: {vuelos_actualizados}')
+
+        return {'emails': emails_procesados, 'descartados': emails_descartados, 'creados': vuelos_creados, 'actualizados': vuelos_actualizados}
 
 def check_duplicate(vuelo_data):
     """
