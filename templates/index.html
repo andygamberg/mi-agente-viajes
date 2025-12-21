@@ -2680,13 +2680,18 @@
     document.addEventListener('DOMContentLoaded', updateCountdowns);
     setInterval(updateCountdowns, 60000);
 
-    // REDIRECT-SMART: Auto-scroll al viaje destacado
+    // REDIRECT-SMART: Auto-scroll al viaje destacado y remover highlight después de animación
     document.addEventListener('DOMContentLoaded', function() {
         const highlighted = document.querySelector('.card.highlighted');
         if (highlighted) {
             setTimeout(() => {
                 highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 100);
+
+            // Remover clase highlighted después de que termine la animación (2s)
+            setTimeout(() => {
+                highlighted.classList.remove('highlighted');
+            }, 2500);
         }
     });
     </script>
