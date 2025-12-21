@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Preferencias - Mi Agente Viajes{% endblock %}
+{% block title %}Mi Perfil - Mi Agente Viajes{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -351,7 +351,7 @@ html { font-size: 100%; }
 {% endblock %}
 
 {% block content %}
-<h1 class="page-title">Preferencias</h1>
+<h1 class="page-title">Mi Perfil</h1>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -435,7 +435,12 @@ html { font-size: 100%; }
         {% endfor %}
     </div>
 
-    <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+    <form method="POST" action="{{ url_for('viajes.add_email') }}" style="display: flex; gap: 12px; margin-top: 16px; margin-bottom: 16px;">
+        <input type="email" name="email" placeholder="otro@email.com" required style="flex: 1; padding: 12px 14px; font-size: 1rem; border: 1px solid var(--border); border-radius: var(--radius);">
+        <button type="submit" class="btn btn-secondary">+ Agregar</button>
+    </form>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
         <a href="{{ url_for('gmail_oauth.conectar_gmail') }}" class="btn btn-secondary">+ Gmail</a>
         <a href="{{ url_for('microsoft_oauth.conectar_microsoft') }}" class="btn btn-secondary">+ Microsoft</a>
     </div>
