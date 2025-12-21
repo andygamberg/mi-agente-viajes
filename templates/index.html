@@ -2584,46 +2584,56 @@
             hoy.setHours(0, 0, 0, 0);
             const diffDiasCalendario = Math.round((fechaViaje - hoy) / (1000 * 60 * 60 * 24));
 
-            // Para últimas 24h: usar hora real si existe
+            // Para countdown preciso: usar hora real si existe
             let fechaHoraViaje;
             if (horaStr && horaStr.match(/^\d{2}:\d{2}/)) {
                 fechaHoraViaje = new Date(fechaStr + 'T' + horaStr);
             } else {
-                fechaHoraViaje = new Date(fechaStr + 'T23:59:59'); // Fin del día si no hay hora
+                fechaHoraViaje = new Date(fechaStr + 'T23:59:59');
             }
             const ahora = new Date();
             const diffMs = fechaHoraViaje - ahora;
-            const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
             const diffMin = Math.floor(diffMs / (1000 * 60));
+            const diffHoras = Math.floor(diffMin / 60);
+            const minRestantes = diffMin % 60;
 
             el.classList.remove('past', 'urgent', 'soon');
 
             let texto = '';
 
             if (diffDiasCalendario < 0) {
-                // PASADO: ocultar countdown (Bug #8)
+                // PASADO: ocultar countdown
                 el.style.display = 'none';
                 return;
             } else if (diffDiasCalendario === 0) {
                 // HOY
-                if (diffMs > 0 && diffMin < 120) {
-                    texto = diffMin <= 1 ? 'Ahora' : `En ${diffMin} min`;
-                    el.classList.add('urgent');
-                } else if (diffMs > 0 && diffHoras < 12) {
-                    texto = `En ${diffHoras}h`;
-                    el.classList.add('urgent');
-                } else if (diffMs > 0) {
-                    texto = 'Hoy';
-                    el.classList.add('soon');
-                } else {
-                    // Ya pasó hoy - ocultar
+                if (diffMs <= 0) {
+                    // Ya pasó hoy
                     el.style.display = 'none';
                     return;
+                } else if (diffMin < 60) {
+                    texto = diffMin <= 1 ? 'Ahora' : `En ${diffMin} min`;
+                    el.classList.add('urgent');
+                } else if (diffHoras < 12) {
+                    // Mostrar horas y minutos si hay minutos significativos
+                    if (minRestantes >= 10) {
+                        texto = `En ${diffHoras}h ${minRestantes}m`;
+                    } else {
+                        texto = `En ${diffHoras}h`;
+                    }
+                    el.classList.add('urgent');
+                } else {
+                    texto = 'Hoy';
+                    el.classList.add('soon');
                 }
             } else if (diffDiasCalendario === 1) {
-                // MAÑANA
-                if (diffHoras > 0 && diffHoras <= 24) {
-                    texto = `En ${diffHoras}h`;
+                // MAÑANA - mostrar horas si < 24h
+                if (diffHoras < 24 && diffHoras > 0) {
+                    if (minRestantes >= 10) {
+                        texto = `En ${diffHoras}h ${minRestantes}m`;
+                    } else {
+                        texto = `En ${diffHoras}h`;
+                    }
                     el.classList.add('urgent');
                 } else {
                     texto = 'Mañana';
@@ -2636,7 +2646,7 @@
                 texto = `En ${diffDiasCalendario} días`;
             }
 
-            el.style.display = ''; // Asegurar que esté visible
+            el.style.display = '';
             el.textContent = texto;
         });
     }

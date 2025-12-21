@@ -319,6 +319,7 @@ def get_hora_salida_display(viaje):
         'vuelo': ['hora_salida'],
         'crucero': ['hora_embarque'],
         'barco': ['hora_embarque'],
+        'ferry': ['hora_embarque'],
         'hotel': ['hora_checkin'],
         'auto': ['hora_retiro'],
         'tren': ['hora_salida'],

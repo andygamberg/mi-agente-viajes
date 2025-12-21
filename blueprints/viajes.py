@@ -230,33 +230,11 @@ def index():
     viajes = get_viajes_for_user(current_user, Viaje, User)
     viajes = sorted(viajes, key=lambda v: v.fecha_salida)
     
-    # Usar timezone de Argentina (UTC-3) para clasificación correcta
-    import pytz
-    tz_argentina = pytz.timezone('America/Argentina/Buenos_Aires')
-    ahora = datetime.now(tz_argentina).replace(tzinfo=None)
-
-    def get_datetime_viaje(v):
-        """Combina fecha_salida con hora real del tipo para clasificación correcta"""
-        from datetime import time
-        if not v.fecha_salida:
-            return datetime.max
-
-        hora_str = get_hora_salida_display(v)
-        if hora_str:
-            try:
-                parts = str(hora_str).replace('h', ':').split(':')
-                hora = int(parts[0])
-                minuto = int(parts[1]) if len(parts) > 1 else 0
-                return datetime.combine(v.fecha_salida.date(), time(hora, minuto))
-            except:
-                pass
-
-        # Sin hora = usar 23:59 del día (para que sea futuro todo el día)
-        return datetime.combine(v.fecha_salida.date(), time(23, 59))
-
-    # Separar por futuro/pasado usando datetime completo
-    viajes_futuros = [v for v in viajes if get_datetime_viaje(v) >= ahora]
-    viajes_pasados = [v for v in viajes if get_datetime_viaje(v) < ahora]
+    # Separar por futuro/pasado - solo por fecha
+    # Viajes de hoy siempre son "próximos" - el frontend maneja countdown con hora local
+    hoy = datetime.now().date()
+    viajes_futuros = [v for v in viajes if v.fecha_salida.date() >= hoy]
+    viajes_pasados = [v for v in viajes if v.fecha_salida.date() < hoy]
     
     # MVP11: Obtener preferencia de usuario
     combinar = getattr(current_user, 'combinar_vuelos', True)
