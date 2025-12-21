@@ -484,16 +484,28 @@ def scan_and_create_viajes(user_id, days_back=30):
                     # Verificar duplicado por código - ahora con merge de datos
                     codigo = vuelos[0].get('codigo_reserva')
                     if codigo:
-                        existing = Viaje.query.filter_by(
+                        # Buscar TODOS los viajes con este código (ida y vuelta)
+                        existing_viajes = Viaje.query.filter_by(
                             user_id=user_id,
                             codigo_reserva=codigo
-                        ).first()
-                        if existing:
-                            # Intentar actualizar con nueva info (ej: asientos)
+                        ).all()
+                        if existing_viajes:
+                            # Intentar actualizar cada viaje existente con datos del vuelo correspondiente
                             from utils.save_reservation import merge_reservation_data
-                            if merge_reservation_data(existing, vuelos[0]):
-                                print(f"🔄 Reserva actualizada: {codigo}")
+                            hubo_actualizacion = False
+                            for existing in existing_viajes:
+                                # Buscar vuelo correspondiente por fecha
+                                fecha_existing = existing.fecha_salida
+                                for vuelo in vuelos:
+                                    fecha_vuelo = vuelo.get('fecha_salida')
+                                    if fecha_existing and fecha_vuelo and str(fecha_existing.date()) == fecha_vuelo[:10]:
+                                        if merge_reservation_data(existing, vuelo):
+                                            hubo_actualizacion = True
+                                            print(f"🔄 Reserva actualizada: {codigo} ({fecha_vuelo})")
+                            if hubo_actualizacion:
                                 db.session.commit()
+                            else:
+                                print(f"Duplicado sin cambios: {codigo}")
                             results['viajes_duplicados'] += 1
                             continue
                     

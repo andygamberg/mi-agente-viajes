@@ -184,17 +184,26 @@ def process_new_emails(connection, history_id):
                         continue
                     
                     # MVP14g: Deduplicación mejorada - ahora con merge de datos
-                    # 1. Por código de reserva
+                    # 1. Por código de reserva - buscar TODOS los viajes (ida y vuelta)
                     codigo = vuelos[0].get('codigo_reserva')
                     if codigo:
-                        existing = Viaje.query.filter_by(
+                        existing_viajes = Viaje.query.filter_by(
                             user_id=connection.user_id,
                             codigo_reserva=codigo
-                        ).first()
-                        if existing:
-                            # Intentar actualizar con nueva info (ej: asientos)
-                            if merge_reservation_data(existing, vuelos[0]):
-                                print(f"🔄 Reserva actualizada: {codigo}")
+                        ).all()
+                        if existing_viajes:
+                            # Intentar actualizar cada viaje existente con datos correspondientes
+                            hubo_actualizacion = False
+                            for existing in existing_viajes:
+                                # Buscar vuelo correspondiente por fecha
+                                fecha_existing = existing.fecha_salida
+                                for vuelo in vuelos:
+                                    fecha_vuelo = vuelo.get('fecha_salida')
+                                    if fecha_existing and fecha_vuelo and str(fecha_existing.date()) == fecha_vuelo[:10]:
+                                        if merge_reservation_data(existing, vuelo):
+                                            hubo_actualizacion = True
+                                            print(f"🔄 Reserva actualizada: {codigo} ({fecha_vuelo})")
+                            if hubo_actualizacion:
                                 db.session.commit()
                             else:
                                 print(f"Duplicado sin cambios: {codigo}")
