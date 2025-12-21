@@ -168,7 +168,14 @@ def process_new_emails(connection, history_id):
                     full_content = get_full_email_content(
                         service, msg_id, msg.get('payload', {}), subject
                     )
-                    
+
+                    # DEBUG: Log muestra del contenido para diagnóstico
+                    print(f"📄 Contenido total: {len(full_content)} chars")
+                    # Buscar años en el contenido
+                    import re
+                    years_found = set(re.findall(r'20[2-3][0-9]', full_content))
+                    print(f"📅 Años encontrados en contenido: {sorted(years_found)}")
+
                     # Procesar con Claude
                     vuelos = extraer_info_con_claude(full_content)
                     
