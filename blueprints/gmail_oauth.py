@@ -68,7 +68,11 @@ def conectar_gmail():
         auth_url = 'https://accounts.google.com/o/oauth2/auth?' + '&'.join(
             f'{k}={v}' for k, v in params.items()
         )
-        
+
+        # Guardar origen para redirect post-OAuth
+        if request.args.get('from_wizard'):
+            session['from_wizard'] = True
+
         return redirect(auth_url)
         
     except Exception as e:
@@ -172,6 +176,9 @@ def gmail_callback():
         else:
             print(f"⚠️ Error activando watch para {gmail_email}: {watch_result.get('error')}")
 
+        # Si viene del wizard, volver ahí
+        if session.pop('from_wizard', False):
+            return redirect(url_for('viajes.bienvenida'))
         return redirect(url_for('viajes.perfil'))
         
     except Exception as e:

@@ -294,8 +294,22 @@ def index():
 @viajes_bp.route('/bienvenida')
 @login_required
 def bienvenida():
-    """Pantalla de bienvenida post-registro"""
-    return render_template('bienvenida.html')
+    """Pantalla de bienvenida post-registro con wizard de 3 pasos"""
+    # Obtener emails conectados para mostrar en el wizard
+    gmail_connections = EmailConnection.query.filter_by(
+        user_id=current_user.id,
+        provider='gmail',
+        is_active=True
+    ).all()
+    microsoft_connections = EmailConnection.query.filter_by(
+        user_id=current_user.id,
+        provider='microsoft',
+        is_active=True
+    ).all()
+
+    connected_emails = [conn.email for conn in gmail_connections + microsoft_connections]
+
+    return render_template('bienvenida.html', connected_emails=connected_emails)
 
 
 @viajes_bp.route('/agregar', methods=['GET', 'POST'])
@@ -1176,6 +1190,8 @@ def update_profile():
     current_user.apellido_pax = request.form.get('apellido_pax', '').strip().title() or None
     # MVP11: Toggle combinar vuelos
     current_user.combinar_vuelos = request.form.get('combinar_vuelos') == 'on'
+    # Preferencia de alertas por email
+    current_user.notif_email_master = request.form.get('notif_email_master') == 'on'
     db.session.commit()
     flash('Perfil actualizado', 'success')
     return redirect(url_for('viajes.perfil'))

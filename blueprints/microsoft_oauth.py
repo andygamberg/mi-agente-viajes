@@ -69,6 +69,10 @@ def conectar_microsoft():
             f'{k}={v}' for k, v in params.items()
         )
 
+        # Guardar origen para redirect post-OAuth
+        if request.args.get('from_wizard'):
+            session['from_wizard'] = True
+
         return redirect(auth_url)
 
     except Exception as e:
@@ -183,6 +187,9 @@ def microsoft_callback():
         db.session.commit()
         session.pop('ms_oauth_state', None)
 
+        # Si viene del wizard, volver ahí
+        if session.pop('from_wizard', False):
+            return redirect(url_for('viajes.bienvenida'))
         return redirect(url_for('viajes.perfil'))
 
     except Exception as e:
