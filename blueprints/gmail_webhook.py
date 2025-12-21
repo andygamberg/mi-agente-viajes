@@ -21,7 +21,7 @@ from utils.gmail_scanner import (
     check_duplicate_by_content
 )
 from utils.claude import extraer_info_con_claude
-from utils.save_reservation import save_reservation
+from utils.save_reservation import save_reservation, merge_reservation_data
 
 gmail_webhook_bp = Blueprint('gmail_webhook', __name__)
 PUBSUB_TOPIC = 'projects/mi-agente-viajes/topics/gmail-notifications'
@@ -176,13 +176,23 @@ def process_new_emails(connection, history_id):
                         print(f"No se encontraron vuelos en: {subject}")
                         continue
                     
-                    # MVP14g: Deduplicación mejorada
+                    # MVP14g: Deduplicación mejorada - ahora con merge de datos
                     # 1. Por código de reserva
                     codigo = vuelos[0].get('codigo_reserva')
-                    if codigo and check_duplicate(codigo, connection.user_id):
-                        print(f"Duplicado por código: {codigo}")
-                        continue
-                    
+                    if codigo:
+                        existing = Viaje.query.filter_by(
+                            user_id=connection.user_id,
+                            codigo_reserva=codigo
+                        ).first()
+                        if existing:
+                            # Intentar actualizar con nueva info (ej: asientos)
+                            if merge_reservation_data(existing, vuelos[0]):
+                                print(f"🔄 Reserva actualizada: {codigo}")
+                                db.session.commit()
+                            else:
+                                print(f"Duplicado sin cambios: {codigo}")
+                            continue
+
                     # 2. Por contenido (vuelo + fecha + ruta)
                     primer_vuelo = vuelos[0]
                     if check_duplicate_by_content(

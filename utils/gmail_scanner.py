@@ -463,11 +463,21 @@ def scan_and_create_viajes(user_id, days_back=30):
                     if not vuelos:
                         continue
                     
-                    # Verificar duplicado por código
+                    # Verificar duplicado por código - ahora con merge de datos
                     codigo = vuelos[0].get('codigo_reserva')
-                    if codigo and check_duplicate(codigo, user_id):
-                        results['viajes_duplicados'] += 1
-                        continue
+                    if codigo:
+                        existing = Viaje.query.filter_by(
+                            user_id=user_id,
+                            codigo_reserva=codigo
+                        ).first()
+                        if existing:
+                            # Intentar actualizar con nueva info (ej: asientos)
+                            from utils.save_reservation import merge_reservation_data
+                            if merge_reservation_data(existing, vuelos[0]):
+                                print(f"🔄 Reserva actualizada: {codigo}")
+                                db.session.commit()
+                            results['viajes_duplicados'] += 1
+                            continue
                     
                     # Verificar duplicado por contenido
                     primer_vuelo = vuelos[0]

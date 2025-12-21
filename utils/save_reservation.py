@@ -140,3 +140,60 @@ def update_reservation(viaje, datos_dict):
     viaje.actualizado = datetime.utcnow()
 
     return viaje
+
+
+def merge_reservation_data(existing_viaje, new_datos):
+    """
+    Actualiza una reserva existente con nueva información (ej: asientos asignados).
+    Solo actualiza campos que están vacíos o que son listas (pasajeros).
+
+    Args:
+        existing_viaje: Viaje existente en BD
+        new_datos: Dict con nuevos datos extraídos
+
+    Returns:
+        bool: True si hubo cambios
+    """
+    datos_actuales = existing_viaje.datos or {}
+    hubo_cambios = False
+
+    # Campos que se pueden actualizar/agregar
+    campos_actualizables = [
+        'asiento', 'terminal', 'puerta', 'gate',
+        'hora_salida', 'hora_llegada',
+        'equipaje_facturado', 'equipaje_mano'
+    ]
+
+    for campo in campos_actualizables:
+        nuevo_valor = new_datos.get(campo)
+        valor_actual = datos_actuales.get(campo)
+        # Actualizar si hay nuevo valor y el actual está vacío
+        if nuevo_valor and not valor_actual:
+            datos_actuales[campo] = nuevo_valor
+            hubo_cambios = True
+            print(f"  📝 Actualizado {campo}: {nuevo_valor}")
+
+    # Caso especial: pasajeros con asientos
+    nuevos_pasajeros = new_datos.get('pasajeros', [])
+    pasajeros_actuales = datos_actuales.get('pasajeros', [])
+
+    if nuevos_pasajeros and pasajeros_actuales:
+        for nuevo_pax in nuevos_pasajeros:
+            if isinstance(nuevo_pax, dict) and nuevo_pax.get('asiento'):
+                # Buscar pasajero por nombre y actualizar asiento
+                nombre_nuevo = nuevo_pax.get('nombre', '').upper()
+                for pax_actual in pasajeros_actuales:
+                    if isinstance(pax_actual, dict):
+                        nombre_actual = pax_actual.get('nombre', '').upper()
+                        if nombre_nuevo and nombre_actual and (nombre_nuevo in nombre_actual or nombre_actual in nombre_nuevo):
+                            if not pax_actual.get('asiento') and nuevo_pax.get('asiento'):
+                                pax_actual['asiento'] = nuevo_pax['asiento']
+                                hubo_cambios = True
+                                print(f"  📝 Asiento asignado a {nombre_actual}: {nuevo_pax['asiento']}")
+
+    if hubo_cambios:
+        existing_viaje.datos = datos_actuales
+        existing_viaje.raw_data = json.dumps(datos_actuales, ensure_ascii=False)
+        existing_viaje.actualizado = datetime.utcnow()
+
+    return hubo_cambios

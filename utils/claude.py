@@ -48,6 +48,13 @@ TIPOS DE RESERVAS A DETECTAR:
 - espectaculo: Ticketmaster, entradas eventos, teatro, conciertos
 - transfer: traslados aeropuerto, shuttles
 
+CRÍTICO PARA VUELOS:
+- Si hay vuelo de IDA y VUELTA, extraer AMBOS como objetos separados
+- Cada tramo es un objeto independiente en el array
+- No omitir el vuelo de regreso
+- Verificar que el documento no tenga más páginas con otros tramos
+- Un itinerario completo típicamente tiene 2+ segmentos (ida y vuelta)
+
 IMPORTANTE:
 - Extrae TODAS las reservas del documento
 - Códigos IATA para aeropuertos en MAYÚSCULAS
@@ -291,8 +298,20 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
         for reserva in reservas:
             for campo in ['fecha_salida', 'fecha_llegada', 'fecha_checkin', 'fecha_checkout',
                           'fecha_retiro', 'fecha_devolucion', 'fecha', 'fecha_embarque', 'fecha_desembarque']:
-                if reserva.get(campo, '').startswith(('2020','2021','2022','2023','2024')):
-                    reserva[campo] = reserva[campo].replace(reserva[campo][:4], str(target_year))
+                fecha_valor = reserva.get(campo, '')
+                if fecha_valor and len(fecha_valor) >= 4:
+                    try:
+                        year_extracted = int(fecha_valor[:4])
+                        # Corregir años pasados (antes del año actual)
+                        if year_extracted < current_year:
+                            reserva[campo] = str(target_year) + fecha_valor[4:]
+                            print(f"  ⚠️ Año corregido (pasado): {year_extracted} → {target_year}")
+                        # Corregir años futuros muy lejanos (más de 2 años en el futuro)
+                        elif year_extracted > current_year + 2:
+                            reserva[campo] = str(target_year) + fecha_valor[4:]
+                            print(f"  ⚠️ Año corregido (futuro lejano): {year_extracted} → {target_year}")
+                    except (ValueError, IndexError):
+                        pass
 
         print(f"✓ Extraídas {len(reservas)} reservas")
         return reservas
