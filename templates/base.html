@@ -325,6 +325,22 @@
             }
         });
 
+        // Hint para formato de hora en formularios
+        document.addEventListener('DOMContentLoaded', function() {
+            const formatoHora = '{{ current_user.formato_hora if current_user and current_user.is_authenticated else "" }}';
+            if (formatoHora === '12h') {
+                document.querySelectorAll('input[type="time"]').forEach(function(input) {
+                    if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('time-hint')) {
+                        const hint = document.createElement('small');
+                        hint.className = 'time-hint';
+                        hint.style.cssText = 'display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px;';
+                        hint.textContent = 'Ingresá en formato 24h (ej: 14:30)';
+                        input.parentNode.insertBefore(hint, input.nextSibling);
+                    }
+                });
+            }
+        });
+
         {% block scripts %}{% endblock %}
     </script>
 </body>

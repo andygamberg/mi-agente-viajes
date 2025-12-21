@@ -67,9 +67,15 @@
         }
         
         .logo {
-            font-size: 1.75rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .logo:hover {
+            color: var(--text-secondary);
         }
         
         .btn {
@@ -1523,7 +1529,7 @@
     <div class="container">
         <header class="header">
             <div class="header-left">
-                <h1 class="logo">Mis Viajes</h1>
+                <a href="{{ url_for('viajes.index') }}" class="logo">Mis Viajes</a>
             </div>
             
             <div class="header-right">
@@ -1531,12 +1537,6 @@
                 <a href="{{ url_for('viajes.preferencias') }}" class="profile-alert">Completar perfil</a>
                 {% endif %}
                 
-                <button class="btn-header" onclick="openAddModal()" title="Agregar reserva">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                </button>
-
                 <div class="menu-container" id="mainMenu">
                     <button class="btn-header" onclick="toggleMenu()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
