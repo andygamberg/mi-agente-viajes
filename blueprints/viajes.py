@@ -11,7 +11,7 @@ import uuid
 from models import db, Viaje, User, UserEmail, EmailConnection
 from utils.iata import get_ciudad_nombre
 from utils.claude import extraer_info_con_claude
-from utils.helpers import calcular_ciudad_principal, normalize_name, get_viajes_for_user
+from utils.helpers import calcular_ciudad_principal, normalize_name, get_viajes_for_user, get_hora_salida_display
 from utils.save_reservation import save_reservation
 from utils.schema_helpers import get_dato, get_titulo_card, get_subtitulo_card
 from config.schemas import RESERVATION_SCHEMAS, get_schema
@@ -231,10 +231,29 @@ def index():
     viajes = sorted(viajes, key=lambda v: v.fecha_salida)
     
     ahora = datetime.now()
-    
-    # Separar por futuro/pasado
-    viajes_futuros = [v for v in viajes if v.fecha_salida >= ahora]
-    viajes_pasados = [v for v in viajes if v.fecha_salida < ahora]
+
+    def get_datetime_viaje(v):
+        """Combina fecha_salida con hora real del tipo para clasificación correcta"""
+        from datetime import time
+        if not v.fecha_salida:
+            return datetime.max
+
+        hora_str = get_hora_salida_display(v)
+        if hora_str:
+            try:
+                parts = str(hora_str).replace('h', ':').split(':')
+                hora = int(parts[0])
+                minuto = int(parts[1]) if len(parts) > 1 else 0
+                return datetime.combine(v.fecha_salida.date(), time(hora, minuto))
+            except:
+                pass
+
+        # Sin hora = usar 23:59 del día (para que sea futuro todo el día)
+        return datetime.combine(v.fecha_salida.date(), time(23, 59))
+
+    # Separar por futuro/pasado usando datetime completo
+    viajes_futuros = [v for v in viajes if get_datetime_viaje(v) >= ahora]
+    viajes_pasados = [v for v in viajes if get_datetime_viaje(v) < ahora]
     
     # MVP11: Obtener preferencia de usuario
     combinar = getattr(current_user, 'combinar_vuelos', True)
@@ -287,6 +306,7 @@ def index():
                            get_titulo_card=get_titulo_card,
                            get_subtitulo_card=get_subtitulo_card,
                            get_schema=get_schema,
+                           get_hora_salida_display=get_hora_salida_display,
                            now=datetime.now())
 
 

@@ -1657,7 +1657,7 @@
                         {% endif %}
 
                         <div class="card-date-wrapper">
-                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ primer_vuelo.hora_salida or '' }}"></span>
+                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ get_hora_salida_display(primer_vuelo) }}"></span>
                             <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}{% if grupo|length > 1 and grupo[-1].fecha_salida != primer_vuelo.fecha_salida %} - {{ grupo[-1].fecha_salida.strftime('%d %b') }}{% elif primer_vuelo.fecha_llegada and primer_vuelo.fecha_llegada.date() != primer_vuelo.fecha_salida.date() %} - {{ primer_vuelo.fecha_llegada.strftime('%d %b') }}{% endif %}</span>
                         </div>
                     </div>
@@ -1956,7 +1956,7 @@
                         {% endif %}
 
                         <div class="card-date-wrapper">
-                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ primer_vuelo.hora_salida or '' }}"></span>
+                            <span class="card-countdown" data-fecha="{{ primer_vuelo.fecha_salida.strftime('%Y-%m-%d') }}" data-hora="{{ get_hora_salida_display(primer_vuelo) }}"></span>
                             <span class="card-date-absolute">{{ primer_vuelo.fecha_salida.strftime('%a %d %b') }}{% if grupo|length > 1 and grupo[-1].fecha_salida != primer_vuelo.fecha_salida %} - {{ grupo[-1].fecha_salida.strftime('%d %b') }}{% elif primer_vuelo.fecha_llegada and primer_vuelo.fecha_llegada.date() != primer_vuelo.fecha_salida.date() %} - {{ primer_vuelo.fecha_llegada.strftime('%d %b') }}{% endif %}</span>
                         </div>
                     </div>

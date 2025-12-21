@@ -304,3 +304,39 @@ def deduplicar_vuelos_en_grupo(vuelos):
     # Ordenar por fecha
     resultado.sort(key=lambda v: v.fecha_salida)
     return resultado
+
+
+def get_hora_salida_display(viaje):
+    """
+    Extrae la hora de salida/inicio según el tipo de viaje.
+    Usado para countdown y display.
+    """
+    datos = viaje.datos or {}
+    tipo = viaje.tipo or 'vuelo'
+
+    # Mapeo de campos de hora por tipo
+    campos_hora = {
+        'vuelo': ['hora_salida'],
+        'crucero': ['hora_embarque'],
+        'barco': ['hora_embarque'],
+        'hotel': ['hora_checkin'],
+        'auto': ['hora_retiro'],
+        'tren': ['hora_salida'],
+        'bus': ['hora_salida'],
+        'transfer': ['hora_pickup', 'hora'],
+        'restaurante': ['hora', 'hora_reserva'],
+        'espectaculo': ['hora', 'hora_inicio'],
+        'actividad': ['hora', 'hora_inicio'],
+    }
+
+    # Buscar en campos específicos del tipo
+    for campo in campos_hora.get(tipo, ['hora_salida', 'hora']):
+        hora = datos.get(campo)
+        if hora:
+            return hora
+
+    # Fallback a columna legacy
+    if viaje.hora_salida:
+        return viaje.hora_salida
+
+    return ''
