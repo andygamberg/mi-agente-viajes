@@ -361,6 +361,7 @@ html { font-size: 100%; }
 {% endblock %}
 
 {% block scripts %}
+<script>
 let currentStep = 1;
 const connectedEmails = {{ connected_emails | tojson | safe }};
 
@@ -432,4 +433,5 @@ document.addEventListener('keydown', function(e) {
         goToStep(2);
     }
 });
+</script>
 {% endblock %}
