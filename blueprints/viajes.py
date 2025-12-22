@@ -358,6 +358,13 @@ def index():
     # REDIRECT-SMART: Obtener grupo a destacar
     highlight_grupo = request.args.get('highlight')
 
+    # Mostrar tip de calendario si tiene viajes reales y no lo ha visto
+    show_calendar_tip = False
+    if proximos or pasados:  # Tiene viajes reales
+        if not session.get('calendar_tip_shown'):
+            show_calendar_tip = True
+            session['calendar_tip_shown'] = True
+
     # Pasar helpers al template
     return render_template('index.html',
                            proximos=proximos,
@@ -367,6 +374,7 @@ def index():
                            show_onboarding=show_onboarding,
                            profile_incomplete=profile_incomplete,
                            highlight_grupo=highlight_grupo,
+                           show_calendar_tip=show_calendar_tip,
                            get_dato=get_dato,
                            get_titulo_card=get_titulo_card,
                            get_subtitulo_card=get_subtitulo_card,
@@ -947,10 +955,10 @@ def guardar_vuelos():
             # Aplicar el nombre (custom o auto) a todos los viajes del grupo
             for v in vuelos_del_grupo:
                 v.nombre_viaje = nombre_existente
-        
+
         db.session.commit()
-        return redirect(url_for('viajes.index'))
-        
+        return redirect(url_for('viajes.index', highlight=grupo_id))
+
     except Exception as e:
         import traceback
         traceback.print_exc()
