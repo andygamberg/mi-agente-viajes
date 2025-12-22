@@ -2,8 +2,7 @@
 
 {% block title %}Bienvenida - Mi Agente Viajes{% endblock %}
 
-{% block extra_css %}
-<style>
+{% block styles %}
 html { font-size: 100%; }
 
 .wizard-container {
@@ -227,7 +226,6 @@ html { font-size: 100%; }
     color: var(--text-muted);
     margin-bottom: 12px;
 }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -361,7 +359,6 @@ html { font-size: 100%; }
 {% endblock %}
 
 {% block scripts %}
-<script>
 let currentStep = 1;
 const connectedEmails = {{ connected_emails | tojson | safe }};
 
@@ -433,5 +430,4 @@ document.addEventListener('keydown', function(e) {
         goToStep(2);
     }
 });
-</script>
 {% endblock %}
