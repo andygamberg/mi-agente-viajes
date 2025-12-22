@@ -31,9 +31,18 @@ def extraer_info_con_claude(email_text):
 
     target_year = current_year
     if years:
-        future_years = [int(y) for y in years if int(y) >= current_year]
-        if future_years:
-            target_year = min(future_years)
+        # Solo considerar años razonables (máximo 3 años en el futuro)
+        # Esto evita que números como PNR "2049" se interpreten como años
+        max_reasonable_year = current_year + 3
+        reasonable_years = [int(y) for y in years
+                            if current_year <= int(y) <= max_reasonable_year]
+        if reasonable_years:
+            target_year = min(reasonable_years)
+            print(f"  📅 Año detectado en documento: {target_year}")
+        else:
+            # Si no hay años razonables, asumir próximo año para viajes futuros
+            target_year = current_year + 1
+            print(f"  📅 Sin año válido detectado, usando: {target_year}")
 
     prompt = f"""Analiza este email/PDF de confirmación de reserva (cualquier idioma).
 
@@ -316,8 +325,8 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
                         if year_extracted < current_year:
                             reserva[campo] = str(target_year) + fecha_valor[4:]
                             print(f"  ⚠️ Año corregido (pasado): {year_extracted} → {target_year}")
-                        # Corregir años futuros muy lejanos (más de 2 años en el futuro)
-                        elif year_extracted > current_year + 2:
+                        # Corregir años futuros muy lejanos (más de 3 años en el futuro)
+                        elif year_extracted > current_year + 3:
                             reserva[campo] = str(target_year) + fecha_valor[4:]
                             print(f"  ⚠️ Año corregido (futuro lejano): {year_extracted} → {target_year}")
                         # Corregir fecha del año actual que ya pasó → debe ser próximo año
