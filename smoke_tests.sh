@@ -24,13 +24,13 @@ echo "4. Perfil requiere auth..."
 echo "5. API viajes/count..."
 curl -s $BASE_URL/api/viajes/count | grep -q "count" && echo "   ✅ OK" || echo "   ❌ FAIL"
 
-# 6. Cron emails
-echo "6. Cron process-emails..."
-curl -s -X POST $BASE_URL/cron/process-emails | grep -q "success" && echo "   ✅ OK" || echo "   ❌ FAIL"
+# 6. Cron emails (sin auth debe dar 403)
+echo "6. Cron process-emails sin auth (debe dar 403)..."
+[ "$(curl -s -o /dev/null -w '%{http_code}' -X POST $BASE_URL/cron/process-emails)" = "403" ] && echo "   ✅ OK (403 Forbidden)" || echo "   ❌ FAIL"
 
-# 7. Cron flights
-echo "7. Cron check-flights..."
-curl -s -X POST $BASE_URL/cron/check-flights | grep -q "success" && echo "   ✅ OK" || echo "   ❌ FAIL"
+# 7. Cron flights (sin auth debe dar 403)
+echo "7. Cron check-flights sin auth (debe dar 403)..."
+[ "$(curl -s -o /dev/null -w '%{http_code}' -X POST $BASE_URL/cron/check-flights)" = "403" ] && echo "   ✅ OK (403 Forbidden)" || echo "   ❌ FAIL"
 
 # 8. MVP9: Calendar feed SIN token → 403
 echo "8. Calendar feed sin token (debe dar 403)..."
@@ -40,18 +40,22 @@ echo "8. Calendar feed sin token (debe dar 403)..."
 echo "9. Calendar feed token inválido (debe dar 404)..."
 [ "$(curl -s -o /dev/null -w '%{http_code}' $BASE_URL/calendar-feed/token-invalido-12345)" = "404" ] && echo "   ✅ OK (404 Not Found)" || echo "   ❌ FAIL"
 
-# 10. Migrate DB
-echo "10. Migrate DB..."
-curl -s $BASE_URL/migrate-db | grep -q "success" && echo "   ✅ OK" || echo "   ❌ FAIL"
+# 10. Migrate DB (sin auth debe dar 403)
+echo "10. Migrate DB sin auth (debe dar 403)..."
+[ "$(curl -s -o /dev/null -w '%{http_code}' $BASE_URL/migrate-db)" = "403" ] && echo "   ✅ OK (403 Forbidden)" || echo "   ❌ FAIL"
 
-# 11. Cron checkin-reminders
-echo "11. Cron checkin-reminders..."
-curl -s -X POST $BASE_URL/cron/checkin-reminders | grep -q "success" && echo "   ✅ OK" || echo "   ❌ FAIL"
+# 10b. Migrate DB (con auth debe funcionar)
+echo "10b. Migrate DB con auth..."
+curl -s -H "X-Admin-Key: ${ADMIN_SECRET_KEY:-dev-secret-123}" $BASE_URL/migrate-db | grep -q "success" && echo "   ✅ OK" || echo "   ❌ FAIL"
+
+# 11. Cron checkin-reminders (sin auth debe dar 403)
+echo "11. Cron checkin-reminders sin auth (debe dar 403)..."
+[ "$(curl -s -o /dev/null -w '%{http_code}' -X POST $BASE_URL/cron/checkin-reminders)" = "403" ] && echo "   ✅ OK (403 Forbidden)" || echo "   ❌ FAIL"
 
 echo ""
-echo "🏁 Smoke tests completados (11 tests)"
+echo "🏁 Smoke tests completados (12 tests)"
 echo ""
-echo "📝 NOTA: Para probar calendar feed con token válido:"
-echo "   1. Login en la app"
-echo "   2. Ir a Perfil → Calendario"
-echo "   3. Copiar el link personal y probarlo en el navegador"
+echo "📝 NOTAS:"
+echo "   - Para probar migrate-db: export ADMIN_SECRET_KEY=tu-secret"
+echo "   - Crons ahora requieren header X-Appengine-Cron (Cloud Scheduler lo envía automáticamente)"
+echo "   - Calendar feed: ir a Preferencias → Calendario para obtener link personal"

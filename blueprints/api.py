@@ -8,6 +8,7 @@ from datetime import datetime, date
 import json
 import base64
 import logging
+import os
 import fitz  # PyMuPDF
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,27 @@ api_bp = Blueprint('api', __name__)
 
 
 # ============================================
+# FUNCIONES HELPER DE AUTENTICACIÓN
+# ============================================
+
+def verificar_cron_auth():
+    """Verifica que la request venga de Cloud Scheduler"""
+    # Cloud Scheduler envía este header cuando llama endpoints
+    if request.headers.get('X-Appengine-Cron') == 'true':
+        return True
+    # También aceptar X-CloudScheduler-JobName (alternativa)
+    if request.headers.get('X-CloudScheduler-JobName'):
+        return True
+    return False
+
+
+def verificar_admin_auth():
+    """Verifica header de admin para endpoints sensibles"""
+    expected = os.getenv('ADMIN_SECRET_KEY', 'dev-secret-123')
+    return request.headers.get('X-Admin-Key') == expected
+
+
+# ============================================
 # API ENDPOINTS
 # ============================================
 
@@ -28,83 +50,6 @@ def viajes_count():
     hoy = date.today()
     count = Viaje.query.filter(Viaje.fecha_salida >= hoy).count()
     return {"count": count}
-
-
-@api_bp.route('/api/process-email-text', methods=['POST'])
-def api_process_email_text():
-    try:
-        data = request.get_json()
-        email_text = data.get("email_text", "")
-        if not email_text:
-            return {"success": False, "error": "No email text provided"}, 400
-        
-        vuelos = extraer_info_con_claude(email_text)
-        if not vuelos:
-            return {"success": True, "vuelos_creados": 0}, 200
-        
-        vuelos_creados = 0
-        for vuelo_data in vuelos:
-            try:
-                viaje = save_reservation(
-                    user_id=None,  # API sin usuario
-                    datos_dict=vuelo_data
-                )
-                vuelos_creados += 1
-            except ValueError as e:
-                print(f"⚠️ {e}")
-                continue
-        
-        db.session.commit()
-        return {"success": True, "vuelos_creados": vuelos_creados}, 200
-    except Exception as e:
-        return {"success": False, "error": str(e)}, 500
-
-
-@api_bp.route('/api/auto-process', methods=['POST'])
-def api_auto_process():
-    """API endpoint para procesamiento automático de emails (sin confirmación)"""
-    try:
-        data = request.get_json()
-        email_text = data.get('email_text', '')
-        pdf_base64 = data.get('pdf_base64', '')
-        
-        texto_a_procesar = email_text
-        
-        if pdf_base64:
-            import fitz
-            pdf_bytes = base64.b64decode(pdf_base64)
-            doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-            texto_pdf = ""
-            for page in doc:
-                texto_pdf += page.get_text()
-            doc.close()
-            texto_a_procesar = texto_pdf if texto_pdf.strip() else email_text
-        
-        if not texto_a_procesar:
-            return jsonify({'success': False, 'error': 'No hay texto'}), 400
-        
-        vuelos = extraer_info_con_claude(texto_a_procesar)
-        
-        if not vuelos:
-            return jsonify({'success': True, 'vuelos_creados': 0}), 200
-        
-        vuelos_creados = 0
-        for v in vuelos:
-            try:
-                viaje = save_reservation(
-                    user_id=None,  # API sin usuario
-                    datos_dict=v
-                )
-                vuelos_creados += 1
-            except ValueError as e:
-                print(f"⚠️ {e}")
-                continue
-        
-        db.session.commit()
-        return jsonify({'success': True, 'vuelos_creados': vuelos_creados}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @api_bp.route('/api/guardar-nombre-pax', methods=['POST'])
@@ -208,6 +153,9 @@ def test_extraction():
 @api_bp.route('/cron/process-emails', methods=['GET', 'POST'])
 def process_emails_cron():
     """Procesa emails de misviajes@gamberg.com.ar - llamado por Cloud Scheduler"""
+    if not verificar_cron_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
     try:
         from gmail_to_db import process_emails
         result = process_emails()
@@ -221,6 +169,9 @@ def process_emails_cron():
 @api_bp.route('/cron/process-microsoft-emails', methods=['GET', 'POST'])
 def process_microsoft_emails_cron():
     """Procesa emails de Microsoft/Exchange - llamado por Cloud Scheduler"""
+    if not verificar_cron_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
     try:
         from utils.microsoft_scanner import scan_and_create_viajes_microsoft
         from models import EmailConnection
@@ -282,6 +233,9 @@ def process_microsoft_emails_cron():
 @api_bp.route('/cron/check-flights', methods=['GET', 'POST'])
 def cron_check_flights():
     """Chequea vuelos y envía notificaciones de cambios"""
+    if not verificar_cron_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
     try:
         from flight_monitor import check_all_upcoming_flights
         from email_processor import send_email
@@ -387,6 +341,9 @@ def cron_check_flights():
 @api_bp.route('/cron/checkin-reminders', methods=['GET', 'POST'])
 def checkin_reminders_cron():
     """Envía recordatorios de check-in 24h antes - llamado por Cloud Scheduler"""
+    if not verificar_cron_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
     from datetime import timedelta
     from models import Viaje, User
     from email_processor import send_email
@@ -527,7 +484,10 @@ def check_flights_manual():
 
 @api_bp.route('/migrate-db')
 def migrate_db():
-    """Endpoint para migración de BD"""
+    """Endpoint para migración de BD - requiere autenticación"""
+    if not verificar_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
     try:
         with db.engine.connect() as conn:
             # ========================================
