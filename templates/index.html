@@ -1608,6 +1608,50 @@
         .calendar-tip-close:hover {
             color: var(--text);
         }
+
+        /* Group tip banner */
+        .group-tip {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin-bottom: 24px;
+        }
+
+        .group-tip-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .group-tip-icon {
+            width: 20px;
+            height: 20px;
+            color: #16A34A;
+            flex-shrink: 0;
+        }
+
+        .group-tip-content span {
+            flex: 1;
+            font-size: 0.9375rem;
+            color: var(--text);
+            min-width: 200px;
+        }
+
+        .group-tip-close {
+            background: #16A34A;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .group-tip-close:hover {
+            background: #15803D;
+        }
     </style>
 </head>
 <body>
@@ -1673,6 +1717,18 @@
                 <span>¿Querés ver tus viajes en el calendario?</span>
                 <a href="{{ url_for('viajes.preferencias') }}#calendario" class="calendar-tip-link">Configurar</a>
                 <button class="calendar-tip-close" onclick="document.getElementById('calendarTip').remove()">×</button>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if show_group_tip and not show_calendar_tip %}
+        <div class="group-tip" id="groupTip">
+            <div class="group-tip-content">
+                <svg class="group-tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z"/>
+                </svg>
+                <span>¿Sabías que podés agrupar viajes? Seleccionalos tocando las cards y usá "Agrupar" para organizarlos juntos.</span>
+                <button class="group-tip-close" onclick="document.getElementById('groupTip').remove()">Entendido</button>
             </div>
         </div>
         {% endif %}

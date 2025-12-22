@@ -365,6 +365,13 @@ def index():
             show_calendar_tip = True
             session['calendar_tip_shown'] = True
 
+    # Mostrar tip de agrupar si tiene 2+ viajes y no lo ha visto
+    show_group_tip = False
+    total_viajes = len(viajes)
+    if total_viajes >= 2 and not session.get('group_tip_shown'):
+        show_group_tip = True
+        session['group_tip_shown'] = True
+
     # Pasar helpers al template
     return render_template('index.html',
                            proximos=proximos,
@@ -375,6 +382,7 @@ def index():
                            profile_incomplete=profile_incomplete,
                            highlight_grupo=highlight_grupo,
                            show_calendar_tip=show_calendar_tip,
+                           show_group_tip=show_group_tip,
                            get_dato=get_dato,
                            get_titulo_card=get_titulo_card,
                            get_subtitulo_card=get_subtitulo_card,
