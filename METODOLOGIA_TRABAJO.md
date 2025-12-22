@@ -1,7 +1,7 @@
 # 🤖 Metodología de Trabajo AI-Assisted Development
 
 **Proyecto:** Mi Agente Viajes
-**Última actualización:** 15 Diciembre 2025
+**Última actualización:** 22 Diciembre 2025
 **Stack:** Flask + PostgreSQL + Google Cloud Run
 
 ---
@@ -662,6 +662,9 @@ gcloud run deploy mi-agente-viajes --source . --region us-east1 --allow-unauthen
 | 14h | Microsoft OAuth | 12 Dic 2025 |
 | 15 | Onboarding post-registro + Template inheritance | 14 Dic 2025 |
 | **15** | **Multi-Tipo de Reservas (9 tipos)** | **15 Dic 2025** |
+| 26 | UX Mobile + Formato hora | 17 Dic 2025 |
+| **27** | **Unificación Preferencias + Merge reservas** | **21 Dic 2025** |
+| **28** | **DEMO-TRIP + Onboarding UX** | **22 Dic 2025** |
 
 ### URLs Importantes
 

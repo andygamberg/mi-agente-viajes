@@ -1,7 +1,7 @@
 # 🎨 UX/UI ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 21 Diciembre 2025
-**Versión:** 2.5 (Unificación Preferencias + Merge reservas)
+**Última actualización:** 22 Diciembre 2025
+**Versión:** 2.6 (DEMO-TRIP + Onboarding Tips)
 
 ---
 
@@ -456,11 +456,11 @@ Próximos eventos
 ## 📋 MUST-HAVES ANTES DE MVP-SHARE
 
 ### Críticos (Bloquean share)
-- [ ] Fix 8 bugs de UI
-- [ ] Redirect inteligente post-guardado
+- [x] ~~Fix 8 bugs de UI~~ ✅ 22 Dic 2025
+- [x] ~~Redirect inteligente post-guardado~~ ✅ 22 Dic 2025
 
 ### Altos (Afectan retención)
-- [ ] Trip de demo para usuario nuevo (time-to-value)
+- [x] ~~Trip de demo para usuario nuevo (time-to-value)~~ ✅ 22 Dic 2025
 - [ ] Checklist de setup visible (progreso)
 - [ ] Guías 14i/14j (Apple Mail, Outlook)
 
@@ -472,6 +472,20 @@ Próximos eventos
 ---
 
 ## ✅ COMPLETADO
+
+### Sesión 30: Onboarding + Tips (22 Dic 2025)
+- [x] DEMO-TRIP: viaje de ejemplo para nuevos usuarios (fechas dinámicas, no guardado en BD)
+- [x] Empty state depende de OAuth conectado (no de cantidad de viajes)
+- [x] Tip calendario post-primer-viaje (session-based, una vez)
+- [x] Tip agrupar viajes con 2+ viajes (session-based, una vez)
+- [x] REDIRECT-SMART: highlight de viaje recién guardado en todas las rutas
+- [x] Fix wizard bienvenida (block names {% block styles %}, script tags)
+- [x] Calendar links abren en nueva pestaña (target="_blank")
+- [x] Forms anidados en preferencias separados en 2 forms
+- [x] Emails duplicados removidos de preferencias
+- [x] Botón + duplicado removido del header
+- [x] Logo unificado (1.25rem, anchor en vez de h1)
+- [x] Hint formato hora para usuarios 12h
 
 ### Sesión 29: Unificación y Merge (21 Dic 2025)
 - [x] Fusión Perfil + Preferencias → única página /preferencias

@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 21 Diciembre 2025
+**Última actualización:** 22 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -44,6 +44,36 @@
 | **MVP16** | **Carga manual multi-tipo** | **14 Dic 2025** | **/agregar refactorizado con schemas dinámicos, selector tipo, 9 tipos soportados** |
 | 26 | UX Mobile + Formato hora | 17 Dic 2025 | Tipografía rem, capitalización, formato hora 24h/12h |
 | **27** | **Unificación Preferencias + Merge reservas** | **21 Dic 2025** | **Perfil→Preferencias, merge asientos/actualizaciones, Outlook Calendar** |
+| **28** | **DEMO-TRIP + Onboarding UX** | **22 Dic 2025** | **Viaje ejemplo, tips calendario/agrupar, empty state contextual, REDIRECT-SMART** |
+
+### ✅ Completado - Sesión 30 (22 Dic 2025)
+
+#### DEMO-TRIP ✅
+- Viaje de ejemplo para nuevos usuarios (no se guarda en BD)
+- Fechas dinámicas: 27 días en futuro
+- Se oculta cuando usuario tiene viajes reales
+
+#### ONBOARDING TIPS ✅
+- Tip calendario post-primer-viaje (session-based, una vez)
+- Tip agrupar viajes con 2+ viajes (session-based, una vez)
+- Lógica de prioridad: calendar_tip primero, group_tip después
+
+#### EMPTY STATE CONTEXTUAL ✅
+- Empty state depende de OAuth conectado (no de cantidad de viajes)
+- Muestra opciones de conexión solo si no tiene OAuth
+
+#### REDIRECT-SMART ✅
+- Todos los redirects post-guardado incluyen `highlight=grupo_id`
+- Viaje recién creado se destaca visualmente
+
+#### UI-POLISH (8 bugs resueltos) ✅
+- Fix wizard bienvenida (block names, script tags)
+- Calendar links abren en nueva pestaña
+- Forms anidados en preferencias separados
+- Emails duplicados removidos
+- Botón + duplicado removido del header
+- Logo unificado (1.25rem)
+- Hint formato hora para usuarios 12h
 
 ### ✅ Completado - Sesión 29 (21 Dic 2025)
 
@@ -174,10 +204,13 @@
 |-----|-------------|--------------|
 | ~~**BUG-PASSENGER-MATCH**~~ | ~~Matching pasajeros extender a 9 tipos (no solo vuelos)~~ | ✅ **15 Dic 2025** |
 | ~~**UX-DELETE**~~ | ~~Eliminar segmento individual + reserva completa por PNR~~ | ✅ **16 Dic 2025** |
-| **UI-POLISH** | Fix 8 bugs de UI detectados en Sesión 27 | - |
-| **REDIRECT-SMART** | Redirect inteligente post-guardado | - |
-| **MVP-SHARE** | Compartir viajes entre usuarios | UI-POLISH |
+| ~~**UI-POLISH**~~ | ~~Fix 8 bugs de UI detectados en Sesión 27~~ | ✅ **22 Dic 2025** |
+| ~~**REDIRECT-SMART**~~ | ~~Redirect inteligente post-guardado~~ | ✅ **22 Dic 2025** |
+| ~~**DEMO-TRIP**~~ | ~~Viaje de ejemplo para nuevos usuarios~~ | ✅ **22 Dic 2025** |
+| **MOBILE-TYPOGRAPHY** | Aumentar tipografía en vistas mobile | - |
+| **SECURITY-CLEANUP** | Eliminar endpoints debug antes de escalar | - |
 | **DATA-MIGRATION** | Normalizar campos legacy (pasajeros int→array) | - |
+| **Google OAuth** | Verificar app para salir de modo testing | - |
 
 ### Prioridad Media
 
@@ -186,12 +219,11 @@
 | ~~**TIPOGRAFÍA MOBILE**~~ | ~~Aumentar tamaño de fuentes, usar rem en vez de px~~ | ✅ **17 Dic 2025** |
 | ~~**CAPITALIZACIÓN**~~ | ~~Auto-capitalizar nombres de pasajeros y ciudades~~ | ✅ **17 Dic 2025** |
 | ~~**SVG /agregar**~~ | ~~Eliminar círculo decorativo inútil~~ | ✅ **17 Dic 2025** |
-| **DEMO-TRIP** | Viaje de ejemplo para usuario nuevo | - |
-| **SETUP-CHECKLIST** | Checklist de configuración visible | - |
-| **14i/14j** | Guías in-app para Apple Mail y Outlook | - |
-| **SECURITY-CLEANUP** | Eliminar endpoints debug | - |
-| **BUG** | Moorings/charter: mejorar extracción de info | - |
+| ~~**DEMO-TRIP**~~ | ~~Viaje de ejemplo para usuario nuevo~~ | ✅ **22 Dic 2025** |
 | **MVP13b** | Envío de notificaciones (email cuando FR24 detecta cambio) | - |
+| **14i/14j** | Guías in-app para Apple Mail y Outlook | - |
+| **MVP-SHARE** | Compartir viajes entre usuarios | - |
+| **BUG** | Moorings/charter: mejorar extracción de info | - |
 
 ## Sesión 27: Auditoría UX/UI + Técnica ✅ (17-18 Dic 2025)
 
