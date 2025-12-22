@@ -139,18 +139,7 @@ def search_travel_emails_microsoft(access_token, days_back=30):
     Returns:
         list: Lista de mensajes
     """
-    # Construir filtro para dominios principales
-    top_domains = WHITELIST_DOMAINS[:20]
-
-    # Graph API usa filtro OData
-    # Formato: from/emailAddress/address eq 'x@domain.com'
-    # Para OR múltiples: (cond1) or (cond2) or ...
-    filters = []
-    for domain in top_domains:
-        # Nota: Graph API no soporta wildcards en filtros de texto
-        # Alternativa: buscar sin filtro y filtrar en Python
-        pass
-
+    # Ya no filtramos por dominios - usamos filtro por keywords después
     # Fecha límite
     date_limit = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%dT%H:%M:%SZ')
 

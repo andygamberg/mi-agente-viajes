@@ -265,7 +265,7 @@ def check_duplicate(vuelo_data):
     # Estrategia 1: Buscar por código de reserva + fecha (para identificar ida vs vuelta)
     if codigo:
         query = Viaje.query.filter_by(codigo_reserva=codigo)
-        # Si hay fecha, buscar el vuelo específico (ida o vuelta)
+        # SIEMPRE buscar por fecha para distinguir ida de vuelta
         if fecha_salida:
             from datetime import datetime
             try:
@@ -277,10 +277,9 @@ def check_duplicate(vuelo_data):
                     return existe
             except:
                 pass
-        # Sin fecha, buscar cualquiera con ese código
-        existe = query.first()
-        if existe:
-            return existe
+        # Si no hay fecha, NO hacer fallback a cualquier vuelo del mismo código
+        # porque podría ser ida vs vuelta
+        # Solo retornar None para que se cree como nuevo
 
     # Estrategia 2: Para vuelos, buscar por número de vuelo + ruta
     if tipo == 'vuelo' and vuelo_data.get('numero_vuelo'):

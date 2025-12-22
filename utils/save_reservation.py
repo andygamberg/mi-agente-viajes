@@ -157,8 +157,9 @@ def merge_reservation_data(existing_viaje, new_datos):
     datos_actuales = existing_viaje.datos or {}
     hubo_cambios = False
 
-    # Campos que NO se deben sobreescribir (identificadores únicos)
-    campos_inmutables = ['tipo', 'codigo_reserva']
+    # Campos que NO se deben sobreescribir (identificadores únicos y de tramo)
+    # Incluye campos de identidad de vuelo para evitar que ida sobrescriba vuelta
+    campos_inmutables = ['tipo', 'codigo_reserva', 'numero_vuelo', 'origen', 'destino', 'fecha_salida', 'hora_salida']
 
     # Iterar sobre todos los campos nuevos
     for campo, nuevo_valor in new_datos.items():
