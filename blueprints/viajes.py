@@ -223,6 +223,73 @@ def deduplicar_vuelos_en_grupo(vuelos):
     return resultado
 
 
+def crear_demo_trip():
+    """Genera un viaje de ejemplo para nuevos usuarios (no se guarda en BD)"""
+    from datetime import timedelta
+
+    # Fechas dinámicas: 27 días en futuro
+    fecha_ida = datetime.now() + timedelta(days=27)
+    fecha_vuelta = fecha_ida + timedelta(days=5)
+
+    # Simular objetos tipo Viaje con atributos necesarios para el template
+    class DemoViaje:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+            self._es_combinado = False
+            self._reservas_combinadas = []
+
+    vuelo_ida = DemoViaje(
+        id='demo_1',
+        tipo='vuelo',
+        nombre_viaje='Cancún',
+        fecha_salida=fecha_ida.replace(hour=10, minute=30),
+        fecha_llegada=fecha_ida.replace(hour=18, minute=45),
+        grupo_viaje='demo_trip',
+        datos={
+            'numero_vuelo': 'AA1234',
+            'origen': 'Buenos Aires (EZE)',
+            'destino': 'Cancún (CUN)',
+            'aerolinea': 'American Airlines',
+            'origen_codigo': 'EZE',
+            'destino_codigo': 'CUN'
+        }
+    )
+
+    hotel = DemoViaje(
+        id='demo_2',
+        tipo='hotel',
+        nombre_viaje='Cancún',
+        fecha_salida=fecha_ida.replace(hour=15, minute=0),
+        fecha_llegada=fecha_vuelta.replace(hour=11, minute=0),
+        grupo_viaje='demo_trip',
+        datos={
+            'nombre_hotel': 'Grand Fiesta Americana',
+            'direccion': 'Blvd. Kukulcan Km 9.5, Zona Hotelera',
+            'noches': 5
+        }
+    )
+
+    vuelo_vuelta = DemoViaje(
+        id='demo_3',
+        tipo='vuelo',
+        nombre_viaje='Cancún',
+        fecha_salida=fecha_vuelta.replace(hour=19, minute=0),
+        fecha_llegada=(fecha_vuelta + timedelta(days=1)).replace(hour=6, minute=30),
+        grupo_viaje='demo_trip',
+        datos={
+            'numero_vuelo': 'AA4321',
+            'origen': 'Cancún (CUN)',
+            'destino': 'Buenos Aires (EZE)',
+            'aerolinea': 'American Airlines',
+            'origen_codigo': 'CUN',
+            'destino_codigo': 'EZE'
+        }
+    )
+
+    return [vuelo_ida, hotel, vuelo_vuelta]
+
+
 @viajes_bp.route('/')
 @login_required
 def index():
@@ -270,10 +337,15 @@ def index():
     proximos = agrupar_viajes(viajes_futuros)
     pasados = agrupar_viajes(viajes_pasados)
     pasados.reverse()
-    
+
+    # DEMO-TRIP: Si no hay viajes, mostrar ejemplo
+    demo_trip = None
+    if not proximos and not pasados:
+        demo_trip = [crear_demo_trip()]  # Lista de grupos (un solo grupo)
+
     # ONBOARDING: Mostrar si nombre_pax vacío Y tiene 0 viajes
     show_onboarding = (not current_user.nombre_pax) and (len(viajes) == 0)
-    
+
     # Badge de perfil incompleto (mostrar si nombre_pax vacío)
     profile_incomplete = not current_user.nombre_pax
 
@@ -284,6 +356,7 @@ def index():
     return render_template('index.html',
                            proximos=proximos,
                            pasados=pasados,
+                           demo_trip=demo_trip,
                            show_onboarding=show_onboarding,
                            profile_incomplete=profile_incomplete,
                            highlight_grupo=highlight_grupo,
