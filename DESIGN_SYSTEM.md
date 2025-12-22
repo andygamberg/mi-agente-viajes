@@ -85,10 +85,11 @@ html {
 | Card title | 1.125rem | 18px | 600 | -0.3px |
 | Body | 1rem | 16px | 400 | 0 |
 | Label | 0.875rem | 14px | 500 | 0 |
-| Caption | 0.8125rem | 13px | 400 | 0 |
-| Micro (mínimo) | 0.75rem | 12px | 600 | 0.5px (uppercase) |
+| Micro (mínimo) | 0.875rem | 14px | 500 | 0 |
 
-**Nunca usar** font-size menor a 0.75rem (12px).
+**Nunca usar** font-size menor a 0.875rem (14px).
+
+> **⚠️ Regla de Accesibilidad (22 Dic 2025):** Ningún texto en la interfaz debe ser menor a 0.875rem (14px) para garantizar legibilidad a usuarios con presbicia (+45 años). Esta regla aplica a todos los elementos: badges, hints, labels, metadata.
 
 ---
 
