@@ -310,33 +310,26 @@ IMPORTANTE: Devuelve SOLO el array JSON, sin markdown ni explicaciones."""
         print("=" * 80)
         reservas = json.loads(texto)
 
-        # Corregir años si es necesario (aplica a todos los tipos)
+        # Validar años extraídos (solo corregir años claramente erróneos)
+        # RESPETAR años entre 2020-2030 (viajes históricos o futuros cercanos)
         for reserva in reservas:
             for campo in ['fecha_salida', 'fecha_llegada', 'fecha_checkin', 'fecha_checkout',
                           'fecha_retiro', 'fecha_devolucion', 'fecha', 'fecha_embarque', 'fecha_desembarque']:
                 fecha_valor = reserva.get(campo, '')
-                if fecha_valor and len(fecha_valor) >= 10:  # YYYY-MM-DD
+                if fecha_valor and len(fecha_valor) >= 4:
                     try:
                         year_extracted = int(fecha_valor[:4])
-                        month_extracted = int(fecha_valor[5:7])
-                        day_extracted = int(fecha_valor[8:10])
 
-                        # Corregir años pasados (antes del año actual)
-                        if year_extracted < current_year:
+                        # Rango válido: 2020-2030 (viajes históricos o futuros cercanos)
+                        # Si está en este rango, RESPETAR el año del documento
+                        if 2020 <= year_extracted <= 2030:
+                            # Año válido, no corregir - respetar lo que dice el documento
+                            pass
+                        else:
+                            # Año claramente erróneo (ej: 2049, 1999, 2019), corregir a target_year
                             reserva[campo] = str(target_year) + fecha_valor[4:]
-                            print(f"  ⚠️ Año corregido (pasado): {year_extracted} → {target_year}")
-                        # Corregir años futuros muy lejanos (más de 3 años en el futuro)
-                        elif year_extracted > current_year + 3:
-                            reserva[campo] = str(target_year) + fecha_valor[4:]
-                            print(f"  ⚠️ Año corregido (futuro lejano): {year_extracted} → {target_year}")
-                        # Corregir fecha del año actual que ya pasó → debe ser próximo año
-                        elif year_extracted == current_year:
-                            fecha_extraida = datetime(year_extracted, month_extracted, day_extracted)
-                            if fecha_extraida.date() < now.date():
-                                # La fecha ya pasó este año, debe ser el próximo
-                                nuevo_year = current_year + 1
-                                reserva[campo] = str(nuevo_year) + fecha_valor[4:]
-                                print(f"  ⚠️ Año corregido (fecha pasada): {year_extracted} → {nuevo_year}")
+                            print(f"  ⚠️ Año corregido (fuera de rango 2020-2030): {year_extracted} → {target_year}")
+
                     except (ValueError, IndexError):
                         pass
 

@@ -13,13 +13,12 @@ logger = logging.getLogger(__name__)
 
 from models import db, EmailConnection, Viaje
 from utils.gmail_scanner import (
-    WHITELIST_DOMAINS,
-    is_whitelisted_sender,
     extract_text_from_pdf,
     check_duplicate,
     check_duplicate_by_content,
     MAX_EMAILS_PER_SCAN
 )
+from email_processor import email_parece_reserva
 
 
 def extract_body_microsoft(message):
@@ -237,21 +236,22 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
             messages = search_travel_emails_microsoft(access_token, scan_days)
             print(f"      📥 {len(messages)} emails encontrados en {conn.email}")
 
-            # Filtrar por remitentes whitelistados
+            # Filtrar por keywords (reemplaza whitelist de remitentes)
             filtered_messages = []
             for msg in messages:
                 from_email = msg.get('from', {}).get('emailAddress', {}).get('address', '')
                 from_name = msg.get('from', {}).get('emailAddress', {}).get('name', '')
                 subject = msg.get('subject', '')
+                body_preview = msg.get('bodyPreview', '')[:500]
 
-                if is_whitelisted_sender(from_email, user_id):
+                if email_parece_reserva(subject, body_preview):
                     filtered_messages.append(msg)
-                    print(f"      ✅ Whitelisted: {from_name} <{from_email}> - {subject[:50]}")
+                    print(f"      ✅ Parece reserva: {subject[:50]}")
                 else:
-                    print(f"      ⏭️ Remitente no whitelisted: {from_name} <{from_email}>")
+                    print(f"      ⏭️ No parece reserva: {subject[:50]}")
 
             results['emails_encontrados'] += len(filtered_messages)
-            print(f"      🎯 {len(filtered_messages)} emails whitelistados para procesar")
+            print(f"      🎯 {len(filtered_messages)} emails que parecen reservas para procesar")
 
             emails_processed_count = 0
 

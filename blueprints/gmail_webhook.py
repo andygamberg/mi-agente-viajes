@@ -13,7 +13,6 @@ from googleapiclient.discovery import build
 
 from models import db, EmailConnection, Viaje
 from utils.gmail_scanner import (
-    is_whitelisted_sender,
     extract_body,
     extract_pdf_attachments,
     extract_text_from_pdf,
@@ -21,6 +20,7 @@ from utils.gmail_scanner import (
     check_duplicate_by_content
 )
 from utils.claude import extraer_info_con_claude
+from email_processor import email_parece_reserva
 from utils.save_reservation import save_reservation, merge_reservation_data
 
 gmail_webhook_bp = Blueprint('gmail_webhook', __name__)
@@ -157,12 +157,15 @@ def process_new_emails(connection, history_id):
                         elif h['name'].lower() == 'subject':
                             subject = h['value']
                     
-                    # MVP14e: Pasar user_id para chequear custom senders
-                    if not is_whitelisted_sender(from_header, connection.user_id):
-                        print(f"Remitente no whitelisted: {from_header}")
+                    # MVP14g: Extraer body para pre-filtro
+                    body_preview = extract_body(msg.get('payload', {}))[:2000]
+
+                    # Filtro por keywords (reemplaza whitelist de remitentes)
+                    if not email_parece_reserva(subject or '', body_preview):
+                        print(f"⏭️ Email descartado por pre-filtro (no parece reserva): {subject[:50] if subject else '(sin subject)'}")
                         continue
-                    
-                    print(f"✅ Email de remitente confiable: {subject}")
+
+                    print(f"✅ Email parece reserva, procesando: {subject[:50] if subject else '(sin subject)'}")
                     
                     # MVP14g: Extraer body + PDFs adjuntos
                     full_content = get_full_email_content(

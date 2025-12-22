@@ -468,7 +468,15 @@ def scan_and_create_viajes(user_id, days_back=30):
             for msg_id in msg_ids[:MAX_EMAILS_PER_SCAN]:
                 try:
                     email = get_email_content(service, msg_id)
-                    if not email or not is_whitelisted_sender(email.get('from'), user_id):
+                    if not email:
+                        continue
+
+                    # Filtro por keywords (reemplaza whitelist de remitentes)
+                    from email_processor import email_parece_reserva
+                    subject = email.get('subject', '')
+                    body_preview = email.get('body', '')[:2000]
+                    if not email_parece_reserva(subject, body_preview):
+                        print(f"⏭️ Email descartado por pre-filtro: {subject[:50]}")
                         continue
 
                     results['emails_procesados'] += 1
