@@ -1953,7 +1953,10 @@
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
+            {% endif %}
+
+            {# Empty state: solo se muestra si NO tiene OAuth conectado #}
+            {% if not has_oauth %}
             <div class="empty-state-hero">
                 <div class="empty-state-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

@@ -338,6 +338,12 @@ def index():
     pasados = agrupar_viajes(viajes_pasados)
     pasados.reverse()
 
+    # Verificar si tiene OAuth conectado
+    has_oauth = EmailConnection.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).first() is not None
+
     # DEMO-TRIP: Si no hay viajes, mostrar ejemplo
     demo_trip = None
     if not proximos and not pasados:
@@ -357,6 +363,7 @@ def index():
                            proximos=proximos,
                            pasados=pasados,
                            demo_trip=demo_trip,
+                           has_oauth=has_oauth,
                            show_onboarding=show_onboarding,
                            profile_incomplete=profile_incomplete,
                            highlight_grupo=highlight_grupo,
