@@ -83,13 +83,11 @@ html {
 | Page title | 2rem | 32px | 600 | -0.5px |
 | Section | 1.75rem | 28px | 600 | -0.3px |
 | Card title | 1.25rem | 20px | 600 | -0.3px |
-| Body / valores | 1.0625rem | 17px | 500 | 0 |
-| Body / standard | 1rem | 16px | 400 | 0 |
-| Label (mínimo) | 1rem | 16px | 500 | 0 |
+| Body (mínimo) | 1.25rem | 20px | 400 | 0 |
 
-**Nunca usar** font-size menor a 1rem (16px).
+**Nunca usar** font-size menor a 1.25rem (20px).
 
-> **⚠️ Regla de Accesibilidad v2 (23 Dic 2025):** Ningún texto en la interfaz debe ser menor a 1rem (16px) para garantizar legibilidad a usuarios con presbicia (+45 años). Esta regla aplica a todos los elementos: badges, hints, labels, metadata. La versión anterior (14px) resultó insuficiente en testing con usuarios reales.
+> **⚠️ Regla de Accesibilidad v4 (23 Dic 2025):** Ningún texto en la interfaz debe ser menor a 1.25rem (20px) para garantizar legibilidad a usuarios con presbicia (+45 años) en dispositivos móviles sin anteojos. Esta regla aplica a todos los elementos: badges, hints, labels, metadata. La versión anterior (16px) resultó insuficiente en testing con usuarios reales.
 
 ---
 
@@ -276,4 +274,4 @@ Antes de agregar cualquier elemento de UI, verificar:
 | 10 Dic 2025 | Documento inicial creado |
 | 10 Dic 2025 | Regla de no-emojis establecida |
 | 17 Dic 2025 | Migración a rem, tabla actualizada con valores, regla de mínimo 0.75rem |
-| 23 Dic 2025 | **MOBILE-TYPOGRAPHY v2**: Mínimo 16px (1rem) para accesibilidad presbicia |
+| 23 Dic 2025 | **MOBILE-TYPOGRAPHY v4**: Mínimo 20px (1.25rem) para accesibilidad presbicia |
