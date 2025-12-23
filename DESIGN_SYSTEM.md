@@ -1,7 +1,7 @@
 # 🎨 DESIGN SYSTEM - Mi Agente Viajes
 
-**Última actualización:** 17 Diciembre 2025
-**Versión:** 1.0
+**Última actualización:** 23 Diciembre 2025
+**Versión:** 1.1
 
 ---
 
@@ -82,14 +82,14 @@ html {
 | Hero | 3.5rem | 56px | 700 | -0.5px |
 | Page title | 2rem | 32px | 600 | -0.5px |
 | Section | 1.75rem | 28px | 600 | -0.3px |
-| Card title | 1.125rem | 18px | 600 | -0.3px |
-| Body | 1rem | 16px | 400 | 0 |
-| Label | 0.875rem | 14px | 500 | 0 |
-| Micro (mínimo) | 0.875rem | 14px | 500 | 0 |
+| Card title | 1.25rem | 20px | 600 | -0.3px |
+| Body / valores | 1.0625rem | 17px | 500 | 0 |
+| Body / standard | 1rem | 16px | 400 | 0 |
+| Label (mínimo) | 1rem | 16px | 500 | 0 |
 
-**Nunca usar** font-size menor a 0.875rem (14px).
+**Nunca usar** font-size menor a 1rem (16px).
 
-> **⚠️ Regla de Accesibilidad (22 Dic 2025):** Ningún texto en la interfaz debe ser menor a 0.875rem (14px) para garantizar legibilidad a usuarios con presbicia (+45 años). Esta regla aplica a todos los elementos: badges, hints, labels, metadata.
+> **⚠️ Regla de Accesibilidad v2 (23 Dic 2025):** Ningún texto en la interfaz debe ser menor a 1rem (16px) para garantizar legibilidad a usuarios con presbicia (+45 años). Esta regla aplica a todos los elementos: badges, hints, labels, metadata. La versión anterior (14px) resultó insuficiente en testing con usuarios reales.
 
 ---
 
@@ -276,3 +276,4 @@ Antes de agregar cualquier elemento de UI, verificar:
 | 10 Dic 2025 | Documento inicial creado |
 | 10 Dic 2025 | Regla de no-emojis establecida |
 | 17 Dic 2025 | Migración a rem, tabla actualizada con valores, regla de mínimo 0.75rem |
+| 23 Dic 2025 | **MOBILE-TYPOGRAPHY v2**: Mínimo 16px (1rem) para accesibilidad presbicia |
