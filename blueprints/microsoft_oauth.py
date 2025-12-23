@@ -5,7 +5,7 @@ Rutas: /conectar-microsoft, /microsoft-callback, /desconectar-microsoft
 """
 from flask import Blueprint, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import requests as http_requests
 import logging
@@ -128,7 +128,9 @@ def microsoft_callback():
         token_data = token_response.json()
         access_token = token_data.get('access_token')
         refresh_token = token_data.get('refresh_token')
-        logger.info(f"MS OAuth token received: has_access={bool(access_token)}, has_refresh={bool(refresh_token)}")
+        expires_in = token_data.get('expires_in', 3600)  # Default 1 hora
+        token_expiry = datetime.utcnow() + timedelta(seconds=expires_in - 300)  # 5 min margen
+        logger.info(f"MS OAuth token received: has_access={bool(access_token)}, has_refresh={bool(refresh_token)}, expires_in={expires_in}")
 
         if not access_token:
             logger.error("MS OAuth: No access token in response")
@@ -166,7 +168,7 @@ def microsoft_callback():
         if existing:
             existing.access_token = access_token
             existing.refresh_token = refresh_token or existing.refresh_token
-            existing.token_expiry = None
+            existing.token_expiry = token_expiry
             existing.is_active = True
             existing.last_error = None
             existing.updated_at = datetime.utcnow()
@@ -178,7 +180,7 @@ def microsoft_callback():
                 email=microsoft_email,
                 access_token=access_token,
                 refresh_token=refresh_token,
-                token_expiry=None,
+                token_expiry=token_expiry,
                 is_active=True
             )
             db.session.add(connection)
@@ -326,7 +328,9 @@ def get_microsoft_credentials(user_id, email=None, connection_id=None):
         return None
 
     # Verificar si el token expiró y refrescar si es necesario
-    if connection.token_expiry and connection.token_expiry < datetime.utcnow():
+    # Si token_expiry es NULL (conexiones antiguas), asumir expirado y forzar refresh
+    token_expired = not connection.token_expiry or connection.token_expiry < datetime.utcnow()
+    if token_expired:
         if connection.refresh_token:
             try:
                 print(f"🔄 Refrescando token Microsoft expirado para {connection.email}...")
@@ -346,6 +350,9 @@ def get_microsoft_credentials(user_id, email=None, connection_id=None):
                     connection.access_token = token_data.get('access_token')
                     if token_data.get('refresh_token'):
                         connection.refresh_token = token_data.get('refresh_token')
+                    # Guardar nuevo token_expiry
+                    expires_in = token_data.get('expires_in', 3600)
+                    connection.token_expiry = datetime.utcnow() + timedelta(seconds=expires_in - 300)
                     connection.updated_at = datetime.utcnow()
                     connection.last_error = None  # Limpiar error anterior
                     db.session.commit()

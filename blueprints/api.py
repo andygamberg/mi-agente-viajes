@@ -240,6 +240,13 @@ def cron_check_flights():
         from flight_monitor import check_all_upcoming_flights
         from email_processor import send_email
         from models import User
+        from blueprints.gmail_webhook import renew_expired_watches
+
+        # Renovar Gmail watches expirados
+        watch_result = renew_expired_watches()
+        print(f"📧 Gmail watches: {watch_result['renewed']}/{watch_result['total']} renovados")
+        if watch_result['errors']:
+            print(f"  ⚠️ Errores: {watch_result['errors']}")
 
         cambios = check_all_upcoming_flights(db.session)
 

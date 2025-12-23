@@ -78,6 +78,46 @@ def setup_gmail_watch(user_id, gmail_email=None):
         return {'success': False, 'error': str(e)}
 
 
+def renew_expired_watches():
+    """
+    Renueva los Gmail watches que están por expirar (dentro de 24 horas).
+    Debe ejecutarse desde un cron periódicamente.
+    """
+    from datetime import timedelta
+
+    # Buscar conexiones Gmail con watch por expirar o ya expirado
+    expiry_threshold = datetime.utcnow() + timedelta(hours=24)
+
+    connections = EmailConnection.query.filter(
+        EmailConnection.provider == 'gmail',
+        EmailConnection.is_active == True,
+        db.or_(
+            EmailConnection.watch_expiration == None,
+            EmailConnection.watch_expiration < expiry_threshold
+        )
+    ).all()
+
+    renewed = 0
+    errors = []
+
+    for conn in connections:
+        print(f"🔄 Renovando watch para {conn.email}...")
+        result = setup_gmail_watch(conn.user_id, conn.email)
+        if result.get('success'):
+            renewed += 1
+            print(f"  ✅ Watch renovado para {conn.email}")
+        else:
+            error = result.get('error', 'Unknown error')
+            errors.append(f"{conn.email}: {error}")
+            print(f"  ❌ Error renovando watch para {conn.email}: {error}")
+
+    return {
+        'total': len(connections),
+        'renewed': renewed,
+        'errors': errors
+    }
+
+
 def get_full_email_content(service, msg_id, payload, subject=''):
     """
     Extrae todo el contenido del email: body + PDFs adjuntos.
