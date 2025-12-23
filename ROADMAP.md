@@ -69,6 +69,11 @@
 - Vuelos ida/vuelta ya no se sobreescriben entre sí
 - Campos inmutables en merge: numero_vuelo, origen, destino, fecha_salida, hora_salida
 
+#### MOBILE-TYPOGRAPHY v4 ✅
+- Tipografía mínima aumentada a 20px (1.25rem)
+- Para legibilidad con presbicia (+45 años) sin anteojos
+- Todos los templates actualizados
+
 ### ✅ Completado - Sesión 30 (22 Dic 2025)
 
 #### DEMO-TRIP ✅
@@ -230,7 +235,7 @@
 | ~~**UI-POLISH**~~ | ~~Fix 8 bugs de UI detectados en Sesión 27~~ | ✅ **22 Dic 2025** |
 | ~~**REDIRECT-SMART**~~ | ~~Redirect inteligente post-guardado~~ | ✅ **22 Dic 2025** |
 | ~~**DEMO-TRIP**~~ | ~~Viaje de ejemplo para nuevos usuarios~~ | ✅ **22 Dic 2025** |
-| **MOBILE-TYPOGRAPHY** | Aumentar tipografía en vistas mobile | - |
+| ~~**MOBILE-TYPOGRAPHY**~~ | ~~Aumentar tipografía a mínimo 20px (presbicia)~~ | ✅ **23 Dic 2025** |
 | **SECURITY-CLEANUP** | Eliminar endpoints debug antes de escalar | - |
 | **DATA-MIGRATION** | Normalizar campos legacy (pasajeros int→array) | - |
 | **Google OAuth** | Verificar app para salir de modo testing | - |
@@ -378,7 +383,7 @@
 
 ---
 
-*Última actualización: 21 Dic 2025*
+*Última actualización: 23 Dic 2025*
 
 ## ✅ MVP15: Multi-Tipo de Reservas (15 Dic 2025)
 

@@ -1,7 +1,7 @@
 # 🎨 UX/UI ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 22 Diciembre 2025
-**Versión:** 2.6 (DEMO-TRIP + Onboarding Tips)
+**Última actualización:** 23 Diciembre 2025
+**Versión:** 2.7 (MOBILE-TYPOGRAPHY v4)
 
 ---
 
@@ -54,7 +54,7 @@
 |----------|----------|
 | Touch targets mínimo 44px | Botones pequeños |
 | Navegación thumb-friendly | Menús en esquinas superiores |
-| Texto legible sin zoom (16px mínimo) | Texto 12px en mobile |
+| Texto legible sin zoom (20px mínimo) | Texto menor a 20px en mobile |
 
 ### 5. Feedback Inmediato
 **"El usuario siempre sabe qué está pasando"**
@@ -472,6 +472,14 @@ Próximos eventos
 ---
 
 ## ✅ COMPLETADO
+
+### Sesión 31: OAuth Fixes + Typography (23 Dic 2025)
+- [x] MOBILE-TYPOGRAPHY v4: mínimo 20px (1.25rem) para legibilidad presbicia
+- [x] Gmail watches auto-renewal (7 días)
+- [x] Microsoft token refresh fix (token_expiry)
+- [x] Avisos proactivos expiración OAuth (60+ días)
+- [x] Fix deduplicación ida/vuelta (campos inmutables)
+- [x] Email filter incluye attachment_names
 
 ### Sesión 30: Onboarding + Tips (22 Dic 2025)
 - [x] DEMO-TRIP: viaje de ejemplo para nuevos usuarios (fechas dinámicas, no guardado en BD)
