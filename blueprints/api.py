@@ -248,6 +248,10 @@ def cron_check_flights():
         if watch_result['errors']:
             print(f"  ⚠️ Errores: {watch_result['errors']}")
 
+        # Verificar conexiones OAuth por expirar (Microsoft 90 días)
+        oauth_result = check_expiring_oauth_connections()
+        print(f"🔐 OAuth check: {oauth_result['warnings_sent']} avisos enviados de {oauth_result['connections_checked']} conexiones")
+
         cambios = check_all_upcoming_flights(db.session)
 
         emails_enviados = 0
@@ -336,13 +340,96 @@ def cron_check_flights():
             'success': True,
             'timestamp': datetime.now().isoformat(),
             'cambios_detectados': len(cambios),
-            'emails_enviados': emails_enviados
+            'emails_enviados': emails_enviados,
+            'gmail_watches_renewed': watch_result['renewed'],
+            'oauth_warnings_sent': oauth_result['warnings_sent']
         }, 200
 
     except Exception as e:
         import traceback
         traceback.print_exc()
         return {'success': False, 'error': str(e)}, 500
+
+
+def check_expiring_oauth_connections():
+    """
+    Detecta conexiones OAuth de Microsoft que están por expirar (60+ días sin uso)
+    y envía email de aviso al usuario para que renueve.
+
+    Microsoft refresh tokens expiran después de 90 días de inactividad.
+    Enviamos aviso a los 60 días para dar tiempo al usuario.
+    """
+    from datetime import timedelta
+    from models import EmailConnection, User
+    from email_processor import send_email
+
+    # Conexiones Microsoft sin actividad en 60+ días
+    inactivity_threshold = datetime.utcnow() - timedelta(days=60)
+    warning_cooldown = timedelta(days=7)  # No enviar más de 1 aviso por semana
+
+    connections = EmailConnection.query.filter(
+        EmailConnection.provider == 'microsoft',
+        EmailConnection.is_active == True,
+        db.or_(
+            EmailConnection.last_scan == None,
+            EmailConnection.last_scan < inactivity_threshold
+        )
+    ).all()
+
+    warnings_sent = 0
+    for conn in connections:
+        # Verificar cooldown de avisos
+        if conn.last_expiry_warning and conn.last_expiry_warning > datetime.utcnow() - warning_cooldown:
+            continue
+
+        user = User.query.get(conn.user_id)
+        if not user or not user.email:
+            continue
+
+        # Calcular días de inactividad
+        last_activity = conn.last_scan or conn.connected_at
+        days_inactive = (datetime.utcnow() - last_activity).days if last_activity else 999
+
+        print(f"⚠️ Conexión Microsoft por expirar: {conn.email} ({days_inactive} días inactiva)")
+
+        # Enviar email de aviso
+        subject = f"⚠️ Tu conexión de {conn.email} necesita renovarse"
+        body_html = f'''
+        <html>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #1d1d1f;">Tu conexión de email necesita renovarse</h2>
+
+            <p>Hola {user.nombre or 'usuario'},</p>
+
+            <p>Tu cuenta <strong>{conn.email}</strong> lleva <strong>{days_inactive} días</strong> sin actividad
+            en Mis Viajes. Por políticas de Microsoft, las conexiones expiran después de 90 días sin uso.</p>
+
+            <p>Para evitar perder la conexión y tener que volver a autorizarla, te pedimos que:</p>
+
+            <div style="background: #f5f5f7; padding: 20px; border-radius: 12px; margin: 20px 0;">
+                <p style="margin: 0;"><strong>Opción 1:</strong> Entrá a <a href="https://mi-agente-viajes-454542398872.us-east1.run.app/preferencias">Mis Viajes → Preferencias</a>
+                y hacé click en "Reconectar" en tu cuenta Microsoft.</p>
+
+                <p style="margin: 16px 0 0 0;"><strong>Opción 2:</strong> Reenviá cualquier email de reserva a tu cuenta conectada
+                para reactivar la conexión automáticamente.</p>
+            </div>
+
+            <p style="color: #6e6e73;">Si no renovás la conexión, tus próximas reservas de viaje no se cargarán automáticamente
+            y tendrás que volver a conectar tu cuenta.</p>
+
+            <p>Saludos,<br>El equipo de Mis Viajes</p>
+        </body>
+        </html>
+        '''
+
+        result = send_email(user.email, subject, body_html)
+        if result:
+            conn.last_expiry_warning = datetime.utcnow()
+            db.session.commit()
+            warnings_sent += 1
+            print(f"  ✅ Aviso enviado a {user.email}")
+
+    return {'connections_checked': len(connections), 'warnings_sent': warnings_sent}
 
 
 @api_bp.route('/cron/checkin-reminders', methods=['GET', 'POST'])

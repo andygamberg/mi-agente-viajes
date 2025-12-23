@@ -128,7 +128,8 @@ class EmailConnection(db.Model):
     # Timestamps
     connected_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+    last_expiry_warning = db.Column(db.DateTime)  # Cuándo se envió último aviso de expiración
+
     def is_token_expired(self):
         """Verifica si el token expiró"""
         if not self.token_expiry:
