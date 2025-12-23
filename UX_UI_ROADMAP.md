@@ -465,7 +465,7 @@ Próximos eventos
 - [ ] Guías 14i/14j (Apple Mail, Outlook)
 
 ### Técnicos (Pre-escala)
-- [ ] Eliminar endpoints debug
+- [x] ~~Eliminar endpoints debug~~ ✅ 21 Dic 2025
 - [ ] Fix pasajeros int → array
 - [ ] Google OAuth verification
 

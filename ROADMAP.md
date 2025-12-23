@@ -236,7 +236,7 @@
 | ~~**REDIRECT-SMART**~~ | ~~Redirect inteligente post-guardado~~ | ✅ **22 Dic 2025** |
 | ~~**DEMO-TRIP**~~ | ~~Viaje de ejemplo para nuevos usuarios~~ | ✅ **22 Dic 2025** |
 | ~~**MOBILE-TYPOGRAPHY**~~ | ~~Aumentar tipografía a mínimo 20px (presbicia)~~ | ✅ **23 Dic 2025** |
-| **SECURITY-CLEANUP** | Eliminar endpoints debug antes de escalar | - |
+| ~~**SECURITY-CLEANUP**~~ | ~~Eliminar endpoints debug antes de escalar~~ | ✅ **21 Dic 2025** |
 | **DATA-MIGRATION** | Normalizar campos legacy (pasajeros int→array) | - |
 | **Google OAuth** | Verificar app para salir de modo testing | - |
 
@@ -292,7 +292,7 @@
 - [ ] Guías 14i/14j (Apple Mail, Outlook)
 
 **Técnicos pre-escala:**
-- [ ] Eliminar endpoints debug
+- [x] ~~Eliminar endpoints debug~~ ✅ 21 Dic 2025
 - [ ] Fix pasajeros int → array
 - [ ] Google OAuth verification
 
@@ -300,7 +300,7 @@
 
 | Área | Estado | Acción |
 |------|--------|--------|
-| Endpoints debug | 🔴 Expuestos | Eliminar antes de escalar |
+| Endpoints debug | ✅ Eliminados | Completado 21 Dic 2025 |
 | Pasajeros legacy | 🟡 Algunos int | Migrar a array |
 | Performance matching | 🟡 Escala mal | Optimizar con >100 usuarios |
 | Google OAuth | 🟡 Modo testing | Verificar antes de beta público |
