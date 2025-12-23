@@ -398,22 +398,36 @@ def search_travel_emails(service, days_back=30):
 
 
 def get_email_content(service, msg_id):
-    """Obtiene contenido de email"""
+    """Obtiene contenido de email incluyendo nombres de adjuntos"""
     try:
         msg = service.users().messages().get(
             userId='me', id=msg_id, format='full'
         ).execute()
-        
-        headers = msg.get('payload', {}).get('headers', [])
-        data = {'id': msg_id, 'from': None, 'subject': None, 'body': ''}
-        
+
+        payload = msg.get('payload', {})
+        headers = payload.get('headers', [])
+        data = {'id': msg_id, 'from': None, 'subject': None, 'body': '', 'attachment_names': []}
+
         for h in headers:
             if h['name'].lower() == 'from':
                 data['from'] = h['value']
             elif h['name'].lower() == 'subject':
                 data['subject'] = h['value']
-        
-        data['body'] = extract_body(msg.get('payload', {}))[:8000]
+
+        data['body'] = extract_body(payload)[:8000]
+
+        # Extraer nombres de adjuntos
+        def get_attachment_names(parts):
+            for part in parts:
+                filename = part.get('filename', '')
+                if filename:
+                    data['attachment_names'].append(filename)
+                if 'parts' in part:
+                    get_attachment_names(part['parts'])
+
+        if 'parts' in payload:
+            get_attachment_names(payload['parts'])
+
         return data
     except:
         return None
@@ -471,11 +485,12 @@ def scan_and_create_viajes(user_id, days_back=30):
                     if not email:
                         continue
 
-                    # Filtro por keywords (reemplaza whitelist de remitentes)
+                    # Filtro por keywords (incluye nombres de adjuntos)
                     from email_processor import email_parece_reserva
                     subject = email.get('subject', '')
                     body_preview = email.get('body', '')[:2000]
-                    if not email_parece_reserva(subject, body_preview):
+                    attachment_names = email.get('attachment_names', [])
+                    if not email_parece_reserva(subject, body_preview, attachment_names):
                         print(f"⏭️ Email descartado por pre-filtro: {subject[:50]}")
                         continue
 

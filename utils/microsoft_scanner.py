@@ -44,6 +44,29 @@ def extract_body_microsoft(message):
     return content.strip()
 
 
+def get_attachment_names_microsoft(access_token, message_id):
+    """
+    Obtiene solo los nombres de adjuntos (sin descargar contenido).
+    Usado para el pre-filtro de emails.
+    """
+    try:
+        response = http_requests.get(
+            f'https://graph.microsoft.com/v1.0/me/messages/{message_id}/attachments',
+            headers={'Authorization': f'Bearer {access_token}'},
+            params={'$select': 'name'}  # Solo nombres, no contenido
+        )
+
+        if response.status_code != 200:
+            return []
+
+        att_list = response.json().get('value', [])
+        return [att.get('name', '') for att in att_list if att.get('name')]
+
+    except Exception as e:
+        print(f"    ⚠️ Error obteniendo nombres de attachments: {e}")
+        return []
+
+
 def extract_pdf_attachments_microsoft(access_token, message_id):
     """
     Extrae PDFs adjuntos de un email usando Graph API.
@@ -225,7 +248,7 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
             messages = search_travel_emails_microsoft(access_token, scan_days)
             print(f"      📥 {len(messages)} emails encontrados en {conn.email}")
 
-            # Filtrar por keywords (reemplaza whitelist de remitentes)
+            # Filtrar por keywords (incluye nombres de adjuntos)
             filtered_messages = []
             for msg in messages:
                 from_email = msg.get('from', {}).get('emailAddress', {}).get('address', '')
@@ -233,7 +256,12 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                 subject = msg.get('subject', '')
                 body_preview = msg.get('bodyPreview', '')[:500]
 
-                if email_parece_reserva(subject, body_preview):
+                # Obtener nombres de adjuntos si el email tiene attachments
+                attachment_names = []
+                if msg.get('hasAttachments'):
+                    attachment_names = get_attachment_names_microsoft(access_token, msg.get('id'))
+
+                if email_parece_reserva(subject, body_preview, attachment_names):
                     filtered_messages.append(msg)
                     print(f"      ✅ Parece reserva: {subject[:50]}")
                 else:

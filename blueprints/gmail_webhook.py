@@ -198,10 +198,24 @@ def process_new_emails(connection, history_id):
                             subject = h['value']
                     
                     # MVP14g: Extraer body para pre-filtro
-                    body_preview = extract_body(msg.get('payload', {}))[:2000]
+                    payload = msg.get('payload', {})
+                    body_preview = extract_body(payload)[:2000]
 
-                    # Filtro por keywords (reemplaza whitelist de remitentes)
-                    if not email_parece_reserva(subject or '', body_preview):
+                    # Extraer nombres de adjuntos del payload (sin descargar contenido)
+                    attachment_names = []
+                    def get_attachment_names(parts):
+                        for part in parts:
+                            filename = part.get('filename', '')
+                            if filename:
+                                attachment_names.append(filename)
+                            if 'parts' in part:
+                                get_attachment_names(part['parts'])
+
+                    if 'parts' in payload:
+                        get_attachment_names(payload['parts'])
+
+                    # Filtro por keywords (incluye nombres de adjuntos)
+                    if not email_parece_reserva(subject or '', body_preview, attachment_names):
                         print(f"⏭️ Email descartado por pre-filtro (no parece reserva): {subject[:50] if subject else '(sin subject)'}")
                         continue
 

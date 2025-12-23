@@ -243,12 +243,21 @@ EXCLUDE_KEYWORDS = [
 ]
 
 
-def email_parece_reserva(subject, body):
+def email_parece_reserva(subject, body, attachment_names=None):
     """
     Pre-filtro local para determinar si un email parece contener una reserva.
     Retorna True si vale la pena enviarlo a Claude.
+
+    Args:
+        subject: Asunto del email
+        body: Cuerpo del email (primeros 2000 chars)
+        attachment_names: Lista opcional de nombres de archivos adjuntos
     """
     contenido = (subject + ' ' + body[:2000]).lower()
+
+    # Incluir nombres de adjuntos si están disponibles
+    if attachment_names:
+        contenido += ' ' + ' '.join(attachment_names).lower()
 
     # Excluir si tiene keywords de exclusión
     for kw in EXCLUDE_KEYWORDS:
