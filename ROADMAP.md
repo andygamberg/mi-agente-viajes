@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 22 Diciembre 2025
+**Última actualización:** 23 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -45,6 +45,29 @@
 | 26 | UX Mobile + Formato hora | 17 Dic 2025 | Tipografía rem, capitalización, formato hora 24h/12h |
 | **27** | **Unificación Preferencias + Merge reservas** | **21 Dic 2025** | **Perfil→Preferencias, merge asientos/actualizaciones, Outlook Calendar** |
 | **28** | **DEMO-TRIP + Onboarding UX** | **22 Dic 2025** | **Viaje ejemplo, tips calendario/agrupar, empty state contextual, REDIRECT-SMART** |
+
+### ✅ Completado - Sesión 31 (23 Dic 2025)
+
+#### EMAIL FILTER ENHANCEMENT ✅
+- Filtro `email_parece_reserva()` ahora incluye nombres de archivos adjuntos
+- Emails con PDFs nombrados "Reserva de viaje..." ya no son descartados
+- Implementado en: gmail_webhook.py, gmail_scanner.py, microsoft_scanner.py
+
+#### OAUTH FIXES ✅
+- Microsoft: Fix token refresh (token_expiry siempre era NULL)
+- Gmail: Auto-renovación de watches expirados (cada 7 días)
+- Integrado en cron check-flights
+
+#### OAUTH EXPIRATION WARNING ✅
+- Sistema proactivo de avisos para conexiones Microsoft por expirar
+- Detecta 60+ días de inactividad (antes de 90 días de expiración)
+- Envía email al usuario con instrucciones para reconectar
+- Cooldown de 7 días entre avisos (evita spam)
+- Nueva columna: `email_connection.last_expiry_warning`
+
+#### DEDUPLICATION FIX ✅
+- Vuelos ida/vuelta ya no se sobreescriben entre sí
+- Campos inmutables en merge: numero_vuelo, origen, destino, fecha_salida, hora_salida
 
 ### ✅ Completado - Sesión 30 (22 Dic 2025)
 

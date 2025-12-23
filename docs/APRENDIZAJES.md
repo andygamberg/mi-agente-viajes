@@ -571,3 +571,49 @@ if codigo and check_duplicate(codigo, user_id):
 **Solución:** Agregar bloque `{% else %}` con el menú para segmentos individuales, con CSS `.segment-header-single` posicionado absoluto
 **Sesión:** 28
 **Aplicable a:** Cualquier acción que deba estar disponible tanto en grupos como en segmentos individuales
+
+---
+
+## Sesión 31: OAuth Fixes y Email Filter (23 Dic 2025)
+
+### 42. db.create_all() NO agrega columnas a tablas existentes
+**Problema:** App caída con "column email_connection.last_expiry_warning does not exist"
+**Causa:** Agregué campo al modelo pero `db.create_all()` solo crea tablas nuevas, no modifica existentes
+**Solución:** Usar `ALTER TABLE ADD COLUMN IF NOT EXISTS` en endpoint migrate-db
+**Sesión:** 31
+**Aplicable a:** Cualquier proyecto Flask/SQLAlchemy sin Flask-Migrate
+
+### 43. Email filter debe incluir nombres de adjuntos, no solo subject+body
+**Problema:** Email con subject "Tra prueba" descartado aunque tenía PDF "Reserva de viaje..."
+**Causa:** `email_parece_reserva()` solo revisaba subject + body[:2000]
+**Solución:** Extraer nombres de archivos adjuntos del payload (sin descargar contenido) e incluirlos en el filtro
+**Sesión:** 31
+**Aplicable a:** Cualquier sistema de filtrado de emails con adjuntos
+
+### 44. Microsoft OAuth token_expiry debe guardarse explícitamente
+**Problema:** Scanner Microsoft daba 401 aunque tenía refresh_token válido
+**Causa:** `token_expiry` siempre era NULL, entonces `is_token_expired()` nunca triggereaba refresh
+**Solución:** Calcular y guardar token_expiry en connect Y en refresh: `datetime.utcnow() + timedelta(seconds=expires_in - 300)`
+**Sesión:** 31
+**Aplicable a:** Cualquier integración OAuth que dependa de token expiry
+
+### 45. Gmail watches expiran cada 7 días
+**Problema:** Gmail push notifications dejaron de llegar silenciosamente
+**Causa:** Gmail API watches tienen máximo 7 días de vida
+**Solución:** Agregar `renew_expired_watches()` al cron check-flights que corre cada hora
+**Sesión:** 31
+**Aplicable a:** Cualquier integración con Gmail Push Notifications
+
+### 46. Microsoft refresh tokens expiran después de 90 días de inactividad
+**Problema:** Usuarios que no reciben emails de viaje por 90 días pierden la conexión
+**Causa:** Política de Microsoft - refresh tokens inactivos expiran
+**Solución:** Sistema proactivo de avisos a los 60 días de inactividad con email al usuario
+**Sesión:** 31
+**Aplicable a:** Cualquier app con Microsoft OAuth donde usuarios pueden tener períodos de inactividad
+
+### 47. Deduplicación de vuelos debe considerar campos de identidad inmutables
+**Problema:** Vuelo de vuelta sobreescribía vuelo de ida (ambos con mismo PNR)
+**Causa:** Merge actualizaba todos los campos incluyendo numero_vuelo, origen, destino
+**Solución:** Campos inmutables en merge: `['tipo', 'codigo_reserva', 'numero_vuelo', 'origen', 'destino', 'fecha_salida', 'hora_salida']`
+**Sesión:** 31
+**Aplicable a:** Cualquier sistema de merge/update de registros con campos de identidad
