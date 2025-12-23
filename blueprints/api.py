@@ -641,6 +641,9 @@ def migrate_db():
             conn.execute(db.text("ALTER TABLE email_connection ADD COLUMN IF NOT EXISTS history_id VARCHAR(50)"))
             conn.execute(db.text("ALTER TABLE email_connection ADD COLUMN IF NOT EXISTS watch_expiration TIMESTAMP"))
 
+            # MVP16: Campo para tracking de avisos de expiración OAuth
+            conn.execute(db.text("ALTER TABLE email_connection ADD COLUMN IF NOT EXISTS last_expiry_warning TIMESTAMP"))
+
             # MVP15: Aumentar límite de codigo_reserva para expediciones/charters
             conn.execute(db.text("ALTER TABLE viaje ALTER COLUMN codigo_reserva TYPE VARCHAR(255)"))
 
