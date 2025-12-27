@@ -66,7 +66,25 @@ def check_flight_status(numero_vuelo, fecha_salida):
                 vuelo = result.data[0]
 
             print(f"   📊 FR24: {len(result.data)} vuelos encontrados, seleccionado el más cercano a {fecha_salida}")
-            
+
+            # Verificar que el vuelo encontrado es del mismo día (tolerancia de 12 horas)
+            if vuelo.datetime_takeoff:
+                try:
+                    takeoff_check = datetime.fromisoformat(vuelo.datetime_takeoff.replace('Z', '+00:00'))
+                    takeoff_naive = takeoff_check.replace(tzinfo=None)
+                    fecha_naive = fecha_salida.replace(tzinfo=None) if fecha_salida.tzinfo else fecha_salida
+                    diff_hours = abs((takeoff_naive - fecha_naive).total_seconds()) / 3600
+
+                    if diff_hours > 12:
+                        print(f"   ⚠️  Vuelo FR24 es de otro día (diferencia: {diff_hours:.1f}h), ignorando")
+                        return {
+                            'encontrado': False,
+                            'estado': 'wrong_day',
+                            'cambios': []
+                        }
+                except Exception:
+                    pass
+
             # Parsear fechas
             takeoff_actual = datetime.fromisoformat(vuelo.datetime_takeoff.replace('Z', '+00:00')) if vuelo.datetime_takeoff else None
             landed_actual = datetime.fromisoformat(vuelo.datetime_landed.replace('Z', '+00:00')) if vuelo.datetime_landed else None
