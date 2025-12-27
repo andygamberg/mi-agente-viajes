@@ -640,10 +640,13 @@ def debug_vuelos():
             'proveedor': v.proveedor,
             'numero_vuelo_col': v.numero_vuelo,  # Columna directa
             'numero_vuelo_datos': datos.get('numero_vuelo'),  # Desde JSON datos
+            'codigo_reserva': v.codigo_reserva or datos.get('codigo_reserva'),
             'aerolinea': datos.get('aerolinea'),
             'status_fr24': v.status_fr24,
             'delay_minutos': v.delay_minutos,
-            'ultima_actualizacion_fr24': str(v.ultima_actualizacion_fr24) if v.ultima_actualizacion_fr24 else None
+            'ultima_actualizacion_fr24': str(v.ultima_actualizacion_fr24) if v.ultima_actualizacion_fr24 else None,
+            'source': v.source,
+            'created_at': str(v.creado) if v.creado else None
         })
 
     return jsonify({
