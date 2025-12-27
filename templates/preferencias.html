@@ -556,14 +556,14 @@
 
 <form method="POST" action="{{ url_for('viajes.update_preferences') }}">
 
-<!-- Notificaciones -->
+<!-- Canales de Notificación -->
 <div class="card">
-    <div class="card-title">Notificaciones</div>
+    <div class="card-title">Canales de Notificación</div>
 
-    <div class="preference-item master">
+    <div class="preference-item">
         <div class="preference-info">
-            <div class="preference-label">Alertas por email</div>
-            <div class="preference-description">Cambios de horario, cancelaciones y puertas</div>
+            <div class="preference-label">Email</div>
+            <div class="preference-description">Recibir alertas por correo electrónico</div>
         </div>
         <label class="toggle-switch">
             <input type="checkbox" name="notif_email_master" id="masterToggle"
@@ -573,41 +573,53 @@
         </label>
     </div>
 
-    <div class="sub-preferences" id="subPreferences">
-        <div class="sub-preferences-label">Tipos de alertas:</div>
-
-        <div class="preference-item sub-item">
-            <div class="preference-info">
-                <div class="preference-label">Demoras</div>
-            </div>
-            <label class="toggle-switch">
-                <input type="checkbox" name="notif_delay"
-                       {% if current_user.notif_delay %}checked{% endif %}>
-                <span class="toggle-slider"></span>
-            </label>
+    <div class="preference-item">
+        <div class="preference-info">
+            <div class="preference-label">Push</div>
+            <div class="preference-description">Alertas en tu dispositivo</div>
         </div>
+        <label class="toggle-switch">
+            <input type="checkbox" id="push-toggle" onchange="togglePushNotifications(this)">
+            <span class="toggle-slider"></span>
+        </label>
+    </div>
+</div>
 
-        <div class="preference-item sub-item">
-            <div class="preference-info">
-                <div class="preference-label">Cancelaciones</div>
-            </div>
-            <label class="toggle-switch">
-                <input type="checkbox" name="notif_cancelacion"
-                       {% if current_user.notif_cancelacion %}checked{% endif %}>
-                <span class="toggle-slider"></span>
-            </label>
-        </div>
+<!-- Tipos de Alertas -->
+<div class="card">
+    <div class="card-title">Tipos de Alertas</div>
 
-        <div class="preference-item sub-item">
-            <div class="preference-info">
-                <div class="preference-label">Cambios de puerta</div>
-            </div>
-            <label class="toggle-switch">
-                <input type="checkbox" name="notif_gate"
-                       {% if current_user.notif_gate %}checked{% endif %}>
-                <span class="toggle-slider"></span>
-            </label>
+    <div class="preference-item">
+        <div class="preference-info">
+            <div class="preference-label">Demoras</div>
         </div>
+        <label class="toggle-switch">
+            <input type="checkbox" name="notif_delay"
+                   {% if current_user.notif_delay %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+        </label>
+    </div>
+
+    <div class="preference-item">
+        <div class="preference-info">
+            <div class="preference-label">Cancelaciones</div>
+        </div>
+        <label class="toggle-switch">
+            <input type="checkbox" name="notif_cancelacion"
+                   {% if current_user.notif_cancelacion %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+        </label>
+    </div>
+
+    <div class="preference-item">
+        <div class="preference-info">
+            <div class="preference-label">Cambios de puerta</div>
+        </div>
+        <label class="toggle-switch">
+            <input type="checkbox" name="notif_gate"
+                   {% if current_user.notif_gate %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+        </label>
     </div>
 </div>
 
@@ -673,5 +685,26 @@ window.addEventListener('DOMContentLoaded', function() {
     if (masterToggle) {
         toggleSubPreferences(masterToggle);
     }
+
+    // Inicializar estado del toggle de push
+    const pushToggle = document.getElementById('push-toggle');
+    if (pushToggle && window.pushNotifications) {
+        const status = window.pushNotifications.getPermissionStatus();
+        const subscribed = window.pushNotifications.isSubscribed();
+        pushToggle.checked = (status === 'granted' && subscribed);
+    }
 });
+
+async function togglePushNotifications(checkbox) {
+    if (checkbox.checked) {
+        await pushNotifications.init();
+        const result = await pushNotifications.requestPermission();
+        if (!result.success) {
+            checkbox.checked = false;
+            alert('No se pudieron activar: ' + result.error);
+        }
+    } else {
+        await pushNotifications.unsubscribe();
+    }
+}
 {% endblock %}

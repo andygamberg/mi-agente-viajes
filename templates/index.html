@@ -1697,14 +1697,6 @@
                             Preferencias
                         </a>
 
-                        <button onclick="activarNotificaciones(this)">
-                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
-                            </svg>
-                            Activar notificaciones
-                        </button>
-                        <div class="divider"></div>
-
                         <a href="{{ url_for('auth.logout') }}" class="muted">
                             <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
                             Cerrar sesión
@@ -2949,28 +2941,6 @@
     <script src="{{ url_for('static', filename='js/offline-storage.js') }}"></script>
     <script src="{{ url_for('static', filename='js/firebase-messaging.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pwa.js') }}"></script>
-    <script>
-    async function activarNotificaciones(btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg> Activando...';
-
-        try {
-            await pushNotifications.init();
-            const result = await pushNotifications.requestPermission();
-
-            if (result.success) {
-                btn.innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg> Activadas';
-                btn.style.color = '#34C759';
-            } else {
-                btn.innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg> Error: ' + result.error;
-                btn.disabled = false;
-            }
-        } catch (e) {
-            btn.innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg> Error';
-            btn.disabled = false;
-        }
-    }
-    </script>
 </body>
 <!-- Deployed automatically by Claude Code - Meta 1 test -->
 </html>
