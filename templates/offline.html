@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin Conexión - Mis Viajes</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <style>
+        html {
+            font-size: 100%;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        :root {
+            --bg: #F5F5F7;
+            --bg-card: #FFFFFF;
+            --text: #1D1D1F;
+            --text-secondary: #86868B;
+            --accent: #0071E3;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            color: var(--text-secondary);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .cached-info {
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+        }
+
+        .cached-info h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .cached-info p {
+            font-size: 1.25rem;
+            margin-bottom: 0;
+        }
+
+        #cachedViajes {
+            display: none;
+        }
+
+        #cachedViajes.has-data {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Icono de sin conexión -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01M2.04 12.364a9.992 9.992 0 014.546-3.03M9.172 10.172a4 4 0 015.656 0M15.414 10.172a4 4 0 00-5.656 0M19.96 12.364a9.992 9.992 0 00-4.546-3.03M1 1l22 22"/>
+        </svg>
+
+        <h1>Sin conexión</h1>
+        <p>No hay conexión a internet. Cuando vuelvas a estar conectado, podrás ver tus viajes actualizados.</p>
+
+        <button class="btn" onclick="tryReconnect()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Reintentar
+        </button>
+
+        <div class="cached-info" id="cachedViajes">
+            <h2>Datos guardados</h2>
+            <p id="cachedCount">Tenés viajes guardados que podés ver offline.</p>
+        </div>
+    </div>
+
+    <script>
+        function tryReconnect() {
+            window.location.reload();
+        }
+
+        // Verificar si hay datos cacheados
+        async function checkCachedData() {
+            try {
+                const cache = await caches.open('data-v1');
+                const response = await cache.match('/api/viajes');
+                if (response) {
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        document.getElementById('cachedViajes').classList.add('has-data');
+                        document.getElementById('cachedCount').textContent = 
+                            `Tenés ${data.length} viaje${data.length > 1 ? 's' : ''} guardado${data.length > 1 ? 's' : ''}.`;
+                    }
+                }
+            } catch (e) {
+                console.log('No cached data available');
+            }
+        }
+
+        // Detectar cuando vuelve la conexión
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+
+        checkCachedData();
+    </script>
+</body>
+</html>
