@@ -698,6 +698,30 @@ def fix_vuelo(vuelo_id):
     })
 
 
+@api_bp.route('/api/debug/delete-vuelo/<int:vuelo_id>', methods=['DELETE'])
+def delete_vuelo(vuelo_id):
+    """Eliminar vuelo duplicado (admin only)"""
+    if not verificar_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    viaje = Viaje.query.get(vuelo_id)
+    if not viaje:
+        return jsonify({'error': 'Vuelo no encontrado'}), 404
+
+    info = {
+        'id': viaje.id,
+        'numero_vuelo': viaje.numero_vuelo,
+        'origen': viaje.origen,
+        'destino': viaje.destino,
+        'fecha_salida': str(viaje.fecha_salida)
+    }
+
+    db.session.delete(viaje)
+    db.session.commit()
+
+    return jsonify({'success': True, 'deleted': info})
+
+
 # ============================================
 # MIGRACIÓN Y ADMINISTRACIÓN
 # ============================================
