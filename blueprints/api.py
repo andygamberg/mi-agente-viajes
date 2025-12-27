@@ -638,7 +638,8 @@ def debug_vuelos():
             'fecha_salida': str(v.fecha_salida),
             'hora_salida': v.hora_salida,
             'proveedor': v.proveedor,
-            'numero_vuelo': datos.get('numero_vuelo'),
+            'numero_vuelo_col': v.numero_vuelo,  # Columna directa
+            'numero_vuelo_datos': datos.get('numero_vuelo'),  # Desde JSON datos
             'aerolinea': datos.get('aerolinea'),
             'status_fr24': v.status_fr24,
             'delay_minutos': v.delay_minutos,
