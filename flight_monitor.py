@@ -113,12 +113,15 @@ def check_all_upcoming_flights(db_session):
     now = datetime.now()
     limite = now + timedelta(hours=48)
 
-    print(f"📅 Buscando vuelos entre {now} y {limite}")
+    # Para vuelos sin hora, incluir todo el día actual (desde 00:00)
+    inicio_hoy = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    # Obtener vuelos próximos
+    print(f"📅 Buscando vuelos entre {inicio_hoy} y {limite}")
+
+    # Obtener vuelos próximos (incluye vuelos de hoy aunque hora sea 00:00)
     vuelos_proximos = db_session.query(Viaje).filter(
         Viaje.tipo == 'vuelo',
-        Viaje.fecha_salida >= now,
+        Viaje.fecha_salida >= inicio_hoy,
         Viaje.fecha_salida <= limite
     ).all()
 
