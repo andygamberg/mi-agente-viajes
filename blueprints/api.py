@@ -26,12 +26,15 @@ api_bp = Blueprint('api', __name__)
 # ============================================
 
 def verificar_cron_auth():
-    """Verifica que la request venga de Cloud Scheduler"""
+    """Verifica que la request venga de Cloud Scheduler o admin autorizado"""
     # Cloud Scheduler envía este header cuando llama endpoints
     if request.headers.get('X-Appengine-Cron') == 'true':
         return True
     # También aceptar X-CloudScheduler-JobName (alternativa)
     if request.headers.get('X-CloudScheduler-JobName'):
+        return True
+    # Permitir testing manual con admin key
+    if verificar_admin_auth():
         return True
     return False
 
