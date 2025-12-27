@@ -22,7 +22,7 @@ def offline():
 def service_worker():
     """
     Servir Service Worker desde raíz para scope completo.
-    
+
     El SW debe servirse desde / para tener scope sobre toda la app.
     Si se sirve desde /static/, el scope estaría limitado a /static/.
     """
@@ -30,4 +30,14 @@ def service_worker():
         os.path.join(current_app.root_path, 'static'),
         'sw.js',
         mimetype='application/javascript'
+    )
+
+
+@pwa_bp.route('/apple-touch-icon.png')
+def apple_touch_icon():
+    """Servir apple-touch-icon desde raíz para compatibilidad iOS."""
+    return send_from_directory(
+        os.path.join(current_app.root_path, 'static', 'icons'),
+        'apple-touch-icon.png',
+        mimetype='image/png'
     )
