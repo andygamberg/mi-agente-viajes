@@ -123,12 +123,21 @@ def check_all_upcoming_flights(db_session):
     cambios_detectados = []
     
     for vuelo in vuelos_proximos:
-        if not vuelo.numero_vuelo:
+        # Obtener numero_vuelo de columna o de datos JSON
+        numero = vuelo.numero_vuelo
+        if not numero and vuelo.datos:
+            datos = vuelo.datos if isinstance(vuelo.datos, dict) else json.loads(vuelo.datos)
+            numero = datos.get('numero_vuelo')
+
+        if not numero:
             continue
-        
-        print(f"🔍 Chequeando {vuelo.numero_vuelo} - {vuelo.origen}→{vuelo.destino}...")
-        
-        status = check_flight_status(vuelo.numero_vuelo, vuelo.fecha_salida)
+
+        # Normalizar formato (quitar espacios: "G3 7680" -> "G37680")
+        numero_normalizado = numero.replace(' ', '')
+
+        print(f"🔍 Chequeando {numero_normalizado} - {vuelo.origen}→{vuelo.destino}...")
+
+        status = check_flight_status(numero_normalizado, vuelo.fecha_salida)
         
         if not status['encontrado']:
             print(f"   ⚠️  No encontrado en FR24")
@@ -166,7 +175,7 @@ def check_all_upcoming_flights(db_session):
         if cambios:
             cambios_detectados.append({
                 'vuelo_id': vuelo.id,
-                'numero_vuelo': vuelo.numero_vuelo,
+                'numero_vuelo': numero_normalizado,
                 'ruta': f"{vuelo.origen}→{vuelo.destino}",
                 'fecha_salida': vuelo.fecha_salida,
                 'status_fr24': status,
