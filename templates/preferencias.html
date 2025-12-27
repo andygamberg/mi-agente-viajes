@@ -567,7 +567,6 @@
         </div>
         <label class="toggle-switch">
             <input type="checkbox" name="notif_email_master" id="masterToggle"
-                   onchange="toggleSubPreferences(this)"
                    {% if current_user.notif_email_master %}checked{% endif %}>
             <span class="toggle-slider"></span>
         </label>
@@ -657,17 +656,6 @@
 {% endblock %}
 
 {% block scripts %}
-function toggleSubPreferences(masterToggle) {
-    const subPreferences = document.getElementById('subPreferences');
-    if (!masterToggle.checked) {
-        subPreferences.style.opacity = '0.5';
-        subPreferences.style.pointerEvents = 'none';
-    } else {
-        subPreferences.style.opacity = '1';
-        subPreferences.style.pointerEvents = 'auto';
-    }
-}
-
 function copyCalendarLink() {
     const link = document.getElementById('calendarLink').textContent;
     navigator.clipboard.writeText(link).then(function() {
@@ -680,42 +668,65 @@ function copyCalendarLink() {
     });
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-    const masterToggle = document.getElementById('masterToggle');
-    if (masterToggle) {
-        toggleSubPreferences(masterToggle);
+// Inicializar toggle de Push cuando todo esté listo
+(function() {
+    let attempts = 0;
+    const maxAttempts = 50; // 5 segundos máximo
+
+    function checkAndInit() {
+        attempts++;
+        const toggle = document.getElementById('push-toggle');
+
+        if (!toggle) {
+            console.log('[Push UI] Toggle not found');
+            return;
+        }
+
+        if (!window.pushNotifications) {
+            if (attempts < maxAttempts) {
+                setTimeout(checkAndInit, 100);
+            } else {
+                console.log('[Push UI] pushNotifications not available after 5s');
+            }
+            return;
+        }
+
+        // Verificar estado
+        const permission = Notification.permission;
+        const subscribed = pushNotifications.isSubscribed();
+
+        console.log('[Push UI] Permission:', permission, 'Subscribed:', subscribed);
+
+        toggle.checked = (permission === 'granted' && subscribed);
     }
 
-    // Inicializar estado del toggle de push con retry
-    initPushToggle();
-});
-
-// Esperar a que pushNotifications esté disponible
-function initPushToggle() {
-    const toggle = document.getElementById('push-toggle');
-    if (!toggle) return;
-
-    if (window.pushNotifications) {
-        const status = window.pushNotifications.getPermissionStatus();
-        const subscribed = window.pushNotifications.isSubscribed();
-        toggle.checked = (status === 'granted' && subscribed);
-        console.log('[Push UI] Status:', status, 'Subscribed:', subscribed);
+    // Iniciar cuando DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAndInit);
     } else {
-        // Reintentar en 100ms si pushNotifications no está listo
-        setTimeout(initPushToggle, 100);
+        checkAndInit();
     }
-}
+})();
 
 async function togglePushNotifications(checkbox) {
-    if (checkbox.checked) {
-        await pushNotifications.init();
-        const result = await pushNotifications.requestPermission();
-        if (!result.success) {
-            checkbox.checked = false;
-            alert('No se pudieron activar: ' + result.error);
+    const originalState = !checkbox.checked; // Estado antes del click
+
+    try {
+        if (checkbox.checked) {
+            // Activar
+            await pushNotifications.init();
+            const result = await pushNotifications.requestPermission();
+            if (!result.success) {
+                checkbox.checked = false;
+                alert('No se pudieron activar las notificaciones: ' + result.error);
+            }
+        } else {
+            // Desactivar
+            await pushNotifications.unsubscribe();
         }
-    } else {
-        await pushNotifications.unsubscribe();
+    } catch (e) {
+        checkbox.checked = originalState;
+        alert('Error: ' + e.message);
     }
 }
 {% endblock %}
