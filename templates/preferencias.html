@@ -686,14 +686,25 @@ window.addEventListener('DOMContentLoaded', function() {
         toggleSubPreferences(masterToggle);
     }
 
-    // Inicializar estado del toggle de push
-    const pushToggle = document.getElementById('push-toggle');
-    if (pushToggle && window.pushNotifications) {
+    // Inicializar estado del toggle de push con retry
+    initPushToggle();
+});
+
+// Esperar a que pushNotifications esté disponible
+function initPushToggle() {
+    const toggle = document.getElementById('push-toggle');
+    if (!toggle) return;
+
+    if (window.pushNotifications) {
         const status = window.pushNotifications.getPermissionStatus();
         const subscribed = window.pushNotifications.isSubscribed();
-        pushToggle.checked = (status === 'granted' && subscribed);
+        toggle.checked = (status === 'granted' && subscribed);
+        console.log('[Push UI] Status:', status, 'Subscribed:', subscribed);
+    } else {
+        // Reintentar en 100ms si pushNotifications no está listo
+        setTimeout(initPushToggle, 100);
     }
-});
+}
 
 async function togglePushNotifications(checkbox) {
     if (checkbox.checked) {
