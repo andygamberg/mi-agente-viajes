@@ -617,3 +617,17 @@ if codigo and check_duplicate(codigo, user_id):
 **Solución:** Campos inmutables en merge: `['tipo', 'codigo_reserva', 'numero_vuelo', 'origen', 'destino', 'fecha_salida', 'hora_salida']`
 **Sesión:** 31
 **Aplicable a:** Cualquier sistema de merge/update de registros con campos de identidad
+
+### 48. iOS requiere apple-touch-icon en raíz
+**Problema:** iOS ignora el meta tag apple-touch-icon y muestra inicial genérica
+**Causa:** Safari busca /apple-touch-icon.png en raíz antes de leer meta tags
+**Solución:** Servir /apple-touch-icon.png desde raíz además del meta tag
+**Sesión:** 32
+**Aplicable a:** Cualquier PWA que quiera icono correcto en iOS
+
+### 49. PWA offline requiere visita previa
+**Contexto:** IndexedDB se llena cuando el usuario navega online
+**Implicación:** Primera visita debe ser online para cachear datos
+**Solución:** Documentar en UX que modo offline solo funciona después de visita inicial
+**Sesión:** 32
+**Aplicable a:** Cualquier PWA con datos dinámicos offline

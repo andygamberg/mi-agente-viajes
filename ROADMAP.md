@@ -45,6 +45,16 @@
 | 26 | UX Mobile + Formato hora | 17 Dic 2025 | Tipografía rem, capitalización, formato hora 24h/12h |
 | **27** | **Unificación Preferencias + Merge reservas** | **21 Dic 2025** | **Perfil→Preferencias, merge asientos/actualizaciones, Outlook Calendar** |
 | **28** | **DEMO-TRIP + Onboarding UX** | **22 Dic 2025** | **Viaje ejemplo, tips calendario/agrupar, empty state contextual, REDIRECT-SMART** |
+| **17** | **PWA** | **27 Dic 2025** | **App instalable iOS/Android/Desktop, Service Worker, IndexedDB offline** |
+
+### ✅ Completado - Sesión 32 (27 Dic 2025)
+
+#### PWA ✅
+- App instalable en iOS/Android/Desktop
+- Service Worker v2 con cache de assets y API
+- IndexedDB para viajes offline
+- Banner indicador modo offline
+- Iconos apple-touch-icon desde raíz para iOS
 
 ### ✅ Completado - Sesión 31 (23 Dic 2025)
 
