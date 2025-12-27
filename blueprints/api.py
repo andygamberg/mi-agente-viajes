@@ -623,7 +623,13 @@ def debug_vuelos():
 
     result = []
     for v in vuelos:
-        datos = json.loads(v.datos) if v.datos else {}
+        # datos puede ser dict o string JSON
+        if isinstance(v.datos, dict):
+            datos = v.datos
+        elif v.datos:
+            datos = json.loads(v.datos)
+        else:
+            datos = {}
         result.append({
             'id': v.id,
             'user_id': v.user_id,
