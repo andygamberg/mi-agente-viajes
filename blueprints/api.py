@@ -584,14 +584,66 @@ def check_flights_manual():
     try:
         from flight_monitor import check_all_upcoming_flights
         cambios = check_all_upcoming_flights(db.session)
-        
-        return render_template('check_flights.html', 
+
+        return render_template('check_flights.html',
                              cambios=cambios,
                              timestamp=datetime.now())
     except Exception as e:
         from flask import flash
         flash(f'Error chequeando vuelos: {str(e)}', 'error')
         return jsonify({'error': str(e)}), 500
+
+
+@api_bp.route('/api/debug/vuelos', methods=['GET'])
+def debug_vuelos():
+    """Debug: ver vuelos próximos en BD (requiere admin auth)"""
+    if not verificar_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    from datetime import date
+
+    # Buscar vuelo específico si se pasa query param
+    numero = request.args.get('numero', '')
+
+    query = Viaje.query.filter(Viaje.tipo == 'vuelo')
+
+    if numero:
+        # Buscar por número de vuelo en datos JSON o proveedor
+        query = query.filter(
+            db.or_(
+                Viaje.datos['numero_vuelo'].astext.ilike(f'%{numero}%'),
+                Viaje.proveedor.ilike(f'%{numero}%')
+            )
+        )
+    else:
+        # Solo vuelos futuros
+        query = query.filter(Viaje.fecha_salida >= date.today())
+
+    vuelos = query.order_by(Viaje.fecha_salida).limit(20).all()
+
+    result = []
+    for v in vuelos:
+        datos = json.loads(v.datos) if v.datos else {}
+        result.append({
+            'id': v.id,
+            'user_id': v.user_id,
+            'origen': v.origen,
+            'destino': v.destino,
+            'fecha_salida': str(v.fecha_salida),
+            'hora_salida': v.hora_salida,
+            'proveedor': v.proveedor,
+            'numero_vuelo': datos.get('numero_vuelo'),
+            'aerolinea': datos.get('aerolinea'),
+            'status_fr24': v.status_fr24,
+            'delay_minutos': v.delay_minutos,
+            'ultima_actualizacion_fr24': str(v.ultima_actualizacion_fr24) if v.ultima_actualizacion_fr24 else None
+        })
+
+    return jsonify({
+        'count': len(result),
+        'query': numero or 'próximos',
+        'vuelos': result
+    })
 
 
 # ============================================
