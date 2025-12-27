@@ -1,29 +1,31 @@
 /**
  * Service Worker - Mi Agente Viajes PWA
- * Versión: 1.0
+ * Versión: 2.0 (con Offline Data)
  * 
- * Estrategias:
+ * Estrategias de cache:
  * - Assets estáticos: Cache First
  * - API calls: Network First con fallback a cache
  * - Navegación: Network First con offline fallback
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
 
-// Assets para precachear en install
-const PRECACHE_ASSETS = [
+// Assets estáticos para precachear al instalar
+const STATIC_ASSETS = [
   '/',
   '/offline',
   '/static/manifest.json',
   '/static/favicon.svg',
   '/static/icons/icon-192x192.png',
-  '/static/icons/icon-512x512.png'
+  '/static/icons/icon-512x512.png',
+  '/static/js/pwa.js',
+  '/static/js/offline-storage.js'
 ];
 
-// Rutas de API para cachear
-const API_PATTERNS = [
+// Rutas de API que queremos cachear para offline
+const API_ROUTES = [
   '/api/viajes',
   '/api/viajes/count'
 ];
@@ -33,7 +35,7 @@ const API_PATTERNS = [
 // ============================================
 
 function isApiRequest(pathname) {
-  return API_PATTERNS.some(pattern => pathname.startsWith(pattern));
+  return API_ROUTES.some(route => pathname.startsWith(route));
 }
 
 function isStaticAsset(pathname) {
@@ -42,23 +44,36 @@ function isStaticAsset(pathname) {
          pathname.endsWith('.js') ||
          pathname.endsWith('.png') ||
          pathname.endsWith('.svg') ||
-         pathname.endsWith('.ico');
+         pathname.endsWith('.ico') ||
+         pathname.endsWith('.woff2');
+}
+
+function isHTMLPage(pathname) {
+  return !pathname.includes('.') || pathname.endsWith('.html');
 }
 
 // ============================================
-// INSTALL - Precachear assets críticos
+// INSTALL - Precachear assets estáticos
 // ============================================
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing...');
+  console.log('[SW] Installing v2...');
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('[SW] Precaching assets');
-        return cache.addAll(PRECACHE_ASSETS);
+        console.log('[SW] Caching static assets');
+        return Promise.allSettled(
+          STATIC_ASSETS.map(url => 
+            cache.add(url).catch(err => {
+              console.warn(`[SW] Failed to cache: ${url}`, err);
+            })
+          )
+        );
       })
-      .then(() => self.skipWaiting())
-      .catch((err) => console.error('[SW] Precache failed:', err))
+      .then(() => {
+        console.log('[SW] Static assets cached');
+        return self.skipWaiting();
+      })
   );
 });
 
@@ -66,21 +81,26 @@ self.addEventListener('install', (event) => {
 // ACTIVATE - Limpiar caches viejos
 // ============================================
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating...');
+  console.log('[SW] Activating v2...');
+  
+  const currentCaches = [STATIC_CACHE, DATA_CACHE];
   
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => name !== STATIC_CACHE && name !== DATA_CACHE)
-            .map((name) => {
+            .filter(name => !currentCaches.includes(name))
+            .map(name => {
               console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
             })
         );
       })
-      .then(() => self.clients.claim())
+      .then(() => {
+        console.log('[SW] Activated');
+        return self.clients.claim();
+      })
   );
 });
 
@@ -88,7 +108,7 @@ self.addEventListener('activate', (event) => {
 // FETCH STRATEGIES
 // ============================================
 
-// Cache First: Busca en cache, si no existe va a network
+// Cache First: Buscar en cache, si no hay ir a network
 async function cacheFirst(request, cacheName) {
   const cached = await caches.match(request);
   if (cached) {
@@ -108,7 +128,7 @@ async function cacheFirst(request, cacheName) {
   }
 }
 
-// Network First: Intenta network, si falla usa cache
+// Network First: Ir a network, si falla usar cache
 async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
@@ -118,7 +138,7 @@ async function networkFirst(request, cacheName) {
     }
     return response;
   } catch (error) {
-    console.log('[SW] Network failed, trying cache');
+    console.log('[SW] Network failed, trying cache:', request.url);
     const cached = await caches.match(request);
     if (cached) {
       return cached;
@@ -127,23 +147,76 @@ async function networkFirst(request, cacheName) {
   }
 }
 
-// Network First con fallback a página offline
-async function networkFirstWithOffline(request) {
+// Network First para API con respuesta JSON cacheada
+async function networkFirstAPI(request) {
+  const cache = await caches.open(DATA_CACHE);
+  
   try {
     const response = await fetch(request);
     if (response.ok) {
-      const cache = await caches.open(STATIC_CACHE);
+      // Clonar y cachear
+      cache.put(request, response.clone());
+      console.log('[SW] API cached:', request.url);
+    }
+    return response;
+  } catch (error) {
+    console.log('[SW] API offline, using cache:', request.url);
+    const cached = await cache.match(request);
+    
+    if (cached) {
+      // Agregar header indicando que es de cache
+      const headers = new Headers(cached.headers);
+      headers.set('X-From-Cache', 'true');
+      
+      return new Response(cached.body, {
+        status: cached.status,
+        statusText: cached.statusText,
+        headers: headers
+      });
+    }
+    
+    // Si no hay cache, devolver respuesta vacía pero válida
+    return new Response(JSON.stringify({ 
+      viajes: [], 
+      fromCache: true,
+      error: 'No cached data available'
+    }), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-From-Cache': 'true',
+        'X-Cache-Empty': 'true'
+      }
+    });
+  }
+}
+
+// Network First con fallback a página offline
+async function networkFirstWithOffline(request) {
+  const cache = await caches.open(STATIC_CACHE);
+  
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
       cache.put(request, response.clone());
     }
     return response;
   } catch (error) {
-    console.log('[SW] Offline, serving cached or offline page');
-    const cached = await caches.match(request);
+    console.log('[SW] Page offline, checking cache');
+    
+    // Intentar cache primero
+    const cached = await cache.match(request);
     if (cached) {
       return cached;
     }
-    // Servir página offline
-    return caches.match('/offline');
+    
+    // Si es navegación, mostrar página offline
+    const offlinePage = await cache.match('/offline');
+    if (offlinePage) {
+      return offlinePage;
+    }
+    
+    throw error;
   }
 }
 
@@ -159,14 +232,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Ignorar requests de extensiones, websockets, etc.
-  if (request.method !== 'GET') {
+  // Ignorar requests de extensiones y websockets
+  if (request.url.includes('chrome-extension') || 
+      request.url.includes('ws://') ||
+      request.url.includes('wss://')) {
     return;
   }
   
-  // API requests: Network First
+  // API requests: Network First con cache especial
   if (isApiRequest(url.pathname)) {
-    event.respondWith(networkFirst(request, DATA_CACHE));
+    event.respondWith(networkFirstAPI(request));
     return;
   }
   
@@ -181,13 +256,16 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(networkFirstWithOffline(request));
     return;
   }
+  
+  // Todo lo demás: Network First
+  event.respondWith(networkFirst(request, STATIC_CACHE));
 });
 
 // ============================================
-// SYNC - Background sync para cuando vuelve conexión
+// SYNC - Para sincronizar datos cuando vuelve conexión
 // ============================================
 self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync:', event.tag);
+  console.log('[SW] Sync event:', event.tag);
   
   if (event.tag === 'sync-viajes') {
     event.waitUntil(syncViajes());
@@ -195,22 +273,31 @@ self.addEventListener('sync', (event) => {
 });
 
 async function syncViajes() {
-  // Placeholder para sync de datos offline
-  // Se implementará en Fase 2
-  console.log('[SW] Syncing viajes data...');
+  console.log('[SW] Syncing viajes...');
+  
+  try {
+    // Notificar a los clients que sincronicen
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({ type: 'SYNC_VIAJES' });
+    });
+  } catch (error) {
+    console.error('[SW] Sync failed:', error);
+  }
 }
 
 // ============================================
-// PUSH - Preparado para notificaciones (Fase 3)
+// PUSH NOTIFICATIONS (Fase 3 - preparado)
 // ============================================
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push received');
+  console.log('[SW] Push received:', event);
   
   if (!event.data) return;
   
   const data = event.data.json();
+  
   const options = {
-    body: data.body || 'Actualización de vuelo',
+    body: data.body || 'Tienes una actualización',
     icon: '/static/icons/icon-192x192.png',
     badge: '/static/icons/icon-72x72.png',
     vibrate: [100, 50, 100],
@@ -229,14 +316,25 @@ self.addEventListener('push', (event) => {
 });
 
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked');
+  console.log('[SW] Notification clicked:', event);
+  
   event.notification.close();
   
   if (event.action === 'close') return;
   
   const url = event.notification.data?.url || '/';
+  
   event.waitUntil(
-    clients.openWindow(url)
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            client.navigate(url);
+            return client.focus();
+          }
+        }
+        return clients.openWindow(url);
+      })
   );
 });
 
@@ -250,10 +348,27 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
   
+  if (event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({ version: CACHE_VERSION });
+  }
+  
+  if (event.data.type === 'CLEAR_CACHE') {
+    caches.keys().then(names => {
+      names.forEach(name => caches.delete(name));
+    });
+  }
+  
   if (event.data.type === 'CACHE_VIAJES') {
-    // Cachear datos de viajes manualmente
-    caches.open(DATA_CACHE).then((cache) => {
-      cache.put('/api/viajes', new Response(JSON.stringify(event.data.viajes)));
+    // Forzar cache de viajes
+    caches.open(DATA_CACHE).then(cache => {
+      fetch('/api/viajes').then(response => {
+        if (response.ok) {
+          cache.put('/api/viajes', response);
+          console.log('[SW] Viajes cached on demand');
+        }
+      });
     });
   }
 });
+
+console.log('[SW] Service Worker v2 loaded');

@@ -1656,6 +1656,9 @@
 </head>
 <body>
     <div class="container">
+        <div id="offline-banner" style="display:none; background:#FF9500; color:white; padding:12px 16px; border-radius:8px; margin-bottom:16px; font-size:1.25rem; text-align:center;">
+            Modo offline - Mostrando datos guardados
+        </div>
         <header class="header">
             <div class="header-left">
                 <a href="{{ url_for('viajes.index') }}" class="logo">Mis Viajes</a>
@@ -2924,6 +2927,17 @@
                 highlighted.classList.remove('highlighted');
             }, 2500);
         }
+    });
+    </script>
+    <script>
+    if (!navigator.onLine) {
+        document.getElementById('offline-banner').style.display = 'block';
+    }
+    window.addEventListener('offline', () => {
+        document.getElementById('offline-banner').style.display = 'block';
+    });
+    window.addEventListener('online', () => {
+        document.getElementById('offline-banner').style.display = 'none';
     });
     </script>
 </body>
