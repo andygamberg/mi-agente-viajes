@@ -137,8 +137,8 @@ def check_all_upcoming_flights(db_session):
         # Detectar cambios
         cambios = []
         
-        # 1. Delay significativo
-        if status['delay_minutos'] > 30:
+        # 1. Cualquier delay (como Flighty/TripIt)
+        if status['delay_minutos'] > 0:
             cambios.append({
                 'tipo': 'delay',
                 'valor_anterior': 'On time',
