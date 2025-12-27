@@ -202,8 +202,26 @@ class UserEmail(db.Model):
     verificado = db.Column(db.Boolean, default=False)
     es_principal = db.Column(db.Boolean, default=False)
     creado = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     user = db.relationship('User', backref=db.backref('emails_adicionales', lazy='dynamic'))
-    
+
     def __repr__(self):
         return f'<UserEmail {self.email}>'
+
+
+class PushSubscription(db.Model):
+    """Suscripciones a Push Notifications (Firebase)"""
+    __tablename__ = 'push_subscriptions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    token = db.Column(db.Text, nullable=False)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('push_subscriptions', lazy='dynamic'))
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'token', name='unique_user_token'),)
+
+    def __repr__(self):
+        return f'<PushSubscription user_id={self.user_id}>'

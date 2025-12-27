@@ -41,3 +41,13 @@ def apple_touch_icon():
         'apple-touch-icon.png',
         mimetype='image/png'
     )
+
+
+@pwa_bp.route('/firebase-messaging-sw.js')
+def firebase_messaging_sw():
+    """Servir Firebase Messaging Service Worker desde raíz."""
+    return send_from_directory(
+        os.path.join(current_app.root_path, 'static'),
+        'firebase-messaging-sw.js',
+        mimetype='application/javascript'
+    )
