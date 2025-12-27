@@ -41,9 +41,31 @@ def check_flight_status(numero_vuelo, fecha_salida):
                     'estado': 'no_found',
                     'cambios': []
                 }
-            
-            # Tomar el vuelo más cercano a la fecha original
-            vuelo = result.data[0]
+
+            # Seleccionar el vuelo más cercano a la fecha original
+            # (puede haber múltiples vuelos con el mismo número en días consecutivos)
+            vuelo = None
+            min_diff = float('inf')
+
+            for v in result.data:
+                if v.datetime_takeoff:
+                    try:
+                        takeoff = datetime.fromisoformat(v.datetime_takeoff.replace('Z', '+00:00'))
+                        # Comparar con fecha_salida (hacer naive para comparación)
+                        takeoff_naive = takeoff.replace(tzinfo=None)
+                        fecha_naive = fecha_salida.replace(tzinfo=None) if fecha_salida.tzinfo else fecha_salida
+                        diff = abs((takeoff_naive - fecha_naive).total_seconds())
+                        if diff < min_diff:
+                            min_diff = diff
+                            vuelo = v
+                    except Exception:
+                        continue
+
+            # Si no encontramos por takeoff, usar el primero
+            if vuelo is None:
+                vuelo = result.data[0]
+
+            print(f"   📊 FR24: {len(result.data)} vuelos encontrados, seleccionado el más cercano a {fecha_salida}")
             
             # Parsear fechas
             takeoff_actual = datetime.fromisoformat(vuelo.datetime_takeoff.replace('Z', '+00:00')) if vuelo.datetime_takeoff else None

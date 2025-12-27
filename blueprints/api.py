@@ -653,6 +653,51 @@ def debug_vuelos():
     })
 
 
+@api_bp.route('/api/debug/fix-vuelo/<int:vuelo_id>', methods=['POST'])
+def fix_vuelo(vuelo_id):
+    """Fix: resetear datos FR24 de un vuelo para re-monitoreo"""
+    if not verificar_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    viaje = Viaje.query.get(vuelo_id)
+    if not viaje:
+        return jsonify({'error': 'Vuelo no encontrado'}), 404
+
+    # Guardar valores anteriores
+    old_data = {
+        'fecha_salida': str(viaje.fecha_salida),
+        'hora_salida': viaje.hora_salida,
+        'status_fr24': viaje.status_fr24,
+        'delay_minutos': viaje.delay_minutos
+    }
+
+    # Obtener nueva fecha del body si se proporciona
+    data = request.get_json() or {}
+    if 'fecha_salida' in data:
+        from datetime import datetime as dt
+        viaje.fecha_salida = dt.fromisoformat(data['fecha_salida'])
+    if 'hora_salida' in data:
+        viaje.hora_salida = data['hora_salida']
+
+    # Resetear datos FR24 para que se vuelva a monitorear
+    viaje.status_fr24 = None
+    viaje.delay_minutos = None
+    viaje.ultima_actualizacion_fr24 = None
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'vuelo_id': vuelo_id,
+        'old': old_data,
+        'new': {
+            'fecha_salida': str(viaje.fecha_salida),
+            'hora_salida': viaje.hora_salida,
+            'status_fr24': viaje.status_fr24
+        }
+    })
+
+
 # ============================================
 # MIGRACIÓN Y ADMINISTRACIÓN
 # ============================================
