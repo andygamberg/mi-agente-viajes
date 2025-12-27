@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 from models import db, Viaje, User
 from utils.claude import extraer_info_con_claude
 from utils.save_reservation import save_reservation
+from blueprints.push import send_flight_change_notification
 
 api_bp = Blueprint('api', __name__)
 
@@ -335,6 +336,24 @@ def cron_check_flights():
                 send_email(user.email, subject, body_html)
                 emails_enviados += 1
                 print(f'📧 Notificación enviada a {user.email}: {titulo}')
+
+                # Enviar push notification si el usuario tiene suscripción activa
+                try:
+                    push_result = send_flight_change_notification(
+                        user_id=user.id,
+                        flight_info={
+                            'numero': numero_vuelo,
+                            'nueva_hora': cambio.get('valor_nuevo', ''),
+                            'nueva_puerta': cambio.get('valor_nuevo', ''),
+                            'mensaje': mensaje,
+                            'url': '/'
+                        },
+                        change_type=tipo
+                    )
+                    if push_result.get('sent', 0) > 0:
+                        print(f'🔔 Push enviado a user {user.id}: {titulo}')
+                except Exception as e:
+                    print(f'⚠️ Error enviando push: {e}')
 
         return {
             'success': True,

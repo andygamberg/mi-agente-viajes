@@ -230,13 +230,20 @@ def send_push_notification(user_id, title, body, data=None, url=None):
 
 def send_flight_change_notification(user_id, flight_info, change_type):
     """Enviar notificación de cambio de vuelo."""
+    # Mapear tipos de api.py a los esperados aquí
+    type_map = {
+        'gate': 'gate_change',
+        'cancelacion': 'cancelled'
+    }
+    change_type = type_map.get(change_type, change_type)
+
     titles = {
         'delay': f"⏰ Vuelo {flight_info.get('numero', '')} retrasado",
         'gate_change': f"🚪 Cambio de puerta - {flight_info.get('numero', '')}",
         'cancelled': f"❌ Vuelo {flight_info.get('numero', '')} cancelado",
         'status_change': f"✈️ Actualización - {flight_info.get('numero', '')}"
     }
-    
+
     bodies = {
         'delay': f"Nueva salida: {flight_info.get('nueva_hora', 'Ver detalles')}",
         'gate_change': f"Nueva puerta: {flight_info.get('nueva_puerta', 'Ver detalles')}",
