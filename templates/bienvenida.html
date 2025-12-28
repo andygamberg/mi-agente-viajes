@@ -527,7 +527,7 @@ function updateEmailsUI() {
     }
 }
 
-function goToStep(step) {
+async function goToStep(step) {
     if (currentStep === 1 && step > 1) {
         const nombre = document.getElementById('nombre_pax').value.trim();
         const apellido = document.getElementById('apellido_pax').value.trim();
@@ -561,30 +561,41 @@ function goToStep(step) {
 
     // Check push support when entering step 4
     if (step === 4) {
-        checkPushSupport();
+        await checkPushSupport();
     }
 }
 
-function checkPushSupport() {
-    // Check if push is already granted
-    if ('Notification' in window && Notification.permission === 'granted') {
-        showPushSuccess();
-        return;
-    }
+async function checkPushSupport() {
+    const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
 
-    // Check if push is denied
-    if ('Notification' in window && Notification.permission === 'denied') {
-        showPushUnavailable('Denegaste las notificaciones. Podés activarlas desde la configuración del navegador.');
-        return;
-    }
-
-    // Check if push is not supported
-    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    if (!isSupported) {
         showPushUnavailable('Las notificaciones push no están disponibles en este navegador.');
         return;
     }
 
-    // Push is available, show request button (default state)
+    // Si está denegado a nivel browser, mostrar mensaje
+    if (Notification.permission === 'denied') {
+        showPushUnavailable('Las notificaciones están bloqueadas. Podés activarlas desde la configuración del navegador.');
+        return;
+    }
+
+    // Verificar con el servidor si el usuario actual tiene push activado
+    try {
+        const response = await fetch('/api/push/status');
+        const data = await response.json();
+
+        if (data.subscribed) {
+            showPushSuccess();
+            return;
+        }
+    } catch (e) {
+        console.log('[Push] Could not check server status:', e);
+    }
+
+    // Mostrar botón de solicitar permiso
+    document.getElementById('push-request').style.display = 'block';
+    document.getElementById('push-success').style.display = 'none';
+    document.getElementById('push-unavailable').style.display = 'none';
 }
 
 async function requestPushPermission() {
