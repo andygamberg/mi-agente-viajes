@@ -566,6 +566,17 @@ async function goToStep(step) {
 }
 
 async function checkPushSupport() {
+    // Detectar Safari en macOS (tiene bug conocido con VAPID keys)
+    const isSafariMac = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
+                        /macintosh/i.test(navigator.userAgent) &&
+                        !(/iPhone|iPad|iPod/.test(navigator.userAgent));
+
+    if (isSafariMac) {
+        // Safari macOS no soporta push con Firebase - skip directo a home con tip
+        window.location.href = '/?show_push_tip=1';
+        return;
+    }
+
     const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
 
     if (!isSupported) {
