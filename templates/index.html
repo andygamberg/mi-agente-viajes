@@ -1788,7 +1788,7 @@
             </div>
         </header>
 
-        {% if show_calendar_tip %}
+        {% if show_calendar_tip and not has_oauth %}
         <div class="calendar-tip" id="calendarTip">
             <div class="calendar-tip-content">
                 <svg class="calendar-tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1816,22 +1816,7 @@
         </div>
         {% endif %}
 
-        {% if request.args.get('show_push_tip') %}
-        <div class="tip-banner" id="push-tip">
-            <div class="tip-content">
-                <svg class="tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                </svg>
-                <div>
-                    <strong>Notificaciones push</strong>
-                    <p>Para recibir alertas de cambios en tus vuelos, activá notificaciones desde Chrome o desde la app en tu iPhone.</p>
-                </div>
-            </div>
-            <button class="tip-close" onclick="this.parentElement.remove()">✕</button>
-        </div>
-        {% endif %}
-
-        {% if proximos or pasados %}
+        {% if (proximos or pasados) and not has_oauth %}
         <div class="email-banner hidden" id="emailBanner">
             <div class="banner-content">
                 <div class="banner-label">

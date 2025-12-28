@@ -566,17 +566,6 @@ async function goToStep(step) {
 }
 
 async function checkPushSupport() {
-    // Detectar Safari en macOS (tiene bug conocido con VAPID keys)
-    const isSafariMac = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) &&
-                        /macintosh/i.test(navigator.userAgent) &&
-                        !(/iPhone|iPad|iPod/.test(navigator.userAgent));
-
-    if (isSafariMac) {
-        // Safari macOS no soporta push con Firebase - skip directo a home con tip
-        window.location.href = '/?show_push_tip=1';
-        return;
-    }
-
     const isSupported = 'Notification' in window && 'serviceWorker' in navigator;
 
     if (!isSupported) {
@@ -611,28 +600,19 @@ async function checkPushSupport() {
 
 async function requestPushPermission() {
     try {
-        const permission = await Notification.requestPermission();
+        // Usar la misma clase PushNotifications que usa Preferencias
+        if (!window.pushNotifications) {
+            showPushUnavailable('El sistema de notificaciones no está disponible.');
+            return;
+        }
 
-        if (permission === 'granted') {
-            // Initialize Firebase and get token
-            if (typeof firebase !== 'undefined' && firebase.messaging) {
-                const messaging = firebase.messaging();
-                const token = await messaging.getToken({
-                    vapidKey: 'BNPWgY9O1N7OmKkxXmGFUTYkYYrYDDqZnWKKMq-6TzLh8eMdUq3LHoYP8e1PZuY_g1lRnq3pYyoVmPJhP3H0HxQ'
-                });
+        await pushNotifications.init();
+        const result = await pushNotifications.requestPermission();
 
-                if (token) {
-                    // Save token to server
-                    await fetch('/api/push/subscribe', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token: token })
-                    });
-                }
-            }
+        if (result.success) {
             showPushSuccess();
         } else {
-            showPushUnavailable('No se pudieron activar las notificaciones.');
+            showPushUnavailable('No se pudieron activar las notificaciones: ' + (result.error || ''));
         }
     } catch (error) {
         console.error('Error requesting push permission:', error);
