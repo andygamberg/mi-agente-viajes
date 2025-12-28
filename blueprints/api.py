@@ -687,11 +687,22 @@ def fix_vuelo(vuelo_id):
         viaje.hora_salida = data['hora_salida']
     if 'hora_llegada' in data:
         viaje.hora_llegada = data['hora_llegada']
+    if 'codigo_reserva' in data:
+        # Si hay código anterior diferente, moverlo a alternativos
+        if viaje.codigo_reserva and viaje.codigo_reserva != data['codigo_reserva']:
+            viaje.add_codigo_alternativo(viaje.codigo_reserva)
+        viaje.codigo_reserva = data['codigo_reserva']
+        # Actualizar también en datos JSON
+        if viaje.datos:
+            datos_dict = viaje.datos if isinstance(viaje.datos, dict) else json.loads(viaje.datos)
+            datos_dict['codigo_reserva'] = data['codigo_reserva']
+            viaje.datos = datos_dict
 
-    # Resetear datos FR24 para que se vuelva a monitorear
-    viaje.status_fr24 = None
-    viaje.delay_minutos = None
-    viaje.ultima_actualizacion_fr24 = None
+    # Resetear datos FR24 (solo si no se especifica reset_fr24=false)
+    if data.get('reset_fr24', True):
+        viaje.status_fr24 = None
+        viaje.delay_minutos = None
+        viaje.ultima_actualizacion_fr24 = None
 
     db.session.commit()
 
@@ -703,6 +714,8 @@ def fix_vuelo(vuelo_id):
             'fecha_salida': str(viaje.fecha_salida),
             'hora_salida': viaje.hora_salida,
             'hora_llegada': viaje.hora_llegada,
+            'codigo_reserva': viaje.codigo_reserva,
+            'codigos_alternativos': viaje.get_codigos_alternativos(),
             'status_fr24': viaje.status_fr24
         }
     })
