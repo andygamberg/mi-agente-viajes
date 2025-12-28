@@ -697,6 +697,9 @@ def fix_vuelo(vuelo_id):
             datos_dict = viaje.datos if isinstance(viaje.datos, dict) else json.loads(viaje.datos)
             datos_dict['codigo_reserva'] = data['codigo_reserva']
             viaje.datos = datos_dict
+    if 'codigo_alternativo' in data:
+        # Agregar código alternativo explícitamente
+        viaje.add_codigo_alternativo(data['codigo_alternativo'])
 
     # Resetear datos FR24 (solo si no se especifica reset_fr24=false)
     if data.get('reset_fr24', True):

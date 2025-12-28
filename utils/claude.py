@@ -145,9 +145,14 @@ PARA VUELOS:
 }}]
 
 NOTA IMPORTANTE SOBRE CÓDIGOS DE RESERVA:
-- "codigo_reserva" es el código principal/general (PNR, ej: AEOQD4)
-- "codigo_aerolinea" es el código propietario de la aerolínea si existe (ej: confirmación de GOL, American, etc.)
-- Extraer AMBOS si aparecen en el email. El codigo_reserva es obligatorio, codigo_aerolinea solo si existe.
+- "codigo_reserva" es el código GENERAL/PNR (6 letras alfanuméricas, ej: DPJZFY, AEOQD4).
+  Este es el código que se usa para hacer check-in en cualquier sistema. Usualmente está etiquetado como:
+  "Código de reserva", "Booking reference", "PNR", "Record locator", "Confirmation number"
+- "codigo_aerolinea" es el código PROPIETARIO de la aerolínea específica (puede tener formato diferente).
+  Usualmente está etiquetado como: "Código de confirmación [aerolínea]", "Localizador [aerolínea]",
+  "Confirmation code", "Airline confirmation". Ejemplos: HTDYXW (GOL), AA123456 (American)
+- Si hay DOS códigos en el email/PDF, el código GENERAL va en "codigo_reserva" y el de aerolínea en "codigo_aerolinea"
+- Si solo hay UN código, ponerlo en "codigo_reserva"
 
 PARA HOTELES/AIRBNB:
 [{{
