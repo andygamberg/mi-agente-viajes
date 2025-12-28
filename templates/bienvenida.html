@@ -226,6 +226,63 @@ html { font-size: 100%; }
     color: var(--text-muted);
     margin-bottom: 12px;
 }
+
+/* Step 4: Push Notifications */
+.push-benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--bg);
+    border-radius: var(--radius);
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+}
+
+.benefit-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.push-state {
+    text-align: center;
+}
+
+.success-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+    color: var(--success);
+    font-size: 1.25rem;
+}
+
+.success-icon-small {
+    width: 24px;
+    height: 24px;
+}
+
+.unavailable-message {
+    padding: 16px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+}
 {% endblock %}
 
 {% block content %}
@@ -234,12 +291,13 @@ html { font-size: 100%; }
         <div class="progress-dot active" id="dot-1"></div>
         <div class="progress-dot" id="dot-2"></div>
         <div class="progress-dot" id="dot-3"></div>
+        <div class="progress-dot" id="dot-4"></div>
     </div>
 
     <!-- STEP 1: Nombre en pasajes -->
     <div class="wizard-step active" id="step-1">
         <div class="step-header">
-            <div class="step-number">Paso 1 de 3</div>
+            <div class="step-number">Paso 1 de 4</div>
             <h1 class="step-title">¿Cómo aparecés en las reservas?</h1>
             <p class="step-subtitle">Así te reconocemos cuando te incluyen en un viaje</p>
         </div>
@@ -263,7 +321,7 @@ html { font-size: 100%; }
     <!-- STEP 2: Conectar email(s) -->
     <div class="wizard-step" id="step-2">
         <div class="step-header">
-            <div class="step-number">Paso 2 de 3</div>
+            <div class="step-number">Paso 2 de 4</div>
             <h1 class="step-title">Conectá tu email</h1>
             <p class="step-subtitle">Detectamos tus reservas automáticamente</p>
         </div>
@@ -311,7 +369,7 @@ html { font-size: 100%; }
             <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <div class="step-number">Paso 3 de 3</div>
+            <div class="step-number">Paso 3 de 4</div>
             <h1 class="step-title">¡Ya casi terminamos!</h1>
             <p class="step-subtitle">¿Agregamos tus viajes al calendario?</p>
         </div>
@@ -348,12 +406,89 @@ html { font-size: 100%; }
 
         <div class="divider-text">o</div>
 
-        <a href="{{ url_for('viajes.index') }}" class="btn-wizard primary">
-            Ir a Mis Viajes
+        <button class="btn-wizard primary" onclick="goToStep(4)">
+            Siguiente
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 18l6-6-6-6"/>
             </svg>
-        </a>
+        </button>
+        <button class="btn-skip" onclick="goToStep(4)">Omitir</button>
+    </div>
+
+    <!-- STEP 4: Push Notifications -->
+    <div class="wizard-step" id="step-4">
+        <div class="step-header">
+            <div class="step-number">Paso 4 de 4</div>
+            <h1 class="step-title">Recibí alertas en tiempo real</h1>
+            <p class="step-subtitle">Te avisamos de cambios en tus vuelos</p>
+        </div>
+
+        <div class="push-benefits">
+            <div class="benefit-item">
+                <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Cambios de horario</span>
+            </div>
+            <div class="benefit-item">
+                <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span>Delays y cancelaciones</span>
+            </div>
+            <div class="benefit-item">
+                <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Nuevas reservas detectadas</span>
+            </div>
+        </div>
+
+        <!-- Estado inicial: pedir permiso -->
+        <div id="push-request" class="push-state">
+            <div class="wizard-buttons">
+                <button class="btn-wizard primary" onclick="requestPushPermission()">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    Activar notificaciones
+                </button>
+            </div>
+            <button class="btn-skip" onclick="finishWizard()">Omitir</button>
+        </div>
+
+        <!-- Estado: activado exitosamente -->
+        <div id="push-success" class="push-state" style="display: none;">
+            <div class="success-message">
+                <svg class="success-icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Notificaciones activadas</span>
+            </div>
+            <div class="wizard-buttons">
+                <button class="btn-wizard primary" onclick="finishWizard()">
+                    Continuar
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Estado: no soportado o denegado -->
+        <div id="push-unavailable" class="push-state" style="display: none;">
+            <div class="unavailable-message">
+                <p id="push-unavailable-text">Las notificaciones no están disponibles en este navegador.</p>
+            </div>
+            <div class="wizard-buttons">
+                <button class="btn-wizard primary" onclick="finishWizard()">
+                    Continuar
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -415,7 +550,7 @@ function goToStep(step) {
     document.getElementById(`step-${currentStep}`).classList.remove('active');
     document.getElementById(`step-${step}`).classList.add('active');
 
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 4; i++) {
         const dot = document.getElementById(`dot-${i}`);
         dot.classList.remove('active', 'completed');
         if (i < step) dot.classList.add('completed');
@@ -423,6 +558,83 @@ function goToStep(step) {
     }
 
     currentStep = step;
+
+    // Check push support when entering step 4
+    if (step === 4) {
+        checkPushSupport();
+    }
+}
+
+function checkPushSupport() {
+    // Check if push is already granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+        showPushSuccess();
+        return;
+    }
+
+    // Check if push is denied
+    if ('Notification' in window && Notification.permission === 'denied') {
+        showPushUnavailable('Denegaste las notificaciones. Podés activarlas desde la configuración del navegador.');
+        return;
+    }
+
+    // Check if push is not supported
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        showPushUnavailable('Las notificaciones push no están disponibles en este navegador.');
+        return;
+    }
+
+    // Push is available, show request button (default state)
+}
+
+async function requestPushPermission() {
+    try {
+        const permission = await Notification.requestPermission();
+
+        if (permission === 'granted') {
+            // Initialize Firebase and get token
+            if (typeof firebase !== 'undefined' && firebase.messaging) {
+                const messaging = firebase.messaging();
+                const token = await messaging.getToken({
+                    vapidKey: 'BNPWgY9O1N7OmKkxXmGFUTYkYYrYDDqZnWKKMq-6TzLh8eMdUq3LHoYP8e1PZuY_g1lRnq3pYyoVmPJhP3H0HxQ'
+                });
+
+                if (token) {
+                    // Save token to server
+                    await fetch('/api/push/subscribe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: token })
+                    });
+                }
+            }
+            showPushSuccess();
+        } else {
+            showPushUnavailable('No se pudieron activar las notificaciones.');
+        }
+    } catch (error) {
+        console.error('Error requesting push permission:', error);
+        showPushUnavailable('Ocurrió un error al activar las notificaciones.');
+    }
+}
+
+function showPushSuccess() {
+    document.getElementById('push-request').style.display = 'none';
+    document.getElementById('push-success').style.display = 'block';
+    document.getElementById('push-unavailable').style.display = 'none';
+}
+
+function showPushUnavailable(message) {
+    document.getElementById('push-request').style.display = 'none';
+    document.getElementById('push-success').style.display = 'none';
+    document.getElementById('push-unavailable').style.display = 'block';
+    if (message) {
+        document.getElementById('push-unavailable-text').textContent = message;
+    }
+}
+
+function finishWizard() {
+    window.location.href = '/';
 }
 
 document.addEventListener('keydown', function(e) {
