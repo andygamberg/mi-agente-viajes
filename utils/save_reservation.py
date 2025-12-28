@@ -106,6 +106,22 @@ def save_reservation(user_id, datos_dict, grupo_id=None, nombre_viaje=None, sour
         viaje.add_codigo_alternativo(codigo_aerolinea)
 
     db.session.add(viaje)
+
+    # Enviar push notification si no es manual
+    if source != 'manual':
+        try:
+            from blueprints.push import send_reservation_notification
+            send_reservation_notification(user_id, {
+                'tipo': tipo,
+                'descripcion': datos_dict.get('descripcion', ''),
+                'fecha': fecha_salida.strftime('%d/%m/%Y') if fecha_salida else '',
+                'codigo': datos_dict.get('codigo_reserva', ''),
+                'source': source
+            })
+        except Exception as e:
+            # No fallar si push notification falla
+            print(f"⚠️ Push notification failed: {e}")
+
     return viaje
 
 

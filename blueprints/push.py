@@ -177,7 +177,10 @@ def send_push_notification(user_id, title, body, data=None, url=None):
     
     results = []
     fcm_url = f'https://fcm.googleapis.com/v1/projects/{FIREBASE_PROJECT_ID}/messages:send'
-    
+
+    # Base URL para assets
+    BASE_URL = 'https://mi-agente-viajes-454542398872.us-east1.run.app'
+
     for sub in subscriptions:
         try:
             payload = {
@@ -188,12 +191,20 @@ def send_push_notification(user_id, title, body, data=None, url=None):
                         'body': body
                     },
                     'webpush': {
+                        'headers': {
+                            'Urgency': 'high'
+                        },
                         'notification': {
-                            'icon': '/static/icons/icon-192x192.png',
-                            'badge': '/static/icons/icon-72x72.png'
+                            'title': title,
+                            'body': body,
+                            'icon': f'{BASE_URL}/static/icons/icon-192x192.png',
+                            'badge': f'{BASE_URL}/static/icons/icon-72x72.png',
+                            'requireInteraction': False,
+                            'renotify': True,
+                            'tag': notification_data.get('tag', 'mi-agente-viajes')
                         },
                         'fcm_options': {
-                            'link': url or '/'
+                            'link': url if url and url.startswith('http') else f'{BASE_URL}{url or "/"}'
                         }
                     },
                     'data': notification_data
@@ -226,6 +237,70 @@ def send_push_notification(user_id, title, body, data=None, url=None):
     
     sent = sum(1 for r in results if r['success'])
     return {'sent': sent, 'total': len(subscriptions), 'results': results}
+
+
+def send_reservation_notification(user_id, reserva_info):
+    """
+    Enviar notificación cuando se detecta una nueva reserva.
+
+    Args:
+        user_id: ID del usuario
+        reserva_info: dict con info de la reserva:
+            - tipo: 'vuelo', 'hotel', 'auto', etc.
+            - descripcion: texto descriptivo
+            - fecha: fecha de la reserva
+            - codigo: código de reserva (opcional)
+            - source: origen ('gmail', 'outlook', 'pdf_upload', etc.)
+    """
+    tipo = reserva_info.get('tipo', 'reserva')
+    descripcion = reserva_info.get('descripcion', '')
+    fecha = reserva_info.get('fecha', '')
+    codigo = reserva_info.get('codigo', '')
+    source = reserva_info.get('source', '')
+
+    # Emojis por tipo
+    emojis = {
+        'vuelo': '✈️',
+        'hotel': '🏨',
+        'auto': '🚗',
+        'crucero': '🚢',
+        'tren': '🚄',
+        'bus': '🚌',
+        'restaurante': '🍽️',
+        'actividad': '🎯',
+        'espectaculo': '🎭',
+        'transfer': '🚐'
+    }
+    emoji = emojis.get(tipo, '📋')
+
+    # Origen amigable
+    source_names = {
+        'gmail': 'Gmail',
+        'outlook': 'Outlook',
+        'microsoft': 'Outlook',
+        'pdf_upload': 'PDF',
+        'email_forward': 'Email',
+        'manual': 'Manual'
+    }
+    source_text = source_names.get(source, source)
+
+    title = f"{emoji} Nueva reserva detectada"
+    body = f"{descripcion}"
+    if fecha:
+        body += f" - {fecha}"
+
+    return send_push_notification(
+        user_id=user_id,
+        title=title,
+        body=body,
+        data={
+            'type': 'new_reservation',
+            'reservation_type': tipo,
+            'tag': f'reserva-{codigo}' if codigo else 'new-reservation',
+            'source': source
+        },
+        url='/'
+    )
 
 
 def send_flight_change_notification(user_id, flight_info, change_type):
