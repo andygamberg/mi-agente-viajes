@@ -333,10 +333,45 @@ def get_full_email_content(service, message_id, payload, subject=''):
 
 
 def check_duplicate(codigo, user_id):
-    """Verifica duplicado por código reserva"""
+    """
+    Verifica duplicado por código reserva (principal o alternativo).
+
+    Busca en:
+    - codigo_reserva (columna)
+    - codigos_alternativos (JSON array)
+    - datos['codigo_reserva'] (JSONB)
+    - datos['codigo_aerolinea'] (JSONB)
+    """
     if not codigo:
         return False
-    return Viaje.query.filter_by(user_id=user_id, codigo_reserva=codigo).first() is not None
+
+    codigo_upper = codigo.strip().upper()
+
+    # Buscar en columna principal
+    existing = Viaje.query.filter_by(user_id=user_id, codigo_reserva=codigo).first()
+    if existing:
+        return existing
+
+    # Buscar en JSONB datos
+    existing = Viaje.query.filter(
+        Viaje.user_id == user_id,
+        db.or_(
+            Viaje.datos['codigo_reserva'].astext == codigo,
+            Viaje.datos['codigo_aerolinea'].astext == codigo
+        )
+    ).first()
+    if existing:
+        return existing
+
+    # Buscar en códigos alternativos (iterar porque es JSON array en Text)
+    viajes = Viaje.query.filter_by(user_id=user_id).filter(
+        Viaje.codigos_alternativos.isnot(None)
+    ).all()
+    for viaje in viajes:
+        if viaje.tiene_codigo(codigo):
+            return viaje
+
+    return None
 
 
 def check_duplicate_by_content(user_id, numero_vuelo, fecha_salida, origen, destino):

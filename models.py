@@ -159,6 +159,7 @@ class Viaje(db.Model):
     aerolinea = db.Column(db.String(100))
     numero_vuelo = db.Column(db.String(50))
     codigo_reserva = db.Column(db.String(255))  # Aumentado para expediciones/charters
+    codigos_alternativos = db.Column(db.Text)  # JSON array con códigos adicionales (ej: código aerolínea)
     terminal = db.Column(db.String(50))
     puerta = db.Column(db.String(20))
     asiento = db.Column(db.String(20))
@@ -192,6 +193,36 @@ class Viaje(db.Model):
     
     def __repr__(self):
         return f'<Viaje {self.origen}->{self.destino} {self.fecha_salida}>'
+
+    def get_codigos_alternativos(self):
+        """Retorna lista de códigos alternativos"""
+        if not self.codigos_alternativos:
+            return []
+        try:
+            import json
+            return json.loads(self.codigos_alternativos)
+        except:
+            return []
+
+    def add_codigo_alternativo(self, codigo):
+        """Agrega un código alternativo si no existe"""
+        import json
+        codigos = self.get_codigos_alternativos()
+        codigo = codigo.strip().upper()
+        if codigo and codigo not in codigos and codigo != self.codigo_reserva:
+            codigos.append(codigo)
+            self.codigos_alternativos = json.dumps(codigos)
+            return True
+        return False
+
+    def tiene_codigo(self, codigo):
+        """Verifica si tiene un código (principal o alternativo)"""
+        codigo = codigo.strip().upper() if codigo else ''
+        if not codigo:
+            return False
+        if self.codigo_reserva and self.codigo_reserva.upper() == codigo:
+            return True
+        return codigo in self.get_codigos_alternativos()
 
 
 class UserEmail(db.Model):

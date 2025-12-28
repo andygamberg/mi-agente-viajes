@@ -136,12 +136,18 @@ PARA VUELOS:
   "aerolinea": "Copa Airlines",
   "numero_vuelo": "CM168",
   "codigo_reserva": "AEOQD4",
+  "codigo_aerolinea": "XYZ123",
   "pasajeros": [{{"nombre": "APELLIDO/NOMBRE", "asiento": "01A", "cabina": "Economy", "viajero_frecuente": null}}],
   "equipaje_facturado": "2x32kg",
   "equipaje_mano": "1x10kg",
   "terminal": null,
   "puerta": null
 }}]
+
+NOTA IMPORTANTE SOBRE CÓDIGOS DE RESERVA:
+- "codigo_reserva" es el código principal/general (PNR, ej: AEOQD4)
+- "codigo_aerolinea" es el código propietario de la aerolínea si existe (ej: confirmación de GOL, American, etc.)
+- Extraer AMBOS si aparecen en el email. El codigo_reserva es obligatorio, codigo_aerolinea solo si existe.
 
 PARA HOTELES/AIRBNB:
 [{{

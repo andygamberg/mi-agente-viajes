@@ -192,23 +192,32 @@ def check_all_upcoming_flights(db_session):
         
         # Detectar cambios
         cambios = []
-        
-        # 1. Cualquier delay (como Flighty/TripIt)
-        if status['delay_minutos'] > 0:
-            cambios.append({
-                'tipo': 'delay',
-                'valor_anterior': 'On time',
-                'valor_nuevo': f"{status['delay_minutos']} min delay",
-                'severidad': 'alta' if status['delay_minutos'] > 120 else 'media'
-            })
-        
+        delay_min = status['delay_minutos']
+
+        # 1. Delay o adelanto (cualquier cambio de +/- 5 min es significativo)
+        if abs(delay_min) > 5:
+            if delay_min > 0:
+                cambios.append({
+                    'tipo': 'delay',
+                    'valor_anterior': 'On time',
+                    'valor_nuevo': f"+{delay_min} min",
+                    'severidad': 'alta' if delay_min > 120 else 'media'
+                })
+            else:
+                cambios.append({
+                    'tipo': 'adelanto',
+                    'valor_anterior': 'On time',
+                    'valor_nuevo': f"{delay_min} min",
+                    'severidad': 'media'
+                })
+
         # 2. Cancelación (muy raro en API, pero posible)
         if status['estado'] == 'cancelled':
             cambios.append({
                 'tipo': 'cancelacion',
                 'severidad': 'critica'
             })
-        
+
         # 3. Cambio de aeropuerto destino
         if status['dest_icao_actual'] and vuelo.destino:
             if status['dest_icao_actual'] != vuelo.destino:
@@ -218,7 +227,7 @@ def check_all_upcoming_flights(db_session):
                     'valor_nuevo': status['dest_icao_actual'],
                     'severidad': 'alta'
                 })
-        
+
         if cambios:
             cambios_detectados.append({
                 'vuelo_id': vuelo.id,
@@ -229,23 +238,26 @@ def check_all_upcoming_flights(db_session):
                 'cambios': cambios
             })
             print(f"   ⚠️  {len(cambios)} cambio(s) detectado(s)")
-            
-            # ACTUALIZAR BD con nuevos horarios
-            if status.get('datetime_takeoff_actual'):
-                vuelo.fecha_salida = status['datetime_takeoff_actual']
-                vuelo.hora_salida = status['datetime_takeoff_actual'].strftime('%H:%M')
-            
-            if status.get('datetime_landed_actual'):
-                vuelo.fecha_llegada = status['datetime_landed_actual']
-                vuelo.hora_llegada = status['datetime_landed_actual'].strftime('%H:%M')
 
             # Actualizar campos FR24 para badges y tracking
             vuelo.ultima_actualizacion_fr24 = datetime.now()
             vuelo.status_fr24 = status.get('estado', 'unknown')
-            vuelo.delay_minutos = status.get('delay_minutos', 0)
+            vuelo.delay_minutos = delay_min
+
+            # Actualizar hora de salida con conversión a hora local del aeropuerto
+            takeoff_utc = status.get('datetime_takeoff_actual')
+            if takeoff_utc and vuelo.origen:
+                from utils.airport_timezone import utc_to_airport_local
+                takeoff_local = utc_to_airport_local(takeoff_utc, vuelo.origen)
+                if takeoff_local:
+                    nueva_hora = takeoff_local.strftime('%H:%M')
+                    hora_anterior = vuelo.hora_salida
+                    if nueva_hora != hora_anterior:
+                        vuelo.hora_salida = nueva_hora
+                        print(f"   🕐 Hora actualizada: {hora_anterior} → {nueva_hora} (local {vuelo.origen})")
 
             db_session.commit()
-            print(f"   💾 BD actualizada con nuevos horarios")
+            print(f"   💾 BD actualizada")
         else:
             print(f"   ✅ On time")
     

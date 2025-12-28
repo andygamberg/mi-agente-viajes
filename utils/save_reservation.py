@@ -100,6 +100,11 @@ def save_reservation(user_id, datos_dict, grupo_id=None, nombre_viaje=None, sour
         raw_data=json.dumps(datos_dict, ensure_ascii=False),
     )
 
+    # Agregar código de aerolínea como alternativo si existe
+    codigo_aerolinea = datos_dict.get('codigo_aerolinea')
+    if codigo_aerolinea:
+        viaje.add_codigo_alternativo(codigo_aerolinea)
+
     db.session.add(viaje)
     return viaje
 
