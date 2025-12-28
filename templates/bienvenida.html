@@ -579,12 +579,14 @@ async function checkPushSupport() {
         return;
     }
 
-    // Verificar con el servidor si el usuario actual tiene push activado
+    // Verificar con el servidor Y que este dispositivo tenga token
     try {
         const response = await fetch('/api/push/status');
         const data = await response.json();
+        const localToken = localStorage.getItem('pushToken');
 
-        if (data.subscribed) {
+        // Solo mostrar "activado" si el servidor dice que sí Y este dispositivo tiene token
+        if (data.subscribed && localToken) {
             showPushSuccess();
             return;
         }
