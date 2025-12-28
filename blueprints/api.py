@@ -636,10 +636,13 @@ def debug_vuelos():
             'origen': v.origen,
             'destino': v.destino,
             'fecha_salida': str(v.fecha_salida),
-            'hora_salida': v.hora_salida,
+            'hora_salida_col': v.hora_salida,
+            'hora_salida_datos': datos.get('hora_salida'),
+            'hora_llegada_col': v.hora_llegada,
+            'hora_llegada_datos': datos.get('hora_llegada'),
             'proveedor': v.proveedor,
-            'numero_vuelo_col': v.numero_vuelo,  # Columna directa
-            'numero_vuelo_datos': datos.get('numero_vuelo'),  # Desde JSON datos
+            'numero_vuelo_col': v.numero_vuelo,
+            'numero_vuelo_datos': datos.get('numero_vuelo'),
             'codigo_reserva': v.codigo_reserva or datos.get('codigo_reserva'),
             'aerolinea': datos.get('aerolinea'),
             'status_fr24': v.status_fr24,
