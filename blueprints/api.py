@@ -805,6 +805,9 @@ def migrate_db():
             conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS status_fr24 VARCHAR(50)"))
             conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS delay_minutos INTEGER"))
 
+            # Códigos alternativos de reserva (para detectar duplicados con múltiples códigos)
+            conn.execute(db.text("ALTER TABLE viaje ADD COLUMN IF NOT EXISTS codigos_alternativos TEXT"))
+
             conn.commit()
         
         # ========================================
