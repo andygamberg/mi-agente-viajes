@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 23 Diciembre 2025
+**Última actualización:** 28 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -45,16 +45,43 @@
 | 26 | UX Mobile + Formato hora | 17 Dic 2025 | Tipografía rem, capitalización, formato hora 24h/12h |
 | **27** | **Unificación Preferencias + Merge reservas** | **21 Dic 2025** | **Perfil→Preferencias, merge asientos/actualizaciones, Outlook Calendar** |
 | **28** | **DEMO-TRIP + Onboarding UX** | **22 Dic 2025** | **Viaje ejemplo, tips calendario/agrupar, empty state contextual, REDIRECT-SMART** |
-| **17** | **PWA** | **27 Dic 2025** | **App instalable iOS/Android/Desktop, Service Worker, IndexedDB offline** |
+| **17** | **PWA + Push Notifications** | **28 Dic 2025** | **Firebase FCM, alertas FR24, notif reservas** |
 
-### ✅ Completado - Sesión 32 (27 Dic 2025)
+### ✅ Completado - Sesión 32 (27-28 Dic 2025)
 
-#### PWA ✅
+#### PWA Fases 1-2 ✅
 - App instalable en iOS/Android/Desktop
 - Service Worker v2 con cache de assets y API
 - IndexedDB para viajes offline
 - Banner indicador modo offline
 - Iconos apple-touch-icon desde raíz para iOS
+
+#### PWA Fase 3: Push Notifications con Firebase ✅
+- Firebase Cloud Messaging configurado (proyecto: mi-agente-viajes-2a67b)
+- FCM API V1 con Service Account (no legacy server key)
+- Push notifications funcionando en iOS y macOS Safari
+- Toggle en Preferencias (sección "Canales de Notificación")
+- Integración con monitor FR24 (alertas de delays/cancelaciones/adelantos)
+- Notificaciones automáticas al crear/actualizar reservas
+- Payload híbrido (notification + apns + data) para compatibilidad multi-plataforma
+
+#### Mejoras FR24 ✅
+- Threshold de delay bajado a 0 min (como Flighty/TripIt)
+- Detección de adelantos (pull-in) si cambio > 5 min
+- Conversión UTC a hora local del aeropuerto (utils/airport_timezone.py)
+- Soporte para códigos de reserva alternativos (codigos_alternativos JSONB)
+- Selección correcta de vuelo cuando FR24 devuelve múltiples días
+- Toggle "Cambios de puerta" eliminado (FR24 no provee esa info)
+
+#### Fixes ✅
+- Prompt Claude mejorado para distinguir codigo_reserva vs codigo_aerolinea
+
+#### Limitaciones conocidas
+- Safari/iOS muestra texto genérico en notificaciones push (limitación de Apple PWA)
+- Las notificaciones llegan correctamente, contenido personalizado pendiente
+
+#### Pendiente
+- [ ] Paso 4 en wizard de bienvenida (pedir permiso push en onboarding)
 
 ### ✅ Completado - Sesión 31 (23 Dic 2025)
 
@@ -393,7 +420,7 @@
 
 ---
 
-*Última actualización: 23 Dic 2025*
+*Última actualización: 28 Dic 2025*
 
 ## ✅ MVP15: Multi-Tipo de Reservas (15 Dic 2025)
 
