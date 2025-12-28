@@ -245,16 +245,28 @@ def check_all_upcoming_flights(db_session):
             vuelo.delay_minutos = delay_min
 
             # Actualizar hora de salida con conversión a hora local del aeropuerto
+            from utils.airport_timezone import utc_to_airport_local
+
             takeoff_utc = status.get('datetime_takeoff_actual')
             if takeoff_utc and vuelo.origen:
-                from utils.airport_timezone import utc_to_airport_local
                 takeoff_local = utc_to_airport_local(takeoff_utc, vuelo.origen)
                 if takeoff_local:
                     nueva_hora = takeoff_local.strftime('%H:%M')
                     hora_anterior = vuelo.hora_salida
                     if nueva_hora != hora_anterior:
                         vuelo.hora_salida = nueva_hora
-                        print(f"   🕐 Hora actualizada: {hora_anterior} → {nueva_hora} (local {vuelo.origen})")
+                        print(f"   🕐 Hora salida: {hora_anterior} → {nueva_hora} (local {vuelo.origen})")
+
+            # Actualizar hora de llegada con conversión a hora local del aeropuerto destino
+            landed_utc = status.get('datetime_landed_actual')
+            if landed_utc and vuelo.destino:
+                landed_local = utc_to_airport_local(landed_utc, vuelo.destino)
+                if landed_local:
+                    nueva_hora_llegada = landed_local.strftime('%H:%M')
+                    hora_llegada_anterior = vuelo.hora_llegada
+                    if nueva_hora_llegada != hora_llegada_anterior:
+                        vuelo.hora_llegada = nueva_hora_llegada
+                        print(f"   🕐 Hora llegada: {hora_llegada_anterior} → {nueva_hora_llegada} (local {vuelo.destino})")
 
             db_session.commit()
             print(f"   💾 BD actualizada")
