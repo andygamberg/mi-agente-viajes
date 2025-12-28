@@ -1,0 +1,40 @@
+# .gcloudignore
+# Ignorar archivos innecesarios para Cloud Run deploy
+
+# Git
+.git/
+.github/
+
+# Herramientas de desarrollo
+.claude/
+.vscode/
+.DS_Store
+
+# Documentacion
+docs/
+*.md
+!requirements.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+venv313/
+.env
+.env.save
+
+# Testing
+test_*.py
+test_*.txt
+*.log
+*.db
+
+# Archivos sensibles (ya estan en secrets)
+gmail-credentials.json
+firebase-service-account.json
+deploy.sh
+
+# Otros
+instance/
+*.sqlite
