@@ -173,6 +173,9 @@ def send_push_notification(user_id, title, body, data=None, url=None):
     notification_data = data or {}
     if url:
         notification_data['url'] = url
+    # Agregar title/body como fallback para iOS/Safari
+    notification_data['title'] = title
+    notification_data['body'] = body
     notification_data = {k: str(v) for k, v in notification_data.items()}
     
     results = []
