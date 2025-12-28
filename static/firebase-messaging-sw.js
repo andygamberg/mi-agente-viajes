@@ -23,33 +23,27 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// Handle background messages
+// Handle background messages (data-only)
 messaging.onBackgroundMessage((payload) => {
-    console.log('[firebase-messaging-sw.js] Background message:', JSON.stringify(payload));
+    console.log('[SW] Background message received:', JSON.stringify(payload));
 
-    // Safari/iOS puede recibir data en diferentes ubicaciones
-    const notification = payload.notification || {};
-    const webpush = payload.webpush?.notification || {};
     const data = payload.data || {};
 
-    // Priorizar: webpush > notification > data > fallback
-    const notificationTitle = webpush.title || notification.title || data.title || 'Mi Agente Viajes';
-    const notificationBody = webpush.body || notification.body || data.body || 'Tienes una actualización';
-
-    const notificationOptions = {
-        body: notificationBody,
-        icon: webpush.icon || notification.icon || '/static/icons/icon-192x192.png',
-        badge: webpush.badge || notification.badge || '/static/icons/icon-72x72.png',
-        vibrate: [100, 50, 100],
+    const title = data.title || 'Mi Agente Viajes';
+    const options = {
+        body: data.body || 'Tienes una actualización',
+        icon: data.icon || '/static/icons/icon-192x192.png',
+        badge: data.badge || '/static/icons/icon-72x72.png',
         tag: data.tag || 'mi-agente-viajes',
         data: {
-            url: data.url || '/',
-            ...data
-        }
+            url: data.url || '/'
+        },
+        requireInteraction: false,
+        silent: false
     };
 
-    console.log('[firebase-messaging-sw.js] Showing:', notificationTitle, notificationOptions);
-    return self.registration.showNotification(notificationTitle, notificationOptions);
+    console.log('[SW] Showing notification:', title, options);
+    return self.registration.showNotification(title, options);
 });
 
 // Handle notification click

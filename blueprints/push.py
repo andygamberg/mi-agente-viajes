@@ -186,31 +186,20 @@ def send_push_notification(user_id, title, body, data=None, url=None):
 
     for sub in subscriptions:
         try:
+            # Data-only message para que el Service Worker tenga control
+            # (Safari maneja "notification" directamente ignorando el SW)
             payload = {
                 'message': {
                     'token': sub.token,
-                    'notification': {
+                    'data': {
                         'title': title,
-                        'body': body
-                    },
-                    'webpush': {
-                        'headers': {
-                            'Urgency': 'high'
-                        },
-                        'notification': {
-                            'title': title,
-                            'body': body,
-                            'icon': f'{BASE_URL}/static/icons/icon-192x192.png',
-                            'badge': f'{BASE_URL}/static/icons/icon-72x72.png',
-                            'requireInteraction': False,
-                            'renotify': True,
-                            'tag': notification_data.get('tag', 'mi-agente-viajes')
-                        },
-                        'fcm_options': {
-                            'link': url if url and url.startswith('http') else f'{BASE_URL}{url or "/"}'
-                        }
-                    },
-                    'data': notification_data
+                        'body': body,
+                        'icon': f'{BASE_URL}/static/icons/icon-192x192.png',
+                        'badge': f'{BASE_URL}/static/icons/icon-72x72.png',
+                        'url': url or '/',
+                        'tag': (data or {}).get('tag', 'mi-agente-viajes'),
+                        **{k: str(v) for k, v in (data or {}).items()}
+                    }
                 }
             }
             
