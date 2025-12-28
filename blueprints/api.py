@@ -673,17 +673,20 @@ def fix_vuelo(vuelo_id):
     old_data = {
         'fecha_salida': str(viaje.fecha_salida),
         'hora_salida': viaje.hora_salida,
+        'hora_llegada': viaje.hora_llegada,
         'status_fr24': viaje.status_fr24,
         'delay_minutos': viaje.delay_minutos
     }
 
-    # Obtener nueva fecha del body si se proporciona
+    # Obtener datos del body si se proporcionan
     data = request.get_json() or {}
     if 'fecha_salida' in data:
         from datetime import datetime as dt
         viaje.fecha_salida = dt.fromisoformat(data['fecha_salida'])
     if 'hora_salida' in data:
         viaje.hora_salida = data['hora_salida']
+    if 'hora_llegada' in data:
+        viaje.hora_llegada = data['hora_llegada']
 
     # Resetear datos FR24 para que se vuelva a monitorear
     viaje.status_fr24 = None
@@ -699,6 +702,7 @@ def fix_vuelo(vuelo_id):
         'new': {
             'fecha_salida': str(viaje.fecha_salida),
             'hora_salida': viaje.hora_salida,
+            'hora_llegada': viaje.hora_llegada,
             'status_fr24': viaje.status_fr24
         }
     })
