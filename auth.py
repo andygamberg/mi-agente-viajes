@@ -56,19 +56,19 @@ def register():
         # Validaciones
         if not email or not nombre or not password:
             flash('Todos los campos son obligatorios', 'error')
-            return render_template('register.html')
-        
+            return render_template('register.html', nombre=nombre, email=email)
+
         if password != password2:
             flash('Las contraseñas no coinciden', 'error')
-            return render_template('register.html')
-        
+            return render_template('register.html', nombre=nombre, email=email)
+
         if len(password) < 6:
             flash('La contraseña debe tener al menos 6 caracteres', 'error')
-            return render_template('register.html')
-        
+            return render_template('register.html', nombre=nombre, email=email)
+
         if User.query.filter_by(email=email).first():
             flash('Ya existe una cuenta con ese email', 'error')
-            return render_template('register.html')
+            return render_template('register.html', nombre=nombre, email=email)
         
         # Crear usuario
         user = User(email=email, nombre=nombre)

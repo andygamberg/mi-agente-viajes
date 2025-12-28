@@ -163,6 +163,48 @@
                 padding: 32px 24px;
             }
         }
+
+        .password-requirements {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .req {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .req:last-child {
+            margin-bottom: 0;
+        }
+
+        .req-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .req.valid {
+            color: var(--success, #22C55E);
+        }
+
+        .req.valid .req-icon {
+            stroke: var(--success, #22C55E);
+        }
+
+        .req.invalid {
+            color: var(--danger);
+        }
+
+        .req.invalid .req-icon {
+            stroke: var(--danger);
+        }
     </style>
 </head>
 <body>
@@ -188,12 +230,12 @@
         <form method="POST">
             <div class="form-group">
                 <label>Nombre</label>
-                <input type="text" name="nombre" required placeholder="Tu nombre">
+                <input type="text" name="nombre" required placeholder="Tu nombre" value="{{ nombre or '' }}">
             </div>
             
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" required placeholder="tu@email.com" autocomplete="email">
+                <input type="email" name="email" required placeholder="tu@email.com" autocomplete="email" value="{{ email or '' }}">
             </div>
             
             <div class="form-group">
@@ -205,7 +247,22 @@
                 <label>Repetir Contraseña</label>
                 <input type="password" name="password2" required placeholder="Repetí tu contraseña" autocomplete="new-password">
             </div>
-            
+
+            <div class="password-requirements" id="password-requirements">
+                <div class="req" id="req-length">
+                    <svg class="req-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    <span>Mínimo 6 caracteres</span>
+                </div>
+                <div class="req" id="req-match">
+                    <svg class="req-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    <span>Las contraseñas coinciden</span>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary">Crear Cuenta</button>
         </form>
         
@@ -213,5 +270,47 @@
             ¿Ya tenés cuenta? <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
         </div>
     </div>
+
+    <script>
+    const passwordInput = document.querySelector('input[name="password"]');
+    const password2Input = document.querySelector('input[name="password2"]');
+    const reqLength = document.getElementById('req-length');
+    const reqMatch = document.getElementById('req-match');
+
+    function updateIcon(element, isValid) {
+        const icon = element.querySelector('.req-icon');
+        if (isValid) {
+            element.classList.add('valid');
+            element.classList.remove('invalid');
+            icon.innerHTML = '<path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+        } else if (element.classList.contains('valid')) {
+            element.classList.remove('valid');
+            element.classList.add('invalid');
+            icon.innerHTML = '<circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>';
+        } else {
+            element.classList.remove('valid', 'invalid');
+            icon.innerHTML = '<circle cx="12" cy="12" r="10"/>';
+        }
+    }
+
+    function validatePassword() {
+        const password = passwordInput.value;
+        const password2 = password2Input.value;
+
+        // Check length
+        updateIcon(reqLength, password.length >= 6);
+
+        // Check match (only if password2 has content)
+        if (password2.length > 0) {
+            updateIcon(reqMatch, password === password2 && password.length > 0);
+        } else {
+            reqMatch.classList.remove('valid', 'invalid');
+            reqMatch.querySelector('.req-icon').innerHTML = '<circle cx="12" cy="12" r="10"/>';
+        }
+    }
+
+    passwordInput.addEventListener('input', validatePassword);
+    password2Input.addEventListener('input', validatePassword);
+    </script>
 </body>
 </html>
