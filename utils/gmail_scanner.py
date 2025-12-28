@@ -342,42 +342,52 @@ def check_duplicate(codigo, user_id):
 def check_duplicate_by_content(user_id, numero_vuelo, fecha_salida, origen, destino):
     """
     Verifica duplicado por contenido cuando no hay código de reserva.
-    
+
     Args:
         user_id: ID del usuario
         numero_vuelo: Número de vuelo (ej: "IB5550")
         fecha_salida: Fecha como string "YYYY-MM-DD" o datetime
         origen: Código aeropuerto origen
         destino: Código aeropuerto destino
-    
+
     Returns:
-        bool: True si ya existe un viaje con estos datos
+        Viaje existente si hay duplicado, None si no
     """
     if not numero_vuelo or not fecha_salida:
-        return False
-    
+        return None
+
     # Normalizar fecha
     if isinstance(fecha_salida, str):
         try:
             fecha = datetime.strptime(fecha_salida.split()[0], '%Y-%m-%d').date()
         except:
-            return False
+            return None
     else:
         fecha = fecha_salida.date() if hasattr(fecha_salida, 'date') else fecha_salida
-    
-    # Buscar viaje con mismo vuelo, fecha, origen y destino
+
+    # Normalizar numero_vuelo (quitar espacios)
+    numero_norm = numero_vuelo.replace(' ', '') if numero_vuelo else None
+
+    # Buscar viaje por columna numero_vuelo O en JSON datos
     existing = Viaje.query.filter(
         Viaje.user_id == user_id,
-        Viaje.numero_vuelo == numero_vuelo,
-        db.func.date(Viaje.fecha_salida) == fecha
+        db.func.date(Viaje.fecha_salida) == fecha,
+        db.or_(
+            Viaje.numero_vuelo == numero_vuelo,
+            Viaje.numero_vuelo == numero_norm,
+            Viaje.datos['numero_vuelo'].astext == numero_vuelo,
+            Viaje.datos['numero_vuelo'].astext == numero_norm
+        )
     ).first()
-    
+
     if existing:
         # Verificar también origen/destino para mayor precisión
-        if existing.origen == origen and existing.destino == destino:
-            return True
-    
-    return False
+        existing_origen = existing.origen or (existing.datos or {}).get('origen')
+        existing_destino = existing.destino or (existing.datos or {}).get('destino')
+        if existing_origen == origen and existing_destino == destino:
+            return existing
+
+    return None
 
 
 def search_travel_emails(service, days_back=30):
@@ -532,15 +542,21 @@ def scan_and_create_viajes(user_id, days_back=30):
                             results['viajes_duplicados'] += 1
                             continue
                     
-                    # Verificar duplicado por contenido
+                    # Verificar duplicado por contenido (busca por numero_vuelo + fecha + ruta)
                     primer_vuelo = vuelos[0]
-                    if check_duplicate_by_content(
+                    existing_by_content = check_duplicate_by_content(
                         user_id,
                         primer_vuelo.get('numero_vuelo'),
                         primer_vuelo.get('fecha_salida'),
                         primer_vuelo.get('origen'),
                         primer_vuelo.get('destino')
-                    ):
+                    )
+                    if existing_by_content:
+                        # Hacer merge de datos (actualizar info adicional como pasajeros)
+                        from utils.save_reservation import merge_reservation_data
+                        if merge_reservation_data(existing_by_content, primer_vuelo):
+                            db.session.commit()
+                            print(f"        🔄 Duplicado actualizado: {primer_vuelo.get('numero_vuelo')}")
                         results['viajes_duplicados'] += 1
                         continue
                     

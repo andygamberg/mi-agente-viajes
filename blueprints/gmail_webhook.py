@@ -268,14 +268,21 @@ def process_new_emails(connection, history_id):
 
                     # 2. Por contenido (vuelo + fecha + ruta)
                     primer_vuelo = vuelos[0]
-                    if check_duplicate_by_content(
+                    existing_by_content = check_duplicate_by_content(
                         connection.user_id,
                         primer_vuelo.get('numero_vuelo'),
                         primer_vuelo.get('fecha_salida'),
                         primer_vuelo.get('origen'),
                         primer_vuelo.get('destino')
-                    ):
-                        print(f"Duplicado por contenido: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('fecha_salida')}")
+                    )
+                    if existing_by_content:
+                        # Hacer merge de datos (actualizar info adicional como pasajeros)
+                        from utils.save_reservation import merge_reservation_data
+                        if merge_reservation_data(existing_by_content, primer_vuelo):
+                            db.session.commit()
+                            print(f"🔄 Duplicado actualizado: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('fecha_salida')}")
+                        else:
+                            print(f"Duplicado por contenido: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('fecha_salida')}")
                         continue
                     
                     grupo = str(uuid.uuid4())[:8]

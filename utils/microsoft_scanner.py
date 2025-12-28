@@ -323,16 +323,23 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                             results['viajes_duplicados'] += 1
                             continue
 
-                    # Verificar duplicado por contenido
+                    # Verificar duplicado por contenido (busca por numero_vuelo + fecha + ruta)
                     primer_vuelo = vuelos[0]
-                    if check_duplicate_by_content(
+                    existing_by_content = check_duplicate_by_content(
                         user_id,
                         primer_vuelo.get('numero_vuelo'),
                         primer_vuelo.get('fecha_salida'),
                         primer_vuelo.get('origen'),
                         primer_vuelo.get('destino')
-                    ):
-                        print(f"        ⏭️ Duplicado por contenido: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('origen')}→{primer_vuelo.get('destino')} {primer_vuelo.get('fecha_salida')}")
+                    )
+                    if existing_by_content:
+                        # Hacer merge de datos (actualizar info adicional como pasajeros)
+                        from utils.save_reservation import merge_reservation_data
+                        if merge_reservation_data(existing_by_content, primer_vuelo):
+                            db.session.commit()
+                            print(f"        🔄 Duplicado actualizado: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('origen')}→{primer_vuelo.get('destino')}")
+                        else:
+                            print(f"        ⏭️ Duplicado sin cambios: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('origen')}→{primer_vuelo.get('destino')}")
                         results['viajes_duplicados'] += 1
                         continue
 
