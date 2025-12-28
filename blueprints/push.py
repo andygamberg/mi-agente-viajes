@@ -186,11 +186,28 @@ def send_push_notification(user_id, title, body, data=None, url=None):
 
     for sub in subscriptions:
         try:
-            # Data-only message para que el Service Worker tenga control
-            # (Safari maneja "notification" directamente ignorando el SW)
+            # Payload híbrido: notification + apns + data
+            # - notification: para Chrome/Firefox/Android
+            # - apns: para iOS PWA en background (usa APNs directamente)
+            # - data: para Service Worker cuando está activo
             payload = {
                 'message': {
                     'token': sub.token,
+                    'notification': {
+                        'title': title,
+                        'body': body
+                    },
+                    'apns': {
+                        'payload': {
+                            'aps': {
+                                'alert': {
+                                    'title': title,
+                                    'body': body
+                                },
+                                'sound': 'default'
+                            }
+                        }
+                    },
                     'data': {
                         'title': title,
                         'body': body,
@@ -202,7 +219,7 @@ def send_push_notification(user_id, title, body, data=None, url=None):
                     }
                 }
             }
-            
+
             response = requests.post(
                 fcm_url,
                 headers={
@@ -212,18 +229,20 @@ def send_push_notification(user_id, title, body, data=None, url=None):
                 json=payload,
                 timeout=10
             )
-            
+
             if response.status_code == 200:
                 results.append({'token': sub.token[:20] + '...', 'success': True})
             else:
                 error_data = response.json()
                 error_msg = error_data.get('error', {}).get('message', 'Unknown error')
                 results.append({'token': sub.token[:20] + '...', 'success': False, 'error': error_msg})
-                
-                if 'UNREGISTERED' in str(error_msg) or 'not found' in str(error_msg).lower():
+
+                # Limpiar tokens inválidos
+                if 'UNREGISTERED' in str(error_msg).upper() or 'NOT_FOUND' in str(error_msg).upper():
                     sub.active = False
                     db.session.commit()
-                
+                    print(f'🗑️ Token desactivado: {sub.token[:20]}...')
+
         except Exception as e:
             results.append({'token': sub.token[:20] + '...', 'success': False, 'error': str(e)})
     
