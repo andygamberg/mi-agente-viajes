@@ -631,3 +631,27 @@ if codigo and check_duplicate(codigo, user_id):
 **Solución:** Documentar en UX que modo offline solo funciona después de visita inicial
 **Sesión:** 32
 **Aplicable a:** Cualquier PWA con datos dinámicos offline
+
+### 50. Tracking de emails procesados reduce costos API 95%
+**Problema:** Cron cada 15 min reprocesaba los mismos ~10 emails, generando ~960 llamadas a Claude/día ($10/día)
+**Causa:** No había tracking de qué emails ya se procesaron - se llamaba a Claude para cada email en cada ejecución del cron
+**Solución:**
+1. Nuevo modelo `ProcessedEmail` con `connection_id` + `message_id` (unique constraint)
+2. Verificar si email existe ANTES de llamar a Claude
+3. Marcar email como procesado DESPUÉS de llamar a Claude (con o sin reservas)
+4. Cambiar modelo de Sonnet ($3/M tokens) a Haiku ($0.25/M tokens) - suficiente para extracción de datos estructurados
+**Resultado:** De ~$300/mes a ~$10-20/mes en API costs
+**Archivos modificados:** models.py, blueprints/gmail_webhook.py, utils/gmail_scanner.py, utils/microsoft_scanner.py, utils/claude.py
+**Sesión:** Mis Viajes 34
+**Aplicable a:** Cualquier proceso batch/cron que use LLMs - siempre trackear qué items ya se procesaron
+
+### 51. Haiku es suficiente para extracción de datos estructurados
+**Problema:** Usar Sonnet para extraer JSON de emails es overkill y caro
+**Causa:** Se eligió Sonnet por defecto sin evaluar si era necesario
+**Solución:** Haiku ($0.25/M tokens) extrae datos estructurados igual de bien que Sonnet ($3/M tokens) para este caso de uso
+**Cuándo usar cada modelo:**
+- Haiku: extracción de datos, parsing, clasificación, tareas simples
+- Sonnet: razonamiento complejo, código, análisis profundo
+- Opus: tareas que requieren máxima inteligencia
+**Sesión:** Mis Viajes 34
+**Aplicable a:** Cualquier uso de Claude API - elegir el modelo mínimo necesario
