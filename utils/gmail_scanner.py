@@ -541,10 +541,34 @@ def scan_and_create_viajes(user_id, days_back=30):
 
                     results['emails_procesados'] += 1
                     emails_processed_count += 1
-                    
+
+                    # Verificar si este email ya fue procesado
+                    from models import ProcessedEmail
+                    already_processed = ProcessedEmail.query.filter_by(
+                        connection_id=conn.id,
+                        message_id=msg_id
+                    ).first()
+
+                    if already_processed:
+                        print(f"⏭️ Email ya procesado: {subject[:50]}")
+                        continue
+
                     # Extraer con Claude
                     text = f"Subject: {email.get('subject', '')}\n\n{email.get('body', '')}"
                     vuelos = extraer_info_con_claude(text)
+
+                    # Marcar email como procesado
+                    try:
+                        processed_record = ProcessedEmail(
+                            connection_id=conn.id,
+                            message_id=msg_id,
+                            had_reservation=bool(vuelos)
+                        )
+                        db.session.add(processed_record)
+                        db.session.commit()
+                    except Exception as e:
+                        print(f"⚠️ Error guardando ProcessedEmail: {e}")
+                        db.session.rollback()
                     
                     if not vuelos:
                         continue

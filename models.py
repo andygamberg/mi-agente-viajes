@@ -140,6 +140,25 @@ class EmailConnection(db.Model):
         return f'<EmailConnection {self.provider}:{self.email}>'
 
 
+class ProcessedEmail(db.Model):
+    """
+    Tracking de emails ya procesados para evitar reprocesamiento.
+    Reduce llamadas a Claude API significativamente.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    connection_id = db.Column(db.Integer, db.ForeignKey('email_connection.id'), nullable=False)
+    message_id = db.Column(db.String(255), nullable=False)
+    processed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    had_reservation = db.Column(db.Boolean, default=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('connection_id', 'message_id', name='uq_connection_message'),
+    )
+
+    def __repr__(self):
+        return f'<ProcessedEmail {self.message_id[:20]}...>'
+
+
 class Viaje(db.Model):
     """Modelo de viaje/vuelo"""
     id = db.Column(db.Integer, primary_key=True)

@@ -281,8 +281,33 @@ def scan_and_create_viajes_microsoft(user_id, days_back=30):
                     # Obtener contenido completo
                     full_content = get_full_email_content_microsoft(access_token, message)
 
+                    # Verificar si este email ya fue procesado
+                    from models import ProcessedEmail
+                    already_processed = ProcessedEmail.query.filter_by(
+                        connection_id=conn.id,
+                        message_id=message.get('id')
+                    ).first()
+
+                    if already_processed:
+                        subject = message.get('subject', '')
+                        print(f"⏭️ Email ya procesado: {subject[:50]}")
+                        continue
+
                     # Extraer con Claude
                     vuelos = extraer_info_con_claude(full_content)
+
+                    # Marcar email como procesado
+                    try:
+                        processed_record = ProcessedEmail(
+                            connection_id=conn.id,
+                            message_id=message.get('id'),
+                            had_reservation=bool(vuelos)
+                        )
+                        db.session.add(processed_record)
+                        db.session.commit()
+                    except Exception as e:
+                        print(f"⚠️ Error guardando ProcessedEmail: {e}")
+                        db.session.rollback()
 
                     if not vuelos:
                         print(f"        ⚠️ Claude no extrajo ninguna reserva")

@@ -233,8 +233,32 @@ def process_new_emails(connection, history_id):
                     years_found = set(re.findall(r'20[2-3][0-9]', full_content))
                     print(f"📅 Años encontrados en contenido: {sorted(years_found)}")
 
+                    # Verificar si este email ya fue procesado
+                    from models import ProcessedEmail
+                    already_processed = ProcessedEmail.query.filter_by(
+                        connection_id=connection.id,
+                        message_id=msg_id
+                    ).first()
+
+                    if already_processed:
+                        print(f"⏭️ Email ya procesado anteriormente: {subject[:50] if subject else '(sin subject)'}")
+                        continue
+
                     # Procesar con Claude
                     vuelos = extraer_info_con_claude(full_content)
+
+                    # Marcar email como procesado
+                    try:
+                        processed_record = ProcessedEmail(
+                            connection_id=connection.id,
+                            message_id=msg_id,
+                            had_reservation=bool(vuelos)
+                        )
+                        db.session.add(processed_record)
+                        db.session.commit()
+                    except Exception as e:
+                        print(f"⚠️ Error guardando ProcessedEmail: {e}")
+                        db.session.rollback()
                     
                     if not vuelos:
                         print(f"No se encontraron vuelos en: {subject}")
