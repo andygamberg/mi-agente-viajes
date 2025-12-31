@@ -33,7 +33,8 @@ class User(UserMixin, db.Model):
     notif_delay = db.Column(db.Boolean, default=True)
     notif_cancelacion = db.Column(db.Boolean, default=True)
     notif_gate = db.Column(db.Boolean, default=True)
-    
+    notif_nueva_reserva = db.Column(db.Boolean, default=True)
+
     # MVP14: Whitelist personal de remitentes (JSON array)
     # Ejemplo: ["marta@miagentedeviajes.com", "@agenciaturismo.com.ar"]
     custom_senders = db.Column(db.Text)

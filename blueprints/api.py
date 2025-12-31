@@ -785,6 +785,7 @@ def migrate_db():
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_delay BOOLEAN DEFAULT TRUE"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_cancelacion BOOLEAN DEFAULT TRUE"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_gate BOOLEAN DEFAULT TRUE"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_nueva_reserva BOOLEAN DEFAULT TRUE"))
 
             # ========================================
             # MVP14: Gmail Integration

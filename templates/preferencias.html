@@ -611,6 +611,18 @@
         </label>
     </div>
 
+    <div class="preference-item">
+        <div class="preference-info">
+            <div class="preference-label">Nuevas reservas</div>
+            <div class="preference-description">Al detectar reservas por email</div>
+        </div>
+        <label class="toggle-switch">
+            <input type="checkbox" name="notif_nueva_reserva"
+                   {% if current_user.notif_nueva_reserva %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+        </label>
+    </div>
+
 </div>
 
 <!-- Visualización -->

@@ -1298,6 +1298,7 @@ def update_profile():
     current_user.notif_delay = request.form.get('notif_delay') == 'on'
     current_user.notif_gate = request.form.get('notif_gate') == 'on'
     current_user.notif_cancelacion = request.form.get('notif_cancelacion') == 'on'
+    current_user.notif_nueva_reserva = request.form.get('notif_nueva_reserva') == 'on'
     # Formato de hora
     formato_hora = request.form.get('formato_hora', '')
     current_user.formato_hora = formato_hora if formato_hora in ['24h', '12h'] else None

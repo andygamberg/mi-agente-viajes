@@ -107,17 +107,22 @@ def save_reservation(user_id, datos_dict, grupo_id=None, nombre_viaje=None, sour
 
     db.session.add(viaje)
 
-    # Enviar push notification si no es manual
+    # Enviar push notification si no es manual Y usuario tiene preferencia activa
     if source != 'manual':
         try:
-            from blueprints.push import send_reservation_notification
-            send_reservation_notification(user_id, {
-                'tipo': tipo,
-                'descripcion': datos_dict.get('descripcion', ''),
-                'fecha': fecha_salida.strftime('%d/%m/%Y') if fecha_salida else '',
-                'codigo': datos_dict.get('codigo_reserva', ''),
-                'source': source
-            })
+            from models import User
+            user = User.query.get(user_id)
+            if not user or not getattr(user, 'notif_nueva_reserva', True):
+                pass  # No enviar si usuario desactivó esta preferencia
+            else:
+                from blueprints.push import send_reservation_notification
+                send_reservation_notification(user_id, {
+                    'tipo': tipo,
+                    'descripcion': datos_dict.get('descripcion', ''),
+                    'fecha': fecha_salida.strftime('%d/%m/%Y') if fecha_salida else '',
+                    'codigo': datos_dict.get('codigo_reserva', ''),
+                    'source': source
+                })
         except Exception as e:
             # No fallar si push notification falla
             print(f"⚠️ Push notification failed: {e}")
