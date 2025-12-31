@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 28 Diciembre 2025
+**Última actualización:** 31 Diciembre 2025
 
 ## 📊 Visión del Producto
 
@@ -98,6 +98,23 @@
 
 #### PERFORMANCE ✅
 - `.gcloudignore` creado para reducir uploads en deploy
+
+### ✅ Completado - Sesión 34 (31 Dic 2025)
+
+#### SESIÓN PERSISTENTE PWA ✅
+- Cookie remember_me de 1 año (como apps nativas)
+- Flags SECURE y HTTPONLY para seguridad
+- Usuarios ya no se desloguean frecuentemente
+
+#### TOGGLES DE NOTIFICACIONES ✅
+- "Demoras" renombrado a "Cambios de horario" (cubre delays + adelantos)
+- Nuevo toggle "Nuevas reservas" con preferencia `notif_nueva_reserva`
+- Push de nuevas reservas respeta preferencia del usuario
+
+#### DATA-MIGRATION ✅
+- Endpoint `/api/migrate-pasajeros` creado
+- Convierte pasajeros int → array automáticamente
+- Ejecutado: 0 registros necesitaban conversión (datos ya limpios)
 
 ### ✅ Completado - Sesión 31 (23 Dic 2025)
 
@@ -290,7 +307,7 @@
 | ~~**DEMO-TRIP**~~ | ~~Viaje de ejemplo para nuevos usuarios~~ | ✅ **22 Dic 2025** |
 | ~~**MOBILE-TYPOGRAPHY**~~ | ~~Aumentar tipografía a mínimo 20px (presbicia)~~ | ✅ **23 Dic 2025** |
 | ~~**SECURITY-CLEANUP**~~ | ~~Eliminar endpoints debug antes de escalar~~ | ✅ **21 Dic 2025** |
-| **DATA-MIGRATION** | Normalizar campos legacy (pasajeros int→array) | - |
+| ~~**DATA-MIGRATION**~~ | ~~Normalizar campos legacy (pasajeros int→array)~~ | ✅ **31 Dic 2025** |
 | **Google OAuth** | Verificar app para salir de modo testing | - |
 
 ### Prioridad Media
@@ -436,7 +453,7 @@
 
 ---
 
-*Última actualización: 28 Dic 2025*
+*Última actualización: 31 Dic 2025*
 
 ## ✅ MVP15: Multi-Tipo de Reservas (15 Dic 2025)
 
