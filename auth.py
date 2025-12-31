@@ -30,9 +30,9 @@ def login():
         password = request.form.get('password', '')
         
         user = User.query.filter_by(email=email).first()
-        
+
         if user and user.check_password(password):
-            login_user(user)
+            login_user(user, remember=True)
             next_page = request.args.get('next')
             flash('¡Bienvenido!', 'success')
             return redirect(next_page or url_for('viajes.index'))
@@ -76,7 +76,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        login_user(user)
+        login_user(user, remember=True)
         flash(f'¡Cuenta creada! Bienvenido {nombre}', 'success')
         return redirect(url_for('viajes.bienvenida'))
     

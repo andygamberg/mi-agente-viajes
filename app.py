@@ -39,6 +39,14 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///viajes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Session config - mantener logueado 1 año (como apps nativas)
+from datetime import timedelta
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=365)
+app.config['REMEMBER_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+
 # ============================================
 # EXTENSIONS
 # ============================================
