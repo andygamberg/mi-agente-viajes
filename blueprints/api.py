@@ -278,7 +278,7 @@ def cron_check_flights():
                 tipo = cambio.get('tipo')
 
                 # Verificar si usuario quiere este tipo de notificación
-                if tipo == 'delay' and not user.notif_delay:
+                if tipo in ('delay', 'adelanto') and not user.notif_delay:
                     continue
                 if tipo == 'cancelacion' and not user.notif_cancelacion:
                     continue
@@ -296,6 +296,11 @@ def cron_check_flights():
                     titulo = f'Delay en tu vuelo {numero_vuelo}'
                     mensaje = f'Tu vuelo tiene un retraso de {cambio.get("valor_nuevo", "")}'
                     color = '#d97706'  # naranja
+                elif tipo == 'adelanto':
+                    emoji = '⏰'
+                    titulo = f'Adelanto en tu vuelo {numero_vuelo}'
+                    mensaje = f'Tu vuelo se adelantó {cambio.get("valor_nuevo", "")}'
+                    color = '#10b981'  # verde
                 elif tipo == 'cancelacion':
                     emoji = '❌'
                     titulo = f'Vuelo {numero_vuelo} cancelado'
