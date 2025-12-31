@@ -80,8 +80,24 @@
 - Safari/iOS muestra texto genérico en notificaciones push (limitación de Apple PWA)
 - Las notificaciones llegan correctamente, contenido personalizado pendiente
 
-#### Pendiente
-- [ ] Paso 4 en wizard de bienvenida (pedir permiso push en onboarding)
+### ✅ Completado - Sesión 33 (28 Dic 2025)
+
+#### WIZARD PASO 4: PUSH NOTIFICATIONS ✅
+- Paso 4 agregado al wizard de bienvenida (4 pasos total)
+- 3 estados UI: solicitar permiso, activado, no disponible
+- Usa clase PushNotifications (misma que Preferencias)
+- Verifica servidor + localStorage del dispositivo actual
+
+#### ONBOARDING UX ✅
+- Empty state inteligente: muestra "Buscando reservas..." si tiene OAuth
+- Banners condicionales: oculta tips si ya conectó OAuth
+
+#### REGISTRO UX ✅
+- Preserva nombre/email si hay error de validación
+- Validación de contraseña en tiempo real con indicadores visuales
+
+#### PERFORMANCE ✅
+- `.gcloudignore` creado para reducir uploads en deploy
 
 ### ✅ Completado - Sesión 31 (23 Dic 2025)
 
