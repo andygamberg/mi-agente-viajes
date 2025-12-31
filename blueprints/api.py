@@ -757,6 +757,81 @@ def delete_vuelo(vuelo_id):
 # MIGRACIÓN Y ADMINISTRACIÓN
 # ============================================
 
+@api_bp.route('/migrate-pasajeros')
+def migrate_pasajeros():
+    """
+    DATA-MIGRATION: Convierte pasajeros de int a array.
+
+    Problema: Algunos registros legacy tienen pasajeros como número (ej: 4)
+    en vez de array (ej: [{"nombre": "Pasajero 1"}])
+
+    Esto causa errores en templates y matching de pasajeros.
+    """
+    if not verificar_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    try:
+        import json
+        from models import Viaje
+
+        fixed_legacy = 0
+        fixed_jsonb = 0
+        errors = []
+
+        viajes = Viaje.query.all()
+
+        for viaje in viajes:
+            try:
+                # 1. Fix columna legacy 'pasajeros' (Text/JSON string)
+                if viaje.pasajeros:
+                    try:
+                        parsed = json.loads(viaje.pasajeros)
+                        if isinstance(parsed, int):
+                            # Era un número, convertir a array con cantidad
+                            viaje.pasajeros = json.dumps([{"cantidad": parsed}])
+                            fixed_legacy += 1
+                        elif isinstance(parsed, str) and parsed.isdigit():
+                            # Era string de número
+                            viaje.pasajeros = json.dumps([{"cantidad": int(parsed)}])
+                            fixed_legacy += 1
+                    except json.JSONDecodeError:
+                        # Si el string no es JSON válido, intentar como número
+                        if viaje.pasajeros.strip().isdigit():
+                            cantidad = int(viaje.pasajeros.strip())
+                            viaje.pasajeros = json.dumps([{"cantidad": cantidad}])
+                            fixed_legacy += 1
+
+                # 2. Fix campo JSONB 'datos.pasajeros'
+                if viaje.datos and isinstance(viaje.datos, dict):
+                    pasajeros = viaje.datos.get('pasajeros')
+                    if isinstance(pasajeros, int):
+                        # Convertir int a array
+                        viaje.datos = {**viaje.datos, 'pasajeros': [{"cantidad": pasajeros}]}
+                        fixed_jsonb += 1
+                    elif isinstance(pasajeros, str) and pasajeros.isdigit():
+                        # String numérico a array
+                        viaje.datos = {**viaje.datos, 'pasajeros': [{"cantidad": int(pasajeros)}]}
+                        fixed_jsonb += 1
+
+            except Exception as e:
+                errors.append(f"Viaje {viaje.id}: {str(e)}")
+
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'fixed_legacy_column': fixed_legacy,
+            'fixed_jsonb_field': fixed_jsonb,
+            'total_viajes': len(viajes),
+            'errors': errors[:10] if errors else []  # Mostrar máximo 10 errores
+        })
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @api_bp.route('/migrate-db')
 def migrate_db():
     """Endpoint para migración de BD - requiere autenticación"""
