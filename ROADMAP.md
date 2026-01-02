@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 31 Diciembre 2025
+**Última actualización:** 2 Enero 2026
 
 ## 📊 Visión del Producto
 
@@ -115,6 +115,26 @@
 - Endpoint `/api/migrate-pasajeros` creado
 - Convierte pasajeros int → array automáticamente
 - Ejecutado: 0 registros necesitaban conversión (datos ya limpios)
+
+### ✅ Completado - Sesión 35 (2 Ene 2026)
+
+#### BUG-FIX: Calendario iOS horarios incorrectos ✅
+- Calendario leía hora_salida/hora_llegada de columnas legacy
+- Ahora usa `get_dato()` para leer de JSONB con fallback a legacy
+- Fix aplica a todos los usuarios con datos en JSONB
+- Actualización automática en próximo refresh de Apple Calendar
+
+#### BUG-FIX: VTIMEZONE para iOS Calendar ✅
+- iOS no interpretaba TZID sin definición VTIMEZONE
+- Agregada función `_crear_vtimezone_argentina()` (UTC-3, sin DST)
+- Aplicado a: calendar_feed, export_calendar, update_calendar, cancel_calendar
+
+#### UX: Formulario /agregar confundía Puerta con Pasajeros ✅
+- **Reordenado campos**: Pasajeros ahora antes de Terminal/Puerta
+- **Placeholders añadidos**: "Ej: B12" para Puerta, "Ej: AR1234" para vuelo
+- **Label mejorado**: "Puerta" → "Puerta de embarque"
+- **Campo pasajeros visible**: `show_empty: true` muestra fila vacía por defecto
+- Soporte `placeholder` en partial `_form_fields.html`
 
 ### ✅ Completado - Sesión 31 (23 Dic 2025)
 
@@ -453,7 +473,7 @@
 
 ---
 
-*Última actualización: 31 Dic 2025*
+*Última actualización: 2 Ene 2026*
 
 ## ✅ MVP15: Multi-Tipo de Reservas (15 Dic 2025)
 
