@@ -57,9 +57,9 @@ def calendar_feed_old():
 @calendario_bp.route('/calendar-feed/<token>')
 def calendar_feed(token):
     """
-    MVP9: Webcal feed privado - genera .ics solo con viajes del usuario
+    MVP9: Webcal feed privado - genera .ics con todos los viajes del usuario (pasados y futuros)
     Cada usuario tiene su propio token único
-    
+
     MVP10: Agrega eventos all-day para viajes con múltiples vuelos
     MVP11: Deduplica vuelos combinados
     """
@@ -69,13 +69,11 @@ def calendar_feed(token):
         return jsonify({'error': 'Invalid calendar token'}), 404
     
     # Obtener viajes del usuario (owner + pasajero)
-    viajes_futuros = get_viajes_for_user(user, Viaje, User)
-    
-    # Filtrar solo futuros
-    hoy = date.today()
-    viajes_futuros = [v for v in viajes_futuros if v.fecha_salida.date() >= hoy]
-    viajes_futuros = sorted(viajes_futuros, key=lambda v: v.fecha_salida)
-    
+    viajes = get_viajes_for_user(user, Viaje, User)
+
+    # Ordenar por fecha (incluye pasados y futuros)
+    viajes = sorted(viajes, key=lambda v: v.fecha_salida)
+
     # Crear calendario
     cal = Calendar()
     cal.add('prodid', '-//Mi Agente Viajes//')
@@ -90,7 +88,7 @@ def calendar_feed(token):
 
     # Agrupar viajes por grupo_viaje
     grupos = {}
-    for viaje in viajes_futuros:
+    for viaje in viajes:
         grupo_id = viaje.grupo_viaje or f'solo_{viaje.id}'
         if grupo_id not in grupos:
             grupos[grupo_id] = []
