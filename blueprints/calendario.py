@@ -656,10 +656,13 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
                 dtend = datetime.combine(viaje.fecha_salida, hora_fin)
 
         else:
-            # Otros tipos: usar hora_salida/hora_llegada normales
-            if viaje.hora_salida:
+            # Otros tipos: usar hora_salida/hora_llegada desde JSONB con fallback a legacy
+            hora_salida_str = get_dato(viaje, 'hora_salida')
+            hora_llegada_str = get_dato(viaje, 'hora_llegada')
+
+            if hora_salida_str:
                 try:
-                    hora_inicio = datetime.strptime(viaje.hora_salida, '%H:%M').time()
+                    hora_inicio = datetime.strptime(hora_salida_str, '%H:%M').time()
                 except:
                     hora_inicio = datetime.strptime('09:00', '%H:%M').time()
             else:
@@ -674,9 +677,9 @@ def _crear_evento_calendario(viaje, sequence=0, method=None):
             dtstart = datetime.combine(viaje.fecha_salida, hora_inicio)
 
             # Calcular dtend
-            if viaje.fecha_llegada and viaje.hora_llegada:
+            if viaje.fecha_llegada and hora_llegada_str:
                 try:
-                    hora_fin = datetime.strptime(viaje.hora_llegada, '%H:%M').time()
+                    hora_fin = datetime.strptime(hora_llegada_str, '%H:%M').time()
                     dtend = datetime.combine(viaje.fecha_llegada, hora_fin)
                 except:
                     dtend = dtstart + timedelta(hours=2)

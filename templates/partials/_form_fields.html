@@ -28,6 +28,7 @@
                    id="field_{{ campo.key }}"
                    name="{{ campo.key }}"
                    value="{{ valor }}"
+                   {% if campo.get('placeholder') %}placeholder="{{ campo.placeholder }}"{% endif %}
                    {% if campo.get('required') %}required{% endif %}
                    {% if not puede_editar %}disabled{% endif %}>
 
@@ -82,6 +83,16 @@
                             <button type="button" class="btn-remove-item" onclick="removeListItem(this)" aria-label="Eliminar" {% if not puede_editar %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>×</button>
                         </div>
                         {% endfor %}
+                    {% elif campo.get('show_empty') and modo == 'crear' %}
+                        {# Mostrar un item vacío por defecto para mejor UX #}
+                        <div class="list-item" data-index="0">
+                            {% for subfield in campo.item_fields %}
+                            <input type="text"
+                                   name="{{ campo.key }}[0][{{ subfield }}]"
+                                   placeholder="{{ subfield | capitalize }}">
+                            {% endfor %}
+                            <button type="button" class="btn-remove-item" onclick="removeListItem(this)" aria-label="Eliminar">×</button>
+                        </div>
                     {% endif %}
                 </div>
 
