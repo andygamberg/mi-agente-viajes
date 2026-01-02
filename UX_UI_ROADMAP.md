@@ -473,6 +473,15 @@ Próximos eventos
 
 ## ✅ COMPLETADO
 
+### Sesión 35: Fixes Calendario + UX Formulario (2 Ene 2026)
+- [x] Fix horarios calendario: usar get_dato() para leer JSONB
+- [x] Fix VTIMEZONE para iOS Calendar (UTC-3, sin DST)
+- [x] Reorden campos formulario vuelo: Código reserva y Pasajeros antes de Terminal/Puerta
+- [x] Placeholders con ejemplos: "Ej: B12", "Ej: AR1234"
+- [x] Label mejorado: "Puerta" → "Puerta de embarque"
+- [x] Pasajero vacío por default en modo crear
+- [x] Calendario muestra historial completo (sin filtro de fecha)
+
 ### Sesión 31: OAuth Fixes + Typography (23 Dic 2025)
 - [x] MOBILE-TYPOGRAPHY v4: mínimo 20px (1.25rem) para legibilidad presbicia
 - [x] Gmail watches auto-renewal (7 días)

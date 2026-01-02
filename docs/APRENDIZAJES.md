@@ -655,3 +655,10 @@ if codigo and check_duplicate(codigo, user_id):
 - Opus: tareas que requieren máxima inteligencia
 **Sesión:** Mis Viajes 34
 **Aplicable a:** Cualquier uso de Claude API - elegir el modelo mínimo necesario
+
+### 52. Reservas manuales guardan datos en JSONB
+**Problema:** Calendario mostraba horarios incorrectos para vuelos cargados manualmente
+**Causa:** El código leía `viaje.hora_salida` directo de columna legacy, pero reservas manuales guardan en `viaje.datos` (JSONB)
+**Solución:** Siempre usar `get_dato(viaje, 'campo')` que lee JSONB con fallback a legacy
+**Sesión:** 35
+**Aplicable a:** Cualquier código que lea datos de reservas
