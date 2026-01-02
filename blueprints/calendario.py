@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, date
 from collections import defaultdict
 import json
 import pytz
-from icalendar import Calendar, Event, Alarm
+from icalendar import Calendar, Event, Alarm, Timezone, TimezoneStandard
 
 from models import db, Viaje, User
 from utils.helpers import get_viajes_for_user, deduplicar_vuelos_en_grupo
@@ -20,6 +20,25 @@ def get_dato(viaje, key, default=''):
     """Extrae dato de JSONB con fallback a columna legacy"""
     datos = viaje.datos or {}
     return datos.get(key) or getattr(viaje, key, default) or default
+
+
+def _crear_vtimezone_argentina():
+    """
+    Crea el componente VTIMEZONE para America/Argentina/Buenos_Aires.
+    Esto es necesario para que iOS Calendar interprete correctamente las horas.
+    Argentina no tiene horario de verano desde 2009, siempre UTC-3.
+    """
+    vtimezone = Timezone()
+    vtimezone.add('tzid', 'America/Argentina/Buenos_Aires')
+
+    standard = TimezoneStandard()
+    standard.add('dtstart', datetime(1970, 1, 1, 0, 0, 0))
+    standard.add('tzoffsetfrom', timedelta(hours=-3))
+    standard.add('tzoffsetto', timedelta(hours=-3))
+    standard.add('tzname', 'ART')
+    vtimezone.add_component(standard)
+
+    return vtimezone
 
 
 @calendario_bp.route('/calendar-feed')
@@ -65,7 +84,10 @@ def calendar_feed(token):
     cal.add('x-wr-calname', f'Mis Viajes - {user.nombre}')
     cal.add('x-wr-timezone', 'America/Argentina/Buenos_Aires')
     cal.add('x-wr-caldesc', f'Calendario de viajes de {user.nombre}')
-    
+
+    # Agregar VTIMEZONE para compatibilidad con iOS Calendar
+    cal.add_component(_crear_vtimezone_argentina())
+
     # Agrupar viajes por grupo_viaje
     grupos = {}
     for viaje in viajes_futuros:
@@ -135,7 +157,8 @@ def export_calendar(grupo_id):
     cal.add('version', '2.0')
     cal.add('method', 'REQUEST')
     cal.add('x-wr-calname', 'Mis Viajes')
-    
+    cal.add_component(_crear_vtimezone_argentina())
+
     for vuelo in vuelos:
         event = _crear_evento_calendario(vuelo, sequence=0, method='REQUEST')
         cal.add_component(event)
@@ -160,7 +183,8 @@ def update_calendar(grupo_id):
     cal.add('prodid', '-//Mi Agente Viajes//')
     cal.add('version', '2.0')
     cal.add('method', 'UPDATE')
-    
+    cal.add_component(_crear_vtimezone_argentina())
+
     for vuelo in vuelos:
         event = _crear_evento_calendario(vuelo, sequence=1, method='UPDATE')
         cal.add_component(event)
@@ -185,7 +209,8 @@ def cancel_calendar(grupo_id):
     cal.add('prodid', '-//Mi Agente Viajes//')
     cal.add('version', '2.0')
     cal.add('method', 'CANCEL')
-    
+    cal.add_component(_crear_vtimezone_argentina())
+
     tz = pytz.timezone('America/Argentina/Buenos_Aires')
     
     for vuelo in vuelos:
