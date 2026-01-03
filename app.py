@@ -19,6 +19,7 @@ from blueprints.gmail_webhook import gmail_webhook_bp  # MVP14c
 from blueprints.microsoft_oauth import microsoft_oauth_bp  # MVP14h
 from blueprints.pwa import pwa_bp  # PWA
 from blueprints.push import push_bp  # Push Notifications
+from blueprints.shared import shared_bp  # MVP-SHARE
 
 load_dotenv()
 
@@ -88,6 +89,7 @@ app.register_blueprint(gmail_webhook_bp)  # MVP14c
 app.register_blueprint(microsoft_oauth_bp)  # MVP14h
 app.register_blueprint(pwa_bp)  # PWA
 app.register_blueprint(push_bp)  # Push Notifications
+app.register_blueprint(shared_bp)  # MVP-SHARE
 
 # ============================================
 # JINJA GLOBALS - Schema Helpers

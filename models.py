@@ -141,6 +141,20 @@ class EmailConnection(db.Model):
         return f'<EmailConnection {self.provider}:{self.email}>'
 
 
+class SharedTrip(db.Model):
+    """Enlaces de viajes compartidos públicamente"""
+    __tablename__ = 'shared_trips'
+
+    id = db.Column(db.Integer, primary_key=True)
+    grupo_viaje = db.Column(db.String(100), nullable=False, index=True)
+    token = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<SharedTrip {self.grupo_viaje}>'
+
+
 class ProcessedEmail(db.Model):
     """
     Tracking de emails ya procesados para evitar reprocesamiento.
