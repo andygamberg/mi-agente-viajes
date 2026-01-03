@@ -25,18 +25,29 @@ def share_trip(grupo_id):
     Returns:
         JSON con url completa para compartir
     """
-    # Verificar que el grupo pertenece al usuario
-    viajes = Viaje.query.filter_by(
-        user_id=current_user.id,
-        grupo_viaje=grupo_id
-    ).all()
+    # Detectar si es un viaje individual (formato: solo_<id>)
+    if grupo_id.startswith('solo_'):
+        viaje_id = grupo_id.replace('solo_', '')
+        viajes = Viaje.query.filter_by(
+            id=int(viaje_id),
+            user_id=current_user.id
+        ).all()
+        # Para viajes individuales, usar el viaje_id como grupo_id en SharedTrip
+        grupo_id_real = grupo_id
+    else:
+        # Grupo de viajes normal
+        viajes = Viaje.query.filter_by(
+            user_id=current_user.id,
+            grupo_viaje=grupo_id
+        ).all()
+        grupo_id_real = grupo_id
 
     if not viajes:
         return jsonify({'error': 'Viaje no encontrado'}), 404
 
     # Buscar si ya existe un share para este grupo
     shared = SharedTrip.query.filter_by(
-        grupo_viaje=grupo_id,
+        grupo_viaje=grupo_id_real,
         owner_id=current_user.id
     ).first()
 
@@ -44,7 +55,7 @@ def share_trip(grupo_id):
         # Crear nuevo share
         token = generar_token_unico()
         shared = SharedTrip(
-            grupo_viaje=grupo_id,
+            grupo_viaje=grupo_id_real,
             token=token,
             owner_id=current_user.id
         )
@@ -75,10 +86,15 @@ def ver_viaje_compartido(token):
     if not shared:
         abort(404)
 
-    # Obtener viajes del grupo
-    viajes = Viaje.query.filter_by(
-        grupo_viaje=shared.grupo_viaje
-    ).order_by(Viaje.fecha_salida).all()
+    # Detectar si es viaje individual (formato: solo_<id>)
+    if shared.grupo_viaje.startswith('solo_'):
+        viaje_id = shared.grupo_viaje.replace('solo_', '')
+        viajes = Viaje.query.filter_by(id=int(viaje_id)).all()
+    else:
+        # Grupo de viajes normal
+        viajes = Viaje.query.filter_by(
+            grupo_viaje=shared.grupo_viaje
+        ).order_by(Viaje.fecha_salida).all()
 
     if not viajes:
         abort(404)
@@ -87,7 +103,7 @@ def ver_viaje_compartido(token):
     owner = User.query.get(shared.owner_id)
 
     # Deduplicar vuelos si el usuario tiene la preferencia activada
-    if owner and owner.combinar_vuelos:
+    if owner and owner.combinar_vuelos and not shared.grupo_viaje.startswith('solo_'):
         viajes = deduplicar_vuelos_en_grupo(viajes)
 
     # Renderizar template público
