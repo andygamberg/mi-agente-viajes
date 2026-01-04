@@ -301,7 +301,6 @@ def process_new_emails(connection, history_id):
                     )
                     if existing_by_content:
                         # Hacer merge de datos (actualizar info adicional como pasajeros)
-                        from utils.save_reservation import merge_reservation_data
                         if merge_reservation_data(existing_by_content, primer_vuelo):
                             db.session.commit()
                             print(f"🔄 Duplicado actualizado: {primer_vuelo.get('numero_vuelo')} {primer_vuelo.get('fecha_salida')}")
