@@ -978,3 +978,187 @@ def migrate_multi_type():
         return {"status": "ok", "results": results}
     except Exception as e:
         return {"status": "error", "message": str(e)}, 500
+
+
+@api_bp.route('/api/scan-gmail-manual', methods=['POST'])
+@login_required
+def scan_gmail_manual():
+    """
+    Escanea manualmente los últimos N emails de Gmail del usuario.
+    Útil para procesar emails reenviados o que no se procesaron automáticamente.
+    """
+    try:
+        from blueprints.gmail_oauth import get_gmail_credentials
+        from googleapiclient.discovery import build
+        from email_processor import email_parece_reserva
+        from blueprints.gmail_webhook import get_full_email_content
+        from utils.gmail_scanner import extract_body, extract_pdf_attachments, extract_text_from_pdf
+        from models import EmailConnection, ProcessedEmail
+
+        # Parámetros
+        max_emails = int(request.json.get('max_emails', 10))  # Escanear últimos 10 emails
+        days_back = int(request.json.get('days_back', 30))  # Últimos 30 días
+
+        # Obtener conexión Gmail del usuario
+        connection = EmailConnection.query.filter_by(
+            user_id=current_user.id,
+            provider='gmail',
+            is_active=True
+        ).first()
+
+        if not connection:
+            return jsonify({'error': 'No Gmail connection found'}), 404
+
+        # Obtener credenciales
+        credentials = get_gmail_credentials(current_user.id, gmail_email=connection.email)
+        if not credentials:
+            return jsonify({'error': 'Failed to get credentials'}), 401
+
+        # Construir servicio Gmail
+        service = build('gmail', 'v1', credentials=credentials)
+
+        # Query para buscar emails recientes con keywords de viaje
+        from datetime import datetime, timedelta
+        after_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y/%m/%d')
+
+        keywords = ['flight', 'vuelo', 'hotel', 'booking', 'reservation', 'reserva',
+                   'confirmation', 'itinerary', 'e-ticket', 'check-in']
+        keyword_query = ' OR '.join([f'"{kw}"' for kw in keywords])
+        query = f'after:{after_date} ({keyword_query})'
+
+        # Buscar mensajes
+        results = service.users().messages().list(
+            userId='me',
+            q=query,
+            maxResults=max_emails
+        ).execute()
+
+        messages = results.get('messages', [])
+
+        if not messages:
+            return jsonify({
+                'success': True,
+                'emails_encontrados': 0,
+                'emails_procesados': 0,
+                'reservas_creadas': 0,
+                'message': f'No se encontraron emails con keywords de viaje en los últimos {days_back} días'
+            })
+
+        emails_procesados = 0
+        reservas_creadas = 0
+        errors = []
+
+        for msg_info in messages[:max_emails]:
+            msg_id = msg_info['id']
+
+            try:
+                # Obtener email completo
+                msg = service.users().messages().get(
+                    userId='me',
+                    id=msg_id,
+                    format='full'
+                ).execute()
+
+                # Extraer headers
+                headers = msg.get('payload', {}).get('headers', [])
+                subject = from_header = None
+
+                for h in headers:
+                    if h['name'].lower() == 'subject':
+                        subject = h['value']
+                    elif h['name'].lower() == 'from':
+                        from_header = h['value']
+
+                # Verificar si ya fue procesado
+                already_processed = ProcessedEmail.query.filter_by(
+                    connection_id=connection.id,
+                    message_id=msg_id
+                ).first()
+
+                if already_processed:
+                    print(f"⏭️ Email ya procesado: {subject[:50] if subject else '(sin subject)'}")
+                    continue
+
+                # Extraer contenido completo
+                payload = msg.get('payload', {})
+                full_content = get_full_email_content(service, msg_id, payload, subject or '')
+
+                # Pre-filtro
+                body_preview = extract_body(payload)[:2000]
+                attachment_names = []
+
+                def get_attachment_names(parts):
+                    for part in parts:
+                        filename = part.get('filename', '')
+                        if filename:
+                            attachment_names.append(filename)
+                        if 'parts' in part:
+                            get_attachment_names(part['parts'])
+
+                if 'parts' in payload:
+                    get_attachment_names(payload['parts'])
+
+                if not email_parece_reserva(subject or '', body_preview, attachment_names):
+                    print(f"⏭️ Email descartado por filtro: {subject[:50] if subject else '(sin subject)'}")
+                    # Marcar como procesado aunque no tenga reserva
+                    processed_record = ProcessedEmail(
+                        connection_id=connection.id,
+                        message_id=msg_id,
+                        had_reservation=False
+                    )
+                    db.session.add(processed_record)
+                    db.session.commit()
+                    continue
+
+                # Extraer con Claude
+                print(f"✅ Procesando: {subject[:50] if subject else '(sin subject)'}")
+                vuelos = extraer_info_con_claude(full_content)
+
+                # Marcar como procesado
+                processed_record = ProcessedEmail(
+                    connection_id=connection.id,
+                    message_id=msg_id,
+                    had_reservation=bool(vuelos)
+                )
+                db.session.add(processed_record)
+                db.session.commit()
+
+                if not vuelos:
+                    print(f"⚠️ Claude no extrajo reservas")
+                    continue
+
+                # Guardar reservas
+                for vuelo in vuelos:
+                    try:
+                        viaje = save_reservation(
+                            user_id=current_user.id,
+                            datos_dict=vuelo,
+                            tipo=vuelo.get('tipo', 'vuelo'),
+                            source='gmail'
+                        )
+                        db.session.commit()
+                        reservas_creadas += 1
+                        print(f"✅ Reserva creada: {vuelo.get('descripcion', 'N/A')}")
+                    except Exception as e:
+                        errors.append(f"Error guardando reserva: {str(e)}")
+                        print(f"❌ Error guardando: {e}")
+                        db.session.rollback()
+
+                emails_procesados += 1
+
+            except Exception as e:
+                errors.append(f"Error procesando email {msg_id}: {str(e)}")
+                print(f"❌ Error: {e}")
+                continue
+
+        return jsonify({
+            'success': True,
+            'emails_encontrados': len(messages),
+            'emails_procesados': emails_procesados,
+            'reservas_creadas': reservas_creadas,
+            'errors': errors if errors else None
+        })
+
+    except Exception as e:
+        logger.error(f"Error en scan_gmail_manual: {e}")
+        return jsonify({'error': str(e)}), 500
