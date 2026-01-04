@@ -1162,3 +1162,71 @@ def scan_gmail_manual():
     except Exception as e:
         logger.error(f"Error en scan_gmail_manual: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+@api_bp.route('/api/check-missing-passengers/<int:viaje_id>', methods=['GET'])
+@login_required
+def check_missing_passengers(viaje_id):
+    """
+    Verifica si una reserva tiene pasajeros/huéspedes faltantes.
+
+    Retorna:
+    - missing: true/false
+    - suggestion: texto sugerido
+    - field_name: nombre del campo a completar (pasajeros/huespedes/participantes)
+    """
+    viaje = Viaje.query.filter_by(id=viaje_id, user_id=current_user.id).first()
+
+    if not viaje:
+        return jsonify({'error': 'Viaje no encontrado'}), 404
+
+    # Tipos de reserva donde importan pasajeros/huéspedes
+    tipos_con_pasajeros = {
+        'vuelo': ('pasajeros', 'pasajeros'),
+        'hotel': ('huespedes', 'huéspedes'),
+        'crucero': ('pasajeros', 'pasajeros'),
+        'barco': ('pasajeros', 'pasajeros'),
+        'auto': ('conductores', 'conductores'),
+        'tren': ('pasajeros', 'pasajeros'),
+        'bus': ('pasajeros', 'pasajeros'),
+        'actividad': ('participantes', 'participantes'),
+        'espectaculo': ('asistentes', 'asistentes'),
+    }
+
+    if viaje.tipo not in tipos_con_pasajeros:
+        return jsonify({'missing': False})
+
+    field_key, field_display = tipos_con_pasajeros[viaje.tipo]
+    datos = viaje.datos or {}
+
+    # Verificar si el campo existe y tiene contenido
+    personas = datos.get(field_key, [])
+
+    # Casos donde consideramos que faltan pasajeros:
+    # 1. Campo no existe
+    # 2. Campo es lista vacía
+    # 3. Campo tiene solo un elemento genérico/placeholder
+    missing = False
+    suggestion = None
+
+    if not personas:
+        missing = True
+        suggestion = f"No se encontraron {field_display} en esta reserva. ¿Querés agregarlos?"
+    elif isinstance(personas, list) and len(personas) == 1:
+        # Verificar si es un placeholder genérico
+        primer_persona = personas[0]
+        if isinstance(primer_persona, dict):
+            nombre = primer_persona.get('nombre', '').upper()
+            # Detectar nombres genéricos o incompletos
+            genericos = ['PASSENGER', 'GUEST', 'HUESPED', 'PASAJERO', 'TBD', 'N/A', 'PENDING']
+            if any(gen in nombre for gen in genericos) or len(nombre) < 3:
+                missing = True
+                suggestion = f"Se detectó un {field_display[:-1]} genérico. ¿Querés completar los nombres?"
+
+    return jsonify({
+        'missing': missing,
+        'suggestion': suggestion,
+        'field_name': field_display,
+        'tipo': viaje.tipo,
+        'viaje_id': viaje_id
+    })

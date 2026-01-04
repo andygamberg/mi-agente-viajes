@@ -17,6 +17,10 @@
         return;
     }
 
+    // Deshabilitar pull-to-refresh nativo de Safari en iOS
+    document.body.style.overscrollBehavior = 'contain';
+    document.documentElement.style.overscrollBehavior = 'contain';
+
     let touchStartY = 0;
     let touchCurrentY = 0;
     let refreshing = false;
@@ -92,7 +96,10 @@
 
     function onTouchStart(e) {
         // Solo activar si está en el top de la página
-        if (window.scrollY > 0) return;
+        if (window.scrollY > 0) {
+            console.log('[PTR] Ignoring touch - not at top (scrollY:', window.scrollY, ')');
+            return;
+        }
 
         // Solo activar en páginas principales (no modales, no formularios)
         const target = e.target;
@@ -100,10 +107,12 @@
             target.closest('form') ||
             target.closest('input') ||
             target.closest('textarea')) {
+            console.log('[PTR] Ignoring touch - inside form/modal');
             return;
         }
 
         touchStartY = e.touches[0].clientY;
+        console.log('[PTR] Touch start at Y:', touchStartY);
     }
 
     function onTouchMove(e) {
@@ -114,9 +123,12 @@
 
         // Solo procesar si está tirando hacia abajo y en el top
         if (pullDistance > 0 && window.scrollY === 0) {
+            console.log('[PTR] Pull distance:', pullDistance);
+
             // Prevenir scroll nativo mientras hace pull
             if (pullDistance > 10) {
                 e.preventDefault();
+                console.log('[PTR] Preventing default scroll');
             }
 
             const cappedDistance = Math.min(pullDistance, MAX_PULL);
