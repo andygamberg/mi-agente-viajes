@@ -8,16 +8,15 @@
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#0071E3">
 
-    <!-- Eruda Console para debugging en móvil (TEMPORAL) -->
+    <!-- Eruda Console para debugging en móvil (TEMPORAL - SIEMPRE ACTIVO) -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>
-        // Activar con ?debug=1 en la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('debug') === '1' || localStorage.getItem('eruda-debug') === '1') {
-            localStorage.setItem('eruda-debug', '1');
-            const erudaScript = document.createElement('script');
-            erudaScript.src = 'https://cdn.jsdelivr.net/npm/eruda';
-            erudaScript.onload = function() { eruda.init(); };
-            document.head.appendChild(erudaScript);
+        // Inicializar Eruda inmediatamente
+        if (typeof eruda !== 'undefined') {
+            eruda.init();
+            console.log('[Eruda] Initialized successfully');
+        } else {
+            console.error('[Eruda] Failed to load');
         }
     </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
