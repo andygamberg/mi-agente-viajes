@@ -8,13 +8,13 @@
  * - Navegación: Network First con offline fallback
  */
 
-const CACHE_VERSION = 'v5-network-first-js';
+const CACHE_VERSION = 'v6-no-home-cache';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
 
 // Assets estáticos para precachear al instalar
 const STATIC_ASSETS = [
-  '/',
+  // '/', // TEMPORALMENTE DESHABILITADO para debugging - no cachear home
   '/offline',
   '/static/manifest.json',
   '/static/favicon.svg',
