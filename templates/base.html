@@ -363,6 +363,27 @@
 
         {% block scripts %}{% endblock %}
     </script>
+
+    <!-- Force Service Worker Update -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(registration => {
+                if (registration) {
+                    console.log('[ForceUpdate] Forcing SW update...');
+                    registration.update().then(() => {
+                        console.log('[ForceUpdate] SW update triggered');
+
+                        // Si hay un nuevo SW esperando, activarlo
+                        if (registration.waiting) {
+                            console.log('[ForceUpdate] New SW waiting, activating...');
+                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+
     <script src="{{ url_for('static', filename='js/mobile-debug.js') }}"></script>
     <script src="{{ url_for('static', filename='js/offline-storage.js') }}"></script>
     <script src="{{ url_for('static', filename='js/firebase-messaging.js') }}"></script>
