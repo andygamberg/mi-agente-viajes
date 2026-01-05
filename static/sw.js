@@ -8,7 +8,7 @@
  * - Navegación: Network First con offline fallback
  */
 
-const CACHE_VERSION = 'v4-ptr-fix';
+const CACHE_VERSION = 'v5-network-first-js';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
 
@@ -38,10 +38,13 @@ function isApiRequest(pathname) {
   return API_ROUTES.some(route => pathname.startsWith(route));
 }
 
+function isJavaScript(pathname) {
+  return pathname.endsWith('.js');
+}
+
 function isStaticAsset(pathname) {
-  return pathname.startsWith('/static/') || 
-         pathname.endsWith('.css') || 
-         pathname.endsWith('.js') ||
+  return pathname.startsWith('/static/') ||
+         pathname.endsWith('.css') ||
          pathname.endsWith('.png') ||
          pathname.endsWith('.svg') ||
          pathname.endsWith('.ico') ||
@@ -244,19 +247,25 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(networkFirstAPI(request));
     return;
   }
-  
+
+  // JavaScript files: Network First (para debug - siempre buscar versión nueva)
+  if (isJavaScript(url.pathname)) {
+    event.respondWith(networkFirst(request, STATIC_CACHE));
+    return;
+  }
+
   // Assets estáticos: Cache First
   if (isStaticAsset(url.pathname)) {
     event.respondWith(cacheFirst(request, STATIC_CACHE));
     return;
   }
-  
+
   // Navegación HTML: Network First con offline fallback
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstWithOffline(request));
     return;
   }
-  
+
   // Todo lo demás: Network First
   event.respondWith(networkFirst(request, STATIC_CACHE));
 });
