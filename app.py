@@ -92,6 +92,19 @@ app.register_blueprint(push_bp)  # Push Notifications
 app.register_blueprint(shared_bp)  # MVP-SHARE
 
 # ============================================
+# CACHE CONTROL - Disable caching for HTML
+# ============================================
+
+@app.after_request
+def add_no_cache_headers(response):
+    """Deshabilitar cache para HTML para que siempre se recargue."""
+    if response.content_type and 'text/html' in response.content_type:
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
+
+# ============================================
 # JINJA GLOBALS - Schema Helpers
 # ============================================
 
