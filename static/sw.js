@@ -8,7 +8,7 @@
  * - Navegación: Network First con offline fallback
  */
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3-debug';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DATA_CACHE = `data-${CACHE_VERSION}`;
 

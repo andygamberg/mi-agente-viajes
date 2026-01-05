@@ -9,8 +9,17 @@
     <meta name="theme-color" content="#0071E3">
 
     <!-- Eruda Console para debugging en móvil (TEMPORAL) -->
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
+    <script>
+        // Activar con ?debug=1 en la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('debug') === '1' || localStorage.getItem('eruda-debug') === '1') {
+            localStorage.setItem('eruda-debug', '1');
+            const erudaScript = document.createElement('script');
+            erudaScript.src = 'https://cdn.jsdelivr.net/npm/eruda';
+            erudaScript.onload = function() { eruda.init(); };
+            document.head.appendChild(erudaScript);
+        }
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mis Viajes">
