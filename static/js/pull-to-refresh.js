@@ -12,14 +12,31 @@
     const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
                   window.navigator.standalone === true;
 
+    console.log('[PTR] Checking PWA mode:', {
+        matchMedia: window.matchMedia('(display-mode: standalone)').matches,
+        navigatorStandalone: window.navigator.standalone,
+        isPWA: isPWA,
+        userAgent: navigator.userAgent
+    });
+
     if (!isPWA) {
         console.log('[PTR] Not in PWA mode, pull-to-refresh disabled');
         return;
     }
 
+    console.log('[PTR] PWA mode detected, activating pull-to-refresh');
+
     // Deshabilitar pull-to-refresh nativo de Safari en iOS
+    // Usar múltiples estrategias para máxima compatibilidad
     document.body.style.overscrollBehavior = 'contain';
+    document.body.style.overscrollBehaviorY = 'contain';
     document.documentElement.style.overscrollBehavior = 'contain';
+    document.documentElement.style.overscrollBehaviorY = 'contain';
+
+    // Safari específico
+    document.body.style.webkitOverflowScrolling = 'touch';
+
+    console.log('[PTR] Overscroll behavior set to contain');
 
     let touchStartY = 0;
     let touchCurrentY = 0;
@@ -156,15 +173,21 @@
     }
 
     function onTouchEnd(e) {
-        if (!touchStartY || refreshing) return;
+        if (!touchStartY || refreshing) {
+            console.log('[PTR] Touch end ignored - no start or refreshing');
+            return;
+        }
 
         const pullDistance = touchCurrentY - touchStartY;
+        console.log('[PTR] Touch end - final distance:', pullDistance);
 
         if (pullDistance >= PULL_THRESHOLD && window.scrollY === 0) {
             // Activar refresh
+            console.log('[PTR] Threshold reached! Triggering refresh');
             triggerRefresh();
         } else {
             // Reset si no llegó al threshold
+            console.log('[PTR] Threshold not reached, resetting');
             resetPTR();
         }
 
