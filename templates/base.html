@@ -25,6 +25,10 @@
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png">
+
+    <!-- Card Swipe Gestures CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/card-swipe.css') }}">
+
     <style>
         html {
             font-size: 100%;
@@ -391,5 +395,6 @@
     <script src="{{ url_for('static', filename='js/pwa.js') }}?v={{ cache_bust }}"></script>
     <script src="{{ url_for('static', filename='js/pull-to-refresh.js') }}?v={{ cache_bust }}"></script>
     <script src="{{ url_for('static', filename='js/missing-passengers-banner.js') }}?v={{ cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='js/card-swipe.js') }}?v={{ cache_bust }}"></script>
 </body>
 </html>

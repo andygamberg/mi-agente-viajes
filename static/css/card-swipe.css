@@ -1,0 +1,167 @@
+/**
+ * Card Swipe Gestures Styles - Mi Agente Viajes
+ */
+
+/* Card container con overflow para swipe */
+.card.swipe-enabled {
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y; /* Permitir scroll vertical pero capturar horizontal */
+}
+
+/* Wrapper que se desliza */
+.swipe-wrapper {
+    position: relative;
+    z-index: 2;
+    background: var(--bg-card);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+/* Contenedor de acciones (debajo del wrapper) */
+.swipe-actions {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+}
+
+.swipe-actions-left {
+    left: 0;
+    justify-content: flex-start;
+}
+
+.swipe-actions-right {
+    right: 0;
+    justify-content: flex-end;
+}
+
+/* Botones de acción */
+.swipe-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 60px;
+    height: 70px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.swipe-action svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.swipe-action span {
+    white-space: nowrap;
+}
+
+/* Colores por acción */
+.swipe-action-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.swipe-action-edit:active {
+    background: linear-gradient(135deg, #5568d3 0%, #654396 100%);
+    transform: scale(0.95);
+}
+
+.swipe-action-group {
+    background: linear-gradient(135deg, #48c6ef 0%, #6f86d6 100%);
+}
+
+.swipe-action-group:active {
+    background: linear-gradient(135deg, #3ba8cc 0%, #5d72b8 100%);
+    transform: scale(0.95);
+}
+
+.swipe-action-delete {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.swipe-action-delete:active {
+    background: linear-gradient(135deg, #d77ad9 0%, #d4475a 100%);
+    transform: scale(0.95);
+}
+
+/* Estados de swipe */
+.card.swiped-left .swipe-actions-right,
+.card.swiped-right .swipe-actions-left {
+    opacity: 1 !important;
+}
+
+/* Animación suave para volver a posición */
+.swipe-wrapper.resetting {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive - ajustar para pantallas pequeñas */
+@media (max-width: 400px) {
+    .swipe-action {
+        min-width: 50px;
+        height: 60px;
+        font-size: 10px;
+    }
+
+    .swipe-action svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .swipe-actions {
+        padding: 0 8px;
+        gap: 6px;
+    }
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+    .swipe-wrapper {
+        background: var(--bg-card);
+    }
+}
+
+/* Prevenir selección de texto durante el swipe */
+.card.swiped-left .swipe-wrapper,
+.card.swiped-right .swipe-wrapper {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Animación de entrada para las acciones */
+@keyframes swipeActionFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.card.swiped-left .swipe-action,
+.card.swiped-right .swipe-action {
+    animation: swipeActionFadeIn 0.2s ease forwards;
+}
+
+/* Ajustes para que el card-header y card-body estén dentro del wrapper */
+.swipe-enabled .swipe-wrapper > * {
+    background: transparent;
+}
