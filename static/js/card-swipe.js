@@ -26,10 +26,46 @@ class CardSwipeHandler {
 
         // Esperar a que el DOM esté listo
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.attachListeners());
+            document.addEventListener('DOMContentLoaded', () => this.setupCards());
         } else {
-            this.attachListeners();
+            this.setupCards();
         }
+
+        // Observer para tarjetas que se agregan dinámicamente
+        this.observeNewCards();
+    }
+
+    setupCards() {
+        // Pequeño delay para asegurar que las tarjetas ya fueron renderizadas
+        setTimeout(() => {
+            this.attachListeners();
+        }, 500);
+    }
+
+    observeNewCards() {
+        // Observar cambios en el contenedor de tarjetas
+        const observer = new MutationObserver((mutations) => {
+            let hasNewCards = false;
+            mutations.forEach(mutation => {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1 && (node.classList?.contains('card') || node.querySelector?.('.card'))) {
+                        hasNewCards = true;
+                    }
+                });
+            });
+
+            if (hasNewCards) {
+                console.log('[CardSwipe] New cards detected, re-attaching listeners');
+                this.attachListeners();
+            }
+        });
+
+        // Observar el container principal
+        const container = document.querySelector('.cards-container') || document.body;
+        observer.observe(container, {
+            childList: true,
+            subtree: true
+        });
     }
 
     attachListeners() {

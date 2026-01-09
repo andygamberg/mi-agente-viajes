@@ -8,23 +8,19 @@
 (function() {
     'use strict';
 
-    // Solo activar en PWA instalada
+    // Detectar modo PWA (para logging)
     const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
                   window.navigator.standalone === true;
 
-    console.log('[PTR] Checking PWA mode:', {
+    console.log('[PTR] Initializing pull-to-refresh:', {
         matchMedia: window.matchMedia('(display-mode: standalone)').matches,
         navigatorStandalone: window.navigator.standalone,
         isPWA: isPWA,
         userAgent: navigator.userAgent
     });
 
-    if (!isPWA) {
-        console.log('[PTR] Not in PWA mode, pull-to-refresh disabled');
-        return;
-    }
-
-    console.log('[PTR] PWA mode detected, activating pull-to-refresh');
+    // ACTIVAR EN AMBOS MODOS (web y PWA) para que funcione consistentemente
+    console.log('[PTR] Pull-to-refresh activated (works in both web and PWA mode)');
 
     // Deshabilitar pull-to-refresh nativo de Safari en iOS
     // Usar múltiples estrategias para máxima compatibilidad
