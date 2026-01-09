@@ -69,21 +69,59 @@ class CardSwipeHandler {
     }
 
     attachListeners() {
-        const cards = document.querySelectorAll('.card');
-        console.log(`[CardSwipe] Found ${cards.length} cards`);
+        console.log('[CardSwipe] attachListeners called');
+        console.log('[CardSwipe] Current pathname:', window.location.pathname);
 
-        cards.forEach(card => {
+        // Solo aplicar en la página de inicio
+        const isHomePage = window.location.pathname === '/' || window.location.pathname === '/index';
+        if (!isHomePage) {
+            console.log('[CardSwipe] Not on home page, skipping');
+            return;
+        }
+
+        // Solo seleccionar tarjetas de viajes (con id="card-...")
+        const cards = document.querySelectorAll('.card[id^="card-"]');
+        console.log(`[CardSwipe] Found ${cards.length} trip cards with id starting with "card-"`);
+
+        if (cards.length === 0) {
+            // Try fallback selector
+            const allCards = document.querySelectorAll('.card');
+            console.log(`[CardSwipe] Fallback: Found ${allCards.length} total .card elements`);
+            allCards.forEach((card, idx) => {
+                console.log(`[CardSwipe] Card ${idx}: id="${card.id}", classes="${card.className}"`);
+            });
+        }
+
+        cards.forEach((card, idx) => {
+            console.log(`[CardSwipe] Processing card ${idx}: ${card.id}`);
+
+            // Evitar procesar la misma tarjeta múltiples veces
+            if (card.classList.contains('swipe-enabled')) {
+                console.log('[CardSwipe] Card already enabled, skipping:', card.id);
+                return;
+            }
+
             // Crear wrapper para swipe
             if (!card.querySelector('.swipe-wrapper')) {
+                console.log('[CardSwipe] Creating wrapper for:', card.id);
                 this.wrapCard(card);
+            } else {
+                console.log('[CardSwipe] Wrapper already exists for:', card.id);
             }
 
             const wrapper = card.querySelector('.swipe-wrapper');
+            if (!wrapper) {
+                console.error('[CardSwipe] Failed to create wrapper for:', card.id);
+                return;
+            }
 
+            console.log('[CardSwipe] Attaching event listeners to:', card.id);
             wrapper.addEventListener('touchstart', (e) => this.onTouchStart(e, card), { passive: true });
             wrapper.addEventListener('touchmove', (e) => this.onTouchMove(e, card), { passive: false });
             wrapper.addEventListener('touchend', (e) => this.onTouchEnd(e, card), { passive: true });
         });
+
+        console.log('[CardSwipe] attachListeners completed');
     }
 
     wrapCard(card) {
