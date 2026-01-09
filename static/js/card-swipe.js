@@ -346,12 +346,28 @@ class CardSwipeHandler {
     }
 
     editGroup(grupoId) {
-        // Redirigir a la página de edición
-        const firstTrip = document.querySelector(`#card-${grupoId} [data-viaje-id]`);
-        if (firstTrip) {
-            const viajeId = firstTrip.dataset.viajeId;
+        console.log('[CardSwipe] editGroup called with grupoId:', grupoId);
+
+        // Si es un viaje solo (formato: solo_123), extraer el ID directamente
+        if (grupoId.startsWith('solo_')) {
+            const viajeId = grupoId.replace('solo_', '');
+            console.log('[CardSwipe] Single trip detected, viajeId:', viajeId);
             window.location.href = `/editar/${viajeId}`;
+            return;
         }
+
+        // Si es un grupo, buscar el primer link de editar dentro de la card
+        const card = document.getElementById(`card-${grupoId}`);
+        if (card) {
+            const editLink = card.querySelector('a[href^="/editar/"]');
+            if (editLink) {
+                console.log('[CardSwipe] Edit link found:', editLink.href);
+                window.location.href = editLink.href;
+                return;
+            }
+        }
+
+        console.error('[CardSwipe] Could not find edit link for grupo:', grupoId);
     }
 
     groupTrips(grupoId) {
