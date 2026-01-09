@@ -186,7 +186,7 @@
         
         if (isOnline) {
             console.log('[PWA] Back online');
-            if ('serviceWorker' in navigator && 'sync' in window.SyncManager) {
+            if ('serviceWorker' in navigator && window.SyncManager && 'sync' in window.SyncManager) {
                 navigator.serviceWorker.ready.then(registration => {
                     registration.sync.register('sync-viajes');
                 });

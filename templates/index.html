@@ -2636,13 +2636,19 @@
         });
         
         function showBanner() {
-            document.getElementById('emailBanner').classList.remove('hidden');
-            localStorage.removeItem('banner_hidden');
+            const banner = document.getElementById('emailBanner');
+            if (banner) {
+                banner.classList.remove('hidden');
+                localStorage.removeItem('banner_hidden');
+            }
         }
-        
+
         function hideBanner() {
-            document.getElementById('emailBanner').classList.add('hidden');
-            localStorage.setItem('banner_hidden', 'true');
+            const banner = document.getElementById('emailBanner');
+            if (banner) {
+                banner.classList.add('hidden');
+                localStorage.setItem('banner_hidden', 'true');
+            }
         }
         
         function copyEmail(btn) {
@@ -2664,7 +2670,10 @@
         }
         
         if (localStorage.getItem('banner_hidden') !== 'true') {
-            document.getElementById('emailBanner').classList.remove('hidden');
+            const banner = document.getElementById('emailBanner');
+            if (banner) {
+                banner.classList.remove('hidden');
+            }
         }
         
         function toggleCard(event, card) {
