@@ -8,15 +8,25 @@
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
     <meta name="theme-color" content="#0071E3">
 
-    <!-- Eruda Console para debugging en móvil (TEMPORAL - SIEMPRE ACTIVO) -->
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <!-- Eruda Console para debugging en móvil (solo en web, no en PWA) -->
     <script>
-        // Inicializar Eruda inmediatamente
-        if (typeof eruda !== 'undefined') {
-            eruda.init();
-            console.log('[Eruda] Initialized successfully');
+        // Solo cargar Eruda si NO estamos en PWA
+        const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                      window.navigator.standalone === true;
+
+        if (!isPWA) {
+            // Cargar Eruda dinámicamente
+            const erudaScript = document.createElement('script');
+            erudaScript.src = 'https://cdn.jsdelivr.net/npm/eruda';
+            erudaScript.onload = function() {
+                if (typeof eruda !== 'undefined') {
+                    eruda.init();
+                    console.log('[Eruda] Initialized successfully (web mode)');
+                }
+            };
+            document.head.appendChild(erudaScript);
         } else {
-            console.error('[Eruda] Failed to load');
+            console.log('[Eruda] Skipped in PWA mode');
         }
     </script>
     <meta name="apple-mobile-web-app-capable" content="yes">

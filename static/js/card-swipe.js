@@ -16,7 +16,7 @@ class CardSwipeHandler {
         this.currentX = 0;
         this.isDragging = false;
         this.threshold = 60; // pixels para activar acción
-        this.maxSwipe = 160; // máximo desplazamiento (suficiente para 2 botones)
+        this.maxSwipe = 100; // máximo desplazamiento (1 botón izq, 1 botón der)
 
         this.init();
     }
@@ -129,13 +129,6 @@ class CardSwipeHandler {
         const actionsLeft = document.createElement('div');
         actionsLeft.className = 'swipe-actions swipe-actions-left';
         actionsLeft.innerHTML = `
-            <button class="swipe-action swipe-action-edit" data-action="edit">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-                <span>Editar</span>
-            </button>
             <button class="swipe-action swipe-action-group" data-action="group">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -326,9 +319,6 @@ class CardSwipeHandler {
                 case 'delete':
                     this.deleteGroup(grupoId, card);
                     break;
-                case 'edit':
-                    this.editGroup(grupoId);
-                    break;
                 case 'group':
                     this.groupTrips(grupoId);
                     break;
@@ -343,31 +333,6 @@ class CardSwipeHandler {
         } else {
             console.error('[CardSwipe] borrarGrupo function not found');
         }
-    }
-
-    editGroup(grupoId) {
-        console.log('[CardSwipe] editGroup called with grupoId:', grupoId);
-
-        // Si es un viaje solo (formato: solo_123), extraer el ID directamente
-        if (grupoId.startsWith('solo_')) {
-            const viajeId = grupoId.replace('solo_', '');
-            console.log('[CardSwipe] Single trip detected, viajeId:', viajeId);
-            window.location.href = `/editar/${viajeId}`;
-            return;
-        }
-
-        // Si es un grupo, buscar el primer link de editar dentro de la card
-        const card = document.getElementById(`card-${grupoId}`);
-        if (card) {
-            const editLink = card.querySelector('a[href^="/editar/"]');
-            if (editLink) {
-                console.log('[CardSwipe] Edit link found:', editLink.href);
-                window.location.href = editLink.href;
-                return;
-            }
-        }
-
-        console.error('[CardSwipe] Could not find edit link for grupo:', grupoId);
     }
 
     groupTrips(grupoId) {
