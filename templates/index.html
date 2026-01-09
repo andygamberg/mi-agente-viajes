@@ -1735,6 +1735,8 @@
             background: #15803D;
         }
     </style>
+    <!-- Card Swipe Gestures CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/card-swipe.css') }}">
 </head>
 <body>
     <div class="container">
@@ -3139,9 +3141,12 @@
         document.getElementById('offline-banner').style.display = 'none';
     });
     </script>
-    <script src="{{ url_for('static', filename='js/offline-storage.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/firebase-messaging.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/pwa.js') }}"></script>
+    {% set cache_bust = range(1, 1000000) | random %}
+    <script src="{{ url_for('static', filename='js/offline-storage.js') }}?v={{ cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='js/firebase-messaging.js') }}?v={{ cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='js/pwa.js') }}?v={{ cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='js/pull-to-refresh.js') }}?v={{ cache_bust }}"></script>
+    <script src="{{ url_for('static', filename='js/card-swipe.js') }}?v={{ cache_bust }}"></script>
 </body>
 <!-- Deployed automatically by Claude Code - Meta 1 test -->
 </html>
