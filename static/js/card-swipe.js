@@ -117,6 +117,12 @@ class CardSwipeHandler {
             return;
         }
 
+        // No activar si estamos en el top y puede ser pull-to-refresh
+        if (window.scrollY === 0 && e.touches[0].clientY < 100) {
+            console.log('[CardSwipe] Near top, allowing pull-to-refresh');
+            return;
+        }
+
         this.activeCard = card;
         this.startX = e.touches[0].clientX;
         this.startY = e.touches[0].clientY;
