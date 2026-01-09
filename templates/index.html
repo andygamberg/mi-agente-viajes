@@ -3140,6 +3140,40 @@
     window.addEventListener('online', () => {
         document.getElementById('offline-banner').style.display = 'none';
     });
+
+    // Funciones para card-swipe.js
+    window.borrarGrupo = function(grupoId) {
+        if (confirm('¿Eliminar este viaje?')) {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/eliminar-multiples';
+
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'grupos_ids';
+            input.value = grupoId;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    };
+
+    window.mostrarModalAgrupar = function(grupoId) {
+        // Activar modo de agrupación con este grupo pre-seleccionado
+        toggleGroupMode();
+
+        // Pre-seleccionar el grupo
+        var card = document.getElementById('card-' + grupoId);
+        if (card) {
+            card.classList.add('selected');
+            selectedGroup.add(grupoId);
+
+            // Habilitar botón de agrupar
+            document.getElementById('toolbarGroup').classList.add('has-selection');
+            document.getElementById('btnGroup').disabled = false;
+        }
+    };
     </script>
     {% set cache_bust = range(1, 1000000) | random %}
     <script src="{{ url_for('static', filename='js/offline-storage.js') }}?v={{ cache_bust }}"></script>

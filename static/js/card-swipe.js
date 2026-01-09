@@ -16,7 +16,7 @@ class CardSwipeHandler {
         this.currentX = 0;
         this.isDragging = false;
         this.threshold = 60; // pixels para activar acción
-        this.maxSwipe = 120; // máximo desplazamiento
+        this.maxSwipe = 160; // máximo desplazamiento (suficiente para 2 botones)
 
         this.init();
     }
@@ -175,6 +175,19 @@ class CardSwipeHandler {
 
         // Agregar clase para identificar que ya tiene swipe
         card.classList.add('swipe-enabled');
+
+        // Corregir el toggleCard para que funcione con el wrapper
+        const cardHeader = wrapper.querySelector('.card-header');
+        if (cardHeader) {
+            // Remover el onclick existente que usa this.parentElement
+            cardHeader.removeAttribute('onclick');
+            // Añadir nuevo listener que pasa el card correcto
+            cardHeader.addEventListener('click', (e) => {
+                if (typeof window.toggleCard === 'function') {
+                    window.toggleCard(e, card);
+                }
+            });
+        }
 
         // Event listeners para las acciones
         actionsLeft.querySelectorAll('.swipe-action').forEach(btn => {
