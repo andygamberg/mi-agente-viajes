@@ -865,6 +865,7 @@ def migrate_db():
 
             # MVP13: Campos de notificaciones
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_email_master BOOLEAN DEFAULT TRUE"))
+            conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_push_master BOOLEAN DEFAULT TRUE"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_delay BOOLEAN DEFAULT TRUE"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_cancelacion BOOLEAN DEFAULT TRUE"))
             conn.execute(db.text("ALTER TABLE \"user\" ADD COLUMN IF NOT EXISTS notif_gate BOOLEAN DEFAULT TRUE"))
@@ -940,6 +941,7 @@ def migrate_db():
         users_sin_notif = User.query.filter(User.notif_email_master.is_(None)).all()
         for user in users_sin_notif:
             user.notif_email_master = True
+            user.notif_push_master = True
             user.notif_delay = True
             user.notif_cancelacion = True
             user.notif_gate = True
