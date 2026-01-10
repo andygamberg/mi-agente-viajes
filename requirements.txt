@@ -18,3 +18,4 @@ google-auth-oauthlib==1.2.0
 flask-login
 itsdangerous==2.1.2
 google-auth>=2.0.0
+google-cloud-secret-manager==2.18.0

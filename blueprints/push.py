@@ -25,31 +25,48 @@ SCOPES = ['https://www.googleapis.com/auth/firebase.messaging']
 def get_access_token():
     """Obtener access token para FCM API V1 usando Service Account."""
     try:
-        # Intentar cargar desde variable de entorno (JSON string)
+        # Opción 1: Variable de entorno (JSON string directo)
         sa_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT')
-        
+
         if sa_json:
             sa_info = json.loads(sa_json)
             credentials = service_account.Credentials.from_service_account_info(
                 sa_info, scopes=SCOPES
             )
         else:
-            # Fallback: cargar desde archivo
-            sa_file = os.path.join(current_app.root_path, 'firebase-service-account.json')
-            if os.path.exists(sa_file):
-                credentials = service_account.Credentials.from_service_account_file(
-                    sa_file, scopes=SCOPES
+            # Opción 2: Secret Manager (producción)
+            try:
+                from google.cloud import secretmanager
+                client = secretmanager.SecretManagerServiceClient()
+                project_id = os.environ.get('GCP_PROJECT_ID', 'mi-agente-viajes')
+                secret_name = f"projects/{project_id}/secrets/firebase-service-account/versions/latest"
+                response = client.access_secret_version(request={"name": secret_name})
+                sa_json = response.payload.data.decode('UTF-8')
+                sa_info = json.loads(sa_json)
+                credentials = service_account.Credentials.from_service_account_info(
+                    sa_info, scopes=SCOPES
                 )
-            else:
-                current_app.logger.error("Firebase Service Account not configured")
-                return None
-        
+                current_app.logger.info("Loaded Firebase SA from Secret Manager")
+            except Exception as secret_error:
+                # Opción 3: Archivo local (desarrollo)
+                sa_file = os.path.join(current_app.root_path, 'firebase-service-account.json')
+                if os.path.exists(sa_file):
+                    credentials = service_account.Credentials.from_service_account_file(
+                        sa_file, scopes=SCOPES
+                    )
+                    current_app.logger.info("Loaded Firebase SA from local file")
+                else:
+                    current_app.logger.error(f"Firebase Service Account not configured. Secret Manager error: {secret_error}")
+                    return None
+
         # Refrescar token si es necesario
         credentials.refresh(Request())
         return credentials.token
-        
+
     except Exception as e:
         current_app.logger.error(f"Failed to get FCM access token: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 

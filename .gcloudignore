@@ -32,7 +32,7 @@ test_*.txt
 
 # Archivos sensibles (ya estan en secrets)
 gmail-credentials.json
-# firebase-service-account.json  # NECESARIO para push notifications (FCM)
+firebase-service-account.json  # En Secret Manager: firebase-service-account
 deploy.sh
 
 # Otros
