@@ -162,13 +162,13 @@ def send_push_notification(user_id, title, body, data=None, url=None):
         user_id=user_id,
         active=True
     ).all()
-    
+
     if not subscriptions:
-        return {'sent': 0, 'error': 'No active subscriptions'}
-    
+        return {'sent': 0, 'total': 0, 'error': 'No active subscriptions'}
+
     access_token = get_access_token()
     if not access_token:
-        return {'sent': 0, 'error': 'Could not get FCM access token'}
+        return {'sent': 0, 'total': len(subscriptions), 'error': 'Could not get FCM access token'}
     
     notification_data = data or {}
     if url:
