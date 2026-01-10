@@ -1,7 +1,7 @@
 # 📚 APRENDIZAJES - Mi Agente Viajes
 
 **Proyecto:** Mi Agente Viajes
-**Última actualización:** 15 Diciembre 2025
+**Última actualización:** 10 Enero 2026
 
 Este archivo documenta lecciones aprendidas, bugs resueltos y decisiones técnicas importantes.
 
@@ -544,6 +544,230 @@ if len(codigo) > 250:
 | 15 Dic 2025 | Bugs adicionales: int pasajeros, Gmail OAuth, expediciones, codigo_reserva largo |
 | 15 Dic 2025 | Metodología: Debugging multi-capa, Testing con datos reales |
 | 16 Dic 2025 | Sesión 25: Campo source, permisos por tipo, JSONB vs legacy, event delegation |
+| 10 Ene 2026 | Sesión 37-38: Race conditions, touch events, DATABASE_URL, Secret Manager |
+
+---
+
+## 🐛 Sesión 37-38 - Push Notifications + Swipe Gestures (9-10 Ene 2026)
+
+### Race condition en Pub/Sub Gmail
+
+**Problema:** Emails procesados múltiples veces simultáneamente causando duplicados
+
+**Causa:** Email marcado como procesado DESPUÉS de llamar a Claude API (30 seg), permitiendo requests paralelos
+
+**Solución:** Marcar email como procesado ANTES de procesar, usar IntegrityError como lock optimista
+
+```python
+# Marcar como procesado INMEDIATAMENTE (antes de procesar)
+email_obj.procesado = True
+email_obj.fecha_procesado = datetime.now(timezone.utc)
+db.session.commit()
+
+try:
+    # Procesar con Claude (puede tardar 30 seg)
+    procesar_con_claude(email_obj)
+except IntegrityError:
+    # Otro worker ya lo procesó
+    db.session.rollback()
+    return
+```
+
+**Archivo:** `blueprints/gmail_webhook.py:236-263`
+**Sesión:** 37
+**Aplicable a:** Cualquier procesamiento asíncrono con Pub/Sub
+
+---
+
+### index.html no extiende base.html
+
+**Problema:** Scripts en base.html no se cargan en index.html
+
+**Causa:** index.html es standalone, no usa `{% extends "base.html" %}`
+
+**Solución:** Agregar scripts manualmente en index.html con cache_bust
+
+```html
+<script src="{{ url_for('static', filename='js/card-swipe.js') }}?v={{ cache_bust }}"></script>
+```
+
+**Sesión:** 37
+**Aplicable a:** Cualquier template standalone
+
+---
+
+### Touch events interfieren con click
+
+**Problema:** Wrapper de swipe bloqueaba expand/collapse de cards
+
+**Causa:** `this.parentElement` apuntaba a wrapper, no a card original
+
+**Solución:** Re-attachear event listener pasando referencia correcta a card
+
+```javascript
+// Después de crear wrapper
+const header = card.querySelector('.card-header');
+const newHeader = wrapper.querySelector('.card-header');
+
+// Re-attach click handler con referencia correcta a card
+newHeader.addEventListener('click', function(e) {
+    if (!e.target.closest('.kebab-menu') && !e.target.closest('.type-icons')) {
+        card.classList.toggle('collapsed');  // Usar card original, no wrapper
+    }
+});
+```
+
+**Archivo:** `static/js/card-swipe.js:179-190`
+**Sesión:** 37
+**Aplicable a:** Cualquier implementación de touch gestures
+
+---
+
+### DATABASE_URL se pierde en deploy
+
+**Problema:** Deploy a Cloud Run pierde DATABASE_URL, app cae a SQLite
+
+**Causa:** `gcloud deploy` con `--env-vars-file` SOBRESCRIBE todas las env vars si no se especifican explícitamente
+
+**Solución:** Siempre incluir `--set-env-vars` con TODAS las variables críticas
+
+```bash
+# ❌ MALO - pierde DATABASE_URL
+gcloud run deploy --env-vars-file=env.yaml
+
+# ✅ BUENO - especifica todas las vars
+gcloud run deploy \
+  --set-env-vars="DATABASE_URL=postgresql://...,SECRET_KEY=...,GCP_PROJECT_ID=...,..." \
+  --set-secrets="GMAIL_CREDENTIALS=gmail-credentials:latest"
+```
+
+**Error típico:**
+```
+sqlalchemy.exc.CompileError: Compiler <SQLiteTypeCompiler> can't render element of type JSONB
+```
+
+**Verificación:** Revisar env vars de la revisión desplegada
+```bash
+gcloud run revisions describe <revision-name> --format="get(spec.template.spec.containers[0].env)"
+```
+
+**Sesión:** 38
+**Aplicable a:** Cualquier deploy a Cloud Run con env vars
+
+---
+
+### Firebase Service Account en Secret Manager
+
+**Problema:** Credenciales Firebase hardcodeadas en código o env var gigante (JSON complejo)
+
+**Causa:** JSON de Service Account es muy largo para env var (>1000 chars)
+
+**Solución:** Usar Secret Manager + 3-tier loading (env → secret → file)
+
+```python
+def get_access_token():
+    """3-tier credential loading"""
+    # Tier 1: Variable de entorno (JSON string)
+    sa_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT')
+
+    if sa_json:
+        sa_info = json.loads(sa_json)
+        credentials = service_account.Credentials.from_service_account_info(
+            sa_info, scopes=SCOPES
+        )
+    else:
+        # Tier 2: Secret Manager (producción)
+        try:
+            from google.cloud import secretmanager
+            client = secretmanager.SecretManagerServiceClient()
+            project_id = os.environ.get('GCP_PROJECT_ID', 'mi-agente-viajes')
+            secret_name = f"projects/{project_id}/secrets/firebase-service-account/versions/latest"
+            response = client.access_secret_version(request={"name": secret_name})
+            sa_json = response.payload.data.decode('UTF-8')
+            sa_info = json.loads(sa_json)
+            credentials = service_account.Credentials.from_service_account_info(
+                sa_info, scopes=SCOPES
+            )
+        except Exception as secret_error:
+            # Tier 3: Archivo local (desarrollo)
+            sa_file = os.path.join(current_app.root_path, 'firebase-service-account.json')
+            if os.path.exists(sa_file):
+                credentials = service_account.Credentials.from_service_account_file(
+                    sa_file, scopes=SCOPES
+                )
+            else:
+                return None
+
+    credentials.refresh(Request())
+    return credentials.token
+```
+
+**Setup Secret Manager:**
+```bash
+# Crear secret
+gcloud secrets create firebase-service-account \
+  --data-file=firebase-service-account.json
+
+# Grant access a Cloud Run service account
+gcloud secrets add-iam-policy-binding firebase-service-account \
+  --member="serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+```
+
+**Archivo:** `blueprints/push.py:25-70`
+**Sesión:** 38
+**Aplicable a:** Cualquier integración con Firebase/Google APIs
+
+---
+
+### Arquitectura de Notificaciones Independientes
+
+**Decisión:** Email y Push como canales completamente independientes
+
+**Antes (Acoplado):**
+```
+notif_email_master = ON → Email Y Push funcionan
+notif_email_master = OFF → NADA funciona
+```
+
+**Ahora (Independiente):**
+```
+Canales Maestros (independientes):
+├── notif_email_master → controla EMAIL
+└── notif_push_master  → controla PUSH
+
+Tipos de Alerta (aplican a AMBOS canales):
+├── notif_delay         → delays/adelantos
+├── notif_cancelacion   → cancelaciones
+├── notif_gate          → cambios de puerta
+└── notif_nueva_reserva → nuevas reservas
+```
+
+**Implementación:**
+```python
+# Verificar preferencias por tipo de cambio (aplican a ambos canales)
+if tipo == 'delay' and not user.notif_delay:
+    continue
+
+# CANAL 1: Enviar EMAIL (si el usuario tiene emails activados)
+if user.notif_email_master:
+    send_email(user.email, subject, body_html)
+    emails_enviados += 1
+
+# CANAL 2: Enviar PUSH (si el usuario tiene push activado)
+if user.notif_push_master:
+    push_result = send_push_notification(
+        user_id=user.id,
+        title=titulo,
+        body=mensaje,
+        data={'type': tipo, ...}
+    )
+    push_enviados += push_result.get('sent', 0)
+```
+
+**Archivos:** `blueprints/api.py:277-368`, `blueprints/viajes.py:1351-1360`
+**Sesión:** 38
+**Aplicable a:** Cualquier sistema de notificaciones multi-canal
 
 ---
 

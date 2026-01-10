@@ -1,7 +1,38 @@
 # 🎨 UX/UI ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 23 Diciembre 2025
-**Versión:** 2.7 (MOBILE-TYPOGRAPHY v4)
+**Última actualización:** 10 Enero 2026
+**Versión:** 2.9 (SWIPE-GESTURES + PUSH-INDEPENDIENTE)
+
+---
+
+## 📱 Sesión 37-38: Gestures + Push (9-10 Ene 2026)
+
+### Swipe Gestures en Cards ✅
+- [x] Swipe derecha (verde) → Agrupar viaje
+- [x] Swipe izquierda (rojo) → Borrar viaje
+- [x] Threshold: 100px horizontal, velocidad > 0.3
+- [x] Cancelación si swipe vertical > 50px
+- [x] Compatible con expand/collapse de cards
+- [x] Visual feedback con color overlay (verde/rojo)
+
+### Pull-to-Refresh ✅
+- [x] Activo en web y PWA
+- [x] Threshold 80px (estándar iOS)
+- [x] Loading spinner durante refresh
+- [x] Funciona en ambos contextos (standalone/browser)
+
+### Push Notifications Independientes ✅
+- [x] Canales email/push completamente separados
+- [x] Toggles independientes en Preferencias
+- [x] Usuario puede recibir push sin email (y viceversa)
+- [x] Firebase Service Account via Secret Manager
+- [x] Admin testing endpoint con bash script
+
+### UX Improvements ✅
+- [x] Banner pasajeros faltantes (solo fuentes automáticas)
+- [x] Eruda console solo en web browser (no PWA)
+- [x] Fix touch events vs click handlers
+- [x] Fix race condition en Gmail processing
 
 ---
 

@@ -1,6 +1,6 @@
 # 🗺️ ROADMAP - Mi Agente Viajes
 
-**Última actualización:** 2 Enero 2026
+**Última actualización:** 10 Enero 2026
 
 ## 📊 Visión del Producto
 
@@ -46,6 +46,86 @@
 | **27** | **Unificación Preferencias + Merge reservas** | **21 Dic 2025** | **Perfil→Preferencias, merge asientos/actualizaciones, Outlook Calendar** |
 | **28** | **DEMO-TRIP + Onboarding UX** | **22 Dic 2025** | **Viaje ejemplo, tips calendario/agrupar, empty state contextual, REDIRECT-SMART** |
 | **17** | **PWA + Push Notifications** | **28 Dic 2025** | **Firebase FCM, alertas FR24, notif reservas** |
+| MVP-SHARE | Compartir viajes públicamente | 2 Ene 2026 | Link único, vista sin login, viajes completos e individuales |
+| 18 | Pull-to-refresh PWA | 9 Ene 2026 | iOS/Android, threshold 80px, funciona en web y PWA |
+| 19 | Swipe gestures en cards | 9 Ene 2026 | Derecha=Agrupar, Izquierda=Borrar, touch optimizado |
+| 20 | Push notifications independientes | 10 Ene 2026 | Canales email/push separados, Firebase FCM, Secret Manager |
+
+### ✅ Completado - Sesión 38 (10 Ene 2026)
+
+#### PUSH NOTIFICATIONS INDEPENDIENTES ✅
+- Canales email/push completamente independientes
+- Usuario puede recibir push sin email activado (y viceversa)
+- Nuevo campo: `notif_push_master` toggle separado de `notif_email_master`
+- Tipos de notificaciones aplican a AMBOS canales
+- Arquitectura: tipo (delay, gate, etc.) → canal master (email/push) → envío
+
+#### FIREBASE SERVICE ACCOUNT via SECRET MANAGER ✅
+- Credenciales Firebase en Google Cloud Secret Manager
+- 3-tier loading: env var → Secret Manager → local file
+- Permisos IAM para Cloud Run service account
+- Automatic fallback entre métodos de carga
+
+#### TESTING INFRASTRUCTURE ✅
+- Admin endpoint: `/api/push/admin/test/<user_id>`
+- Script bash: `test_push_admin.sh` para testing rápido
+- Soporte para testing múltiple: simple, flight change, check-in
+- 6 notificaciones de prueba enviadas exitosamente
+
+#### BUG FIXES ✅
+- Fix: Notification preferences saving always (not conditional on master toggle)
+- Fix: Push toggle HTML binding (added name attribute)
+- Fix: DATABASE_URL lost during deploy (use `--set-env-vars` with all vars)
+- Fix: KeyError 'total' in admin endpoint responses
+
+### ✅ Completado - Sesión 37 (9 Ene 2026)
+
+#### SWIPE GESTURES EN CARDS ✅
+- Swipe right (verde) → Agrupar viaje
+- Swipe left (rojo) → Borrar viaje
+- Touch optimizado: threshold, velocidad, cancelación
+- Soporte para viajes standalone y agrupados
+- Compatible con expand/collapse de cards
+
+#### PULL-TO-REFRESH MEJORADO ✅
+- Funciona tanto en PWA como en web browser
+- Threshold ajustado a 80px (Apple iOS estándar)
+- Loading spinner durante refresh
+- Actualización completa de página post-refresh
+
+#### BANNER PASAJEROS FALTANTES ✅
+- Detecta cuando vuelo no tiene pasajeros asignados
+- Solo muestra para vuelos de fuentes automáticas (no manual)
+- Link directo a edición de vuelo
+- Diseño contextual (banner warning)
+
+#### FIXES ✅
+- Gmail processing race condition (optimistic locking)
+- Eruda debug console solo en web browser (no en PWA)
+- Touch events no interfieren con click en cards
+- index.html scripts con cache_bust (no extiende base.html)
+
+### ✅ Completado - Sesión 36 (8 Ene 2026)
+
+#### PULL-TO-REFRESH PWA ✅
+- Pull-to-refresh nativo para PWA iOS/Android
+- Threshold de 80px, animación suave
+- Refresh completo de viajes
+- Compatible con Service Worker
+
+#### BUG FIXES ✅
+- Gmail processing duplicate emails (race condition)
+- Pub/Sub parallel requests causing duplicates
+- Missing passengers detection with intelligent banner
+
+### ✅ Completado - Sesión 33 (2 Ene 2026)
+
+#### MVP-SHARE: COMPARTIR VIAJES ✅
+- Link público para compartir viajes completos
+- Vista sin login: cualquiera con link puede ver
+- Soporte para viajes individuales (`solo_X`)
+- Modal con copy-to-clipboard
+- Seguridad: tokens únicos por usuario/viaje
 
 ### ✅ Completado - Sesión 32 (27-28 Dic 2025)
 
