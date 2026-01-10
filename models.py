@@ -29,8 +29,9 @@ class User(UserMixin, db.Model):
     formato_hora = db.Column(db.String(4), nullable=True)  # null=auto, '24h', '12h'
 
     # MVP13: Preferencias de notificaciones
-    notif_email_master = db.Column(db.Boolean, default=True)
-    notif_delay = db.Column(db.Boolean, default=True)
+    notif_email_master = db.Column(db.Boolean, default=True)  # Toggle master para emails
+    notif_push_master = db.Column(db.Boolean, default=True)   # Toggle master para push
+    notif_delay = db.Column(db.Boolean, default=True)         # Tipos de alerta (aplican a ambos canales)
     notif_cancelacion = db.Column(db.Boolean, default=True)
     notif_gate = db.Column(db.Boolean, default=True)
     notif_nueva_reserva = db.Column(db.Boolean, default=True)

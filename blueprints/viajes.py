@@ -1348,10 +1348,11 @@ def perfil_redirect():
 @viajes_bp.route('/update-preferences', methods=['POST'])
 @login_required
 def update_preferences():
-    # Toggle maestro de notificaciones
+    # Toggles maestros de canales de notificación (independientes entre sí)
     current_user.notif_email_master = request.form.get('notif_email_master') == 'on'
+    current_user.notif_push_master = request.form.get('notif_push_master') == 'on'
 
-    # Sub-preferencias (siempre guardar, independientemente del master toggle)
+    # Tipos de alertas (aplican a AMBOS canales: email Y push)
     # Los checkboxes unchecked no se envían en el form, así que usamos 'on' como valor checked
     current_user.notif_delay = request.form.get('notif_delay') == 'on'
     current_user.notif_cancelacion = request.form.get('notif_cancelacion') == 'on'
