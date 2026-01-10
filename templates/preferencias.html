@@ -578,7 +578,9 @@
             <div class="preference-description">Alertas en tu dispositivo</div>
         </div>
         <label class="toggle-switch">
-            <input type="checkbox" id="push-toggle" onchange="togglePushNotifications(this)">
+            <input type="checkbox" id="push-toggle" name="notif_push_master"
+                   {% if current_user.notif_push_master %}checked{% endif %}
+                   onchange="togglePushNotifications(this)">
             <span class="toggle-slider"></span>
         </label>
     </div>

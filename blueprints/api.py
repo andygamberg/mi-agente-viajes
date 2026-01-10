@@ -270,7 +270,11 @@ def cron_check_flights():
                 continue
 
             user = User.query.get(viaje.user_id)
-            if not user or not user.notif_email_master:
+            if not user:
+                continue
+
+            # Verificar toggle maestro de emails (push tiene su propio toggle)
+            if not user.notif_email_master:
                 continue
 
             # Verificar preferencias por tipo de cambio
@@ -498,7 +502,11 @@ def checkin_reminders_cron():
         enviados = 0
         for vuelo in vuelos_24h:
             user = User.query.get(vuelo.user_id)
-            if not user or not user.notif_email_master:
+            if not user:
+                continue
+
+            # Verificar toggle maestro de emails (push tiene su propio toggle)
+            if not user.notif_email_master:
                 continue
 
             # Evitar enviar duplicados (verificar si ya se envió)
