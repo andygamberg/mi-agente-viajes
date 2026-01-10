@@ -360,3 +360,101 @@ def test_notification():
         return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@push_bp.route('/admin/test/<int:user_id>', methods=['POST'])
+def admin_test_notification(user_id):
+    """
+    Enviar notificaciones de prueba a un usuario (admin only).
+
+    Headers requeridos:
+        X-Admin-Key: clave secreta de admin
+
+    Query params opcionales:
+        ?all=true  # Enviar las 3 notificaciones de prueba
+    """
+    # Verificar autenticación admin
+    expected = os.environ.get('ADMIN_SECRET_KEY', 'dev-secret-123')
+    if request.headers.get('X-Admin-Key') != expected:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    from models import User, PushSubscription
+
+    try:
+        # Verificar usuario
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': f'User {user_id} not found'}), 404
+
+        # Verificar suscripciones
+        subscriptions = PushSubscription.query.filter_by(
+            user_id=user_id,
+            active=True
+        ).all()
+
+        if not subscriptions:
+            return jsonify({
+                'error': f'User {user_id} has no active push subscriptions',
+                'user_email': user.email,
+                'notif_push_master': user.notif_push_master
+            }), 404
+
+        results = []
+        send_all = request.args.get('all') == 'true'
+
+        # Test 1: Notificación simple
+        result1 = send_push_notification(
+            user_id=user_id,
+            title="🧪 Test de Push Notifications",
+            body="¡Funciona! Las notificaciones push están configuradas correctamente.",
+            url="/"
+        )
+        results.append({'type': 'simple', 'result': result1})
+
+        if send_all:
+            # Test 2: Cambio de vuelo
+            result2 = send_flight_change_notification(
+                user_id=user_id,
+                flight_info={
+                    'numero': 'AR1234',
+                    'nueva_hora': '15:30',
+                    'nueva_puerta': 'B12',
+                    'mensaje': 'Tu vuelo tiene un retraso de 45 minutos',
+                    'url': '/'
+                },
+                change_type='delay'
+            )
+            results.append({'type': 'flight_change', 'result': result2})
+
+            # Test 3: Check-in reminder
+            result3 = send_push_notification(
+                user_id=user_id,
+                title="⏰ Check-in abierto: AA 1001",
+                body="Tu vuelo a Miami sale mañana a las 18:45",
+                data={
+                    'type': 'checkin_reminder',
+                    'flight': 'AA1001',
+                    'tag': 'checkin-test'
+                },
+                url='/'
+            )
+            results.append({'type': 'checkin_reminder', 'result': result3})
+
+        total_sent = sum(r['result']['sent'] for r in results)
+        total_attempts = sum(r['result']['total'] for r in results)
+
+        return jsonify({
+            'success': True,
+            'user_id': user_id,
+            'user_email': user.email,
+            'subscriptions': len(subscriptions),
+            'notifications_sent': len(results),
+            'total_sent': total_sent,
+            'total_attempts': total_attempts,
+            'results': results
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
