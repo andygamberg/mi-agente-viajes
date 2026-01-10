@@ -259,6 +259,7 @@ def cron_check_flights():
         cambios = check_all_upcoming_flights(db.session)
 
         emails_enviados = 0
+        push_enviados = 0
 
         for item in cambios:
             viaje_id = item.get('vuelo_id')
@@ -273,11 +274,7 @@ def cron_check_flights():
             if not user:
                 continue
 
-            # Verificar toggle maestro de emails (push tiene su propio toggle)
-            if not user.notif_email_master:
-                continue
-
-            # Verificar preferencias por tipo de cambio
+            # Verificar preferencias por tipo de cambio (aplican a ambos canales)
             for cambio in item.get('cambios', []):
                 tipo = cambio.get('tipo')
 
@@ -289,7 +286,7 @@ def cron_check_flights():
                 if tipo == 'gate' and not user.notif_gate:
                     continue
 
-                # Preparar email según tipo
+                # Preparar datos de notificación (comunes para email y push)
                 numero_vuelo = item.get('numero_vuelo', '')
                 ruta = item.get('ruta', '')
                 fecha = item.get('fecha_salida')
@@ -321,57 +318,61 @@ def cron_check_flights():
                     mensaje = f'{tipo}: {cambio.get("valor_anterior", "")} → {cambio.get("valor_nuevo", "")}'
                     color = '#6b7280'  # gris
 
-                subject = f'{emoji} {titulo}'
+                # CANAL 1: Enviar EMAIL (si el usuario tiene emails activados)
+                if user.notif_email_master:
+                    subject = f'{emoji} {titulo}'
+                    body_html = f'''
+                    <html>
+                    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background: #f5f5f7;">
+                        <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px; border-left: 4px solid {color};">
+                            <h1 style="color: #1d1d1f; font-size: 24px; margin: 0 0 8px 0;">{emoji} {titulo}</h1>
+                            <p style="color: #6e6e73; font-size: 14px; margin: 0 0 24px 0;">{ruta} - {fecha_str}</p>
 
-                body_html = f'''
-                <html>
-                <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background: #f5f5f7;">
-                    <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px; border-left: 4px solid {color};">
-                        <h1 style="color: #1d1d1f; font-size: 24px; margin: 0 0 8px 0;">{emoji} {titulo}</h1>
-                        <p style="color: #6e6e73; font-size: 14px; margin: 0 0 24px 0;">{ruta} - {fecha_str}</p>
+                            <div style="background: #f5f5f7; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                                <p style="color: #1d1d1f; font-size: 16px; margin: 0;">{mensaje}</p>
+                            </div>
 
-                        <div style="background: #f5f5f7; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-                            <p style="color: #1d1d1f; font-size: 16px; margin: 0;">{mensaje}</p>
+                            <p style="color: #6e6e73; font-size: 14px; margin: 0;">
+                                Información obtenida de FlightRadar24. Verificá con tu aerolínea para confirmar.
+                            </p>
                         </div>
-
-                        <p style="color: #6e6e73; font-size: 14px; margin: 0;">
-                            Información obtenida de FlightRadar24. Verificá con tu aerolínea para confirmar.
+                        <p style="text-align: center; color: #6e6e73; font-size: 12px; margin-top: 16px;">
+                            Mis Viajes - Tu asistente de viajes personal
                         </p>
-                    </div>
-                    <p style="text-align: center; color: #6e6e73; font-size: 12px; margin-top: 16px;">
-                        Mis Viajes - Tu asistente de viajes personal
-                    </p>
-                </body>
-                </html>
-                '''
+                    </body>
+                    </html>
+                    '''
+                    send_email(user.email, subject, body_html)
+                    emails_enviados += 1
+                    print(f'📧 Email enviado a {user.email}: {titulo}')
 
-                send_email(user.email, subject, body_html)
-                emails_enviados += 1
-                print(f'📧 Notificación enviada a {user.email}: {titulo}')
-
-                # Enviar push notification si el usuario tiene suscripción activa
-                try:
-                    push_result = send_flight_change_notification(
-                        user_id=user.id,
-                        flight_info={
-                            'numero': numero_vuelo,
-                            'nueva_hora': cambio.get('valor_nuevo', ''),
-                            'nueva_puerta': cambio.get('valor_nuevo', ''),
-                            'mensaje': mensaje,
-                            'url': '/'
-                        },
-                        change_type=tipo
-                    )
-                    if push_result.get('sent', 0) > 0:
-                        print(f'🔔 Push enviado a user {user.id}: {titulo}')
-                except Exception as e:
-                    print(f'⚠️ Error enviando push: {e}')
+                # CANAL 2: Enviar PUSH (si el usuario tiene push activado)
+                if user.notif_push_master:
+                    try:
+                        from blueprints.push import send_flight_change_notification
+                        push_result = send_flight_change_notification(
+                            user_id=user.id,
+                            flight_info={
+                                'numero': numero_vuelo,
+                                'nueva_hora': cambio.get('valor_nuevo', ''),
+                                'nueva_puerta': cambio.get('valor_nuevo', ''),
+                                'mensaje': mensaje,
+                                'url': '/'
+                            },
+                            change_type=tipo
+                        )
+                        if push_result.get('sent', 0) > 0:
+                            push_enviados += push_result.get('sent', 0)
+                            print(f'🔔 Push enviado a user {user.id}: {titulo} ({push_result.get("sent")} dispositivos)')
+                    except Exception as e:
+                        print(f'⚠️ Error enviando push a user {user.id}: {e}')
 
         return {
             'success': True,
             'timestamp': datetime.now().isoformat(),
             'cambios_detectados': len(cambios),
             'emails_enviados': emails_enviados,
+            'push_enviados': push_enviados,
             'gmail_watches_renewed': watch_result['renewed'],
             'oauth_warnings_sent': oauth_result['warnings_sent']
         }, 200
@@ -499,14 +500,12 @@ def checkin_reminders_cron():
             except:
                 continue
 
-        enviados = 0
+        emails_enviados = 0
+        push_enviados = 0
+
         for vuelo in vuelos_24h:
             user = User.query.get(vuelo.user_id)
             if not user:
-                continue
-
-            # Verificar toggle maestro de emails (push tiene su propio toggle)
-            if not user.notif_email_master:
                 continue
 
             # Evitar enviar duplicados (verificar si ya se envió)
@@ -521,45 +520,73 @@ def checkin_reminders_cron():
             hora_salida = vuelo.hora_salida or ''
             codigo = datos.get('codigo_reserva') or vuelo.codigo_reserva or ''
 
-            subject = f'⏰ Check-in abierto: {aerolinea} {numero_vuelo} mañana'
+            # CANAL 1: Enviar EMAIL (si el usuario tiene emails activados)
+            if user.notif_email_master:
+                subject = f'⏰ Check-in abierto: {aerolinea} {numero_vuelo} mañana'
 
-            body_html = f'''
-            <html>
-            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background: #f5f5f7;">
-                <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px;">
-                    <h1 style="color: #1d1d1f; font-size: 24px; margin: 0 0 8px 0;">✈️ Recordatorio de Check-in</h1>
-                    <p style="color: #6e6e73; font-size: 14px; margin: 0 0 24px 0;">Tu vuelo sale en aproximadamente 24 horas</p>
+                body_html = f'''
+                <html>
+                <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; background: #f5f5f7;">
+                    <div style="max-width: 500px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px;">
+                        <h1 style="color: #1d1d1f; font-size: 24px; margin: 0 0 8px 0;">✈️ Recordatorio de Check-in</h1>
+                        <p style="color: #6e6e73; font-size: 14px; margin: 0 0 24px 0;">Tu vuelo sale en aproximadamente 24 horas</p>
 
-                    <div style="background: #f5f5f7; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
-                        <div style="font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px;">
-                            {aerolinea} {numero_vuelo}
+                        <div style="background: #f5f5f7; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                            <div style="font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px;">
+                                {aerolinea} {numero_vuelo}
+                            </div>
+                            <div style="font-size: 16px; color: #1d1d1f; margin-bottom: 12px;">
+                                {origen} → {destino}
+                            </div>
+                            <div style="font-size: 14px; color: #6e6e73;">
+                                Salida: {vuelo.fecha_salida.strftime('%d %b %Y')} a las {hora_salida}
+                            </div>
+                            {f'<div style="font-size: 14px; color: #6e6e73; margin-top: 4px;">Código: {codigo}</div>' if codigo else ''}
                         </div>
-                        <div style="font-size: 16px; color: #1d1d1f; margin-bottom: 12px;">
-                            {origen} → {destino}
-                        </div>
-                        <div style="font-size: 14px; color: #6e6e73;">
-                            Salida: {vuelo.fecha_salida.strftime('%d %b %Y')} a las {hora_salida}
-                        </div>
-                        {f'<div style="font-size: 14px; color: #6e6e73; margin-top: 4px;">Código: {codigo}</div>' if codigo else ''}
+
+                        <p style="color: #1d1d1f; font-size: 14px; line-height: 1.5; margin: 0;">
+                            La mayoría de aerolíneas permiten hacer check-in online 24 horas antes del vuelo.
+                            Visitá el sitio web de <strong>{aerolinea}</strong> para hacer tu check-in.
+                        </p>
                     </div>
-
-                    <p style="color: #1d1d1f; font-size: 14px; line-height: 1.5; margin: 0;">
-                        La mayoría de aerolíneas permiten hacer check-in online 24 horas antes del vuelo.
-                        Visitá el sitio web de <strong>{aerolinea}</strong> para hacer tu check-in.
+                    <p style="text-align: center; color: #6e6e73; font-size: 12px; margin-top: 16px;">
+                        Mis Viajes - Tu asistente de viajes personal
                     </p>
-                </div>
-                <p style="text-align: center; color: #6e6e73; font-size: 12px; margin-top: 16px;">
-                    Mis Viajes - Tu asistente de viajes personal
-                </p>
-            </body>
-            </html>
-            '''
+                </body>
+                </html>
+                '''
 
-            send_email(user.email, subject, body_html)
-            enviados += 1
-            print(f'📧 Check-in reminder enviado a {user.email} para {aerolinea} {numero_vuelo}')
+                send_email(user.email, subject, body_html)
+                emails_enviados += 1
+                print(f'📧 Check-in reminder enviado a {user.email} para {aerolinea} {numero_vuelo}')
 
-        return {'success': True, 'enviados': enviados, 'vuelos_encontrados': len(vuelos_24h)}, 200
+            # CANAL 2: Enviar PUSH (si el usuario tiene push activado)
+            if user.notif_push_master:
+                try:
+                    from blueprints.push import send_push_notification
+                    push_result = send_push_notification(
+                        user_id=user.id,
+                        title=f'⏰ Check-in abierto: {aerolinea} {numero_vuelo}',
+                        body=f'Tu vuelo a {destino} sale mañana a las {hora_salida}',
+                        data={
+                            'type': 'checkin_reminder',
+                            'flight': numero_vuelo,
+                            'tag': f'checkin-{vuelo.id}'
+                        },
+                        url='/'
+                    )
+                    if push_result.get('sent', 0) > 0:
+                        push_enviados += push_result.get('sent', 0)
+                        print(f'🔔 Check-in push enviado a user {user.id} ({push_result.get("sent")} dispositivos)')
+                except Exception as e:
+                    print(f'⚠️ Error enviando check-in push a user {user.id}: {e}')
+
+        return {
+            'success': True,
+            'emails_enviados': emails_enviados,
+            'push_enviados': push_enviados,
+            'vuelos_encontrados': len(vuelos_24h)
+        }, 200
 
     except Exception as e:
         import traceback
