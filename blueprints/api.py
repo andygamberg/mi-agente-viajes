@@ -788,6 +788,106 @@ def delete_vuelo(vuelo_id):
     return jsonify({'success': True, 'deleted': info})
 
 
+@api_bp.route('/api/debug/oauth-status', methods=['GET'])
+def debug_oauth_status():
+    """
+    Diagnóstico del estado de todas las conexiones OAuth.
+    Muestra: usuario, email, proveedor, estado, última actividad, errores.
+    """
+    if not verificar_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    from models import EmailConnection, User
+    from datetime import datetime, timedelta
+
+    connections = EmailConnection.query.order_by(EmailConnection.user_id).all()
+
+    results = []
+    now = datetime.utcnow()
+
+    for conn in connections:
+        user = User.query.get(conn.user_id)
+
+        # Calcular estado
+        status = 'active' if conn.is_active else 'inactive'
+
+        # Verificar expiración de watch (solo Gmail)
+        watch_status = None
+        if conn.provider == 'gmail' and conn.watch_expiration:
+            if conn.watch_expiration < now:
+                watch_status = 'EXPIRED'
+                status = 'watch_expired'
+            elif conn.watch_expiration < now + timedelta(hours=24):
+                watch_status = 'expiring_soon'
+            else:
+                watch_status = 'valid'
+
+        # Verificar token_expiry (Microsoft principalmente)
+        token_status = None
+        if conn.token_expiry:
+            if conn.token_expiry < now:
+                token_status = 'EXPIRED'
+                if conn.provider == 'microsoft':
+                    status = 'token_expired'
+            elif conn.token_expiry < now + timedelta(days=7):
+                token_status = 'expiring_soon'
+            else:
+                token_status = 'valid'
+
+        results.append({
+            'user_id': conn.user_id,
+            'user_name': user.nombre if user else 'N/A',
+            'user_email': user.email if user else 'N/A',
+            'connection_email': conn.email,
+            'provider': conn.provider,
+            'status': status,
+            'is_active': conn.is_active,
+            'history_id': conn.history_id,
+            'watch_expiration': str(conn.watch_expiration) if conn.watch_expiration else None,
+            'watch_status': watch_status,
+            'token_expiry': str(conn.token_expiry) if conn.token_expiry else None,
+            'token_status': token_status,
+            'last_scan': str(conn.last_scan) if conn.last_scan else None,
+            'last_error': conn.last_error,
+            'emails_processed': conn.emails_processed,
+            'connected_at': str(conn.connected_at) if conn.connected_at else None,
+        })
+
+    # Agrupar por usuario para más claridad
+    by_user = {}
+    for r in results:
+        uid = r['user_id']
+        if uid not in by_user:
+            by_user[uid] = {
+                'user_id': uid,
+                'user_name': r['user_name'],
+                'user_email': r['user_email'],
+                'connections': []
+            }
+        by_user[uid]['connections'].append({
+            k: v for k, v in r.items()
+            if k not in ['user_id', 'user_name', 'user_email']
+        })
+
+    # Estadísticas
+    stats = {
+        'total_connections': len(connections),
+        'active': sum(1 for c in connections if c.is_active),
+        'inactive': sum(1 for c in connections if not c.is_active),
+        'gmail': sum(1 for c in connections if c.provider == 'gmail'),
+        'microsoft': sum(1 for c in connections if c.provider == 'microsoft'),
+        'watch_expired': sum(1 for r in results if r['watch_status'] == 'EXPIRED'),
+        'token_expired': sum(1 for r in results if r['token_status'] == 'EXPIRED'),
+    }
+
+    return jsonify({
+        'timestamp': str(now),
+        'stats': stats,
+        'by_user': list(by_user.values()),
+        'all_connections': results
+    })
+
+
 # ============================================
 # MIGRACIÓN Y ADMINISTRACIÓN
 # ============================================
