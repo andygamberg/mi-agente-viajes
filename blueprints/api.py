@@ -888,6 +888,26 @@ def debug_oauth_status():
     })
 
 
+@api_bp.route('/api/debug/renew-watches', methods=['POST'])
+def renew_watches():
+    """
+    Admin endpoint para renovar Gmail watches faltantes o expirados.
+    Esto repara conexiones que nunca configuraron el watch correctamente.
+    """
+    if not verificar_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    from blueprints.gmail_webhook import renew_expired_watches
+    result = renew_expired_watches()
+
+    return jsonify({
+        'message': 'Gmail watches renovation completed',
+        'total_needing_renewal': result['total'],
+        'renewed_successfully': result['renewed'],
+        'errors': result['errors']
+    })
+
+
 # ============================================
 # MIGRACIÓN Y ADMINISTRACIÓN
 # ============================================
